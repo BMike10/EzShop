@@ -89,7 +89,14 @@ EZShop is a software application to:
 
 \<stories will be formalized later as scenarios in use cases>
 
-
+The following personas and stories represent possible actors profiles.
+<br>
+<br>
+Matteo is 40, works, owns and manages a small food shop. He has to check the inventory every day and place orders to his suppliers for goods for his shop. He is always in hurry so he wants to spend less time as possible in doing managing stuff and concentrate more on his customers.
+<br>
+<br>
+Laura is 60, she has always worked in the shop of her parnts and now she owns it. She is not very familiar with tecnology stuff but she needs something to better manage the inventory of her shop. She has 2 nephews and she wants to spend as much time as possible with them so she has assumed a cashier for her shop that manages the sales and helps her.
+<br>
 # Functional and non functional requirements
 
 ## Functional Requirements
