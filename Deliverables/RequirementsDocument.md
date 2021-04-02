@@ -80,7 +80,7 @@ EZShop is a software application to:
 |   Shop Manager    | GUI on PC | Screen, keyboard, mouse on PC 	|
 |	Cash register	|  			| Network connection				|
 |	Inventory		|			| Database connection				|
-|	Supplier		| Order		| Message on the network			|
+|	Supplier		| Email		| Email on the network			|
 
 # Stories and personas
 \<A Persona is a realistic impersonation of an actor. Define here a few personas and describe in plain text how a persona interacts with the system>
