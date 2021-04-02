@@ -44,13 +44,29 @@ EZShop is a software application to:
 |   Shop manager   	| Person who manages the shop and the inventory             | 
 |	Cashier			| Person who uses the cash register and register sales		|
 |	Customer		| Customers of the shop who do sales and receive accountings|
-|	Product			| Item sold in the shop 									|
 |	Developer		| Person who develop the EZShop application					|
-
+| 	Cash register	| Instrument that retgister each sale happened in the shop	|
+|	Product			| Product that is sold in the shop and is contained in the inventory|
+|	Inventory		| List of available product in the shop	that can be contained into a database|
+|	Supplier		| Person who sell the products to the shop manager			|
+<br>
 # Context Diagram and interfaces
-
 ## Context Diagram
 \<Define here Context diagram using UML use case diagram>
+<div hidden>
+	@startuml context_diagram
+		actor :Shop manager: as sm
+		actor :Cash Register: as cr
+		actor :Inventory: as i
+		actor :Supplier: as s
+		usecase EZShop
+
+		sm --> EZShop
+		cr --> EZShop
+		i --> EZShop
+		s <-- EZShop
+	@enduml
+</div>
 
 \<actors are a subset of stakeholders>
 
@@ -61,7 +77,10 @@ EZShop is a software application to:
 
 | Actor | Logical Interface | Physical Interface  |
 | ------------- |:-------------:| -----:|
-|   Actor x..     |  |  |
+|   Shop Manager    | GUI on PC | Screen, keyboard, mouse on PC 	|
+|	Cash register	|  			| Network connection				|
+|	Inventory		|			| Database connection				|
+|	Supplier		| Order		| Message on the network			|
 
 # Stories and personas
 \<A Persona is a realistic impersonation of an actor. Define here a few personas and describe in plain text how a persona interacts with the system>
