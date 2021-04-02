@@ -41,7 +41,11 @@ EZShop is a software application to:
 
 | Stakeholder name  | Description | 
 | ----------------- |:-----------:|
-|   Stakeholder x..     |             | 
+|   Shop manager   	| Person who manages the shop and the inventory             | 
+|	Cashier			| Person who uses the cash register and register sales		|
+|	Customer		| Customers of the shop who do sales and receive accountings|
+|	Product			| Item sold in the shop 									|
+|	Developer		| Person who develop the EZShop application					|
 
 # Context Diagram and interfaces
 
