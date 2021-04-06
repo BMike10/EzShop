@@ -56,7 +56,7 @@ EZShop is a software application to:
 <div hidden>
 	@startuml context_diagram
 		actor :Shop manager: as sm
-		actor :Cash Register: as cr
+		actor :Cashier: as cr
 		actor :Inventory: as i
 		actor :Supplier: as s
 		usecase EZShop
@@ -78,8 +78,8 @@ EZShop is a software application to:
 | Actor | Logical Interface | Physical Interface  |
 | ------------- |:-------------:| -----:|
 |   Shop Manager    | GUI on PC | Screen, keyboard, mouse on PC 	|
-|	Cash register	|  			| Network connection				|
-|	Inventory		|			| Database connection				|
+|	Cashier			| GUI on cash register 			| Screen, keyboard				|
+|	Inventory		| Queries	| Database connection over the network				|
 |	Supplier		| Email		| Email on the network			|
 
 # Stories and personas
@@ -175,7 +175,83 @@ Laura is 60, she has always worked in the shop of her parnts and now she owns it
 \<use UML class diagram to define important terms, or concepts in the domain of the system, and their relationships> 
 
 \<concepts are used consistently all over the document, ex in use cases, requirements etc>
+<div hidden>
+	@startuml glossary
+		class Shop{
+			name
+			address
+			dimension
+		}
+		class ProductType{
+			id
+			firm
+			unit price
+			type
+		}
+		class Product{
+			code
+		}
+		class Inventory{
+		}
+		class Catalogue
+		class ShopPersonnel{
+			name
+			surname
+			age
+		}
+		class Cashier{
+		}
 
+		together {
+		class Manager{
+		}
+		class Supplier{
+			name
+			surname
+			address
+		}
+		class Order{
+			date
+			quantity
+		}
+		}
+		class Sale{
+			date
+			time
+		}
+
+		class Customer{
+			name
+			surname
+			gender
+			date of birth
+		}
+		class FidelityCard{
+			id
+			expiration date
+		}
+
+		Shop -- Inventory
+		Inventory -- Product
+		Product -- ProductType
+		Shop -- ShopPersonnel: works in <
+		ShopPersonnel <|-- Cashier
+		ShopPersonnel <|-- Manager
+
+		Order -- ProductType
+		Order -- Supplier
+		Order -- Manager: is performed by >
+
+		Sale -- Product: contains >
+		Sale -- Cashier: is registered by >
+
+		Catalogue -- "*"ProductType
+
+		Customer -- "*"FidelityCard
+		Shop -- "*"Customer
+		Customer"0..1" -- "*"Sale
+	@enduml
+</div>
 # System Design
 \<describe here system design>
 
