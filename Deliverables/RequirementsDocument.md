@@ -194,6 +194,8 @@ Laura is 60, she has always worked in the shop of her parnts and now she owns it
 		class Inventory{
 		}
 		class Catalogue
+		note top of Catalogue: Contains all product \ntypes sold in the shop 
+		note right of ShopPersonnel: Represent all people working \nin the shop including the \nmanager
 		class ShopPersonnel{
 			name
 			surname
@@ -218,6 +220,8 @@ Laura is 60, she has always worked in the shop of her parnts and now she owns it
 		class Sale{
 			date
 			time
+			discount
+			total amount
 		}
 
 		class Customer{
@@ -230,26 +234,34 @@ Laura is 60, she has always worked in the shop of her parnts and now she owns it
 			id
 			expiration date
 		}
+		class CashRegister{
+			id
+			firm
+			model
+		}
 
 		Shop -- Inventory
-		Inventory -- Product
-		Product -- ProductType
-		Shop -- ShopPersonnel: works in <
+		Shop -- Catalogue
+		Inventory -- "*"Product
+		Product"*" -- ProductType
+		Shop -- "*"ShopPersonnel: works in <
 		ShopPersonnel <|-- Cashier
 		ShopPersonnel <|-- Manager
 
 		Order -- ProductType
 		Order -- Supplier
-		Order -- Manager: is performed by >
+		Order -- Manager: is placed by >
 
-		Sale -- Product: contains >
-		Sale -- Cashier: is registered by >
+		Sale -- "*"Product: contains >
+		Sale"*" -- Cashier: is registered by >
 
-		Catalogue -- "*"ProductType
+		Catalogue -- "*"ProductType: contains >
 
-		Customer -- "*"FidelityCard
+		Customer -- "0..*"FidelityCard
 		Shop -- "*"Customer
 		Customer"0..1" -- "*"Sale
+
+		Cashier -- CashRegister: manages >
 	@enduml
 </div>
 # System Design
