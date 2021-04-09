@@ -78,6 +78,7 @@ EZShop is a software application to:
 		EZShop <-- ccs
 	@enduml
 </div>
+<img src="img/context_diagram.png">
 
 ## Interfaces
 
@@ -371,6 +372,7 @@ The following table indicates which actor have the rights to perform functional 
 		AccountingResponsible -- Balance: manages >
 	@enduml
 </div>
+<img src="img/glossary.png">
 # System Design
 \<describe here system design>
 
