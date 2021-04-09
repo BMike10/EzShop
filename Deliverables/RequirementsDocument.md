@@ -59,6 +59,7 @@ EZShop is a software application to:
 		actor :Cashier: as cr
 		actor :Accounting manager: as am
 		actor :Customer management system: as cms
+		actor :Warehouse manager: as wm
 		'	actor :Inventory and Catalogue system: as i	:
 		actor :Supplier: as s
 		actor :Credit card system: as ccs
@@ -67,11 +68,12 @@ EZShop is a software application to:
 		}
 		sm --> EZShop
 		cr --> EZShop
+		am --> EZShop
+		wm --> EZShop
 		'	i --> EZShop
 		s <-- EZShop
-		cms --> EZShop
-		ccs --> EZShop
-		am --> EZShop
+		EZShop <-- cms
+		EZShop <-- ccs
 	@enduml
 </div>
 
@@ -82,6 +84,7 @@ EZShop is a software application to:
 |   Shop Manager    | GUI 		| Screen, keyboard, mouse on PC 	|
 |	Cashier			| GUI 		| Screen, keyboard, mouse				|
 |	Accounting manager| GUI		| Screen, keyboard, mouse	|
+|	Warehouse manager| GUI		| Screen, keyboard, mouse	|
 |	Supplier		| Email			| Email on the network			|
 |	Credit card management system| Web service| Internet connection|
 |	Customer management system	| Web service |	Internet connection|
