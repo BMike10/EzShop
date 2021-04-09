@@ -46,11 +46,11 @@ EZShop is a software application to:
 |	Warehouse manager| Person who is responsible of managing the inventory and warehouse of the shop|
 |	Customer		| Customers of the shop who do sales in the shop			|
 |	Developer		| Person who develop the EZShop application					|
-| 	Cash register	| Instrument that register each sale happened in the shop	|
+| 	Cash register	| Instrument that register each sale happened in the shop and contains cash received from sales	|
 |	Product			| Product that is sold in the shop and is contained in the inventory|
 |	Inventory		| List of available product in the shop	that can be contained into a database|
 |	Supplier		| Person who sell the products to the shop manager			|
-|	Credit card system|	System that manages credit cards payments from customers|
+|	POS system|	System that manages credit cards payments from customers|
 <br>
 # Context Diagram and interfaces
 ## Context Diagram
@@ -60,11 +60,11 @@ EZShop is a software application to:
 		actor :Shop manager: as sm
 		actor :Cashier: as cr
 		actor :Accounting manager: as am
-		actor :Customer management system: as cms
+		' actor :Customer management system: as cms
 		actor :Warehouse manager: as wm
 		'	actor :Inventory and Catalogue system: as i	:
 		actor :Supplier: as s
-		actor :Credit card system: as ccs
+		actor :POS system: as ccs
 		rectangle System{
 		usecase EZShop
 		}
@@ -74,7 +74,7 @@ EZShop is a software application to:
 		wm --> EZShop
 		'	i --> EZShop
 		s <-- EZShop
-		EZShop <-- cms
+		' EZShop <-- cms
 		EZShop <-- ccs
 	@enduml
 </div>
@@ -88,8 +88,8 @@ EZShop is a software application to:
 |	Accounting manager| GUI		| Screen, keyboard, mouse	|
 |	Warehouse manager| GUI		| Screen, keyboard, mouse	|
 |	Supplier		| Email			| Email on the network			|
-|	Credit card management system| Web service| Internet connection|
-|	Customer management system	| Web service |	Internet connection|
+|	POS management system| Payment service| ECR communication protocol|
+<!--|	Customer management system	| Web service |	Internet connection|-->
 
 <!--|	Inventory and catalogue system	| Queries		| Database connection over the network	|)-->
 <br>
@@ -131,8 +131,9 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 |	FR3		|	Manage sales|
 |	FR3.1	|	Register into system a sale for a product|
 |	FR3.2	|	Remove a previous sale|
-|	FR3.3	|	Manage payment with credit card (check if there are enough money and proceed to payment)
-|	??? FR3.4	|	Manage replacement (remove a previous sale and use the credit to buy a new item)	
+|	FR3.3	|	Manage payment with credit card (check if there are enough money and proceed to payment)|
+|	FR3.4	|	Compute sale ticket|
+|	??? FR3.5	|	Manage replacement (remove a previous sale and use the credit to buy a new item)	
 |	FR4		|	Manage accounting|
 |	FR4.1	|	See all bills|
 |	FR4.2	|	Get current balance|
