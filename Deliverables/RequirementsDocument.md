@@ -84,7 +84,7 @@ EZShop is a software application to:
 | Actor | Logical Interface | Physical Interface  |
 | ------------- |:-------------:| -----:|
 |   Shop Manager    | GUI 		| Screen, keyboard, mouse  	|
-|	Cashier			| GUI 		| Screen, keyboard, mouse	|
+|	Cashier			| GUI 		| Screen, keyboard, mouse?	|
 |	Accounting manager| GUI		| Screen, keyboard, mouse	|
 |	Warehouse manager| GUI		| Screen, keyboard, mouse	|
 |	Supplier		| Purchase order file	| Email on the network containing as attachment the order	|
@@ -193,7 +193,7 @@ The following table indicates which actor have the rights to perform functional 
 | ID        | Type (efficiency, reliability, ..)           | Description  | Refers to |
 | ------------- |:-------------:| :-----:| -----:|
 |  NFR1 | efficiency  	| Time to show the whole inventory < 10ms  | FR1.4|
-|  NFR2 | usability 	| Maximum number of different product types >= 2000  | FR2|
+|  NFR2 | correctness 	| Maximum number of different product types >= 2000  | FR2|
 |  NFR3 | efficiency 	| More sales can be registered at the same time by different cash registers| FR3.1|
 |  NFR4	| efficiency	| Show customer list time < 1ms | FR5.2 |
 |  NFR5	| efficiency	| User authentication procedure time < 10ms| FR6.5|
@@ -202,6 +202,7 @@ The following table indicates which actor have the rights to perform functional 
 |  NFR8	| localization	| Currency is EURO | all FR|
 |  NFR9	| localization	| decimal separator is '.'| all FR|
 |  NFR10| security		| all user roles should access only the functions their access rights allow to| all FR|
+|  NFR11| security		| Treat user data according to GDPR| |
 
 <br>
 
