@@ -105,6 +105,9 @@ Luca is 25, he works as a cashier in a small shop. During his work, he has to he
 <br>
 Giorgia is 50, she works as a supplier for many small shops in Turin. Since she is very forgetful and, for that reason, she always looks to her email to check for the orders of the managers of the different shops. 
 <br>
+<br>
+Giovanni is 45, he helps the manager of a small food shop in managing the accounting of the shop. He has a daughter and he would like to spend all of his time with her. The manager of the shop he works for requires daily, weekly and monthly reports about the entries and the bills of the shop. That requires a lot of time and he would like to do that faster in order to have more free time.
+<br>
 # Functional and non functional requirements
 
 ## Functional Requirements
@@ -129,7 +132,7 @@ Giorgia is 50, she works as a supplier for many small shops in Turin. Since she 
 |	FR3.3	|	Add a new bill|
 |	FR3.4	|	Set a bill as payed|
 |	FR3.5	|	Filter bills using supplier, product type, total amount, ...
-|	??? FR3.6	|	Generate graph with balance, bills and entries|
+|	FR3.6	|	Generate report with balance, bills and entries|
 |	??? FR3.5	|	Pay a bill|
 |	FR4		|	Manage customers|
 |	FR4.1	|	Add a new customer|
@@ -163,11 +166,11 @@ Giorgia is 50, she works as a supplier for many small shops in Turin. Since she 
 
 | ID        | Type (efficiency, reliability, ..)           | Description  | Refers to |
 | ------------- |:-------------:| :-----:| -----:|
-|  NFR1     | efficiency  | Time to show the whole inventory < 10ms  | FR1.6 |
-|  NFR2     | usability | Maximum number of different product types >= 2000  | FR1|
-|  NFR3     | efficiency | More sales can be registered at the same time | FR2.1|
-|  NFR4		|  efficiency| Show customer list time < 1ms | FR4.2 |
-|  NFR5		| domain	|	Currency is EURO, VAT is 22% |
+|  NFR1     | efficiency  	| Time to show the whole inventory < 10ms  | FR1.6 |
+|  NFR2     | usability 	| Maximum number of different product types >= 2000  | FR1|
+|  NFR3     | efficiency 	| More sales can be registered at the same time | FR2.1|
+|  NFR4		| efficiency	| Show customer list time < 1ms | FR4.2 |
+|  Domain1	| 				| Currency is EURO |
 
 
 # Use case diagram and use cases
@@ -248,9 +251,11 @@ Giorgia is 50, she works as a supplier for many small shops in Turin. Since she 
 			surname
 			age
 		}
+		class Role
 		class Cashier{
 		}
-
+		class AccountingResponsible
+		class WarehouseManager
 		together {
 		class Manager{
 		}
@@ -286,21 +291,37 @@ Giorgia is 50, she works as a supplier for many small shops in Turin. Since she 
 			firm
 			model
 		}
+		class Bill{
+			id
+			amount
+			due date
+		}
+		class Balance{
+			date
+			total earnings
+			total expenses
+			profit
+		}
+
 
 		Shop -- Inventory
 		Shop -- Catalogue
 		Inventory -- "*"Product
 		Product"*" -- ProductType
 		Shop -- "*"User: works in <
-		User <|-- Cashier
-		User <|-- Manager
+		User -- "1..*" Role
+		Role <|-- Cashier
+		Role <|-- Manager
+		Role <|-- WarehouseManager
+		Role <|-- AccountingResponsible
 
 		Order -- ProductType
 		Order -- Supplier
-		Order -- Manager: is placed by >
+		Manager -- Order: places >
+		Order -- Bill: produces >
 
 		Sale -- "*"Product: contains >
-		Sale"*" -- Cashier: is registered by >
+		Cashier -- "*"Sale: is registered by >
 
 		Catalogue -- "*"ProductType: contains >
 
@@ -309,6 +330,11 @@ Giorgia is 50, she works as a supplier for many small shops in Turin. Since she 
 		Customer"0..1" -- "*"Sale
 
 		Cashier -- CashRegister: manages >
+		WarehouseManager -- Inventory: manages >
+
+		Balance -- Sale
+		Balance -- Bill
+		AccountingResponsible -- Balance: manages >
 	@enduml
 </div>
 # System Design
