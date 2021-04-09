@@ -83,11 +83,11 @@ EZShop is a software application to:
 
 | Actor | Logical Interface | Physical Interface  |
 | ------------- |:-------------:| -----:|
-|   Shop Manager    | GUI 		| Screen, keyboard, mouse on PC 	|
-|	Cashier			| GUI 		| Screen, keyboard, mouse			|
+|   Shop Manager    | GUI 		| Screen, keyboard, mouse  	|
+|	Cashier			| GUI 		| Screen, keyboard, mouse	|
 |	Accounting manager| GUI		| Screen, keyboard, mouse	|
 |	Warehouse manager| GUI		| Screen, keyboard, mouse	|
-|	Supplier		| Email			| Email on the network			|
+|	Supplier		| Purchase order file	| Email on the network containing as attachment the order	|
 |	POS management system| Payment service| ECR communication protocol|
 <!--|	Customer management system	| Web service |	Internet connection|-->
 
@@ -123,6 +123,8 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 |   FR1     |  	Manage Inventory|
 |	FR1.1	|	Check inventory level for a product type|
 |	FR1.2	|	Update inventory level for a product type (increment or decrement products quantity) |
+|	FR1.3	|	Show inventory level for a product type|
+|	FR1.4	|	Show inventory level for each product type|
 |	FR2		|	Manage Catalogue|
 |	FR2.1	|	Add a new product type|
 |	FR2.2	|	Remove a product type|
@@ -131,7 +133,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 |	FR3		|	Manage sales|
 |	FR3.1	|	Register into system a sale for a product|
 |	FR3.2	|	Remove a previous sale|
-|	FR3.3	|	Manage payment with credit card (check if there are enough money and proceed to payment)|
+|	FR3.3	|	Manage payment with credit card|
 |	FR3.4	|	Compute sale ticket|
 |	??? FR3.5	|	Manage replacement (remove a previous sale and use the credit to buy a new item)	
 |	FR4		|	Manage accounting|
@@ -141,7 +143,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 |	FR4.4	|	Set a bill as payed|
 |	FR4.5	|	Filter bills using supplier, product type, total amount, ...
 |	FR4.6	|	Generate report with balance, bills and entries|
-|	??? FR4.5	|	Pay a bill|
+|	FR4.7	|	Add a new income|
 |	FR5		|	Manage customers|
 |	FR5.1	|	Add a new customer|
 |	FR5.2	|	See all customers|
@@ -170,14 +172,14 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 
 | ID        | Type (efficiency, reliability, ..)           | Description  | Refers to |
 | ------------- |:-------------:| :-----:| -----:|
-|  NFR1 | efficiency  	| Time to show the whole inventory < 10ms  | FR1.6 |
-|  NFR2 | usability 	| Maximum number of different product types >= 2000  | FR1|
-|  NFR3 | efficiency 	| More sales can be registered at the same time | FR2.1|
-|  NFR4	| efficiency	| Show customer list time < 1ms | FR4.2 |
-|  NFR5	| efficiency	| Login procedure time < 10ms| FR6.5|
+|  NFR1 | efficiency  	| Time to show the whole inventory < 10ms  | FR1.4|
+|  NFR2 | usability 	| Maximum number of different product types >= 2000  | FR2|
+|  NFR3 | efficiency 	| More sales can be registered at the same time by different cash registers| FR3.1|
+|  NFR4	| efficiency	| Show customer list time < 1ms | FR5.2 |
+|  NFR5	| efficiency	| User authentication procedure time < 10ms| FR6.5|
 |  NFR6	| usability		| No specific training should be needed to use the software| All FR|
 |  NFR7	| portability	| Software should be available on any OS (Windows, Unix/Linux, MacOs)| All FR|
-|  Domain1	| 				| Currency is EURO |
+|  Domain1	| 			| Currency is EURO |
 
 <br>
 
@@ -186,7 +188,10 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 
 ## Use case diagram
 \<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
-
+<div hidden>
+	@startuml usecase diagram
+	@enduml
+</div>
 
 \<next describe here each use case in the UCD>
 ### Use case 1, UC1
@@ -296,8 +301,6 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 		}
 		class CashRegister{
 			id
-			firm
-			model
 		}
 		class Bill{
 			id
@@ -329,7 +332,6 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 		Order -- Bill: produces >
 
 		Sale -- "*"Product: contains >
-		Cashier -- "*"Sale: is registered by >
 
 		Catalogue -- "*"ProductType: contains >
 
@@ -338,6 +340,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 		Customer"0..1" -- "*"Sale
 
 		Cashier -- CashRegister: manages >
+		CashRegister -- Sale: registers >
 		WarehouseManager -- Inventory: manages >
 
 		Balance -- Sale
