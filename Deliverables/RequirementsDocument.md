@@ -120,71 +120,71 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 
 | ID        | Description  |
 | ------------- |:-------------:| 
-|   FR1     |  	Manage Inventory|
-|	FR1.1	|	Check inventory level for a product type|
-|	FR1.2	|	Update inventory level for a product type (increment or decrement products quantity) |
-|	FR1.3	|	Show inventory level for a product type|
-|	FR1.4	|	Show inventory level for each product type|
-|	FR2		|	Manage Catalogue|
-|	FR2.1	|	Add a new product type|
-|	FR2.2	|	Remove a product type|
-|	FR2.3	|	Update product type information|
-|	FR2.4	|	List all product types|
-|	FR2.5	|	Search a product type|
-|	FR3		|	Manage sales|
-|	FR3.1	|	Register into system a sale for a product|
-|	FR3.2	|	Remove a previous sale|
-|	FR3.3	|	Manage payment with credit card|
-|	FR3.4	|	Compute sale ticket|
-|	??? FR3.5	|	Manage replacement (remove a previous sale and use the credit to buy a new item)	
-|	FR4		|	Manage accounting|
-|	FR4.1	|	See all invoices|
-|	FR4.2	|	Get current balance|
-|	FR4.3	|	Add a new invoice|
-|	FR4.4	|	Set a invoice as payed|
-|	FR4.5	|	Filter invoices using supplier, product type, total amount, ...
-|	FR4.6	|	Generate report with balance, invoices and entries|
-|	FR4.7	|	Add a new earning|
-|	FR4.8	|	search an invoice|
-|	FR5		|	Manage customers|
-|	FR5.1	|	Add a new customer|
-|	FR5.2	|	See all customers|
-|	FR5.3	|	Remove a customer|
-|	FR5.4	|	Search a customer|
-|	FR5.5	|	Add a fidelity card for a customer|
-|	FR5.6	|	Update fidelity card|
-|	FR6		|	Manage users|
-|	FR6.1	|	Add a new user|
-|	FR6.2	|	Remove a user|
-|	FR6.3	|	View all users|
-|	FR6.4	|	Change access rights for a user|
-|	FR6.5	|	Manage user authentication|
-|	FR7		|	Manage suppliers|
-|	FR7.1	|	Add a new supplier|
-|	FR7.2	|	List all suppliers|
-|	FR7.3	|	Remove a supplier|
-|	FR7.4	|	Search a supplier|
-|	FR8		|	Manage orders|
-|	FR8.1	|	Place an order to supplier for a given product type|
-|	FR8.2	|	Repeat a previous order to a supplier|
-|	FR8.3	|	Abort a previously inserted order|
-|	FR8.4	|	Search an order|
+| FR1   | Manage Inventory|
+| FR1.1	| Check inventory level for a product type|
+| FR1.2	| Update inventory level for a product type (increment or decrement products quantity) |
+| FR1.3	| Show inventory level for a product type|
+| FR1.4	| Show inventory level for each product type|
+| FR2	| Manage Catalogue|
+| FR2.1	| Add a new product type|
+| FR2.2	| Remove a product type|
+| FR2.3	| Update product type information|
+| FR2.4	| List all product types|
+| FR2.5	| Search a product type|
+| FR3	| Manage sales|
+| FR3.1	| Register into system a sale for a product|
+| FR3.2	| Remove a previous sale|
+| FR3.3	| Manage payment with credit card|
+| FR3.4	| Compute sale ticket|
+| ??? FR3.5	|	Manage replacement (remove a previous sale and use the credit to buy a new item)	
+| FR4	| Manage accounting|
+| FR4.1	| See all invoices|
+| FR4.2	| Get current balance|
+| FR4.3	| Add a new invoice|
+| FR4.4	| Set a invoice as payed|
+| FR4.5	| Filter invoices using supplier, product type, total amount, ...
+| FR4.6	| Generate report with balance, invoices and entries|
+| FR4.7	| Add a new earning|
+| FR4.8	| search an invoice|
+| FR5	| Manage customers|
+| FR5.1	| Add a new customer|
+| FR5.2	| See all customers|
+| FR5.3	| Remove a customer|
+| FR5.4	| Search a customer|
+| FR5.5	| Add a fidelity card for a customer|
+| FR5.6	| Update fidelity card|
+| FR6	| Manage users|
+| FR6.1	| Add a new user|
+| FR6.2	| Remove a user|
+| FR6.3	| View all users|
+| FR6.4	| Manage access rights for a user|
+| FR6.5	| Manage user authentication|
+| FR7	| Manage suppliers|
+| FR7.1	| Add a new supplier|
+| FR7.2	| List all suppliers|
+| FR7.3	| Remove a supplier|
+| FR7.4	| Search a supplier|
+| FR8	| Manage orders|
+| FR8.1	| Place an order to supplier for a given product type|
+| FR8.2	| Repeat a previous order to a supplier|
+| FR8.3	| Abort a previously inserted order|
+| FR8.4	| Search an order|
 
 <br>
 
-### Functional requirements access rights
-The following table indicates which actor have the rights to perform functional requirements described above.
+### Access rights, functional requirements and actor
+The following table indicates which actor have the rights to perform functional requirements and the corresponding sub-requirements associated with them described above.
 <br>
 |Function| Manager| Cashier | Accounting Responsible| Warehouse manager|
 |---|:---:|:---:|:---:|:---:|
-|FR1| yes |yes| no |yes|
-|FR2| yes |no| no |yes|
-|FR3| yes |yes| no |no|
-|FR4| yes |no| yes |no|
-|FR5| yes |yes| no |no|
-|FR6| yes |no| no |no|
-|FR7| yes |no| no |no|
-|FR8| yes |no| no |no|
+| FR1 | yes | yes	| no | yes|
+| FR2 | yes | no	| no | yes|
+| FR3 | yes | yes	| no | no |
+| FR4 | yes | no	| yes| no |
+| FR5 | yes | yes	| no | no |
+| FR6 | yes | no	| no | no |
+| FR7 | yes | no	| no | no |
+| FR8 | yes | no	| no | no |
 <br>
 
 ## Non Functional Requirements
@@ -199,7 +199,9 @@ The following table indicates which actor have the rights to perform functional 
 |  NFR5	| efficiency	| User authentication procedure time < 10ms| FR6.5|
 |  NFR6	| usability		| No specific training should be needed to use the software| All FR|
 |  NFR7	| portability	| Software should be available on any OS (Windows, Unix/Linux, MacOs)| All FR|
-|  Domain1	| 			| Currency is EURO |
+|  NFR8	| localization	| Currency is EURO | all FR|
+|  NFR9	| localization	| decimal separator is '.'| all FR|
+|  NFR10| security		| all user roles should access only the functions their access rights allow to| all FR|
 
 <br>
 
