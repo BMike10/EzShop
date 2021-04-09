@@ -120,7 +120,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 
 | ID        | Description  |
 | ------------- |:-------------:| 
-|   FR1     |  	Manage Inventor|
+|   FR1     |  	Manage Inventory|
 |	FR1.1	|	Check inventory level for a product type|
 |	FR1.2	|	Update inventory level for a product type (increment or decrement products quantity) |
 |	FR2		|	Manage Catalogue|
@@ -175,7 +175,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 |  NFR4	| efficiency	| Show customer list time < 1ms | FR4.2 |
 |  NFR5	| efficiency	| Login procedure time < 10ms| FR6.5|
 |  NFR6	| usability		| No specific training should be needed to use the software| All FR|
-|  NFR7	| portability	| Software should be usable on any OS (Windows, Unix/Linux, MacOs)| All FR|
+|  NFR7	| portability	| Software should be available on any OS (Windows, Unix/Linux, MacOs)| All FR|
 |  Domain1	| 				| Currency is EURO |
 
 <br>
