@@ -43,6 +43,7 @@ EZShop is a software application to:
 |   Shop manager   	| Person who manages the shop and the inventory             | 
 |	Cashier			| Person who uses the cash register and register sales		|
 |	Accounting manager		| Person who is responsible for accounting					|
+|	Warehouse manager| Person who is responsible of managing the inventory and warehouse of the shop|
 |	Customer		| Customers of the shop who do sales in the shop			|
 |	Developer		| Person who develop the EZShop application					|
 | 	Cash register	| Instrument that register each sale happened in the shop	|
@@ -152,6 +153,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 |	FR6.2	|	Remove a user|
 |	FR6.3	|	View all users|
 |	FR6.4	|	Change access rights for a user|
+|	FR6.5	|	Manage user authentication|
 |	FR7		|	Manage suppliers|
 |	FR7.1	|	Add a new supplier|
 |	FR7.2	|	List all suppliers|
@@ -173,6 +175,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 |  NFR2     | usability 	| Maximum number of different product types >= 2000  | FR1|
 |  NFR3     | efficiency 	| More sales can be registered at the same time | FR2.1|
 |  NFR4		| efficiency	| Show customer list time < 1ms | FR4.2 |
+|  NFR5		| efficiency	| Login procedure time < 10ms| FR6.5|
 |  Domain1	| 				| Currency is EURO |
 
 
