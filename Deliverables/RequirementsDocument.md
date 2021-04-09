@@ -50,6 +50,7 @@ EZShop is a software application to:
 |	Product			| Product that is sold in the shop and is contained in the inventory|
 |	Inventory		| List of available product in the shop	that can be contained into a database|
 |	Supplier		| Person who sell the products to the shop manager			|
+|	Credit card system|	System that manages credit cards payments from customers|
 <br>
 # Context Diagram and interfaces
 ## Context Diagram
@@ -83,7 +84,7 @@ EZShop is a software application to:
 | Actor | Logical Interface | Physical Interface  |
 | ------------- |:-------------:| -----:|
 |   Shop Manager    | GUI 		| Screen, keyboard, mouse on PC 	|
-|	Cashier			| GUI 		| Screen, keyboard, mouse				|
+|	Cashier			| GUI 		| Screen, keyboard, mouse			|
 |	Accounting manager| GUI		| Screen, keyboard, mouse	|
 |	Warehouse manager| GUI		| Screen, keyboard, mouse	|
 |	Supplier		| Email			| Email on the network			|
@@ -119,36 +120,34 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 
 | ID        | Description  |
 | ------------- |:-------------:| 
-|   FR1     |  	Manage Inventory|
+|   FR1     |  	Manage Inventor|
 |	FR1.1	|	Check inventory level for a product type|
 |	FR1.2	|	Update inventory level for a product type (increment or decrement products quantity) |
-|	FR1.3	|	Add a new product type|
-|	FR1.4	|	Remove a product type|
-|	FR1.5	|	Update product type information|
-|	FR1.6	|	List all product types|
-|	FR2		|	Manage sales|
-|	FR2.1	|	Register into system a sale for a product|
-|	FR2.2	|	Remove a previous sale|
-|	??? FR2.3	|	Manage replacement (remove a previous sale and use the credit to buy a new item)	
-|	FR3		|	Manage accounting|
-|	FR3.1	|	See all bills|
-|	FR3.2	|	Get current balance|
-|	FR3.3	|	Add a new bill|
-|	FR3.4	|	Set a bill as payed|
-|	FR3.5	|	Filter bills using supplier, product type, total amount, ...
-|	FR3.6	|	Generate report with balance, bills and entries|
-|	??? FR3.5	|	Pay a bill|
-|	FR4		|	Manage customers|
-|	FR4.1	|	Add a new customer|
-|	FR4.2	|	See all customers|
-|	FR4.3	|	Remove a customer|
-|	FR4.4	|	Add a fidelity card for a customer|
-|	FR4.5	|	Update fidelity card|
-|	FR5		|	Manage credit card system|
-|	FR5.1	|	Add a new credit card|
-|	FR5.2	|	Get list of movements|
-|	FR5.3	|	Remove a credit card|
-|	FR6		|	Manage users (manager, cashier,...)|
+|	FR2		|	Manage Catalogue|
+|	FR2.1	|	Add a new product type|
+|	FR2.2	|	Remove a product type|
+|	FR2.3	|	Update product type information|
+|	FR2.4	|	List all product types|
+|	FR3		|	Manage sales|
+|	FR3.1	|	Register into system a sale for a product|
+|	FR3.2	|	Remove a previous sale|
+|	FR3.3	|	Manage payment with credit card (check if there are enough money and proceed to payment)
+|	??? FR3.4	|	Manage replacement (remove a previous sale and use the credit to buy a new item)	
+|	FR4		|	Manage accounting|
+|	FR4.1	|	See all bills|
+|	FR4.2	|	Get current balance|
+|	FR4.3	|	Add a new bill|
+|	FR4.4	|	Set a bill as payed|
+|	FR4.5	|	Filter bills using supplier, product type, total amount, ...
+|	FR4.6	|	Generate report with balance, bills and entries|
+|	??? FR4.5	|	Pay a bill|
+|	FR5		|	Manage customers|
+|	FR5.1	|	Add a new customer|
+|	FR5.2	|	See all customers|
+|	FR5.3	|	Remove a customer|
+|	FR5.4	|	Add a fidelity card for a customer|
+|	FR5.5	|	Update fidelity card|
+|	FR6		|	Manage users|
 |	FR6.1	|	Add a new user|
 |	FR6.2	|	Remove a user|
 |	FR6.3	|	View all users|
