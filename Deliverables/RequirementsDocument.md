@@ -166,17 +166,19 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 
 ## Non Functional Requirements
 
-\<Describe constraints on functional requirements>
 
 | ID        | Type (efficiency, reliability, ..)           | Description  | Refers to |
 | ------------- |:-------------:| :-----:| -----:|
-|  NFR1     | efficiency  	| Time to show the whole inventory < 10ms  | FR1.6 |
-|  NFR2     | usability 	| Maximum number of different product types >= 2000  | FR1|
-|  NFR3     | efficiency 	| More sales can be registered at the same time | FR2.1|
-|  NFR4		| efficiency	| Show customer list time < 1ms | FR4.2 |
-|  NFR5		| efficiency	| Login procedure time < 10ms| FR6.5|
+|  NFR1 | efficiency  	| Time to show the whole inventory < 10ms  | FR1.6 |
+|  NFR2 | usability 	| Maximum number of different product types >= 2000  | FR1|
+|  NFR3 | efficiency 	| More sales can be registered at the same time | FR2.1|
+|  NFR4	| efficiency	| Show customer list time < 1ms | FR4.2 |
+|  NFR5	| efficiency	| Login procedure time < 10ms| FR6.5|
+|  NFR6	| usability		| No specific training should be needed to use the software| All FR|
+|  NFR7	| portability	| Software should be usable on any OS (Windows, Unix/Linux, MacOs)| All FR|
 |  Domain1	| 				| Currency is EURO |
 
+<br>
 
 # Use case diagram and use cases
 
