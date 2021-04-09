@@ -88,7 +88,7 @@ EZShop is a software application to:
 |	Accounting manager| GUI		| Screen, keyboard, mouse	|
 |	Warehouse manager| GUI		| Screen, keyboard, mouse	|
 |	Supplier		| Purchase order file	| Email on the network containing as attachment the order	|
-|	POS management system| Payment service| ECR communication protocol|
+|	POS management system| ECR interface described at <a href="https://www.ccv.eu/wp-content/uploads/2018/05/zvt_ecr_interface_specification.pdf" >ECR</a>| Wired connection|
 <!--|	Customer management system	| Web service |	Internet connection|-->
 
 <!--|	Inventory and catalogue system	| Queries		| Database connection over the network	|)-->
@@ -111,7 +111,7 @@ Luca is 25, he works as a cashier in a small shop. During his work, he has to he
 Giorgia is 50, she works as a supplier for many small shops in Turin. Since she is very forgetful and, for that reason, she always looks to her email to check for the orders of the managers of the different shops. 
 <br>
 <br>
-Giovanni is 45, he helps the manager of a small food shop in managing the accounting of the shop. He has a daughter and he would like to spend all of his time with her. The manager of the shop he works for requires daily, weekly and monthly reports about the entries and the bills of the shop. That requires a lot of time and he would like to do that faster in order to have more free time.
+Giovanni is 45, he helps the manager of a small food shop in managing the accounting of the shop. He has a daughter and he would like to spend all of his time with her. The manager of the shop he works for requires daily, weekly and monthly reports about the entries and the invoices of the shop. That requires a lot of time and he would like to do that faster in order to have more free time.
 <br>
 # Functional and non functional requirements
 
@@ -137,12 +137,12 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 |	FR3.4	|	Compute sale ticket|
 |	??? FR3.5	|	Manage replacement (remove a previous sale and use the credit to buy a new item)	
 |	FR4		|	Manage accounting|
-|	FR4.1	|	See all bills|
+|	FR4.1	|	See all invoices|
 |	FR4.2	|	Get current balance|
-|	FR4.3	|	Add a new bill|
-|	FR4.4	|	Set a bill as payed|
-|	FR4.5	|	Filter bills using supplier, product type, total amount, ...
-|	FR4.6	|	Generate report with balance, bills and entries|
+|	FR4.3	|	Add a new invoice|
+|	FR4.4	|	Set a invoice as payed|
+|	FR4.5	|	Filter invoices using supplier, product type, total amount, ...
+|	FR4.6	|	Generate report with balance, invoices and entries|
 |	FR4.7	|	Add a new income|
 |	FR5		|	Manage customers|
 |	FR5.1	|	Add a new customer|
@@ -302,7 +302,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 		class CashRegister{
 			id
 		}
-		class Bill{
+		class Invoice{
 			id
 			amount
 			due date
@@ -329,7 +329,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 		Order -- ProductType
 		Order -- Supplier
 		Manager -- Order: places >
-		Order -- Bill: produces >
+		Order -- Invoice: produces >
 
 		Sale -- "*"Product: contains >
 
@@ -344,7 +344,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 		WarehouseManager -- Inventory: manages >
 
 		Balance -- Sale
-		Balance -- Bill
+		Balance -- Invoice
 		AccountingResponsible -- Balance: manages >
 	@enduml
 </div>
