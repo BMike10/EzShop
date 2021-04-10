@@ -56,7 +56,7 @@ EZShop is a software application to:
 ## Context Diagram
 
 <div hidden>
-	```plantuml
+	@startuml context_diagram
 		actor :Shop manager: as sm
 		actor :Cashier: as cr
 		actor :Accounting manager: as am
@@ -76,7 +76,7 @@ EZShop is a software application to:
 		s <-- EZShop
 		' EZShop <-- cms
 		EZShop <-- ccs
-	```
+	@enduml
 </div>
 <br>
 <img src="img/context_diagram.png">
@@ -161,7 +161,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 | FR6.2	| Remove a user|
 | FR6.3	| View all users|
 | FR6.4	| Manage access rights for a user|
-| FR6.5	| Manage user authentication|
+| FR6.5	| Authenticate user|
 | FR7	| Manage suppliers|
 | FR7.1	| Add a new supplier|
 | FR7.2	| List all suppliers|
@@ -195,11 +195,11 @@ The following table indicates which actor have the rights to perform functional 
 
 | ID        | Type (efficiency, reliability, ..)           | Description  | Refers to |
 | ------------- |:-------------:| :-----:| -----:|
-|  NFR1 | efficiency  	| Time to show the whole inventory < 10ms  | FR1.4|
+|  NFR1 | efficiency  	| Time to show the whole inventory < 500ms  | FR1.4|
 |  NFR2 | correctness 	| Maximum number of different product types >= 2000  | FR2|
 |  NFR3 | efficiency 	| More sales can be registered at the same time by different cash registers| FR3.1|
-|  NFR4	| efficiency	| Show customer list time < 1ms | FR5.2 |
-|  NFR5	| efficiency	| User authentication procedure time < 10ms| FR6.5|
+|  NFR4	| efficiency	| Show customer list time < 500ms | FR5.2 |
+|  NFR5	| efficiency	| User authentication procedure time < 500ms| FR6.5|
 |  NFR6	| usability		| No specific training should be needed to use the software| All FR|
 |  NFR7	| portability	| Software should be available on any OS (Windows, Unix/Linux, MacOs)| All FR|
 |  NFR8	| localization	| Currency is EURO | all FR|
@@ -216,6 +216,48 @@ The following table indicates which actor have the rights to perform functional 
 \<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
 <div hidden>
 	@startuml usecase diagram
+		' actors
+		actor :Shop manager: as sm
+		actor :Cashier: as cr
+		actor :Accounting manager: as am
+		actor :Warehouse manager: as wm
+		actor :Supplier: as s
+		actor :POS system: as ccs
+		' use cases
+		usecase "FR1 Manage inventory" as mi
+		usecase "FR2 Manage catalogue" as mca
+		usecase "FR3 Manage sales" as ms
+		usecase "FR4 Manage accounting" as ma
+		usecase "FR5 Manage customers" as mc
+		usecase "FR6 Manage users" as mu
+		usecase "FR7 Manage suppliers" as msu
+		usecase "FR8 Manage orders" as mo
+		usecase "FR6.5 Authenticate user" as mua		
+
+		' associations
+		mu --> mua: <<include>>
+		' shop manager 
+		sm --> mu
+		sm --> ma
+		sm --> mi
+		sm --> mc
+		sm --> ms
+		sm --> msu
+		sm --> mo
+		sm --> mca
+		' accounting manager
+		ma <-- am
+		' cashier
+		mi <-- cr
+		cr --> ms
+		mc <-- cr
+		' POS system
+		ms --> ccs
+		' warehouse manager
+		mi <-- wm
+		mca <-- wm
+		' supplier 
+		mo --> s
 	@enduml
 </div>
 
