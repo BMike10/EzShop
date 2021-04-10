@@ -442,16 +442,24 @@ The following table indicates which actor have the rights to perform functional 
 |	8	| Add the amount of money received to the current entries|
 |	9	| Print final sale ticket|
 
-### Use case x, UCx
+### Use case 4, UC4
 
-##### Scenario 2.2 - 
+##### Scenario 4.1 - 
 
-### Use case x, UCx
+### Use case 5, UC5
 
-##### Scenario 2.2 - 
+##### Scenario 5.1 - 
 
-### Use case x, UCx
+### Use case 6, UC6
+
+##### Scenario 6.1 - 
+### Use case 7, UC7
+
+##### Scenario 7.1 - 
 ..
+### Use case 8, UC8
+
+##### Scenario 8.1 - 
 
 
 
@@ -489,7 +497,7 @@ The following table indicates which actor have the rights to perform functional 
 		class Role
 		class Cashier{
 		}
-		class AccountingResponsible
+		class AccountingManager
 		class WarehouseManager
 		together {
 		class Manager{
@@ -546,7 +554,7 @@ The following table indicates which actor have the rights to perform functional 
 		Role <|-- Cashier
 		Role <|-- Manager
 		Role <|-- WarehouseManager
-		Role <|-- AccountingResponsible
+		Role <|-- AccountingManager
 
 		Order -- ProductType
 		Order -- Supplier
@@ -567,16 +575,16 @@ The following table indicates which actor have the rights to perform functional 
 
 		Balance -- Sale
 		Balance -- Invoice
-		AccountingResponsible -- Balance: manages >
+		AccountingManager -- Balance: manages >
 	@enduml
 </div>
 <br>
 <img src="img/glossary.png">
 <br>
-# System Design
-\<describe here system design>
 
-\<must be consistent with Context diagram>
+# System Design
+
+Not applicable since this is a software only product.
 
 # Deployment Diagram 
 
