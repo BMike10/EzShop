@@ -56,7 +56,7 @@ EZShop is a software application to:
 ## Context Diagram
 
 <div hidden>
-	@startuml context_diagram
+	```plantuml
 		actor :Shop manager: as sm
 		actor :Cashier: as cr
 		actor :Accounting manager: as am
@@ -76,7 +76,7 @@ EZShop is a software application to:
 		s <-- EZShop
 		' EZShop <-- cms
 		EZShop <-- ccs
-	@enduml
+	```
 </div>
 <br>
 <img src="img/context_diagram.png">
