@@ -186,7 +186,7 @@ The following table indicates which actor have the rights to perform functional 
 | FR5 | yes | yes	| no | no |
 | FR6 | yes | no	| no | no |
 | FR7 | yes | no	| no | no |
-| FR8 | yes | no	| no | no |
+| FR8 | yes | no	| no | yes|
 <br>
 
 ## Non Functional Requirements
