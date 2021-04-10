@@ -126,8 +126,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 | FR1   | Manage Inventory|
 | FR1.1	| Check inventory level for a product type|
 | FR1.2	| Update inventory level for a product type (increment or decrement products quantity) |
-| FR1.3	| Show inventory level for a product type|
-| FR1.4	| Show inventory level for each product type|
+| FR1.3	| Show inventory level for each product type|
 | FR2	| Manage Catalogue|
 | FR2.1	| Add a new product type|
 | FR2.2	| Remove a product type|
@@ -213,9 +212,9 @@ The following table indicates which actor have the rights to perform functional 
 
 
 ## Use case diagram
-\<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
+
 <div hidden>
-	@startuml usecase diagram
+	@startuml usecase_diagram
 		' actors
 		actor :Shop manager: as sm
 		actor :Cashier: as cr
@@ -236,19 +235,21 @@ The following table indicates which actor have the rights to perform functional 
 
 		' associations
 		mu --> mua: <<include>>
+		ms -- mi
+		mo - ma
 		' shop manager 
 		sm --> mu
-		sm --> ma
-		sm --> mi
-		sm --> mc
-		sm --> ms
+		' sm --> ma
+		' sm --> mi
+		' sm --> mc
+		' sm --> ms
 		sm --> msu
 		sm --> mo
-		sm --> mca
+		' sm --> mca
 		' accounting manager
 		ma <-- am
 		' cashier
-		mi <-- cr
+		' mi <-- cr
 		cr --> ms
 		mc <-- cr
 		' POS system
@@ -260,38 +261,46 @@ The following table indicates which actor have the rights to perform functional 
 		mo --> s
 	@enduml
 </div>
+<br>
+<img src="img/usecase_diagram.png">
+<br>
 
-\<next describe here each use case in the UCD>
-### Use case 1, UC1
-| Actors Involved        |  |
+### Use case 1, UC1 - Check inventory level of a product type
+
+| Actors Involved        | Warehouse manager |
 | ------------- |:-------------:| 
-|  Precondition     | \<Boolean expression, must evaluate to true before the UC can start> |  
-|  Post condition     | \<Boolean expression, must evaluate to true after UC is finished> |
-|  Nominal Scenario     | \<Textual description of actions executed by the UC> |
-|  Variants     | \<other executions, ex in case of errors> |
+|  Precondition     | User is authenticated|
+|	| User has role warehouse manager | 
+|  Post condition     | |
+|  Nominal Scenario     | The warehouse manager checks for the inventory level of a product type|
+|  Variants     | Product type does not exists  |
 
-##### Scenario 1.1 
+##### Scenario 1.1 - Inventory level retrieved
 
-\<describe here scenarios instances of UC1>
-
-\<a scenario is a sequence of steps that corresponds to a particular execution of one use case>
-
-\<a scenario is a more formal description of a story>
-
-\<only relevant scenarios should be described>
-
-| Scenario 1.1 | |
+| Scenario 1.1 | Inventory level retrieved|
 | ------------- |:-------------:| 
-|  Precondition     | \<Boolean expression, must evaluate to true before the scenario can start> |
-|  Post condition     | \<Boolean expression, must evaluate to true after scenario is finished> |
+|  Precondition     | User is authenticated|
+|	| User has role warehouse manager | 
+|	| Product type required exists|
+|  Post condition     | User has read the inventory level of the product type|
 | Step#        | Description  |
-|  1     |  |  
-|  2     |  |
-|  ...     |  |
+|  	1   | Check for existence of the required product type|  
+|  	2   | Product type exists|
+|  	3   | Read into inventory the quantity of the product type |
+|	4	| Show the number read to the user|
 
-##### Scenario 1.2
+##### Scenario 1.2 - Product type does not exists
 
-##### Scenario 1.x
+| Scenario 1.2 | Product type does not exists|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role warehouse manager | 
+|	| Product type required does not exists|
+|  Post condition     | User receives error message|
+| Step#        | Description  |
+|  	1   | Check for existence of the required product type|  
+|  	2   | Product type not exists|
+|  	3   | RShow error message|
 
 ### Use case 2, UC2
 ..
