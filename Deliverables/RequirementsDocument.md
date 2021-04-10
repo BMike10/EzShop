@@ -302,8 +302,45 @@ The following table indicates which actor have the rights to perform functional 
 |  	2   | Product type not exists|
 |  	3   | RShow error message|
 
-### Use case 2, UC2
+### Use case 2, UC2 - Update inventory level of a product type
 ..
+| Actors Involved        | Warehouse manager |
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role warehouse manager | 
+|	| Product type exists|
+|  Post condition     | inventory level is updated with the new value|
+|  Nominal Scenario     | The warehouse manager updates (increment or decrement) inventory level of a product type|
+|  Variants     | Inventory level below 0 |
+
+##### Scenario 1.1 - Increment inventory level of a product type
+
+| Scenario 1.1 | Increment inventory level of a product type|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role warehouse manager | 
+|	| Product type required exists|
+|  Post condition     | inventory level is incremented with the new value|
+| Step#        | Description  |
+|  	1   | Read inventory level of the product type required|  
+|  	2   | Read the value to be added to the inventory level|
+|  	3   | Sum actual inventory level with the new value|
+|	4	| Store the computed value into the inventory|
+
+##### Scenario 1.2 - Decrement inventory level of a product type
+
+| Scenario 1.1 | Increment inventory level of a product type|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role warehouse manager | 
+|	| Product type required exists|
+|  Post condition     | inventory level is decremented with the new value|
+| Step#        | Description  |
+|  	1   | Read inventory level of the product type required|  
+|  	2   | Read the value to be subtracted from the actual inventory level|
+|  	3   | Subtract the new value from the actual inventory level|
+|	4	| Check if computed value is below 0|
+|	5	| Computed values is >= 0 so  store the computed value into the inventory|
 
 ### Use case x, UCx
 ..
