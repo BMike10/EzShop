@@ -46,7 +46,7 @@ EZShop is a software application to:
 |	Warehouse manager| Person who is responsible of managing the inventory and warehouse of the shop|
 |	Customer		| Customers of the shop who do sales in the shop			|
 |	Developer		| Person who develop the EZShop application					|
-| 	Cash register	| Instrument that register each sale happened in the shop and contains cash received from sales	|
+| 	Cash register	| Instrument that register each sale happened in the shop, contains cash received from sales and prints the sale ticket	|
 |	Product			| Product that is sold in the shop and is contained in the inventory|
 |	Inventory		| List of available product in the shop	that can be contained into a database|
 |	Supplier		| Person who sell the products to the shop manager			|
@@ -442,22 +442,22 @@ The following table indicates which actor have the rights to perform functional 
 |	8	| Add the amount of money received to the current entries|
 |	9	| Print final sale ticket|
 
-### Use case 4, UC4
+### Use case 4, UC4 - Manage accounting
 
 ##### Scenario 4.1 - 
 
-### Use case 5, UC5
+### Use case 5, UC5 - Manage customers
 
 ##### Scenario 5.1 - 
 
-### Use case 6, UC6
+### Use case 6, UC6 - Manage users
 
 ##### Scenario 6.1 - 
-### Use case 7, UC7
+### Use case 7, UC7 - Manage suppliers
 
 ##### Scenario 7.1 - 
-..
-### Use case 8, UC8
+
+### Use case 8, UC8 - Manage orders
 
 ##### Scenario 8.1 - 
 
@@ -518,7 +518,6 @@ The following table indicates which actor have the rights to perform functional 
 			discount
 			total amount
 		}
-
 		class Customer{
 			name
 			surname
@@ -543,8 +542,7 @@ The following table indicates which actor have the rights to perform functional 
 			total expenses
 			profit
 		}
-
-
+		' associations
 		Shop -- Inventory
 		Shop -- Catalogue
 		Inventory -- "*"Product
@@ -555,24 +553,24 @@ The following table indicates which actor have the rights to perform functional 
 		Role <|-- Manager
 		Role <|-- WarehouseManager
 		Role <|-- AccountingManager
-
+		' orders
 		Order -- ProductType
 		Order -- Supplier
 		Manager -- Order: places >
 		Order -- Invoice: produces >
-
+		' sales
 		Sale -- "*"Product: contains >
-
+		' catalogue
 		Catalogue -- "*"ProductType: contains >
-
+		' customer
 		Customer -- "1..*"FidelityCard
 		Shop -- "*"Customer
 		Customer"0..1" -- "*"Sale
-
+		' cashier
 		Cashier -- CashRegister: manages >
 		CashRegister -- Sale: registers >
 		WarehouseManager -- Inventory: manages >
-
+		' balance
 		Balance -- Sale
 		Balance -- Invoice
 		AccountingManager -- Balance: manages >
