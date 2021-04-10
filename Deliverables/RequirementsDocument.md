@@ -221,7 +221,7 @@ The following table indicates which actor have the rights to perform functional 
 		actor :Accounting manager: as am
 		actor :Warehouse manager: as wm
 		actor :Supplier: as s
-		actor :POS system: as ccs
+		actor :POS System: as ccs
 		' use cases
 		usecase "FR1 Manage inventory" as mi
 		usecase "FR2 Manage catalogue" as mca
@@ -265,17 +265,17 @@ The following table indicates which actor have the rights to perform functional 
 <img src="img/usecase_diagram.png">
 <br>
 
-### Use case 1, UC1 - Check inventory level of a product type
+### Use case 1, UC1 - Manage inventory
 
 | Actors Involved        | Warehouse manager |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role warehouse manager | 
-|  Post condition     | |
-|  Nominal Scenario     | The warehouse manager checks for the inventory level of a product type|
+|  Post condition     | The inventory is modified|
+|  Nominal Scenario     | The warehouse manager wants to modify the inventory|
 |  Variants     | Product type does not exists  |
 
-##### Scenario 1.1 - Inventory level retrieved
+##### Scenario 1.1 - Inventory level of a product type retrieved
 
 | Scenario 1.1 | Inventory level retrieved|
 | ------------- |:-------------:| 
@@ -302,20 +302,9 @@ The following table indicates which actor have the rights to perform functional 
 |  	2   | Product type not exists|
 |  	3   | RShow error message|
 
-### Use case 2, UC2 - Update inventory level of a product type
-..
-| Actors Involved        | Warehouse manager |
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role warehouse manager | 
-|	| Product type exists|
-|  Post condition     | inventory level is updated with the new value|
-|  Nominal Scenario     | The warehouse manager updates (increment or decrement) inventory level of a product type|
-|  Variants     | Inventory level below 0 |
+##### Scenario 1.3 - Increment inventory level of a product type
 
-##### Scenario 1.1 - Increment inventory level of a product type
-
-| Scenario 1.1 | Increment inventory level of a product type|
+| Scenario 1.3 | Increment inventory level of a product type|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role warehouse manager | 
@@ -327,9 +316,9 @@ The following table indicates which actor have the rights to perform functional 
 |  	3   | Sum actual inventory level with the new value|
 |	4	| Store the computed value into the inventory|
 
-##### Scenario 1.2 - Decrement inventory level of a product type
+##### Scenario 1.4 - Decrement inventory level of a product type
 
-| Scenario 1.1 | Increment inventory level of a product type|
+| Scenario 1.4 | Increment inventory level of a product type|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role warehouse manager | 
@@ -341,6 +330,125 @@ The following table indicates which actor have the rights to perform functional 
 |  	3   | Subtract the new value from the actual inventory level|
 |	4	| Check if computed value is below 0|
 |	5	| Computed values is >= 0 so  store the computed value into the inventory|
+
+### Use case 2, UC2 - Manage catalogue
+
+| Actors Involved        | Warehouse manager |
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role warehouse manager | 
+|  Post condition     | The catalogue is modified|
+|  Nominal Scenario     | The warehouse manager modifies the product types presents in the shop catalogue|
+|  Variants     | Product type already exists |
+
+##### Scenario 2.1 - Add a new product type and this type does not exists
+
+| Scenario 2.1 | Add a new product type and this type does not exists|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role warehouse manager | 
+|	| Product type to be inserted does not exists|
+|  Post condition     | A new product type is added|
+| Step#        | Description  |
+|	1	| Check if the product type to be inserted exists in the catalogue|
+|	2	| The product type does not exists|
+|	3	| Add to the catalogue the new product type|
+
+##### Scenario 2.2 - Add a new product type and this type exists
+
+| Scenario 2.2 | Add a new product type and this type exists|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role warehouse manager | 
+|	| Product type to be inserted exists|
+|  Post condition     | An error message is shown|
+| Step#        | Description  |
+|	1	| Check if the product type to be inserted exists in the catalogue|
+|	2	| The product type does exists in the catalogue|
+|	3	| Show error message to the user|
+
+##### Scenario 2.3 - Update product type information
+
+| Scenario 2.3 | Update product type information|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role warehouse manager | 
+|	| Product type to be updated exists|
+|  Post condition     | Information of the product type are updated|
+| Step#        | Description  |
+|	1	| Check if the product type to be inserted exists in the catalogue|
+|	2	| The product type does exists in the catalogue|
+|	3	| Read the information to be modified |
+|	4	| Store the modifications into the catalogue|
+
+### Use case 3, UC3 - Manage sales 
+
+| Actors Involved        | Cashier, POS System |
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role cashier | 
+|	| Customer wants to buy some products|
+|  Post condition     | A new sale is performed|
+|  Nominal Scenario     | The cashier manages a new sale happened in the shop|
+|  Variants     |  |
+
+##### Scenario 3.1 - Register a new sale with fidelity card, cash payment
+
+| Scenario 3.1 | Register a new sale with fidelity card, cash payment|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role cashier | 
+|	| Customer wants to buy some products|
+|	| Customer has a fidelity card|
+|	| Customer pays with cash|
+|  Post condition     | Sale is registered into the EZShop|
+|	| Customer has received sale ticket|
+|	| Cash received are into the cash register|
+|	| Inventory level of sold product is updated|
+|	| Shop entries are updated|
+| Step#        | Description  |
+|	1	| Scan barcode of the fidelity card
+|	2	| Scan barcode of each product|
+|	3	| Add the product to the sale ticket|
+| 	4	| Repeat 2-3 for each product|
+|	5	| Compute total|
+|	6	| Apply discount given by fidelity card (if applicable)|
+|	7	| Insert cash from customer into cash register|
+|	8	| Update inventory level of all sold items
+|	9	| Add the amount of money received to the current entries|
+|	10	| Print final sale ticket|
+
+##### Scenario 3.2 - Register a new sale without fidelity card, credit card payment
+
+| Scenario 3.2 | Register a new sale without fidelity card, credit card payment|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role cashier | 
+|	| Customer wants to buy some products|
+|	| Customer has not a fidelity card|
+|	| Customer pays with credit card|
+|  Post condition     | Sale is registered into the EZShop|
+|	| Customer has received sale ticket|
+|	| Inventory level of sold product is updated|
+|	| Shop entries are updated|
+| Step#        | Description  |
+|	1	| Scan barcode of each product|
+|	2	| Add the product to the sale ticket|
+| 	3	| Repeat 1-2 for each product|
+|	4	| Compute the total|
+|	5	| Send total amount to the POS System|
+|	6	| Wait for transaction completion|
+|	7	| Update inventory level of all sold items|
+|	8	| Add the amount of money received to the current entries|
+|	9	| Print final sale ticket|
+
+### Use case x, UCx
+
+##### Scenario 2.2 - 
+
+### Use case x, UCx
+
+##### Scenario 2.2 - 
 
 ### Use case x, UCx
 ..
