@@ -275,7 +275,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Nominal Scenario     | The warehouse manager wants to modify the inventory|
 |  Variants     | Product type does not exists  |
 
-##### Scenario 1.1 - Inventory level of a product type retrieved
+#### Scenario 1.1 - Inventory level of a product type retrieved
 
 | Scenario 1.1 | Inventory level retrieved|
 | ------------- |:-------------:| 
@@ -289,7 +289,7 @@ The following table indicates which actor have the rights to perform functional 
 |  	3   | Read into inventory the quantity of the product type |
 |	4	| Show the number read to the user|
 
-##### Scenario 1.2 - Product type does not exists
+#### Scenario 1.2 - Product type does not exists
 
 | Scenario 1.2 | Product type does not exists|
 | ------------- |:-------------:| 
@@ -302,7 +302,7 @@ The following table indicates which actor have the rights to perform functional 
 |  	2   | Product type not exists|
 |  	3   | RShow error message|
 
-##### Scenario 1.3 - Increment inventory level of a product type
+#### Scenario 1.3 - Increment inventory level of a product type
 
 | Scenario 1.3 | Increment inventory level of a product type|
 | ------------- |:-------------:| 
@@ -316,7 +316,7 @@ The following table indicates which actor have the rights to perform functional 
 |  	3   | Sum actual inventory level with the new value|
 |	4	| Store the computed value into the inventory|
 
-##### Scenario 1.4 - Decrement inventory level of a product type
+#### Scenario 1.4 - Decrement inventory level of a product type
 
 | Scenario 1.4 | Increment inventory level of a product type|
 | ------------- |:-------------:| 
@@ -341,7 +341,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Nominal Scenario     | The warehouse manager modifies the product types presents in the shop catalogue|
 |  Variants     | Product type already exists |
 
-##### Scenario 2.1 - Add a new product type and this type does not exists
+#### Scenario 2.1 - Add a new product type and this type does not exists
 
 | Scenario 2.1 | Add a new product type and this type does not exists|
 | ------------- |:-------------:| 
@@ -354,7 +354,7 @@ The following table indicates which actor have the rights to perform functional 
 |	2	| The product type does not exists|
 |	3	| Add to the catalogue the new product type|
 
-##### Scenario 2.2 - Add a new product type and this type exists
+#### Scenario 2.2 - Add a new product type and this type exists
 
 | Scenario 2.2 | Add a new product type and this type exists|
 | ------------- |:-------------:| 
@@ -367,7 +367,7 @@ The following table indicates which actor have the rights to perform functional 
 |	2	| The product type does exists in the catalogue|
 |	3	| Show error message to the user|
 
-##### Scenario 2.3 - Update product type information
+#### Scenario 2.3 - Update product type information
 
 | Scenario 2.3 | Update product type information|
 | ------------- |:-------------:| 
@@ -392,7 +392,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Nominal Scenario     | The cashier manages a new sale happened in the shop|
 |  Variants     |  |
 
-##### Scenario 3.1 - Register a new sale with fidelity card, cash payment
+#### Scenario 3.1 - Register a new sale with fidelity card, cash payment
 
 | Scenario 3.1 | Register a new sale with fidelity card, cash payment|
 | ------------- |:-------------:| 
@@ -418,7 +418,7 @@ The following table indicates which actor have the rights to perform functional 
 |	9	| Add the amount of money received to the current entries|
 |	10	| Print final sale ticket|
 
-##### Scenario 3.2 - Register a new sale without fidelity card, credit card payment
+#### Scenario 3.2 - Register a new sale without fidelity card, credit card payment
 
 | Scenario 3.2 | Register a new sale without fidelity card, credit card payment|
 | ------------- |:-------------:| 
@@ -451,7 +451,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Post condition     | An accounting report is ready|
 |  Nominal Scenario     | The accounting manager insert invoices and computes the report|
 |  Variants     |  |
-##### Scenario 4.1 - Add invoice
+#### Scenario 4.1 - Add invoice
 | Scenario 3.2 | Register a new sale without fidelity card, credit card payment|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
@@ -464,7 +464,7 @@ The following table indicates which actor have the rights to perform functional 
 |	3	| Insert the read invoice to the list|
 |	3	| update the balance adding total amount to due expense|
 
-##### Scenario 4.2 - Set invoice as payed
+#### Scenario 4.2 - Set invoice as payed
 | Scenario 4.2 | Set invoice as payed|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
@@ -480,7 +480,7 @@ The following table indicates which actor have the rights to perform functional 
 |	5	| Add the due amount to current balance total expense|
 |	6	| Notify the user about the success of the operation|
 
-##### Scenario 4.3 - Generate report of current balance
+#### Scenario 4.3 - Generate report of current balance
 | Scenario 4.3 | Generate report of current balance|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
@@ -506,7 +506,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Post condition     | The customer information are modified|
 |  Nominal Scenario     | The cashier registers a new customer into the system and provides her a new fidelity card|
 |  Variants     | customer data modification, fidelity card information update |
-##### Scenario 5.1 - Add a new customer
+#### Scenario 5.1 - Add a new customer
 | Scenario 5.1 | Add a new customer|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
@@ -521,7 +521,7 @@ The following table indicates which actor have the rights to perform functional 
 |	4	| Assign next available fidelity card to the customer|
 |	5	| Give card to the customer|
 
-##### Scenario 5.2 - Update customer information
+#### Scenario 5.2 - Update customer information
 | Scenario 5.2 | Update customer information|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
@@ -544,7 +544,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Nominal Scenario     | The Shop manager insert or modify a user of the system|
 |  Variants     | A user logs in|
 
-##### Scenario 6.1 - Manage user login
+#### Scenario 6.1 - Manage user login
 
 | Scenario 6.1 | Manage user login|
 | ------------- |:-------------:| 
@@ -580,7 +580,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Nominal Scenario     | The Shop manager places or aborts and order to a given supplier for a certain product type|
 |  Variants     | The order to be removed does not exist|
 
-##### Scenario 8.1 - Place an order
+#### Scenario 8.1 - Place an order
 | Scenario 8.1 | Place an order|
 | ------------- |:-------------:| 
 |  Precondition     || User is authenticated |
@@ -596,6 +596,7 @@ The following table indicates which actor have the rights to perform functional 
 |	5	| Add the order to the list of orders|
 |	6	| Generate an invoice related to the order|
 |	7	| Notify the accounting manager about a new invoice|
+|	8	| Notify the warehouse manager about the order|
 <br>
 # Glossary
 
