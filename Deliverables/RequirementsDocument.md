@@ -537,10 +537,10 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 6, UC6 - Manage users
 
-| Actors Involved        | All users |
+| Actors Involved        | ??? All users ??? |
 | ------------- |:-------------:| 
-|  Precondition     | |
-|  Post condition     | |
+|  Precondition     | ??? |
+|  Post condition     | ??? |
 |  Nominal Scenario     | The Shop manager insert or modify a user of the system|
 |  Variants     | A user logs in|
 
@@ -561,14 +561,42 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 7, UC7 - Manage suppliers
 
-##### Scenario 7.1 - 
+| Actors Involved        | Shop manager |
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated |
+|	| User role is Shop manager|
+|  Post condition     | The supplier information are inserted, modified or removed|
+|  Nominal Scenario     | The Shop manager insert or modify a supplier information on the system|
+|  Variants     | |
 
 ### Use case 8, UC8 - Manage orders
 
-##### Scenario 8.1 - 
+| Actors Involved        | Shop manager, Supplier |
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated |
+|	| User role is Shop manager|
+|	| Supplier information are present on EZShop|
+|  Post condition     | An order is placed or aborted |
+|  Nominal Scenario     | The Shop manager places or aborts and order to a given supplier for a certain product type|
+|  Variants     | The order to be removed does not exist|
 
-
-
+##### Scenario 8.1 - Place an order
+| Scenario 8.1 | Place an order|
+| ------------- |:-------------:| 
+|  Precondition     || User is authenticated |
+|	| User role is Shop manager|
+|	| Supplier information are present on EZShop|
+|  Post condition     | A new order is placed |
+|	| An invoice related to the order is generated|
+| Step#        | Description  |
+|	1	| Read the product type and the quantity to be ordered|
+|	2	| Select the supplier|
+|	3	| Generate a purchase order file|
+|	4	| Send the purchase order file as email attachment to the supplier|
+|	5	| Add the order to the list of orders|
+|	6	| Generate an invoice related to the order|
+|	7	| Notify the accounting manager about a new invoice|
+<br>
 # Glossary
 
 \<use UML class diagram to define important terms, or concepts in the domain of the system, and their relationships> 
