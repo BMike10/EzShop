@@ -626,7 +626,7 @@ The following table indicates which actor have the rights to perform functional 
 			type
 		}
 		class Product{
-			code
+			barcode
 		}
 		class Inventory{
 		}
@@ -679,7 +679,7 @@ The following table indicates which actor have the rights to perform functional 
 			id
 			amount
 			due date
-			status ("Payed", "Not payed")
+			status "Payed", "Not payed"
 		}
 		class Balance{
 			date
@@ -692,7 +692,7 @@ The following table indicates which actor have the rights to perform functional 
 		Shop -- Inventory
 		Shop -- Catalogue
 		Inventory -- "*"Product
-		Product"*" -- ProductType
+		Product"*" - ProductType
 		Shop -- "*"User: works in <
 		User -- "1..*" Role
 		Role <|-- Cashier
