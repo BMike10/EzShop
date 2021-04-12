@@ -499,7 +499,41 @@ The following table indicates which actor have the rights to perform functional 
 |	9	| Store report|
 ### Use case 5, UC5 - Manage customers
 
-##### Scenario 5.1 - 
+| Actors Involved        | Cashier |
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role Cashier | 
+|  Post condition     | The customer information are modified|
+|  Nominal Scenario     | The cashier registers a new customer into the system and provides her a new fidelity card|
+|  Variants     | customer data modification, fidelity card information update |
+##### Scenario 5.1 - Add a new customer
+| Scenario 5.1 | Add a new customer|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role Cashier | 
+|	| Customer information are not present in the system|
+|  Post condition     | The customer information are stored into EZShop|
+|	| The fidelity card is given to customer|
+| Step#        | Description  |
+|	1	| Copy information inserted from the customer into a form|
+|	2	| Check for duplicate data into customer list|
+|	3	| Customer is a new one (no same data found)|
+|	4	| Assign next available fidelity card to the customer|
+|	5	| Give card to the customer|
+
+##### Scenario 5.2 - Update customer information
+| Scenario 5.2 | Update customer information|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role Cashier | 
+|	| Customer information are already present in the system|
+|  Post condition     | The customer information are updated on EZShop|
+| Step#        | Description  |
+|	1	| Copy information inserted from the customer into a form|
+|	2	| Check for duplicate data into customer list|
+|	3	| The customer is found into EZShop|
+|	4	| Customer data are updated with the new one|
+
 
 ### Use case 6, UC6 - Manage users
 
@@ -586,6 +620,7 @@ The following table indicates which actor have the rights to perform functional 
 			id
 			amount
 			due date
+			status ("Payed", "Not payed")
 		}
 		class Balance{
 			date
