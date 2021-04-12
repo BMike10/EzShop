@@ -537,7 +537,28 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 6, UC6 - Manage users
 
-##### Scenario 6.1 - 
+| Actors Involved        | All users |
+| ------------- |:-------------:| 
+|  Precondition     | |
+|  Post condition     | |
+|  Nominal Scenario     | The Shop manager insert or modify a user of the system|
+|  Variants     | A user logs in|
+
+##### Scenario 6.1 - Manage user login
+
+| Scenario 6.1 | Manage user login|
+| ------------- |:-------------:| 
+|  Precondition     | User is not authenticated|
+|	| User information are present in the system|
+|  Post condition     | The user is authenticated |
+| Step#        | Description  |
+|	1	| Read email and password of the user|
+|	2	| Check if email is present into EZShop user|
+|	3	| Email is found|
+|	3	| Check password correspondence|
+|	4	| Password corresponds|
+|	5	| Notify the user about the success of the operation|
+
 ### Use case 7, UC7 - Manage suppliers
 
 ##### Scenario 7.1 - 
