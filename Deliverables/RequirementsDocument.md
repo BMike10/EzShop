@@ -738,5 +738,24 @@ Not applicable since this is a software only product.
 
 # Deployment Diagram 
 
-\<describe here deployment diagram >
+<div hidden style="display=none">
+	@startuml deployment_diagram
+		node Server
+		node "Desktop computer" as Computer
+		node "Cash register" as cr
+
+		artifact "EZShop app" as app
+		artifact "Cash register controller" as crc
+		artifact "EZShop client app" as cApp
+
+		Server . app
+		cr .. crc
+		cr .. cApp
+		Computer .. cApp
+
+		Server -- Computer
+		Server -- cr
+	@enduml
+</div>
+<img src="img/deployment_diagram">
 
