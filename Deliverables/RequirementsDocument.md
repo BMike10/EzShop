@@ -757,5 +757,5 @@ Not applicable since this is a software only product.
 		Server -- cr
 	@enduml
 </div>
-<img src="img/deployment_diagram">
+<img src="img/deployment_diagram.png">
 
