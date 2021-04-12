@@ -444,8 +444,59 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 4, UC4 - Manage accounting
 
-##### Scenario 4.1 - 
+| Actors Involved        | Accounting manager |
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role Accounting manager | 
+|  Post condition     | An accounting report is ready|
+|  Nominal Scenario     | The accounting manager insert invoices and computes the report|
+|  Variants     |  |
+##### Scenario 4.1 - Add invoice
+| Scenario 3.2 | Register a new sale without fidelity card, credit card payment|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role Accounting manager | 
+|  Post condition     | A new invoice is registered |
+|	| Current balance is updated |
+| Step#        | Description  |
+|	1	| Read data of the invoice (total amount, due date,...)|
+|	2	| Set the invoice status to "Not payed"|
+|	3	| Insert the read invoice to the list|
+|	3	| update the balance adding total amount to due expense|
 
+##### Scenario 4.2 - Set invoice as payed
+| Scenario 4.2 | Set invoice as payed|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role Accounting manager | 
+|  Post condition     | A new invoice is registered |
+|	| Current balance is updated |
+| Step#        | Description  |
+|	1	| List all invoices with status "Not payed"|
+|	2	| Get invoice selected from the user|
+|	3	| Set selected invoice status to "Payed"|
+|	4	| Set selected invoice payment date to current date|
+|	4	| Subtract due amount from the current balance due expense|
+|	5	| Add the due amount to current balance total expense|
+|	6	| Notify the user about the success of the operation|
+
+##### Scenario 4.3 - Generate report of current balance
+| Scenario 4.3 | Generate report of current balance|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role Accounting manager | 
+|  Post condition     | A report of the current balance is generated |
+|	| Current balance is updated |
+| Step#        | Description  |
+|	1	| Get starting date from the user|
+|	2	| Get all invoices with payment date between starting date and today|
+|	3	| Add to the report all invoices grouped by date (sum all invoices on the same day)|
+|	4	| Build a graph with all invoices added to report (axis date, sum of amounts)|
+|	5	| Get all sales with date between starting date and today|
+|	6	| Add to the report all sales grouped by date (sum all sales happened on the same day)|
+|	7	| Build a graph with all sales added to report (axis date, sum of amounts)|
+|	8	| Compute and add to report current profit |
+|	9	| Store report|
 ### Use case 5, UC5 - Manage customers
 
 ##### Scenario 5.1 - 
@@ -540,6 +591,7 @@ The following table indicates which actor have the rights to perform functional 
 			date
 			total earnings
 			total expenses
+			total due expenses
 			profit
 		}
 		' associations
