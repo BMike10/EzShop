@@ -50,12 +50,15 @@ EZShop is a software application to:
 |	Product			| Product that is sold in the shop and is contained in the inventory|
 |	Inventory		| List of available product in the shop	that can be contained into a database|
 |	Supplier		| Person who sell the products to the shop manager			|
-|	POS system|	System that manages credit cards payments from customers|
+|	POS system		| System that manages credit cards payments from customers|
+|	End user		| Person that will use the EZShop application |
 <br>
+
 # Context Diagram and interfaces
+
 ## Context Diagram
 
-<div hidden>
+<div hidden style="display:none">
 	@startuml context_diagram
 		actor :Shop manager: as sm
 		actor :Cashier: as cr
@@ -68,12 +71,12 @@ EZShop is a software application to:
 		rectangle System{
 		usecase EZShop
 		}
-		sm --> EZShop
+		sm -> EZShop
 		cr --> EZShop
 		am --> EZShop
 		wm --> EZShop
 		'	i --> EZShop
-		s <-- EZShop
+		s <- EZShop
 		' EZShop <-- cms
 		EZShop <-- ccs
 	@enduml
@@ -116,6 +119,7 @@ Giorgia is 50, she works as a supplier for many small shops in Turin. Since she 
 <br>
 Giovanni is 45, he helps the manager of a small food shop in managing the accounting of the shop. He has a daughter and he would like to spend all of his time with her. The manager of the shop he works for requires daily, weekly and monthly reports about the entries and the invoices of the shop. That requires a lot of time and he would like to do that faster in order to have more free time.
 <br>
+
 # Functional and non functional requirements
 
 ## Functional Requirements
@@ -213,7 +217,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ## Use case diagram
 
-<div hidden>
+<div style="display:none" hidden>
 	@startuml usecase_diagram
 		' actors
 		actor :Shop manager: as sm
@@ -236,7 +240,7 @@ The following table indicates which actor have the rights to perform functional 
 		' associations
 		mu --> mua: <<include>>
 		ms -- mi
-		mo - ma
+		mo -- ma
 		' shop manager 
 		sm --> mu
 		' sm --> ma
@@ -244,7 +248,7 @@ The following table indicates which actor have the rights to perform functional 
 		' sm --> mc
 		' sm --> ms
 		sm --> msu
-		sm --> mo
+		sm -> mo
 		' sm --> mca
 		' accounting manager
 		ma <-- am
@@ -258,7 +262,7 @@ The following table indicates which actor have the rights to perform functional 
 		mi <-- wm
 		mca <-- wm
 		' supplier 
-		mo --> s
+		mo -> s
 	@enduml
 </div>
 <br>
@@ -598,12 +602,10 @@ The following table indicates which actor have the rights to perform functional 
 |	7	| Notify the accounting manager about a new invoice|
 |	8	| Notify the warehouse manager about the order|
 <br>
+
 # Glossary
 
-\<use UML class diagram to define important terms, or concepts in the domain of the system, and their relationships> 
-
-\<concepts are used consistently all over the document, ex in use cases, requirements etc>
-<div hidden>
+<div style="display:none" hidden>
 	@startuml glossary
 		class Shop{
 			name
@@ -721,7 +723,7 @@ The following table indicates which actor have the rights to perform functional 
 
 Not applicable since this is a software only product.
 
-<div hidden>
+<div style="display:none" hidden>
 	@startuml system_design
 		class CashRegister
 		class LaserBeamScanner
@@ -738,7 +740,7 @@ Not applicable since this is a software only product.
 
 # Deployment Diagram 
 
-<div hidden style="display=none">
+<div style="display:none" hidden>
 	@startuml deployment_diagram
 		node Server
 		node "Desktop computer" as Computer
