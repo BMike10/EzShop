@@ -721,6 +721,21 @@ The following table indicates which actor have the rights to perform functional 
 
 Not applicable since this is a software only product.
 
+<div hidden>
+	@startuml system_design
+		class CashRegister
+		class LaserBeamScanner
+		class POS
+
+		CashRegister *-- LaserBeamScanner 
+		CashRegister *-- TouchScreen
+		CashRegister *-- Computer
+		CashRegister *-- MoneyHolder
+		CashRegister - POS
+	@enduml
+</div>
+<img src="img/system_design.png">
+
 # Deployment Diagram 
 
 \<describe here deployment diagram >
