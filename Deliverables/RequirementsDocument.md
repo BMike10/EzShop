@@ -229,6 +229,7 @@ The following table indicates which actor have the rights to perform functional 
 		actor :Warehouse manager: as wm
 		actor :Supplier: as s
 		actor :POS System: as ccs
+		actor :Fidelity card: as fc
 		' use cases
 		usecase "FR1 Manage inventory" as mi
 		usecase "FR2 Manage catalogue" as mca
@@ -266,6 +267,9 @@ The following table indicates which actor have the rights to perform functional 
 		mca <-- wm
 		' supplier 
 		mo -> s
+		' fidelity card
+		fc -> ms
+		mc --> fc
 	@enduml
 </div>
 <br>
@@ -390,7 +394,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 3, UC3 - Manage sales 
 
-| Actors Involved        | Cashier, POS System |
+| Actors Involved        | Cashier, POS System, Fidelity card |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role cashier | 
