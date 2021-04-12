@@ -52,6 +52,7 @@ EZShop is a software application to:
 |	Supplier		| Person who sell the products to the shop manager			|
 |	POS system		| System that manages credit cards payments from customers|
 |	End user		| Person that will use the EZShop application |
+|	Fidelity card	| Card given to a customer in order to receive some discounts |
 <br>
 
 # Context Diagram and interfaces
@@ -79,6 +80,7 @@ EZShop is a software application to:
 		s <- EZShop
 		' EZShop <-- cms
 		EZShop <-- ccs
+		EZShop <-- :Fidelity card:
 	@enduml
 </div>
 <br>
@@ -94,7 +96,8 @@ EZShop is a software application to:
 |	Accounting manager| GUI		| Screen, keyboard, mouse	|
 |	Warehouse manager| GUI		| Screen, keyboard, mouse	|
 |	Supplier		| Purchase order file	| Email on the network containing as attachment the order	|
-|	POS management system| ECR interface described at <a href="https://www.ccv.eu/wp-content/uploads/2018/05/zvt_ecr_interface_specification.pdf" >ECR</a>| Wired connection|
+|	POS system| ECR interface described at <a href="https://www.ccv.eu/wp-content/uploads/2018/05/zvt_ecr_interface_specification.pdf" >ECR</a>| Wired connection|
+|	Fidelity card	| Barcode	| Laser beam scanner|
 <!--|	Customer management system	| Web service |	Internet connection|-->
 
 <!--|	Inventory and catalogue system	| Queries		| Database connection over the network	|)-->
