@@ -51,7 +51,7 @@ EZShop is a software application to:
 |	Inventory		| List of available product in the shop	that can be contained into a database|
 |	Supplier		| Person who sell the products to the shop manager			|
 |	POS system		| System that manages credit cards payments from customers|
-|	End user		| Person that will use the EZShop application |
+|	User			| Person that will use the EZShop application which has one or many roles in the shop |
 |	Fidelity card	| Card given to a customer in order to receive some discounts |
 <br>
 
@@ -61,24 +61,29 @@ EZShop is a software application to:
 
 <div hidden style="display:none">
 	@startuml context_diagram
-		actor :Shop manager: as sm
-		actor :Cashier: as cr
-		actor :Accounting manager: as am
-		' actor :Customer management system: as cms
-		actor :Warehouse manager: as wm
-		'	actor :Inventory and Catalogue system: as i	:
-		actor :Supplier: as s
-		actor :POS system: as ccs
+		' system
 		rectangle System{
 		usecase EZShop
 		}
-		sm -> EZShop
-		cr --> EZShop
-		am --> EZShop
-		wm --> EZShop
-		'	i --> EZShop
+		' actors
+		' actor :Shop manager: as sm
+		' actor :Cashier: as cr
+		' actor :Accounting manager: as am
+		' actor :Warehouse manager: as wm
+		' variant with single end user which has roles
+		actor :User: as u
+
+		actor :Supplier: as s
+		actor :POS system: as ccs
+		' associations
+		' sm -> EZShop
+		' cr --> EZShop
+		' am --> EZShop
+		' wm --> EZShop		
+		' variant with only end user
+		u --> EZShop
+
 		s <- EZShop
-		' EZShop <-- cms
 		EZShop <-- ccs
 		EZShop <-- :Fidelity card:
 	@enduml
@@ -91,16 +96,15 @@ EZShop is a software application to:
 
 | Actor | Logical Interface | Physical Interface  |
 | ------------- |:-------------:| -----:|
+|	Supplier		| Purchase order file	| Email on the network containing as attachment the order	|
+|	POS system| ECR interface described at <a href="https://www.ccv.eu/wp-content/uploads/2018/05/zvt_ecr_interface_specification.pdf" >ECR</a>| Wired connection|
+|	Fidelity card	| Barcode	| Laser beam scanner|
 |   Shop Manager    | GUI 		| Screen, keyboard, mouse  	|
 |	Cashier			| GUI 		| Screen, keyboard, mouse?	|
 |	Accounting manager| GUI		| Screen, keyboard, mouse	|
 |	Warehouse manager| GUI		| Screen, keyboard, mouse	|
-|	Supplier		| Purchase order file	| Email on the network containing as attachment the order	|
-|	POS system| ECR interface described at <a href="https://www.ccv.eu/wp-content/uploads/2018/05/zvt_ecr_interface_specification.pdf" >ECR</a>| Wired connection|
-|	Fidelity card	| Barcode	| Laser beam scanner|
-<!--|	Customer management system	| Web service |	Internet connection|-->
+	|	User			| GUI		| Screen, keyboard, mouse	|
 
-<!--|	Inventory and catalogue system	| Queries		| Database connection over the network	|)-->
 <br>
 
 # Stories and personas
@@ -181,7 +185,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 
 <br>
 
-### Access rights, functional requirements and actor
+### Access rights, functional requirements and actor (?? User roles ??)
 The following table indicates which actor have the rights to perform functional requirements and the corresponding sub-requirements associated with them described above.
 <br>
 |Function| Manager| Cashier | Accounting Responsible| Warehouse manager|
@@ -222,14 +226,6 @@ The following table indicates which actor have the rights to perform functional 
 
 <div style="display:none" hidden>
 	@startuml usecase_diagram
-		' actors
-		actor :Shop manager: as sm
-		actor :Cashier: as cr
-		actor :Accounting manager: as am
-		actor :Warehouse manager: as wm
-		actor :Supplier: as s
-		actor :POS System: as ccs
-		actor :Fidelity card: as fc
 		' use cases
 		usecase "FR1 Manage inventory" as mi
 		usecase "FR2 Manage catalogue" as mca
@@ -239,32 +235,54 @@ The following table indicates which actor have the rights to perform functional 
 		usecase "FR6 Manage users" as mu
 		usecase "FR7 Manage suppliers" as msu
 		usecase "FR8 Manage orders" as mo
-		usecase "FR6.5 Authenticate user" as mua		
+		usecase "FR6.5 Authenticate user" as mua	
+
+		' actors
+		actor :Supplier: as s
+		actor :POS System: as ccs
+		actor :Fidelity card: as fc	
+
+		' actor :Shop manager: as sm
+		' actor :Cashier: as cr
+		' actor :Accounting manager: as am
+		' actor :Warehouse manager: as wm
+		' variant with only the end user
+		actor :User: as u
+		u --> mi
+		u --> mca
+		u --> ms
+		u --> ma
+		u --> mc
+		u --> mu
+		u --> msu
+		u --> mo
+		u --> mua
 
 		' associations
 		mu --> mua: <<include>>
 		ms -- mi
 		mo -- ma
 		' shop manager 
-		sm --> mu
-		' sm --> ma
-		' sm --> mi
-		' sm --> mc
-		' sm --> ms
-		sm --> msu
-		sm -> mo
-		' sm --> mca
-		' accounting manager
-		ma <-- am
-		' cashier
-		' mi <-- cr
-		cr --> ms
-		mc <-- cr
+		' sm --> mu
+		' ' sm --> ma
+		' ' sm --> mi
+		' ' sm --> mc
+		' ' sm --> ms
+		' sm --> msu
+		' sm -> mo
+		' ' sm --> mca
+		' ' accounting manager
+		' ma <-- am
+		' ' cashier
+		' ' mi <-- cr
+		' cr --> ms
+		' mc <-- cr
+		' ' warehouse manager
+		' mi <-- wm
+		' mca <-- wm
+		
 		' POS system
 		ms --> ccs
-		' warehouse manager
-		mi <-- wm
-		mca <-- wm
 		' supplier 
 		mo -> s
 		' fidelity card
@@ -278,7 +296,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 1, UC1 - Manage inventory
 
-| Actors Involved        | Warehouse manager |
+| Actors Involved        | Warehouse manager (?? User ??) |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role warehouse manager | 
@@ -344,7 +362,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 2, UC2 - Manage catalogue
 
-| Actors Involved        | Warehouse manager |
+| Actors Involved        | Warehouse manager (?? User ??)|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role warehouse manager | 
@@ -394,7 +412,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 3, UC3 - Manage sales 
 
-| Actors Involved        | Cashier, POS System, Fidelity card |
+| Actors Involved        | Cashier (?? User ??), POS System, Fidelity card |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role cashier | 
@@ -455,7 +473,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 4, UC4 - Manage accounting
 
-| Actors Involved        | Accounting manager |
+| Actors Involved        | Accounting manager (?? User ??)|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role Accounting manager | 
@@ -510,7 +528,7 @@ The following table indicates which actor have the rights to perform functional 
 |	9	| Store report|
 ### Use case 5, UC5 - Manage customers
 
-| Actors Involved        | Cashier |
+| Actors Involved        | Cashier (?? User ??) |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role Cashier | 
@@ -548,7 +566,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 6, UC6 - Manage users
 
-| Actors Involved        | ??? All users ??? |
+| Actors Involved        | (?? User ??) |
 | ------------- |:-------------:| 
 |  Precondition     | ??? |
 |  Post condition     | ??? |
@@ -572,7 +590,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 7, UC7 - Manage suppliers
 
-| Actors Involved        | Shop manager |
+| Actors Involved        | Shop manager (?? User ??) |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated |
 |	| User role is Shop manager|
@@ -582,7 +600,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 8, UC8 - Manage orders
 
-| Actors Involved        | Shop manager, Supplier |
+| Actors Involved        | Shop manager (?? User ??), Supplier |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated |
 |	| User role is Shop manager|
