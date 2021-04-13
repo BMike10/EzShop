@@ -66,26 +66,31 @@ EZShop is a software application to:
 		usecase EZShop
 		}
 		' actors
-		' actor :Shop manager: as sm
-		' actor :Cashier: as cr
-		' actor :Accounting manager: as am
-		' actor :Warehouse manager: as wm
+		''' actor :Shop manager: as sm
+		''' actor :Cashier: as cr
+		''' actor :Accounting manager: as am
+		''' actor :Warehouse manager: as wm
 		' variant with single end user which has roles
 		actor :User: as u
 
 		actor :Supplier: as s
 		actor :POS system: as ccs
 		' associations
-		' sm -> EZShop
-		' cr --> EZShop
-		' am --> EZShop
-		' wm --> EZShop		
+		''' sm -> EZShop
+		''' cr --> EZShop
+		''' am --> EZShop
+		''' wm --> EZShop		
 		' variant with only end user
 		u --> EZShop
 
 		s <- EZShop
 		EZShop <-- ccs
 		EZShop <-- :Fidelity card:
+		''' ' If we choose Cash Register and laser beam external
+		''' :Cash Register: --> EZShop
+		''' :Laser beam scanner: -- EZShop
+		' If cash register and laser beam scanner are internal
+		Product --> EZShop
 	@enduml
 </div>
 <br>
@@ -104,7 +109,13 @@ EZShop is a software application to:
 |	Accounting manager| GUI		| Screen, keyboard, mouse	|
 |	Warehouse manager| GUI		| Screen, keyboard, mouse	|
 	|	User			| GUI		| Screen, keyboard, mouse	|
-
+<!-- If lase beam scanner and cash register are internal-->
+<!-- |Product| Barcode| Laser beam scanner|-->
+<!-- If cash register and laser beam scanner are external-->
+<!-- 
+	|Cash register| | Cable serial communication|
+	|Laser beam scanner| | Cable serial communication|
+	 -->
 <br>
 
 # Stories and personas
@@ -242,11 +253,11 @@ The following table indicates which actor have the rights to perform functional 
 		actor :POS System: as ccs
 		actor :Fidelity card: as fc	
 
-		' actor :Shop manager: as sm
-		' actor :Cashier: as cr
-		' actor :Accounting manager: as am
-		' actor :Warehouse manager: as wm
-		' variant with only the end user
+		''' actor :Shop manager: as sm
+		''' actor :Cashier: as cr
+		''' actor :Accounting manager: as am
+		''' actor :Warehouse manager: as wm
+		''' variant with only the end user
 		actor :User: as u
 		u --> mi
 		u --> mca
@@ -262,32 +273,37 @@ The following table indicates which actor have the rights to perform functional 
 		mu --> mua: <<include>>
 		ms -- mi
 		mo -- ma
-		' shop manager 
-		' sm --> mu
-		' ' sm --> ma
-		' ' sm --> mi
-		' ' sm --> mc
-		' ' sm --> ms
-		' sm --> msu
-		' sm -> mo
-		' ' sm --> mca
-		' ' accounting manager
-		' ma <-- am
-		' ' cashier
-		' ' mi <-- cr
-		' cr --> ms
-		' mc <-- cr
-		' ' warehouse manager
-		' mi <-- wm
-		' mca <-- wm
+		''' shop manager 
+		''' sm --> mu
+		''' ' sm --> ma
+		''' ' sm --> mi
+		''' ' sm --> mc
+		''' ' sm --> ms
+		''' sm --> msu
+		''' sm -> mo
+		''' ' sm --> mca
+		''' ' accounting manager
+		''' ma <-- am
+		''' ' cashier
+		''' ' mi <-- cr
+		''' cr --> ms
+		''' mc <-- cr
+		''' ' warehouse manager
+		''' mi <-- wm
+		''' mca <-- wm
 		
 		' POS system
 		ms --> ccs
 		' supplier 
 		mo -> s
 		' fidelity card
-		fc -> ms
 		mc --> fc
+		''' ' if we choose barcode reader and laser beam scanner external
+		''' :Cash register: --> ms
+		''' :Laser beam scanner: --> ms
+		' if we choose barcode reader and laser beam scanner internal
+		:Product: --> ms
+		fc -> ms
 	@enduml
 </div>
 <br>
@@ -412,7 +428,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 3, UC3 - Manage sales 
 
-| Actors Involved        | Cashier (?? User ??), POS System, Fidelity card |
+| Actors Involved        | Cashier (?? User ??), POS System, Fidelity card (??? Laser beam scanner, cash register / Product ???) |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role cashier | 
@@ -745,9 +761,10 @@ The following table indicates which actor have the rights to perform functional 
 <br>
 
 # System Design
-
+<!-- if cash register and laser beam are external -->
 Not applicable since this is a software only product.
 
+<!-- if we choose the cash register and laser beam scanner internal -->
 <div style="display:none" hidden>
 	@startuml system_design
 		class CashRegister
@@ -761,6 +778,7 @@ Not applicable since this is a software only product.
 		CashRegister - POS
 	@enduml
 </div>
+
 <img src="img/system_design.png">
 
 # Deployment Diagram 
@@ -769,18 +787,21 @@ Not applicable since this is a software only product.
 	@startuml deployment_diagram
 		node Server
 		node "Desktop computer" as Computer
+		' cash register is only if we decide it is internal
 		node "Cash register" as cr
 
 		artifact "EZShop app" as app
-		artifact "Cash register controller" as crc
 		artifact "EZShop client app" as cApp
 
 		Server . app
-		cr .. crc
-		cr .. cApp
 		Computer .. cApp
 
 		Server -- Computer
+
+		' Only if Cash register internal
+		artifact "Cash register controller" as crc
+		cr .. crc
+		cr .. cApp
 		Server -- cr
 	@enduml
 </div>
