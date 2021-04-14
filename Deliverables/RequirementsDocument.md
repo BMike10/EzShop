@@ -51,7 +51,7 @@ EZShop is a software application to:
 |	Inventory		| List of available product in the shop	that can be contained into a database|
 |	Supplier		| Person who sell the products to the shop manager			|
 |	POS system		| System that manages credit cards payments from customers|
-|	User			| Person that will use the EZShop application which has one or many roles in the shop |
+|	Anonymous User			| Person that will use the EZShop application which has one or many roles in the shop |
 |	Fidelity card	| Card given to a customer in order to receive some discounts |
 <br>
 
@@ -66,12 +66,16 @@ EZShop is a software application to:
 		usecase EZShop
 		}
 		' actors
-		''' actor :Shop manager: as sm
-		''' actor :Cashier: as cr
-		''' actor :Accounting manager: as am
-		''' actor :Warehouse manager: as wm
+		actor :Shop manager: as sm
+		actor :Cashier: as cr
+		actor :Accounting manager: as am
+		actor :Warehouse manager: as wm
 		' variant with single end user which has roles
-		actor :User: as u
+		actor :Anonymous User: as u
+		sm --|> u
+		cr -|> u
+		am --|> u
+		u <|-- wm
 
 		actor :Supplier: as s
 		actor :POS system: as ccs
@@ -81,7 +85,7 @@ EZShop is a software application to:
 		''' am --> EZShop
 		''' wm --> EZShop		
 		' variant with only end user
-		u --> EZShop
+		u -> EZShop
 
 		s <- EZShop
 		EZShop <-- ccs
@@ -104,11 +108,13 @@ EZShop is a software application to:
 |	Supplier		| Purchase order file	| Email on the network containing as attachment the order	|
 |	POS system| ECR interface described at <a href="https://www.ccv.eu/wp-content/uploads/2018/05/zvt_ecr_interface_specification.pdf" >ECR</a>| Wired connection|
 |	Fidelity card	| Barcode	| Laser beam scanner|
+|	User			| GUI		| Screen, keyboard, mouse	|
+<!--
 |   Shop Manager    | GUI 		| Screen, keyboard, mouse  	|
 |	Cashier			| GUI 		| Screen, keyboard, mouse?	|
 |	Accounting manager| GUI		| Screen, keyboard, mouse	|
 |	Warehouse manager| GUI		| Screen, keyboard, mouse	|
-	|	User			| GUI		| Screen, keyboard, mouse	|
+-->
 <!-- If lase beam scanner and cash register are internal-->
 <!-- |Product| Barcode| Laser beam scanner|-->
 <!-- If cash register and laser beam scanner are external-->
@@ -160,7 +166,7 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 | FR3.2	| Remove a previous sale|
 | FR3.3	| Manage payment with credit card|
 | FR3.4	| Compute sale ticket|
-| ??? FR3.5	|	Manage replacement (remove a previous sale and use the credit to buy a new item)	
+| FR3.5	| Manage sale with fidelity card|	
 | FR4	| Manage accounting|
 | FR4.1	| See all invoices|
 | FR4.2	| Get current balance|
@@ -312,7 +318,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 1, UC1 - Manage inventory
 
-| Actors Involved        | Warehouse manager (?? User ??) |
+| Actors Involved        | (??1 Warehouse manager 1??) (?? User ??) |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role warehouse manager | 
@@ -378,7 +384,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 2, UC2 - Manage catalogue
 
-| Actors Involved        | Warehouse manager (?? User ??)|
+| Actors Involved        | (??! Warehouse manager 1??) (?? User ??)|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role warehouse manager | 
@@ -428,7 +434,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 3, UC3 - Manage sales 
 
-| Actors Involved        | Cashier (?? User ??), POS System, Fidelity card (??? Laser beam scanner, cash register / Product ???) |
+| Actors Involved        | (??1 Cashier 1??) (?? User ??), POS System, Fidelity card (??? Laser beam scanner, cash register / Product ???) |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role cashier | 
@@ -489,7 +495,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 4, UC4 - Manage accounting
 
-| Actors Involved        | Accounting manager (?? User ??)|
+| Actors Involved        | (??1 Accounting manager 1??) (?? User ??)|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role Accounting manager | 
@@ -507,7 +513,7 @@ The following table indicates which actor have the rights to perform functional 
 |	1	| Read data of the invoice (total amount, due date,...)|
 |	2	| Set the invoice status to "Not payed"|
 |	3	| Insert the read invoice to the list|
-|	3	| update the balance adding total amount to due expense|
+|	4	| update the balance adding total amount to due expense|
 
 #### Scenario 4.2 - Set invoice as payed
 | Scenario 4.2 | Set invoice as payed|
@@ -544,7 +550,7 @@ The following table indicates which actor have the rights to perform functional 
 |	9	| Store report|
 ### Use case 5, UC5 - Manage customers
 
-| Actors Involved        | Cashier (?? User ??) |
+| Actors Involved        | (??1 Cashier 1??) (?? User ??) |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |	| User has role Cashier | 
@@ -606,7 +612,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 7, UC7 - Manage suppliers
 
-| Actors Involved        | Shop manager (?? User ??) |
+| Actors Involved        | (??1 Shop manager 1??) (?? User ??) |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated |
 |	| User role is Shop manager|
@@ -616,7 +622,7 @@ The following table indicates which actor have the rights to perform functional 
 
 ### Use case 8, UC8 - Manage orders
 
-| Actors Involved        | Shop manager (?? User ??), Supplier |
+| Actors Involved        | (??1 Shop manager 1??) (?? User ??), Supplier |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated |
 |	| User role is Shop manager|
@@ -665,7 +671,7 @@ The following table indicates which actor have the rights to perform functional 
 		class Inventory{
 		}
 		class Catalogue
-		note top of Catalogue: Contains all product \ntypes sold in the shop 
+		note top of Catalogue: Contains all product \ntypes sold in the shop \nproduct types are from 500 to 2000
 		note right of User: Represent all people working \nin the shop including the \nmanager
 		class User{
 			name
@@ -751,9 +757,11 @@ The following table indicates which actor have the rights to perform functional 
 		CashRegister -- Sale: registers >
 		WarehouseManager -- Inventory: manages >
 		' balance
-		Balance -- Sale
-		Balance -- Invoice
+		Balance -- "*"Sale
+		Balance -- "*"Invoice
 		AccountingManager -- Balance: manages >
+
+		' CashRegister -- Pos
 	@enduml
 </div>
 <br>
@@ -775,6 +783,7 @@ Not applicable since this is a software only product.
 		CashRegister *-- TouchScreen
 		CashRegister *-- Computer
 		CashRegister *-- MoneyHolder
+		CashRegister *-- Printer
 		CashRegister - POS
 	@enduml
 </div>
