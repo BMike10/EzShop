@@ -667,8 +667,8 @@ The following table indicates which actor have the rights to perform functional 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM or Cashier C|
 |  Post condition     | New inventory level for a product type is updated on the system |
 |      | Number of product available in the inventory is shown on screen |
-|  Nominal Scenario     | Customer C buys a products or more. Cashier C notify to Warehouse manager WM on products sold. WM updates the informations about products sold  |
-|  Variants     | New products order are issued. SM notify to WM who updates the informations about purchased products |
+|  Nominal Scenario     | Customer C buys a products or more. Cashier C notify to Warehouse manager WM on products sold. WM updates the information about products sold  |
+|  Variants     | New products order are issued. SM notify to WM who updates the information about purchased products |
 
 ### Notify shop manager for an unavailable product, UC3
 | Actors Involved        | Warehouse Manager, Shop Manager |
@@ -676,10 +676,10 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisment is sent to shop manager|
-|       | Product informations are updated (available soon ecc.) | 
-|  Nominal Scenario     | Warehouse type user WU makes check on availablity of product in the inventory; One or more products are unavailable; The system identifies the product and sends notify to shop manager;  |
-|  Variants     | Warehouse type user WM makes check on availablity of product in the inventory; All products in the catalogue are available in the inventory; The system identifies almost finished products and sends notify to shop manager who decides if place an order or not  |
+|  Post condition     | New advertisement is sent to shop manager|
+|       | Product information are updated (available soon ecc.) | 
+|  Nominal Scenario     | Warehouse type user WU makes check on availability of product in the inventory; One or more products are unavailable; The system identifies the product and sends notify to shop manager;  |
+|  Variants     | Warehouse type user WM makes check on availability of product in the inventory; All products in the catalogue are available in the inventory; The system identifies almost finished products and sends notify to shop manager who decides if place an order or not  |
 
 ##### Scenario 3.1 
 
@@ -688,10 +688,10 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisment is sent to shop manager|
-|       | Product informations are updated (available soon ecc.) | 
+|  Post condition     | New advertisement is sent to shop manager|
+|       | Product information are updated (available soon ecc.) | 
 | Step#        | Description  |
-|  1     | WM user checks products availabilty  |  
+|  1     | WM user checks products availability  |  
 |  2     | The product is shown on the app |
 |  3     | Automatic notification is generated and sent to an shop manager about absence of unavailable products  |
 |  4     | The products almost finished is shown |
@@ -705,10 +705,10 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisment is sent to shop manager|
-|       | Product informations are updated (available soon ecc.) | 
+|  Post condition     | New advertisement is sent to shop manager|
+|       | Product information are updated (available soon ecc.) | 
 | Step#        | Description  |
-|  1     | WM user checks products availabilty  |  
+|  1     | WM user checks products availability  |  
 |  2     | The products almost finished is shown on the app |
 |  3     | Automatic notification is generated and sent to an shop manager  |
 |  4     | shop manager decides if place an order or not |
@@ -722,7 +722,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Post condition  | Product is added/updated in the system |
 |	|	Addition of product information is required to the manager	|
 |	|	New order is required to shop manager	|
-|  Nominal Scenario     | shop manager requires to add or update new salable product in the shop. He notifies Warehouse Manager who adds the new product with all the informations about it. In the end SM sends new order to supplier for new product  |
+|  Nominal Scenario     | shop manager requires to add or update new salable product in the shop. He notifies Warehouse Manager who adds the new product with all the information about it. In the end SM sends new order to supplier for new product  |
 |  Variants     | Add a new product type and this type does not exists |
 
 ##### Scenario 3.1 
@@ -732,10 +732,10 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisment is sent to shop manager|
-|       | Product informations are updated (available soon ecc.) | 
+|  Post condition     | New advertisement is sent to shop manager|
+|       | Product information are updated (available soon ecc.) | 
 | Step#        | Description  |
-|  1     | WM user checks products availabilty  |  
+|  1     | WM user checks products availability  |  
 |  2     | The product is shown on the app |
 |  3     | Automatic notification is generated and sent to an shop manager about absence of unavailable products  |
 |  4     | The products almost finished is shown |
@@ -749,10 +749,10 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisment is sent to shop manager|
-|       | Product informations are updated (available soon ecc.) | 
+|  Post condition     | New advertisement is sent to shop manager|
+|       | Product information are updated (available soon ecc.) | 
 | Step#        | Description  |
-|  1     | WM user checks products availabilty  |  
+|  1     | WM user checks products availability  |  
 |  2     | The products almost finished is shown on the app |
 |  3     | Automatic notification is generated and sent to an shop manager  |
 |  4     | shop manager decides if place an order or not |
@@ -765,7 +765,7 @@ The following table indicates which actor have the rights to perform functional 
 |	|	Deleted sale  are conceded by the shop manager | 
 |  Post condition  | Product is removed from the system |
 |	|	Notification is sent to supplier on deleted product order	|
-|  Nominal Scenario     | Shop manager requires to remove salable product in the shop. He notifies Warehouse Manager who remove product with all the informations about it from catalogue. In the end SM sends notification on order stop to supplier for this product  |
+|  Nominal Scenario     | Shop manager requires to remove salable product in the shop. He notifies Warehouse Manager who remove product with all the information about it from catalogue. In the end SM sends notification on order stop to supplier for this product  |
 |  Variants     | Remove the product type already removed |
 
 ### Register new customer purchase, UC6
@@ -987,7 +987,7 @@ The following table indicates which actor have the rights to perform functional 
 |	7	| Notify the accounting manager about a new invoice|
 |	8	| Notify the warehouse manager about the order|
 
-#### Scenario 18.2 - Repeate order 
+#### Scenario 18.2 - Repeat order 
 
 
 ### Abort a previously inserted order, UC19
