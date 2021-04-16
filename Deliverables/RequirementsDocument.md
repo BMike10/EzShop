@@ -202,10 +202,10 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 
 <br>
 
-### Access rights, functional requirements and actor (?? User roles ??)
+### Access rights, functional requirements and actors
 The following table indicates which actor have the rights to perform functional requirements and the corresponding sub-requirements associated with them described above.
 <br>
-|Function| Manager| Cashier | Accounting Responsible| Warehouse manager|
+|Function| Manager| Cashier | Accounting Manager| Warehouse manager|
 |---|:---:|:---:|:---:|:---:|
 | FR1 | yes | yes	| no | yes|
 | FR2 | yes | no	| no | yes|
@@ -214,7 +214,7 @@ The following table indicates which actor have the rights to perform functional 
 | FR5 | yes | yes	| no | no |
 | FR6 | yes | no	| no | no |
 | FR7 | yes | no	| no | no |
-| FR8 | yes | no	| no | yes|
+| FR8 | yes | no	| yes | yes|
 <br>
 
 ## Non Functional Requirements
