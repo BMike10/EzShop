@@ -174,10 +174,10 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 | FR3.6	| Get current balance|
 | FR3.7	| Generate report with balance, invoices and entries|
 | FR4	| Manage customers|
-| FR4.5	| Add a fidelity card for a customer|
-| FR4.2	| See all customers with fidelity card|
-| FR4.3	| Remove a customer(fidelity card)|
-| FR4.4	| Search a customer with fidelity card|
+| FR4.5	| Add customer associated with a fidelity card|
+| FR4.2	| See all customers|
+| FR4.3	| Remove a customer|
+| FR4.4	| Search a customer|
 | FR4.6	| Update fidelity card|
 | FR5	| Manage users|
 | FR5.1	| Add a new user|
@@ -524,39 +524,65 @@ The following table indicates which actor have the rights to perform functional 
 |	8	| Compute and add to report current profit |
 |	9	| Store report|
 
-
-### Add or update a fidelity card for a customer, UC8
-| Actors Involved        | Shop Manager  |
+### Add a new customer, UC8
+| Actors Involved        | Cashier  |
 | ------------- |:-------------:| 
-|  Precondition     |  | 
-|       |  | 
-|  Post condition     |  |
-|  Nominal Scenario     |   |
-|  Variants     |  |
-
-#### Scenario 8.1 - Add a fidelity card for a customer
-
-
-#### Scenario 8.2 - Replace a fidelity card for a customer with lost fidelity card
-
-
-### Remove a fidelity card for a customer, UC9
-| Actors Involved        | Shop Manager |
+|  Precondition     | The Customer is not registered in the system  | 
+| |AnonymousUser is authenticated as Cashier or Shop Manager|
+|  Post condition     |Customer is added in the system |
+|  Nominal Scenario     | The Cashier taps the "Add customer" icon. The Cashier inputs the all the Customer's information in the form and scans a new fedelity card to associate it with the new profile|
+|  Variants     | The Shop Manager wants to add a Customer. The Customer already exists in the system.     
+#### Scenario 8.1 - Add a new customer
+| Scenario 8.1 | The Customer is already registered|
 | ------------- |:-------------:| 
-|  Precondition     |  | 
-|       |  | 
-|  Post condition     |  |
-|  Nominal Scenario     |   |
-|  Variants     |  |
-
-### See all customers with fidelity card, UC10
-| Actors Involved        | Shop Manager |
+|  Precondition     | User is authenticated|
+|	| User has role cashier | 
+|	| Customer wants to register|
+|	| Customer is already registered in the system|
+|	| The Chasier has started the procedure to create a new Customer |
+|  Post condition     | The action is aborted, return to the new Customer empty form |
+| Step# | Description |
+|	1	| Tap on "Add new Customer" icon|  
+|	2	| Inserts all the data required|
+|	3	| Save the updates|
+|	4	| System verifies that the Customer already exists|
+|	5	| System notifies the Cashier of the error|
+|	6	| System automatically aborts the operation and goes back to the new Customer empty form |
+### Remove or Update a customer, UC9
+| Actors Involved        | Cashier |
 | ------------- |:-------------:| 
-|  Precondition     |  | 
-|       |  | 
-|  Post condition     |  |
-|  Nominal Scenario     | |
-|  Variants     |  |
+|  Precondition     |AnonymousUser is authenticated as Cashier or Shop Manager| 
+|		| The Customer is already registered into the system   | 
+|  Post condition     | The Customer is removed from the system/ The Customer's profile is updated |
+|  Nominal Scenario     | The Cashier scans the Fidelity Card, enters the Customer Profile section and taps "Delete Customer Profile" link./The edit icon. The system removes the Customer's data./ The Cashier edits some Customer's fields and saves.|
+|  Variants     | The Customer doesn't have the Fidelity Card with him. Update a Customer and it's not already registered. |
+
+#### Scenario 9.1 - Replace a fidelity card for a customer with lost fidelity card
+| Scenario 9.1 | Replace a fidelity card for a customer with lost fidelity card|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated|
+|	| User has role cashier | 
+|	| Customer wants to replace the fidelity card|
+|	| Customer is already registered in the system|
+|  Post condition     |The fidelity card is replaced|
+|	| The Customer profile is updated and saved|
+||The old fidelity card is removed from the system|
+| Step#        | Description  |
+|	1	| Tap on "Add new Customer" icon
+|	2	| Insert Customer's data in the search box|
+|	3	| Select the already registered Customer's profile|
+| 	4	| Tap on the edit icon in the Fidelity Card field|
+|	5	| Scan a new Fedelity Card|
+|	6	| Accept the changes|
+|	7	| Save the updates
+### See all customers, UC10
+| Actors Involved        | Cashier |
+| ------------- |:-------------:| 
+|  Precondition     |AnonymousUser is authenticated as Cashier or Shop Manager| 
+|		| Some Customers are registered in the system | 
+|  Post condition     | All the registered Customers are shown by the system |
+|  Nominal Scenario     | The Cashier enters the Add Customer section and taps "Show all customers" link. The system shows all the registered customers.|
+|  Variants| There are no registered Customers|
 
 
 ### Add or update a new user, UC11
