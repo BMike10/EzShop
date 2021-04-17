@@ -530,7 +530,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | The Customer is not registered in the system  | 
 | |AnonymousUser is authenticated as Cashier or Shop Manager|
 |  Post condition     |Customer is added in the system |
-|  Nominal Scenario     | The Cashier taps the "Add customer" icon. The Cashier inputs the all the Customer's information in the form and scans a new fedelity card to associate it with the new profile|
+|  Nominal Scenario     | The Cashier taps the "Add customer" icon. The Cashier inputs the all the Customer's information in the form and scans a new fidelity card to associate it with the new profile|
 |  Variants     | The Shop Manager wants to add a Customer. The Customer already exists in the system.     
 #### Scenario 8.1 - Add a new customer
 | Scenario 8.1 | The Customer is already registered|
@@ -572,7 +572,7 @@ The following table indicates which actor have the rights to perform functional 
 |	2	| Insert Customer's data in the search box|
 |	3	| Select the already registered Customer's profile|
 | 	4	| Tap on the edit icon in the Fidelity Card field|
-|	5	| Scan a new Fedelity Card|
+|	5	| Scan a new Fidelity Card|
 |	6	| Accept the changes|
 |	7	| Save the updates
 ### See all customers, UC10
