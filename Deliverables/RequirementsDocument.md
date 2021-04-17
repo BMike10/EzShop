@@ -48,7 +48,7 @@ EZShop is a software application to:
 |	Developer		| Person who develop the EZShop application					|
 | 	Cash register	| Instrument that register each sale happened in the shop, contains cash received from sales and prints the sale ticket	|
 |	Product			| Product that is sold in the shop and is contained in the inventory|
-|	Inventory		| List of available pysical product in the shop|
+|	Inventory		| List of available physical product in the shop|
 |	Catalogue		|  List of salable product in the shop|
 |	Supplier		| Person who sell the products to the shop manager			|
 |	POS system		| System that manages credit cards payments from customers|
@@ -314,342 +314,6 @@ The following table indicates which actor have the rights to perform functional 
 <img src="img/usecase_diagram.png">
 <br>
 
-<!--
-### Use case 1, UC1 - Manage inventory
-
-| Actors Involved        | (??1 Warehouse manager 1??) (?? User ??) |
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role warehouse manager | 
-|  Post condition     | The inventory is modified|
-|  Nominal Scenario     | The warehouse manager wants to modify the inventory|
-|  Variants     | Product type does not exists  |
-
-#### Scenario 1.1 - Inventory level of a product type retrieved
-
-| Scenario 1.1 | Inventory level retrieved|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role warehouse manager | 
-|	| Product type required exists|
-|  Post condition     | User has read the inventory level of the product type|
-| Step#        | Description  |
-|  	1   | Check for existence of the required product type|  
-|  	2   | Product type exists|
-|  	3   | Read into inventory the quantity of the product type |
-|	4	| Show the number read to the user|
-
-#### Scenario 1.2 - Product type does not exists
-
-| Scenario 1.2 | Product type does not exists|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role warehouse manager | 
-|	| Product type required does not exists|
-|  Post condition     | User receives error message|
-| Step#        | Description  |
-|  	1   | Check for existence of the required product type|  
-|  	2   | Product type not exists|
-|  	3   | RShow error message|
-
-#### Scenario 1.3 - Increment inventory level of a product type
-
-| Scenario 1.3 | Increment inventory level of a product type|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role warehouse manager | 
-|	| Product type required exists|
-|  Post condition     | inventory level is incremented with the new value|
-| Step#        | Description  |
-|  	1   | Read inventory level of the product type required|  
-|  	2   | Read the value to be added to the inventory level|
-|  	3   | Sum actual inventory level with the new value|
-|	4	| Store the computed value into the inventory|
-
-#### Scenario 1.4 - Decrement inventory level of a product type
-
-| Scenario 1.4 | Increment inventory level of a product type|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role warehouse manager | 
-|	| Product type required exists|
-|  Post condition     | inventory level is decremented with the new value|
-| Step#        | Description  |
-|  	1   | Read inventory level of the product type required|  
-|  	2   | Read the value to be subtracted from the actual inventory level|
-|  	3   | Subtract the new value from the actual inventory level|
-|	4	| Check if computed value is below 0|
-|	5	| Computed values is >= 0 so  store the computed value into the inventory|
-
-### Use case 2, UC2 - Manage catalogue
-
-| Actors Involved        | (??! Warehouse manager 1??) (?? User ??)|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role warehouse manager | 
-|  Post condition     | The catalogue is modified|
-|  Nominal Scenario     | The warehouse manager modifies the product types presents in the shop catalogue|
-|  Variants     | Product type already exists |
-
-#### Scenario 2.1 - Add a new product type and this type does not exists
-
-| Scenario 2.1 | Add a new product type and this type does not exists|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role warehouse manager | 
-|	| Product type to be inserted does not exists|
-|  Post condition     | A new product type is added|
-| Step#        | Description  |
-|	1	| Check if the product type to be inserted exists in the catalogue|
-|	2	| The product type does not exists|
-|	3	| Add to the catalogue the new product type|
-
-#### Scenario 2.2 - Add a new product type and this type exists
-
-| Scenario 2.2 | Add a new product type and this type exists|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role warehouse manager | 
-|	| Product type to be inserted exists|
-|  Post condition     | An error message is shown|
-| Step#        | Description  |
-|	1	| Check if the product type to be inserted exists in the catalogue|
-|	2	| The product type does exists in the catalogue|
-|	3	| Show error message to the user|
-
-#### Scenario 2.3 - Update product type information
-
-| Scenario 2.3 | Update product type information|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role warehouse manager | 
-|	| Product type to be updated exists|
-|  Post condition     | Information of the product type are updated|
-| Step#        | Description  |
-|	1	| Check if the product type to be inserted exists in the catalogue|
-|	2	| The product type does exists in the catalogue|
-|	3	| Read the information to be modified |
-|	4	| Store the modifications into the catalogue|
-
-### Use case 3, UC3 - Manage sales 
-
-| Actors Involved        | (??1 Cashier 1??) (?? User ??), POS System, Fidelity card (??? Laser beam scanner, cash register / Product ???) |
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role cashier | 
-|	| Customer wants to buy some products|
-|  Post condition     | A new sale is performed|
-|  Nominal Scenario     | The cashier manages a new sale happened in the shop|
-|  Variants     |  |
-
-#### Scenario 3.1 - Register a new sale with fidelity card, cash payment
-
-| Scenario 3.1 | Register a new sale with fidelity card, cash payment|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role cashier | 
-|	| Customer wants to buy some products|
-|	| Customer has a fidelity card|
-|	| Customer pays with cash|
-|  Post condition     | Sale is registered into the EZShop|
-|	| Customer has received sale ticket|
-|	| Cash received are into the cash register|
-|	| Inventory level of sold product is updated|
-|	| Shop entries are updated|
-| Step#        | Description  |
-|	1	| Scan barcode of the fidelity card
-|	2	| Scan barcode of each product|
-|	3	| Add the product to the sale ticket|
-| 	4	| Repeat 2-3 for each product|
-|	5	| Compute total|
-|	6	| Apply discount given by fidelity card (if applicable)|
-|	7	| Insert cash from customer into cash register|
-|	8	| Update inventory level of all sold items
-|	9	| Add the amount of money received to the current entries|
-|	10	| Print final sale ticket|
-
-#### Scenario 3.2 - Register a new sale without fidelity card, credit card payment
-
-| Scenario 3.2 | Register a new sale without fidelity card, credit card payment|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role cashier | 
-|	| Customer wants to buy some products|
-|	| Customer has not a fidelity card|
-|	| Customer pays with credit card|
-|  Post condition     | Sale is registered into the EZShop|
-|	| Customer has received sale ticket|
-|	| Inventory level of sold product is updated|
-|	| Shop entries are updated|
-| Step#        | Description  |
-|	1	| Scan barcode of each product|
-|	2	| Add the product to the sale ticket|
-| 	3	| Repeat 1-2 for each product|
-|	4	| Compute the total|
-|	5	| Send total amount to the POS System|
-|	6	| Wait for transaction completion|
-|	7	| Update inventory level of all sold items|
-|	8	| Add the amount of money received to the current entries|
-|	9	| Print final sale ticket|
-
-### Use case 4, UC4 - Manage accounting
-
-| Actors Involved        | (??1 Accounting manager 1??) (?? User ??)|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role Accounting manager | 
-|  Post condition     | An accounting report is ready|
-|  Nominal Scenario     | The accounting manager insert invoices and computes the report|
-|  Variants     |  |
-#### Scenario 4.1 - Add invoice
-| Scenario 3.2 | Register a new sale without fidelity card, credit card payment|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role Accounting manager | 
-|  Post condition     | A new invoice is registered |
-|	| Current balance is updated |
-| Step#        | Description  |
-|	1	| Read data of the invoice (total amount, due date,...)|
-|	2	| Set the invoice status to "Not payed"|
-|	3	| Insert the read invoice to the list|
-|	4	| update the balance adding total amount to due expense|
-
-#### Scenario 4.2 - Set invoice as payed
-| Scenario 4.2 | Set invoice as payed|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role Accounting manager | 
-|  Post condition     | A new invoice is registered |
-|	| Current balance is updated |
-| Step#        | Description  |
-|	1	| List all invoices with status "Not payed"|
-|	2	| Get invoice selected from the user|
-|	3	| Set selected invoice status to "Payed"|
-|	4	| Set selected invoice payment date to current date|
-|	4	| Subtract due amount from the current balance due expense|
-|	5	| Add the due amount to current balance total expense|
-|	6	| Notify the user about the success of the operation|
-
-#### Scenario 4.3 - Generate report of current balance
-| Scenario 4.3 | Generate report of current balance|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role Accounting manager | 
-|  Post condition     | A report of the current balance is generated |
-|	| Current balance is updated |
-| Step#        | Description  |
-|	1	| Get starting date from the user|
-|	2	| Get all invoices with payment date between starting date and today|
-|	3	| Add to the report all invoices grouped by date (sum all invoices on the same day)|
-|	4	| Build a graph with all invoices added to report (axis date, sum of amounts)|
-|	5	| Get all sales with date between starting date and today|
-|	6	| Add to the report all sales grouped by date (sum all sales happened on the same day)|
-|	7	| Build a graph with all sales added to report (axis date, sum of amounts)|
-|	8	| Compute and add to report current profit |
-|	9	| Store report|
-### Use case 5, UC5 - Manage customers
-
-| Actors Involved        | (??1 Cashier 1??) (?? User ??) |
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role Cashier | 
-|  Post condition     | The customer information are modified|
-|  Nominal Scenario     | The cashier registers a new customer into the system and provides her a new fidelity card|
-|  Variants     | customer data modification, fidelity card information update |
-#### Scenario 5.1 - Add a new customer
-| Scenario 5.1 | Add a new customer|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role Cashier | 
-|	| Customer information are not present in the system|
-|  Post condition     | The customer information are stored into EZShop|
-|	| The fidelity card is given to customer|
-| Step#        | Description  |
-|	1	| Copy information inserted from the customer into a form|
-|	2	| Check for duplicate data into customer list|
-|	3	| Customer is a new one (no same data found)|
-|	4	| Assign next available fidelity card to the customer|
-|	5	| Give card to the customer|
-
-#### Scenario 5.2 - Update customer information
-| Scenario 5.2 | Update customer information|
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated|
-|	| User has role Cashier | 
-|	| Customer information are already present in the system|
-|  Post condition     | The customer information are updated on EZShop|
-| Step#        | Description  |
-|	1	| Copy information inserted from the customer into a form|
-|	2	| Check for duplicate data into customer list|
-|	3	| The customer is found into EZShop|
-|	4	| Customer data are updated with the new one|
-
-
-### Use case 6, UC6 - Manage users
-
-| Actors Involved        | (?? User ??) |
-| ------------- |:-------------:| 
-|  Precondition     | ??? |
-|  Post condition     | ??? |
-|  Nominal Scenario     | The Shop manager insert or modify a user of the system|
-|  Variants     | A user logs in|
-
-#### Scenario 6.1 - Manage user login
-
-| Scenario 6.1 | Manage user login|
-| ------------- |:-------------:| 
-|  Precondition     | User is not authenticated|
-|	| User information are present in the system|
-|  Post condition     | The user is authenticated |
-| Step#        | Description  |
-|	1	| Read email and password of the user|
-|	2	| Check if email is present into EZShop user|
-|	3	| Email is found|
-|	3	| Check password correspondence|
-|	4	| Password corresponds|
-|	5	| Notify the user about the success of the operation|
-
-### Use case 7, UC7 - Manage suppliers
-
-| Actors Involved        | (??1 Shop manager 1??) (?? User ??) |
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated |
-|	| User role is Shop manager|
-|  Post condition     | The supplier information are inserted, modified or removed|
-|  Nominal Scenario     | The Shop manager insert or modify a supplier information on the system|
-|  Variants     | |
-
-### Use case 8, UC8 - Manage orders
-
-| Actors Involved        | (??1 Shop manager 1??) (?? User ??), Supplier |
-| ------------- |:-------------:| 
-|  Precondition     | User is authenticated |
-|	| User role is Shop manager|
-|	| Supplier information are present on EZShop|
-|  Post condition     | An order is placed or aborted |
-|  Nominal Scenario     | The Shop manager places or aborts and order to a given supplier for a certain product type|
-|  Variants     | The order to be removed does not exist|
-
-#### Scenario 8.1 - Place an order
-| Scenario 8.1 | Place an order|
-| ------------- |:-------------:| 
-|  Precondition     || User is authenticated |
-|	| User role is Shop manager|
-|	| Supplier information are present on EZShop|
-|  Post condition     | A new order is placed |
-|	| An invoice related to the order is generated|
-| Step#        | Description  |
-|	1	| Read the product type and the quantity to be ordered|
-|	2	| Select the supplier|
-|	3	| Generate a purchase order file|
-|	4	| Send the purchase order file as email attachment to the supplier|
-|	5	| Add the order to the list of orders|
-|	6	| Generate an invoice related to the order|
-|	7	| Notify the accounting manager about a new invoice|
-|	8	| Notify the warehouse manager about the order|
-<br>
---->
-
 ### Show inventory level for a product type, UC1
 | Actors Involved        | Warehouse Manager, Shop Manager |
 | ------------- |:-------------:| 
@@ -666,8 +330,8 @@ The following table indicates which actor have the rights to perform functional 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM or Cashier C|
 |  Post condition     | New inventory level for a product type is updated on the system |
 |      | Number of product available in the inventory is shown on screen |
-|  Nominal Scenario     | Customer C buys a products or more. Cashier C notify to Warehouse manager WM on products sold. WM updates the informations about products sold  |
-|  Variants     | New products order are issued. SM notify to WM who updates the informations about purchased products |
+|  Nominal Scenario     | Customer C buys a products or more. Cashier C notify to Warehouse manager WM on products sold. WM updates the information about products sold  |
+|  Variants     | New products order are issued. SM notify to WM who updates the information about purchased products |
 
 ### Notify shop manager for an unavailable product, UC3
 | Actors Involved        | Warehouse Manager, Shop Manager |
@@ -675,10 +339,10 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisment is sent to shop manager|
-|       | Product informations are updated (available soon ecc.) | 
-|  Nominal Scenario     | Warehouse type user WU makes check on availablity of product in the inventory; One or more products are unavailable; The system identifies the product and sends notify to shop manager;  |
-|  Variants     | Warehouse type user WM makes check on availablity of product in the inventory; All products in the catalogue are available in the inventory; The system identifies almost finished products and sends notify to shop manager who decides if place an order or not  |
+|  Post condition     | New advertisement is sent to shop manager|
+|       | Product information are updated (available soon ecc.) | 
+|  Nominal Scenario     | Warehouse type user WU makes check on availability of product in the inventory; One or more products are unavailable; The system identifies the product and sends notify to shop manager;  |
+|  Variants     | Warehouse type user WM makes check on availability of product in the inventory; All products in the catalogue are available in the inventory; The system identifies almost finished products and sends notify to shop manager who decides if place an order or not  |
 
 ##### Scenario 3.1 
 
@@ -687,10 +351,10 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisment is sent to shop manager|
-|       | Product informations are updated (available soon ecc.) | 
+|  Post condition     | New advertisement is sent to shop manager|
+|       | Product information are updated (available soon ecc.) | 
 | Step#        | Description  |
-|  1     | WM user checks products availabilty  |  
+|  1     | WM user checks products availability  |  
 |  2     | The product is shown on the app |
 |  3     | Automatic notification is generated and sent to an shop manager about absence of unavailable products  |
 |  4     | The products almost finished is shown |
@@ -704,10 +368,10 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisment is sent to shop manager|
-|       | Product informations are updated (available soon ecc.) | 
+|  Post condition     | New advertisement is sent to shop manager|
+|       | Product information are updated (available soon ecc.) | 
 | Step#        | Description  |
-|  1     | WM user checks products availabilty  |  
+|  1     | WM user checks products availability  |  
 |  2     | The products almost finished is shown on the app |
 |  3     | Automatic notification is generated and sent to an shop manager  |
 |  4     | shop manager decides if place an order or not |
@@ -721,7 +385,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Post condition  | Product is added/updated in the system |
 |	|	Addition of product information is required to the manager	|
 |	|	New order is required to shop manager	|
-|  Nominal Scenario     | shop manager requires to add or update new salable product in the shop. He notifies Warehouse Manager who adds the new product with all the informations about it. In the end SM sends new order to supplier for new product  |
+|  Nominal Scenario     | shop manager requires to add or update new salable product in the shop. He notifies Warehouse Manager who adds the new product with all the information about it. In the end SM sends new order to supplier for new product  |
 |  Variants     | Add a new product type and this type does not exists |
 
 ##### Scenario 4.1 
@@ -731,10 +395,10 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisment is sent to shop manager|
-|       | Product informations are updated (available soon ecc.) | 
+|  Post condition     | New advertisement is sent to shop manager|
+|       | Product information are updated (available soon ecc.) | 
 | Step#        | Description  |
-|  1     | WM user checks products availabilty  |  
+|  1     | WM user checks products availability  |  
 |  2     | The product is shown on the app |
 |  3     | Automatic notification is generated and sent to an shop manager about absence of unavailable products  |
 |  4     | The products almost finished is shown |
@@ -748,10 +412,10 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisment is sent to shop manager|
-|       | Product informations are updated (available soon ecc.) | 
+|  Post condition     | New advertisement is sent to shop manager|
+|       | Product information are updated (available soon ecc.) | 
 | Step#        | Description  |
-|  1     | WM user checks products availabilty  |  
+|  1     | WM user checks products availability  |  
 |  2     | The products almost finished is shown on the app |
 |  3     | Automatic notification is generated and sent to an shop manager  |
 |  4     | shop manager decides if place an order or not |
@@ -764,7 +428,7 @@ The following table indicates which actor have the rights to perform functional 
 |	|	Deleted sale  are conceded by the shop manager | 
 |  Post condition  | Product is removed from the system |
 |	|	Notification is sent to supplier on deleted product order	|
-|  Nominal Scenario     | Shop manager requires to remove salable product in the shop. He notifies Warehouse Manager who remove product with all the informations about it from catalogue. In the end SM sends notification on order stop to supplier for this product  |
+|  Nominal Scenario     | Shop manager requires to remove salable product in the shop. He notifies Warehouse Manager who remove product with all the information about it from catalogue. In the end SM sends notification on order stop to supplier for this product  |
 |  Variants     | Remove the product type already removed |
 
 ### Register new customer purchase, UC6
@@ -922,7 +586,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Nominal Scenario     | Anonymous User opens the app and login with his username and password. He acquires  privileges to perform his tasks  |
 |  Variants     | Anonymous User opens the app and logs-in with wrong username or password. A warning popup appears and no privileges are conceded to user |
 
-#### Scenario 13.1 - Succesfull Login 
+#### Scenario 13.1 - Successful Login 
 
 | Scenario 13.1 | User authentication|
 | ------------- |:-------------:| 
@@ -941,7 +605,7 @@ The following table indicates which actor have the rights to perform functional 
 |	5	| Notify the user about the success of the operation|
 |	6	| User pageframe is shown on the screen |
 
-#### Scenario 13.2 - Unsuccesfull Login 
+#### Scenario 13.2 - Unsuccessful Login 
 
 | Scenario 13.2 | User authentication|
 | ------------- |:-------------:| 
@@ -997,16 +661,18 @@ The following table indicates which actor have the rights to perform functional 
 ### Place an order to supplier for a given product type, UC16
 | Actors Involved        | Shop Manager |
 | ------------- |:-------------:| 
-|  Precondition     |  | 
-|       |  | 
-|  Post condition     | |
-|  Nominal Scenario     |  |
-|  Variants     |  |
+|  Precondition     | User is authenticated |
+|	| User role is Shop manager|
+|	| Supplier information are present on EZShop|
+|  Post condition     | A new order is placed |
+|	| An invoice related to the order is generated|
+|  Nominal Scenario     | The shop manager wants to place an order for the product type to a given supplier |
+|  Variants     | Repeat a previous order |
 
 #### Scenario 16.1 - Place an order
 | Scenario 16.1 | Place an order|
 | ------------- |:-------------:| 
-|  Precondition     || User is authenticated |
+|  Precondition     | User is authenticated |
 |	| User role is Shop manager|
 |	| Supplier information are present on EZShop|
 |  Post condition     | A new order is placed |
@@ -1021,19 +687,59 @@ The following table indicates which actor have the rights to perform functional 
 |	7	| Notify the accounting manager about a new invoice|
 |	8	| Notify the warehouse manager about the order|
 
-#### Scenario 16.2 - Repeate order 
-
+#### Scenario 16.2 - Repeat a previous order 
+| Scenario 16.2 | Repeat a previous order|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated |
+|	| User role is Shop manager|
+|	| Supplier information are present on EZShop|
+|	| The order is already present on the system|
+|  Post condition     | A new order is placed |
+|	| An invoice related to the order is generated|
+| Step#        | Description  |
+|	1	| Show the list of previous orders|
+|	2	| User selects a previous order to be repeated|
+|	3	| Generate a purchase order file|
+|	4	| Send the purchase order file as email attachment to the supplier|
+|	5	| Add the order to the list of orders|
+|	6	| Generate an invoice related to the order|
+|	7	| Notify the accounting manager about a new invoice|
+|	8	| Notify the warehouse manager about the order|
 
 ### Abort a previously inserted order, UC17
-| Actors Involved        |  |
+| Actors Involved        |Shop manager  |
 | ------------- |:-------------:| 
-|  Precondition     |  | 
-|       |  | 
-|  Post condition     |  |
-|  Nominal Scenario     |   |
+|  Precondition     | User is authenticated |
+|	| User role is Shop manager|
+|	| Supplier information are present on EZShop|
+|	| The order is already present on the system|
+|  Post condition     | The order is removed |
+|	| A notify is sent to the supplier |
+|	| The related invoice is removed|
+|	| A notify is sent to the accounting manager|
+|  Nominal Scenario     | The shop manager removes a previous order from EZShop  |
 |  Variants     |  |
 
-
+#### Scenario 17.1 - Remove a previous order 
+| Scenario 17.1 | Remove a previous order |
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated |
+|	| User role is Shop manager|
+|	| Supplier information are present on EZShop|
+|	| The order is already present on the system|
+|  Post condition     | The order is removed |
+|	| A notify is sent to the supplier |
+|	| The related invoice is removed|
+|	| A notify is sent to the accounting manager|
+|	| A notify is sent to the warehouse manager|
+| Step#        | Description  |
+|	1	| Show the list of previous orders|
+|	2	| User selects a previous order to be removed|
+|	3	| Send an email to the supplier about order removal| 
+|	4	| Remove the order to the list of orders|
+|	5	| Remove the invoice related to the order|
+|	6	| Notify the accounting manager about the deletion of the invoice|
+|	7	| Notify the warehouse manager about the deletion of the order|
 # Glossary
 
 <div style="display:none" hidden>
@@ -1152,8 +858,6 @@ The following table indicates which actor have the rights to perform functional 
 <br>
 
 # System Design
-<!-- if cash register and laser beam are external -->
-Not applicable since this is a software only product.
 
 <!-- if we choose the cash register and laser beam scanner internal -->
 <div style="display:none" hidden>
