@@ -634,29 +634,69 @@ The following table indicates which actor have the rights to perform functional 
 |	2	| Notify the user about the success of the operation|
 |	3	| Anonymous User pageframe is shown on the screen |
 
-
-### Add or update a new supplier, UC14
+### Add a new supplier or update the data of a pre-registered one, UC14
 | Actors Involved        | Shop Manager |
 | ------------- |:-------------:| 
-|  Precondition     |  | 
-|       |  | 
-|  Post condition     |  |
-|  Nominal Scenario     | |
+|  Precondition     | The target supplier doesn't exist on the system/the supplier exists but manager wants to update his data  | 
+|   | User is authenticated |
+|	| User role is Shop manager| 
+|  Post condition     | The new supplier is inserted into the system/the data of the supplier are correct and up to date |
+|  Nominal Scenario     |The manager goes on the suppliers management page, selects the action he wants to perform and inserts the right data, then he confirms the operation |
 |  Variants     | |
 
-#### Scenario 14.1 - Update supplier information
+#### Scenario 14.1 - Update existing supplier information
+
+| Scenario 14.1 | Update supplier information|
+| ------------- |:-------------:| 
+|  Precondition     || User is authenticated |
+|	| User role is Shop manager|
+|	| The manager has started the procedure to update supplier information |
+|	| Supplier information are present on EZShop|
+|  Post condition     | The supplier data are correctly updated |
+| Step# | Description |
+|	1	| Manager clicks on the action "update supplier information"|  
+|	2	| He inserts all the data required|
+|	3	| System verifies that the supplier exists|
+|	4	| Manager confirms the operation|
+|	5	| System stores the new data and sends a message to the manager to notify the success of the operation |
 
 #### Scenario 14.2 - Update supplier who does not exist
 
+| Scenario 14.2 | Update supplier who does not exist (data inserted by the manager is wrong)|
+| ------------- |:-------------:| 
+|  Precondition     || User is authenticated |
+|	| User role is Shop manager|
+|	| The manager has started the procedure to update supplier information |
+|  Post condition     | The action is aborted, return to the manager home page |
+| Step# | Description |
+|	1	| Manager clicks on the action "update supplier information"|  
+|	2	| He inserts all the data required|
+|	3	| System verifies that the supplier does not exists|
+|	4	| System notifies the manager of the error|
+|	5	| System automatically aborts the operation and goes back to the manager main page |
 
 ### Remove a supplier, UC15
 | Actors Involved        | Shop Manager |
 | ------------- |:-------------:| 
-|  Precondition     |  | 
-|       |  | 
-|  Post condition     | |
-|  Nominal Scenario     |  |
-|  Variants     |  |
+|  Precondition     | User is authenticated | 
+|       | User role is Shop Manager |
+|		| The supplier is already registered into the system | 
+|  Post condition     | The supplier is removed from the system |
+|  Nominal Scenario     | The manager enters the suppliers management page, he clicks on the "Remove Supplier" link, he inserts all the info requested by the system about the target supplier, the system checks if the supplier exists and confirms it, the manager confirms the operation, the system removes the supplier's data and notifies the shop manager |
+|  Variants     | Manager has inserted wrong data and the system doesn't find any correspondent supplier |
+
+#### Scenario 15.1 - Wrong data/non-existing supplier
+| ------------ |:-------------:|
+| Precondition | |User is authenticated |
+|	| User role is Shop Manager |
+|	| Shop Manager has inserted the data required to remove a supplier |
+|	| EZ Shop didn't find any matching supplier |
+|	Post condition | Abort the operation, manager is redirected to his home page |
+| Step#	| Description |
+|	1	| The system notifies through a pop-up message that there are no matching suppliers for the data inserted by the manager |
+|	2	| Operation is aborted |
+|   3   | The manager is redirected to his home page |
+
 
 ### Place an order to supplier for a given product type, UC16
 | Actors Involved        | Shop Manager |
