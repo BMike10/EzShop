@@ -243,14 +243,13 @@ The following table indicates which actor have the rights to perform functional 
 	@startuml usecase_diagram
 		' use cases
 		usecase "FR1 Manage warehouse" as mi
-		'usecase "FR2 Manage catalogue" as mca
-		usecase "FR3 Manage sales" as ms
-		usecase "FR4 Manage accounting" as ma
-		usecase "FR5 Manage customers" as mc
-		usecase "FR6 Manage users" as mu
-		usecase "FR7 Manage suppliers" as msu
-		usecase "FR8 Manage orders" as mo
-		usecase "FR6.5 Authenticate user" as mua	
+		usecase "FR2 Manage sales" as ms
+		usecase "FR3 Manage accounting" as ma
+		usecase "FR4 Manage customers" as mc
+		usecase "FR5 Manage users" as mu
+		usecase "FR6 Manage suppliers" as msu
+		usecase "FR7 Manage orders" as mo
+		usecase "FR5.5 User authentication" as mua	
 
 		' actors
 		actor :Supplier: as s
@@ -295,7 +294,7 @@ The following table indicates which actor have the rights to perform functional 
 		 ' warehouse manager
 		 mi <-- wm
 		 'wm -> mca
-		 mo <-- wm
+		 mo --> wm
 		
 		' POS system
 		ms -> ccs
