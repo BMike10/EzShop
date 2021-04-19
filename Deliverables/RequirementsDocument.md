@@ -527,29 +527,58 @@ The following table indicates which actor have the rights to perform functional 
 ### Generate report with balance, invoices and incoming
 | Actors Involved        | Accounting Manager  |
 | ------------- |:-------------:| 
-|  Precondition     | There is at least one balance,invoices and incoming | 
-|       |  | 
-|  Post condition     | Last Balance and all invoices and incoming of the year are shown on the screen |
-|  Nominal Scenario     |   |
-|  Variants     | |
-
-#### Scenario 7.1 - Generate report of current balance
-| Scenario 7.1 | Generate report of current balance|
-| ------------ |:-------------:| 
 |  Precondition     | User is authenticated|
-|	| User has role Accounting manager | 
-|  Post condition     | A report of the current balance is generated |
-|	| Current balance is updated |
+|  Post condition     | Balance, invoices and revenues of the year are shown on the screen |
+|  Nominal Scenario     |  Accounting Manager AM generates new  report of the year or updates the existing one. The system shows the graphs about last year incomes and revenues. In the end the system calculates and shows the new balance  |
+|  Variants     | Accounting Manager AM generates new report of the year but this is already created and no new information has been added. Last available report is shown on the screen |
+|	|	Accounting Manager AM generates new report of the year but no invoices or revenues are in the system. An error message is shown on the screen and the last report is reloaded	|
+
+#### Scenario 7.1 - Creation of the report is succesfull
+| Scenario 7.1 | Creation of the report is succesfull|
+| ------------ |:-------------:|
+|  Precondition     | User is authenticated| 
+|     | There is at least one invoice and incoming |
+|       | At least one change has occurred since the last version of report| 
+|  Post condition     | A new report or uptaded report of the current balance is generated |
 | Step#        | Description  |
 |	1	| Get starting date from the user|
-|	2	| Get all invoices with payment date between starting date and today|
-|	3	| Add to the report all invoices grouped by date (sum all invoices on the same day)|
-|	4	| Build a graph with all invoices added to report (axis date, sum of amounts)|
-|	5	| Get all sales with date between starting date and today|
-|	6	| Add to the report all sales grouped by date (sum all sales happened on the same day)|
-|	7	| Build a graph with all sales added to report (axis date, sum of amounts)|
-|	8	| Compute and add to report current profit |
-|	9	| Store report|
+|	2	| Get all invoices/revenues of the year|
+|	3	| Build a graph with all invoices added to report (axis date, sum of amounts)|
+|	4	| Build a graph with all sales added to report (axis date, sum of amounts)|
+|	5	| Compute and add to report current profit |
+|	6	| Build a graph with profit |
+|	7	| Store report|
+|	8	| All graphs are shown on the screen|
+
+#### Scenario 7.2 - Creation of the report is unsuccesfull due to lack of data
+| Scenario 7.2 | Creation of the report is unsuccesfull|
+| ------------ |:-------------:|
+|  Precondition     | User is authenticated| 
+|     | There is no invoice or revenue | 
+|  Post condition     | Last report of the balance is reloaded |
+| Step#        | Description  |
+|	1	| Get starting date from the user|
+|	2	| Get all invoices/revenues of the year|
+|	3	| No invoices/revenues are found in the system |
+|	3	| Warning is shown on the screen |
+|	4	| Last available report is shown on the screen |
+|	5	| Store the report|
+
+#### Scenario 7.3 - Creation of the report is unsuccesfull due to no change with the previous one
+| Scenario 7.3 | Creation of the report is succesfull|
+| ------------ |:-------------:|
+|  Precondition     | User is authenticated| 
+|     | There is no change with the last report | 
+|  Post condition     | Last report of the balance is reloaded |
+| Step#        | Description  |
+|	1	| Get starting date from the user|
+|	2	| Get all invoices/revenues of the year|
+|	3	| Build a graph with all invoices added to report (axis date, sum of amounts)|
+|	4	| Build a graph with all sales added to report (axis date, sum of amounts)|
+|	5	| Compute and add to report current profit |
+|	6	| No changes with last report are found|
+|	7	| Last available graph is shown|
+
 
 ### Add a new customer, UC8
 | Actors Involved        | Cashier |

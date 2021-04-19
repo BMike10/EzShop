@@ -20,6 +20,9 @@ Version:
 ### Change of user role but user not authorized
 <img src="img/gui/login/change role error.png">
 
+# Shop Manager
+<img src="img/gui/shop_manager/shop_manager.png">
+
 # Warehouse
 ## Notifications view 
 <img src="img/gui/warehouse/notifications.png">
@@ -105,3 +108,22 @@ Version:
 
 <img src="img/gui/user/delete_user.png">
 <img src="img/gui/user/delete_user_ok.png">
+
+# Accounting management
+## Overview
+<img src="img/gui/accounting/overview.png">
+
+## Invoices
+<img src="img/gui/accounting/invoices.png">
+
+### Create a new invoice
+<img src="img/gui/accounting/newInvoice.png">
+
+## Revenues
+<img src="img/gui/accounting/revenues.png">
+
+### Change of the graph
+<img src="img/gui/accounting/revenues_otherGraph.png">
+
+## Balances
+<img src="img/gui/accounting/balances.png">
