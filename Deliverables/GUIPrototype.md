@@ -85,14 +85,23 @@ Version:
 ### Create a new order
 <img src="img/gui/warehouse/new_order.png">
 
+## User section
+<img src="img/gui/user/user.png">
 
+### Insert user
+<img src="img/gui/user/insert_user.png">
+<img src="img/gui/user/insert_user_ok.png">
 
+### Filter user
 
+<img src="img/gui/user/filter_user.png">
 
+### Edit user
 
+<img src="img/gui/user/edit_user.png">
+<img src="img/gui/user/edit_user_ok.png">
 
+### Delete user
 
-
-
-
-
+<img src="img/gui/user/delete_user.png">
+<img src="img/gui/user/delete_user_ok.png">
