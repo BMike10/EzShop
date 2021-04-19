@@ -606,7 +606,7 @@ The following table indicates which actor have the rights to perform functional 
 ### See all customers, UC10
 | Actors Involved        | Cashier |
 | ------------- |:-------------:| 
-|  Precondition     |AnonymousUser is authenticated as Cashier or Shop Manager| 
+|  Precondition     |AnonymousUser is authenticated as Cashier| 
 |		| Some Customers are registered in the system | 
 |  Post condition     | All the registered Customers are shown by the system |
 |  Nominal Scenario     | The Cashier enters the Add Customer section and taps "Show all customers" link. The system shows all the registered customers.|

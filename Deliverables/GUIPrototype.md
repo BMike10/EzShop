@@ -7,7 +7,7 @@ Date:
 Version:
 
 \<Report here the GUI that you propose. You are free to organize it as you prefer. A suggested presentation matches the Use cases and scenarios defined in the Requirement document. The GUI can be shown as a sequence of graphical files (jpg, png)  >
-# EXShop GUI
+# EzShop GUI
 ## User login
 <img src="img/gui/login/Login.png">
 
@@ -19,6 +19,10 @@ Version:
 
 ### Change of user role but user not authorized
 <img src="img/gui/login/change role error.png">
+
+# Warehouse
+## Notifications view 
+<img src="img/gui/warehouse/notifications.png">
 
 ## Inventory view
 <img src="img/gui/inventory/inventory.png">
@@ -41,3 +45,54 @@ Version:
 ### Delete a product from inventory
 <img src="img/gui/inventory/inventory_delete.png">
 <img src="img/gui/inventory/inventory_delete_ok.png">
+
+# Cash Register
+## Home
+### Customer without fidelity card
+<img src="img/gui/cash register/home_no_fidelity.png">
+
+### Customer with fidelity card
+<img src="img/gui/cash register/home_with_fidelity.png">
+
+## Customer Profile
+### Edit, Show, Delete, Search a Customer Profile
+<img src="img/gui/cash register/delete_show_edit_customer.png">
+
+### Replace a fidelity card for a customer with lost fidelity card
+<img src="img/gui/cash register/lost_card.png">
+
+
+### Add new Customer
+<img src="img/gui/cash register/new_customer.png">
+
+### Error: the Customer Profile already exists
+<img src="img/gui/cash register/error.png">
+
+## Checkout
+### Cash and fidelity card checkout
+<img src="img/gui/cash register/checkout_cash.png">
+
+### Credit card and no fidelity card checkout
+<img src="img/gui/cash register/checkout_creditcard.png">
+
+# Shop Manager
+## Orders section
+<img src="img/gui/warehouse/orders.png">
+
+### Reorder
+<img src="img/gui/warehouse/reorder.png">
+
+### Create a new order
+<img src="img/gui/warehouse/new_order.png">
+
+
+
+
+
+
+
+
+
+
+
+
