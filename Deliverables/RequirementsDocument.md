@@ -560,9 +560,8 @@ The following table indicates which actor have the rights to perform functional 
 |	1	| Get starting date from the user|
 |	2	| Get all invoices/revenues of the year|
 |	3	| No invoices/revenues are found in the system |
-|	3	| Warning is shown on the screen |
-|	4	| Last available report is shown on the screen |
-|	5	| Store the report|
+|	4	| Warning is shown on the screen |
+|	5	| Last available report is shown on the screen |
 
 #### Scenario 7.3 - Creation of the report is unsuccesfull due to no change with the previous one
 | Scenario 7.3 | Creation of the report is succesfull|
