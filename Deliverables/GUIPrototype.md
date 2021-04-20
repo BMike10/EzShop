@@ -52,6 +52,21 @@ Version:
 <img src="img/gui/user/delete_user.png">
 <img src="img/gui/user/delete_user_ok.png">
 
+## Suppliers
+<img src="img/gui/supplier/supplier.png">
+
+### Supplier insert
+<img src="img/gui/supplier/supplier_insert.png">
+<img src="img/gui/supplier/supplier_insert_ok.png">
+
+### Supplier edit
+<img src="img/gui/supplier/supplier_edit.png">
+<img src="img/gui/supplier/supplier_edit_ok.png">
+
+### Supplier delete
+<img src="img/gui/supplier/supplier_delete.png">
+<img src="img/gui/supplier/supplier_delete_ok.png">
+
 # Warehouse
 ## Notifications view 
 <img src="img/gui/warehouse/notifications.png">

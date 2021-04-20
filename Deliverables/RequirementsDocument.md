@@ -522,13 +522,13 @@ The following table indicates which actor have the rights to perform functional 
 |  Variants     | Accounting Manager AM generates new report of the year but this is already created and no new information has been added. Last available report is shown on the screen |
 |	|	Accounting Manager AM generates new report of the year but no invoices or revenues are in the system. An error message is shown on the screen and the last report is reloaded	|
 
-#### Scenario 7.1 - Creation of the report is succesfull
-| Scenario 7.1 | Creation of the report is succesfull|
+#### Scenario 7.1 - Creation of the report is successful
+| Scenario 7.1 | Creation of the report is successful|
 | ------------ |:-------------:|
 |  Precondition     | User is authenticated| 
 |     | There is at least one invoice and incoming |
 |       | At least one change has occurred since the last version of report| 
-|  Post condition     | A new report or uptaded report of the current balance is generated |
+|  Post condition     | A new report or updated report of the current balance is generated |
 | Step#        | Description  |
 |	1	| Get starting date from the user|
 |	2	| Get all invoices/revenues of the year|
@@ -539,8 +539,8 @@ The following table indicates which actor have the rights to perform functional 
 |	7	| Store report|
 |	8	| All graphs are shown on the screen|
 
-#### Scenario 7.2 - Creation of the report is unsuccesfull due to lack of data
-| Scenario 7.2 | Creation of the report is unsuccesfull|
+#### Scenario 7.2 - Creation of the report is unsuccessful due to lack of data
+| Scenario 7.2 | Creation of the report is unsuccessful|
 | ------------ |:-------------:|
 |  Precondition     | User is authenticated| 
 |     | There is no invoice or revenue | 
@@ -552,8 +552,8 @@ The following table indicates which actor have the rights to perform functional 
 |	4	| Warning is shown on the screen |
 |	5	| Last available report is shown on the screen |
 
-#### Scenario 7.3 - Creation of the report is unsuccesfull due to no change with the previous one
-| Scenario 7.3 | Creation of the report is succesfull|
+#### Scenario 7.3 - Creation of the report is unsuccessful due to no change with the previous one
+| Scenario 7.3 | Creation of the report is successful|
 | ------------ |:-------------:|
 |  Precondition     | User is authenticated| 
 |     | There is no change with the last report | 
