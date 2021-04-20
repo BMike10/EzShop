@@ -40,17 +40,17 @@ EZShop is a software application to:
 
 | Stakeholder name  | Description | 
 | ----------------- |:-----------:|
-|   Shop manager   	| Person who manages the shop and the inventory             | 
-|	Cashier			| Person who uses the cash register and register sales		|
-|	Accounting manager		| Person who is responsible for accounting					|
-|	Warehouse manager| Person who is responsible of managing the inventory and warehouse of the shop|
+|   Shop manager   	| Manages the orders to be sent to the supplier. Manage users and their rights in the system. He can also access all the other functions of the system             | 
+|	Cashier			| Uses the cash register, register sales and manages the creation of new fidelity cards		|
+|	Accounting manager		| Manages balance, invoices and revenues of the shop		|
+|	Warehouse manager| Manages the shop's inventory and warehouse |
 |	Customer		| Customers of the shop who do sales in the shop			|
-|	Developer		| Person who develop the EZShop application					|
+|	Developer		| Develops the EZShop application and takes care of the maintenance of the application					|
 | 	Cash register	| Instrument that register each sale happened in the shop, contains cash received from sales and prints the sale ticket	|
-|	Product			| Product that is sold in the shop and is contained in the inventory|
+|	Product			| Product that is sold in the shop and is contained in the inventory and catalogue|
 |	Inventory		| List of available physical product in the shop|
 |	Catalogue		|  List of salable product in the shop|
-|	Supplier		| Person who sell the products to the shop manager			|
+|	Supplier		| Sells the required products to the shop |
 |	POS system		| System that manages credit cards payments from customers|
 |	Anonymous User			| Person that will use the EZShop application which has one or many roles in the shop |
 |	Fidelity card	| Card given to a customer in order to receive some discounts |
