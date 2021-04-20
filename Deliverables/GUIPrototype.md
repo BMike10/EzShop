@@ -1,12 +1,11 @@
 # Graphical User Interface Prototype  
 
 Authors:
-
+Gambino Matteo, Valentini Valeria, Gigante Samuele, Basilico Michele
 Date:
-
+21/04/2021
 Version:
-
-\<Report here the GUI that you propose. You are free to organize it as you prefer. A suggested presentation matches the Use cases and scenarios defined in the Requirement document. The GUI can be shown as a sequence of graphical files (jpg, png)  >
+1.0
 # EzShop GUI
 ## User login
 <img src="img/gui/login/Login.png">
