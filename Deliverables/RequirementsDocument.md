@@ -1,10 +1,11 @@
 # Requirements Document 
 
 Authors:
-
+Gambino Matteo, Valentini Valeria, Gigante Samuele, Basilico Michele
 Date:
-
+21/04/2021
 Version:
+1.0
 
 # Contents
 
@@ -208,14 +209,17 @@ The following table indicates which actor have the rights to perform functional 
 <br>
 |Function| Shop Manager| Cashier | Accounting Manager| Warehouse Manager| Anonymous User |
 |---|:---:|:---:|:---:|:---:|:---:|
-| FR1 | yes | yes	| no | yes|no|
+| FR1 | yes | no	| no | yes|no|
+| FR1.1.3	| yes | yes	| no | yes|no|
 | FR2 | yes | yes	| no | no |no|
 | FR3 | yes | no	| yes | no |no|
+| FR3.5 | yes | yes	| no | no |no|
 | FR4 | yes | yes	| no | no |no|
 | FR5 | yes | no	| no | no |no|
 | FR5.5 | no | no	| no | no |yes|
 | FR6 | yes | no	| no | no |no|
 | FR7 | yes | no	| no | no |no|
+| FR7.4 | yes | no	| no | yes |no|
 
 <br>
 
@@ -232,9 +236,8 @@ The following table indicates which actor have the rights to perform functional 
 |  NFR6	| usability		| No specific training should be needed to use the software| All FR|
 |  NFR7	| portability	| Software should be available on any OS (Windows, Unix/Linux, MacOs)| All FR|
 |  NFR8	| localization	| Currency is EURO | all FR|
-|  NFR9	| localization	| decimal separator is '.'| all FR|
-|  NFR10| security		| all user roles should access only the functions their access rights allow to| all FR|
-|  NFR11| security		| Treat user data according to GDPR| |
+|  NFR9| security		| all user roles should access only the functions their access rights allow to| all FR|
+|  NFR10| security		| Treat user data according to GDPR| |
 
 <br>
 
@@ -324,7 +327,7 @@ The following table indicates which actor have the rights to perform functional 
 | Actors Involved        | Warehouse Manager, Shop Manager |
 | ------------- |:-------------:| 
 |  Precondition     | Product must exist in catalogue | 
-|       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM |
+|       | AnonymousUser is authenticated as Warehouse or Shop Manager  |
 |  Post condition     | Number of product available in the inventory is shown on screen |
 |  Nominal Scenario     | Warehouse manager checks availability of products |
 |  Variants     | The product selected is no longer sold in the shop |
@@ -333,7 +336,7 @@ The following table indicates which actor have the rights to perform functional 
 | Actors Involved        | Warehouse Manager, Shop Manager, Cashier |
 | ------------- |:-------------:| 
 |  Precondition     | Product must exist in catalogue | 
-|       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM or Cashier C|
+|       | AnonymousUser  is authenticated as Warehouse or Shop Manager or Cashier C|
 |  Post condition     | New inventory level for a product type is updated on the system |
 |      | Number of product available in the inventory is shown on screen |
 |  Nominal Scenario     | Customer C buys a products or more. Cashier C notify to Warehouse manager WM on products sold. WM updates the information about products sold  |
@@ -360,7 +363,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisement is sent to shop manager|
+|  Post condition     | New notification is sent to shop manager|
 |       | Product information are updated (available soon ecc.) | 
 |  Nominal Scenario     | Warehouse type user WU makes check on availability of product in the inventory; One or more products are unavailable; The system identifies the product and sends notify to shop manager;  |
 |  Variants     | Warehouse type user WM makes check on availability of product in the inventory; All products in the catalogue are available in the inventory; The system identifies almost finished products and sends notify to shop manager who decides if place an order or not  |
@@ -372,7 +375,7 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
 |       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisement is sent to shop manager|
+|  Post condition     | New notification is sent to shop manager|
 |       | Product information are updated (available soon ecc.) | 
 | Step#        | Description  |
 |  1     | WM user checks products availability  |  
@@ -382,25 +385,9 @@ The following table indicates which actor have the rights to perform functional 
 |  5     | Automatic notification is generated and sent to an shop manager  |
 |  6     | shop manager decides if place an order or not |
 
-##### Scenario 3.2
+##### Scenario 3.2 - Show inventory level and notify
 
-| Scenario 3.2 | All products are available |
-| ------------- |:-------------:| 
-|  Precondition     | Product must exist in catalogue | 
-|       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
-|       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisement is sent to shop manager|
-|       | Product information are updated (available soon ecc.) | 
-| Step#        | Description  |
-|  1     | WM user checks products availability  |  
-|  2     | The products almost finished is shown on the app |
-|  3     | Automatic notification is generated and sent to an shop manager  |
-|  4     | shop manager decides if place an order or not |
-
-
-##### Scenario 3.3 - Show inventory level and notify
-
-| Scenario 3.3 | Show inventory level and notify|
+| Scenario 3.2 | Show inventory level and notify|
 | ------------- |:-------------:| 
 |  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM |
@@ -413,6 +400,8 @@ The following table indicates which actor have the rights to perform functional 
 |	3	| EZShop ask for confirmation of the notify|
 |	4	| The user confirms that wants to send a notify|
 |	5	| EZShop sends a new notify to the shop manager|
+
+
 ### Add or update new product type, UC4
 | Actors Involved        | Warehouse Manager,shop manager |
 | ------------- |:-------------:| 
@@ -422,49 +411,19 @@ The following table indicates which actor have the rights to perform functional 
 |  Post condition  | Product is added/updated in the system |
 |	|	Addition of product information is required to the manager	|
 |	|	New order is required to shop manager	|
-|  Nominal Scenario     | shop manager requires to add or update new salable product in the shop. He notifies Warehouse Manager who adds the new product with all the information about it. In the end SM sends new order to supplier for new product  |
+|  Nominal Scenario     | Warehouse manager requires to add or update new salable product in the shop. He adds the new product with all the information about it.|
 |  Variants     | Add a new product type and this type does not exists |
 
-##### Scenario 4.1 
-
-| Scenario 4.1 | An unavailable product  |
-| ------------- |:-------------:| 
-|  Precondition     | Product must exist in catalogue | 
-|       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
-|       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisement is sent to shop manager|
-|       | Product information are updated (available soon ecc.) | 
-| Step#        | Description  |
-|  1     | WM user checks products availability  |  
-|  2     | The product is shown on the app |
-|  3     | Automatic notification is generated and sent to an shop manager about absence of unavailable products  |
-|  4     | The products almost finished is shown |
-|  5     | Automatic notification is generated and sent to an shop manager  |
-|  6     | shop manager decides if place an order or not |
-
-##### Scenario 4.2
-
-| Scenario 4.2 | All products are available |
-| ------------- |:-------------:| 
-|  Precondition     | Product must exist in catalogue | 
-|       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
-|       | Product is unavailable in the inventory | 
-|  Post condition     | New advertisement is sent to shop manager|
-|       | Product information are updated (available soon ecc.) | 
-| Step#        | Description  |
-|  1     | WM user checks products availability  |  
-|  2     | The products almost finished is shown on the app |
-|  3     | Automatic notification is generated and sent to an shop manager  |
-|  4     | shop manager decides if place an order or not |
+# scenario
 
 ### Remove a product type, UC5
 | Actors Involved        | Warehouse Manager,shop manager |
 | ------------- |:-------------:| 
 |  Precondition     | Product must exist in the catalogue |
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
-|	|	Deleted sale  are conceded by the shop manager | 
+|	|	Delete product is conceded by the shop manager | 
 |  Post condition  | Product is removed from the system |
-|	|	Notification is sent to supplier on deleted product order	|
+|	|	Notification is sent to shop manager on deleted product order	|
 |  Nominal Scenario     | Shop manager requires to remove salable product in the shop. He notifies Warehouse Manager who remove product with all the information about it from catalogue. In the end SM sends notification on order stop to supplier for this product  |
 |  Variants     | Remove the product type already removed |
 
@@ -480,8 +439,8 @@ The following table indicates which actor have the rights to perform functional 
 |	| Cash received are into the cash register|
 |	| Inventory level of sold product is updated|
 |	| Shop entries are updated|
-|  Nominal Scenario     | New purchase is issued from Cashier C who notifies Accounting and Shop Manager. AM and SM use this to estimate new values  |
-|  Variants     | A product of customer purchase is affected by defects and it's being returned |
+|  Nominal Scenario     | New purchase is issued from Cashier C who notifies Accounting and Shop Manager. AM and SM use this to estimate new balance  |
+|  Variants     |  |
 
 ##### Scenario 6.1 - Register a new sale with fidelity card, cash payment
 
@@ -507,7 +466,7 @@ The following table indicates which actor have the rights to perform functional 
 |	7	| Insert cash from customer into cash register|
 |	8	| Update inventory level of all sold items
 |	9	| Add the amount of money received to the current entries|
-|	10	| Print 
+|	10	| Print final sale ticket |
 
 
 ##### Scenario 6.2 - Register a new sale without fidelity card, credit card payment
@@ -534,8 +493,8 @@ The following table indicates which actor have the rights to perform functional 
 |	8	| Add the amount of money received to the current entries|
 |	9	| Print final sale ticket|
 
-### Generate report with balance, invoices and incoming
-| Actors Involved        | Accounting Manager  |
+### Generate report with balance, invoices and incoming, UC7
+| Actors Involved        | Accounting Manager, Shop Manager  |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
 |  Post condition     | Balance, invoices and revenues of the year are shown on the screen |
@@ -592,12 +551,12 @@ The following table indicates which actor have the rights to perform functional 
 ### Add a new customer, UC8
 | Actors Involved        | Cashier |
 | ------------- |:-------------:| 
-|  Precondition     | The Customer is not registered in the system  | 
-| |AnonymousUser is authenticated as Cashier|
+|  Precondition     |AnonymousUser is authenticated as Cashier|
 |  Post condition     |Customer is added in the system |
 |  Nominal Scenario     | The Cashier taps the "Add customer" icon. The Cashier inputs the all the Customer's information in the form and scans a new fidelity card to associate it with the new profile|
-|  Variants     | The Customer already exists in the system.     
-#### Scenario 8.1 - Add a new customer
+|  Variants     | The Customer already exists in the system.   
+
+#### Scenario 8.1 - Add a new customer - The Customer is already registered
 | Scenario 8.1 | The Customer is already registered|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated|
@@ -619,8 +578,9 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     |AnonymousUser is authenticated as Cashier | 
 |		| The Customer is already registered into the system   | 
 |  Post condition     | The Customer is removed from the system/ The Customer's profile is updated |
-|  Nominal Scenario     | The Cashier scans the Fidelity Card, enters the Customer Profile section and taps "Delete Customer Profile" link./The edit icon. The system removes the Customer's data./ The Cashier edits some Customer's fields and saves.|
+|  Nominal Scenario     | The Cashier scans the Fidelity Card, enters the Customer Profile section and taps the edit icon. The Cashier edits some Customer's fields and saves.|
 |  Variants     | The Customer doesn't have the Fidelity Card with him. Update a Customer and it's not already registered. |
+|| The Cashier scans the Fidelity Card, enters the Customer Profile section and	"Delete Customer Profile" link. The system removes the Customer's data. |
 
 #### Scenario 9.1 - Replace a fidelity card for a customer with lost fidelity card
 | Scenario 9.1 | Replace a fidelity card for a customer with lost fidelity card|
@@ -640,6 +600,7 @@ The following table indicates which actor have the rights to perform functional 
 |	5	| Scan a new Fidelity Card|
 |	6	| Accept the changes|
 |	7	| Save the updates
+
 ### See all customers, UC10
 | Actors Involved        | Cashier |
 | ------------- |:-------------:| 
@@ -663,7 +624,8 @@ The following table indicates which actor have the rights to perform functional 
 | Scenario 11.1 | Add a new user|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated | 
-|       | User has role shop manager | 
+|       | User has role shop manager |
+|	|	User is not already registered into system| 
 |  Post condition     | The user information are inserted on EZShop |
 | Step# | Description |
 |	1	| Tap on "Add new User" icon|  
@@ -676,6 +638,7 @@ The following table indicates which actor have the rights to perform functional 
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated | 
 |       | User has role shop manager | 
+|	|	User is already registered into system	| 
 |  Post condition     | The user access rights are updated on EZShop |
 | Step# | Description |
 |	1	| Show all users of EZShop|
@@ -683,23 +646,23 @@ The following table indicates which actor have the rights to perform functional 
 |	3	| The shop manager selects the new access rights for the user|
 |	4	| System updates and stores the new user information|
 |	5	| EZShop informs about the success of the operation|
+
 ### Remove a user, UC12
 | Actors Involved        | Shop Manager |
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated | 
 |       | User has role shop manager | 
-|		| User to remove information are on the system
+|	|	User is already registered into system	| 
 |  Post condition     | The user information are removed from EZShop |
 |  Nominal Scenario     | The shop manager wants to remove a user from the system |
 |  Variants     |  |
 
-
 #### Scenario 12.1 - Remove a user
-| Scenario 11.1 | Remove a user|
+| Scenario 12.1 | Remove a user|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated | 
 |       | User has role shop manager | 
-|		| User to remove information are on the system
+|		| User is already registered into system
 |  Post condition     | The user information are removed from EZShop |
 | Step# | Description |
 |	1	| Show the list of all users|
@@ -707,6 +670,7 @@ The following table indicates which actor have the rights to perform functional 
 |	3	| The system asks for confirmation|
 |	4	| Shop manager confirm operation|
 |	5	| User data are removed from EZShop|
+
 ### User authentication, UC13
 | Actors Involved        | Shop Manager, Accounting Manager, Warehouse Manager, Cashier , Anonymous User |
 | ------------- |:-------------:| 
