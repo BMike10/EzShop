@@ -402,30 +402,50 @@ The following table indicates which actor have the rights to perform functional 
 |	5	| EZShop sends a new notify to the shop manager|
 
 
-### Add or update new product type, UC4
+### Add a new product type, UC4
 | Actors Involved        | Warehouse Manager,shop manager |
 | ------------- |:-------------:| 
-|  Precondition     | Product mustn't exist in catalogue |
+|  Precondition     | Product doesn't exist yet in the catalogue |
+|       | User is authenticated|
+|    | User role is Shop Manager or Warehouse Manager | 
+|  Post condition  | The new product type is added into the system |
+|  Nominal Scenario     | The shop manager or the warehouse manager requires to add a new product type in the shop. He notifies Warehouse Manager who adds the new product with all the information about it. In the end SM sends new order to supplier for new product  |
+|  Variants     | The new product type is already registered in the system |
+
+##### Scenario 4.1 
+
+| Scenario 4.1 | Already available product type  |
+| ------------- |:-------------:| 
+|  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
-|	|	New Product Sale or update are conceded by the shop manager | 
-|  Post condition  | Product is added/updated in the system |
-|	|	Addition of product information is required to the manager	|
-|	|	New order is required to shop manager	|
-|  Nominal Scenario     | Warehouse manager requires to add or update new salable product in the shop. He adds the new product with all the information about it.|
-|  Variants     | Add a new product type and this type does not exists |
+|       | The user made a request to add a new product type in the catalogue but it is already present| 
+|  Post condition     | Abort the operation | 
+| Step#        | Description  |
+|  1     | The user confirms the data about the product type he wanted to add |
+|  2     | Automatic notification is generated saying that the product is already present  |
+|  3     | Abort the operation, returns to the catalogue main page |
 
-# scenario
 
-### Remove a product type, UC5
+### Remove or update a product type, UC5
 | Actors Involved        | Warehouse Manager,shop manager |
 | ------------- |:-------------:| 
-|  Precondition     | Product must exist in the catalogue |
+|  Precondition     | Product must already exist in the catalogue |
+|       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM| 
+|  Post condition  | Product type is removed or its data are updated in the system |
+|  Nominal Scenario     | Shop manager or warehouse manager requires to remove a product type in the shop. He selects the product that he wants to be removed or updated and confirms the operation. |
+|  Variants     | If the operation is "remove", the shop manager sends a request to the supplier to stop every order for the deleted product type|
+
+##### Scenario 5.1
+
+| Scenario 5.1 | Remove of a product type |
+| ------------- |:-------------:| 
+|  Precondition     | Product must exist in catalogue | 
 |       | AnonymousUser AU is authenticated as Warehouse or Shop Manager WM/SM|
-|	|	Delete product is conceded by the shop manager | 
-|  Post condition  | Product is removed from the system |
-|	|	Notification is sent to shop manager on deleted product order	|
-|  Nominal Scenario     | Shop manager requires to remove salable product in the shop. He notifies Warehouse Manager who remove product with all the information about it from catalogue. In the end SM sends notification on order stop to supplier for this product  |
-|  Variants     | Remove the product type already removed |
+|       | The user has already specified a product type that he wants to remove from the system |
+|  Post condition     | New notification sent to the supplier of that product type| 
+| Step#        | Description  |
+|  1     | After the product has been removed from the system, a notification to the supplier of that product type is sent to stop all the orders for that product|
+
 
 ### Register new customer purchase, UC6
 | Actors Involved        | Cashier, POS, Shop Manager,Accounting Manager |
@@ -672,12 +692,12 @@ The following table indicates which actor have the rights to perform functional 
 |	5	| User data are removed from EZShop|
 
 ### User authentication, UC13
-| Actors Involved        | Shop Manager, Accounting Manager, Warehouse Manager, Cashier , Anonymous User |
+| Actors Involved        | Anonymous User |
 | ------------- |:-------------:| 
 |  Precondition     |  |
 |  Post condition     | Right app pageframe is shown to user |
 |      | Now the user is able to perform the right tasks |
-|  Nominal Scenario     | Anonymous User opens the app and login with his username and password. He acquires  privileges to perform his tasks  |
+|  Nominal Scenario     | Anonymous User opens the app and login with his username and password. He acquires  privileges to perform tasks based on his role  |
 |  Variants     | Anonymous User opens the app and logs-in with wrong username or password. A warning popup appears and no privileges are conceded to user |
 
 #### Scenario 13.1 - Successful Login 
@@ -691,7 +711,7 @@ The following table indicates which actor have the rights to perform functional 
 |      | Now the user is able to perform the right tasks |
 |      | The user is authenticated |
 | Step#        | Description  |
-|	1	| Read email and password of the user|
+|	1	| Read email, password and role of the user|
 |	2	| Check if email is present into EZShop user|
 |	3	| Email is found|
 |	3	| Check password correspondence|
@@ -744,39 +764,40 @@ The following table indicates which actor have the rights to perform functional 
 |  Precondition     | User is authenticated | 
 |       | User role is Shop Manager |
 |		| The supplier is already registered into the system | 
-|  Post condition     | The supplier is removed from the system or his data are upgraded |
+|  Post condition     | The supplier is removed from the system or his data are updated |
 |  Nominal Scenario     | The manager enters the suppliers management page, he clicks on the "Remove Supplier" link or on the "Modify Supplier" one, he inserts all the info requested by the system about the target supplier, the system checks if the supplier exists and confirms it, the manager confirms the operation, the system removes or updates the supplier's data and notifies the shop manager |
-|  Variants     | Manager has inserted wrong data and the system doesn't find any correspondent supplier; Manager has inserted the right data and the system completes the procedure |
+|  Variants     |  |
 
-#### Scenario 15.1 - Wrong data/non-existing supplier
-| Scenario 15.1 | Data inserted by the manager about the supplier have no matches in the system|
-| ------------ |:-------------:|
-| Precondition | User is authenticated |
-|	| User role is Shop Manager |
-|	| Shop Manager has inserted the data required to remove or update a supplier |
-|	| EZ Shop didn't find any matching supplier |
-|	Post condition | Abort the operation, manager is redirected to his home page |
-| Step#	| Description |
-|	1	| The system notifies through a pop-up message that there are no matching suppliers for the data inserted by the manager |
-|	2	| Operation is aborted |
-|   3   | The manager is redirected to his home page |
+#### Scenario 15.1 - Update existing supplier information
 
-#### Scenario 15.2 - Update or remove existing supplier information
-
-| Scenario 15.2 | Update or remove supplier|
+| Scenario 15.1 | Update supplier|
 | ------------- |:-------------:| 
 |  Precondition     | User is authenticated |
 |	| User role is Shop manager|
-|	| The manager has started the procedure to either update or remove the supplier|
+|	| The manager has started the procedure to update the supplier|
 |	| Supplier information are present on EZShop|
-|  Post condition     | The supplier data are correctly updated or removed from the system |
+|  Post condition     | The supplier data are correctly updated from the system |
 | Step# | Description |
-|	1	| Manager either clicks on the "Update supplier information" action or on the "Remove supplier" action|  
+|	1	| Manager clicks on the "Update supplier information" action|  
 |	2	| He inserts all the data required|
 |	3	| System verifies that the supplier exists|
 |	4	| Manager confirms the operation|
-|	5	| System stores the new data or removes the supplier from EZ Shop and sends a message to the manager to notify the success of the operation |
-|	6	| The manager is automatically redirected to his home |
+|	5	| System stores the new data the supplier from EZ Shop and sends a message to the manager to notify the success of the operation |
+
+#### Scenario 15.2 - Remove existing supplier information
+
+| Scenario 15.2 | Remove supplier|
+| ------------- |:-------------:| 
+|  Precondition     | User is authenticated |
+|	| User role is Shop manager|
+|	| The manager has started the procedure to remove the supplier|
+|	| Supplier information are present on EZShop|
+|  Post condition     | The supplier data are correctly removed from the system |
+| Step# | Description |
+|	1	| Manager clicks on the "Remove supplier" action|  
+|	2	| Manager confirms the operation|
+|	3	| System removes the supplier from EZ Shop and sends a message to the manager to notify the success of the operation |
+
 
 ### Place an order to supplier for a given product type, UC16
 | Actors Involved        | Shop Manager |
@@ -860,6 +881,8 @@ The following table indicates which actor have the rights to perform functional 
 |	5	| Remove the invoice related to the order|
 |	6	| Notify the accounting manager about the deletion of the invoice|
 |	7	| Notify the warehouse manager about the deletion of the order|
+
+
 # Glossary
 
 <div style="display:none" hidden>
