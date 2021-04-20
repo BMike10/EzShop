@@ -127,3 +127,6 @@ Version:
 
 ## Balances
 <img src="img/gui/accounting/balances.png">
+
+### Generate new balance but no invoices/revenue are saved in the system
+<img src="img/gui/accounting/newBalanceError.png">
