@@ -243,6 +243,8 @@ The following table indicates which actor have the rights to perform functional 
 	@startuml usecase_diagram
 		' use cases
 		usecase "FR1 Manage warehouse" as mi
+		usecase "FR1.1 Manage catalogue" as mic
+		usecase "FR1.2 Manage inventory" as mii
 		usecase "FR2 Manage sales" as ms
 		usecase "FR3 Manage accounting" as ma
 		usecase "FR4 Manage customers" as mc
@@ -292,6 +294,8 @@ The following table indicates which actor have the rights to perform functional 
 		 cr --> ms
 		 mc <-- cr
 		 ' warehouse manager
+		 mi --> mic: <<include>>
+		 mi --> mii: <<include>>
 		 mi <-- wm
 		 'wm -> mca
 		 mo --> wm
