@@ -153,12 +153,14 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 | FR1.1.2	| Show inventory level for each product type|
 | FR1.1.3	| Update inventory level for a product type (increment or decrement products quantity) |
 | FR1.1.4	| Notify shop manager for an unavailable product|
+| FR1.1.5	| Filter product by type and quantity|
 | FR1.2	| Manage Catalogue|
 | FR1.2.1 | Add a new product type|
 | FR1.2.2	| Remove a product type|
 | FR1.2.3	| Update product type information|
 | FR1.2.4	| List all product types|
 | FR1.2.5	| Search a product type|
+| FR1.2.6	| Filter product by type and quantity|
 | FR2	| Manage sales|
 | FR2.1	| Register into system a sale for a product|
 | FR2.2	| Remove a previous sale|
@@ -178,13 +180,15 @@ Giovanni is 45, he helps the manager of a small food shop in managing the accoun
 | FR4.2	| See all customers|
 | FR4.3	| Remove a customer|
 | FR4.4	| Search a customer|
-| FR4.5	| Update fidelity card|
+| FR4.5	| Update fidelity card |
+| FR4.6 | Replace a fidelity card |
 | FR5	| Manage users|
 | FR5.1	| Add a new user|
 | FR5.2	| Remove a user|
 | FR5.3	| View all users|
 | FR5.4	| Manage access rights for a user|
 | FR5.5	| User authentication|
+| FR5.6	| Filter users by name,surname,email and rights|
 | FR6	| Manage suppliers|
 | FR6.1	| Add a new supplier|
 | FR6.2	| Update a supplier|
