@@ -310,6 +310,8 @@ The following table indicates which actor have the rights to perform functional 
 <img src="img/usecase_diagram.png">
 <br>
 
+## Use Cases
+
 ### Show inventory level for a product type, UC1
 | Actors Involved        | Warehouse Manager, Shop Manager |
 | ------------- |:-------------:| 
