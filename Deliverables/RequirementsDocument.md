@@ -63,7 +63,7 @@ EZShop is a software application that handles the following operations:
 # Context Diagram and interfaces
 
 ## Context Diagram
-
+<!--
 <div hidden style="display:none">
 	@startuml context_diagram
 		' system
@@ -86,9 +86,9 @@ EZShop is a software application that handles the following operations:
 		actor :POS system: as ccs
 		' associations
 		''' sm -> EZShop
-		''' cr --> EZShop
-		''' am --> EZShop
-		''' wm --> EZShop		
+		''' cr --\> EZShop
+		''' am --\> EZShop
+		''' wm --\> EZShop		
 		' variant with only end user
 		u -> EZShop
 
@@ -96,12 +96,12 @@ EZShop is a software application that handles the following operations:
 		EZShop <-- ccs
 		EZShop <-- :Fidelity card:
 		''' ' If we choose Cash Register and laser beam external
-		''' :Cash Register: --> EZShop
+		''' :Cash Register: --\> EZShop
 		''' :Laser beam scanner: -- EZShop
 		' If cash register and laser beam scanner are internal
-		Product --> EZShop
+		Product --\> EZShop
 	@enduml
-</div>
+</div>-->
 <br>
 <img src="img/context_diagram.png">
 <br>
@@ -248,7 +248,7 @@ The following table indicates which actor have the rights to perform functional 
 
 
 ## Use case diagram
-
+<!--
 <div style="display:none" hidden>
 	@startuml usecase_diagram
 		' use cases
@@ -274,52 +274,52 @@ The following table indicates which actor have the rights to perform functional 
 		actor :Warehouse manager: as wm
 		'variant with only the end user
 		actor :Anonymous User: as u
-		'u --> mi
-		'u --> mca
-		'u --> ms
-		'u --> ma
-		'u --> mc
-		'u --> mu
-		'u --> msu
-		'u --> mo
+		'u --\> mi
+		'u --\> mca
+		'u --\> ms
+		'u --\> ma
+		'u --\> mc
+		'u --\> mu
+		'u --\> msu
+		'u --\> mo
 		u -> mua
 
 		' associations
-		mu --> mua: <<include>>
+		mu --\> mua: <<include>>
 		ms -- mi
 		mo -- ma
 		''' shop manager 
-		 sm --> mu
-		 ' sm --> ma
+		 sm --\> mu
+		 ' sm --\> ma
 		  sm <-- mi
-		 ' sm --> mc
-		 ' sm --> ms
-		 sm --> msu
+		 ' sm --\> mc
+		 ' sm --\> ms
+		 sm --\> msu
 		 sm -> mo
-		 ' sm --> mca
+		 ' sm --\> mca
 		 ' accounting manager
 		 ma <-- am
 		 ' cashier
 		 ' mi <-- cr
-		 cr --> ms
+		 cr --\> ms
 		 mc <-- cr
 		 ' warehouse manager
-		 mi --> mic: <<include>>
-		 mi --> mii: <<include>>
+		 mi --\> mic: <<include>>
+		 mi --\> mii: <<include>>
 		 mi <-- wm
-		 'wm -> mca
-		 mo --> wm
+		 'wm -\> mca
+		 mo --\> wm
 		
 		' POS system
-		ms -> ccs
+		ms -\> ccs
 		' supplier 
-		mo -> s
+		mo -\> s
 		' fidelity card
-		mc --> fc
+		mc --\> fc
 		:Product: <- ms
 		fc <- ms
 	@enduml
-</div>
+</div>-->
 <br>
 <img src="img/usecase_diagram.png">
 <br>
@@ -887,7 +887,7 @@ The following table indicates which actor have the rights to perform functional 
 
 
 # Glossary
-
+<!-->
 <div style="display:none" hidden>
 	@startuml glossary
 		class Shop{
@@ -998,14 +998,14 @@ The following table indicates which actor have the rights to perform functional 
 		AccountingManager --"*" Balance: manages >
 		CashRegister -- Pos
 	@enduml
-</div>
+</div>-->
 <br>
 <img src="img/Glossary.png">
 <br>
 
 # System Design
 
-<!-- if we choose the cash register and laser beam scanner internal -->
+<!-- 
 <div style="display:none" hidden>
 	@startuml system_design
 		class CashRegister
@@ -1020,11 +1020,11 @@ The following table indicates which actor have the rights to perform functional 
 		CashRegister - POS
 	@enduml
 </div>
-
+-->
 <img src="img/system_design.png">
 
 # Deployment Diagram 
-
+<!--
 <div style="display:none" hidden>
 	@startuml deployment_diagram
 		node Server
@@ -1045,5 +1045,5 @@ The following table indicates which actor have the rights to perform functional 
 		cr .. crc
 		Server -- cr
 	@enduml
-</div>
+</div> -->
 <img src="img/deployment_diagram.png">
