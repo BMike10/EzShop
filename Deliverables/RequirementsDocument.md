@@ -2,8 +2,10 @@
 
 Authors:
 Gambino Matteo, Valentini Valeria, Gigante Samuele, Basilico Michele
+
 Date:
 21/04/2021
+
 Version:
 1.0
 
@@ -29,8 +31,9 @@ Version:
 
 # Essential description
 
-Small shops require a simple application to support the owner or manager. A small shop (ex a food shop) occupies 50-200 square meters, sells 500-2000 different item types, has one or a few cash registers 
-EZShop is a software application to:
+Small shops require a simple application to support the owner or manager. A small shop (ex a food shop) occupies 50-200 square meters, sells 500-2000 different item types, has one or a few cash registers.
+
+EZShop is a software application that handles the following operations:
 * manage sales
 * manage inventory
 * manage customers
@@ -41,19 +44,19 @@ EZShop is a software application to:
 
 | Stakeholder name  | Description | 
 | ----------------- |:-----------:|
-|   Shop manager   	| Manages the orders to be sent to the supplier. Manage users and their rights in the system. He can also access all the other functions of the system             | 
-|	Cashier			| Uses the cash register, register sales and manages the creation of new fidelity cards		|
+|   Shop manager   	| Manages the orders to be sent to the suppliers. Manages users and their rights in the system. He can also access all the other functions of the system in order to oversee the work made by his employees  | 
+|	Cashier			| Uses the cash register, registers sales and manages the creation of new fidelity cards		|
 |	Accounting manager		| Manages balance, invoices and revenues of the shop		|
-|	Warehouse manager| Manages the shop's inventory and warehouse |
-|	Customer		| Customers of the shop who do sales in the shop			|
+|	Warehouse manager| Manages the shop's warehouse, including inventory and catalogue |
+|	Customer		| Customers of the shop who make sales to purchase products with either cash or credit card|
 |	Developer		| Develops the EZShop application and takes care of the maintenance of the application					|
-| 	Cash register	| Instrument that register each sale happened in the shop, contains cash received from sales and prints the sale ticket	|
+| 	Cash register	| Instrument that registers each sale happened in the shop, contains cash received from sales and prints the sale ticket	|
 |	Product			| Product that is sold in the shop and is contained in the inventory and catalogue|
-|	Inventory		| List of available physical product in the shop|
-|	Catalogue		|  List of salable product in the shop|
-|	Supplier		| Sells the required products to the shop |
-|	POS system		| System that manages credit cards payments from customers|
-|	Anonymous User			| Person that will use the EZShop application which has one or many roles in the shop |
+|	Inventory		| List of available physical products in the shop|
+|	Catalogue		|  List of all the products types (and their features) available in the shop|
+|	Supplier		| Supplies the required products to the shop |
+|	POS system		| System that manages credit card payments made by customers|
+|	Anonymous User			| Person that will use the EZShop application, who has one or many roles in the shop |
 |	Fidelity card	| Card given to a customer in order to receive some discounts |
 <br>
 
@@ -126,19 +129,19 @@ EZShop is a software application to:
 The following personas and stories represent possible actors profiles.
 <br>
 <br>
-Matteo is 40, works, owns and manages a small food shop. He has to check the inventory every day and place orders to his suppliers for goods for his shop. He is always in hurry so he wants to spend less time as possible in doing managing stuff and concentrate more on his customers.
+Matteo is 40, he owns and manages a small food shop. He has to check the inventory every day to place orders to the suppliers for his shop. He is always in a hurry so he wants to spend as little time as possible doing management stuff so he can concentrate more on his customers.
 <br>
 <br>
-Laura is 60, she has always worked in the shop of her parents and now she owns it. She is not very familiar with technology stuff but she needs something to better manage the inventory of her shop. She has 2 nephews and she wants to spend as much time as possible with them so she has assumed a cashier for her shop that manages the sales and helps her.
+Laura is 60, she has always worked in the shop of her parents and now she owns it. She is not very familiar with technology but she needs something to better manage the inventory of her shop. She has two nephews and she wants to spend as much time as possible with them so she employed a cashier for her shop that manages the sales and helps her.
 <br>
 <br>
-Luca is 25, he works as a cashier in a small shop. During his work, he has to help the shop manager in updating the inventory level of the product sold in the shop. This requires him to stay in the shop after the closing hour to check the inventory. He would really like to spend this time with his friends so he wants that the inventory is as fast as possible.
+Luca is 25, he works as a cashier in a small shop. During his work, he has to help the shop manager in updating the inventory level of the product sold in the shop. This requires him to stay in the shop after the closing hour to check the inventory. He would really like to spend this time with his friends so he wants that the inventory management is as fast as possible.
 <br>
 <br>
-Giorgia is 50, she works as a supplier for many small shops in Turin. Since she is very forgetful and, for that reason, she always looks to her email to check for the orders of the managers of the different shops. 
+Giorgia is 50, she works as a supplier for many small shops in Turin. Since she is very forgetful, she always checks her emails to see the incoming orders made by the managers of all the different shops she works for.
 <br>
 <br>
-Giovanni is 45, he helps the manager of a small food shop in managing the accounting of the shop. He has a daughter and he would like to spend all of his time with her. The manager of the shop he works for requires daily, weekly and monthly reports about the entries and the invoices of the shop. That requires a lot of time and he would like to do that faster in order to have more free time.
+Giovanni is 45, he helps the manager of a small food shop in managing the accounting of the shop. He has a daughter and he would like to spend most of his time with her. The manager of the shop he works for requires daily, weekly and monthly reports about the entries and the invoices of the shop. That requires a lot of time and he would like to do that faster in order to have more free time.
 <br>
 
 # Functional and non functional requirements
@@ -229,14 +232,14 @@ The following table indicates which actor have the rights to perform functional 
 | ID        | Type (efficiency, reliability, ..)           | Description  | Refers to |
 | ------------- |:-------------:| :-----:| -----:|
 |  NFR1 | efficiency  	| Time to show the whole inventory < 500ms  | FR1.4|
-|  NFR2 | correctness 	| Maximum number of different product types >= 2000  | FR2|
+|  NFR2 | correctness 	| Maximum number of different product types = 2000  | FR2|
 |  NFR3 | efficiency 	| More sales can be registered at the same time by different cash registers| FR3.1|
-|  NFR4	| efficiency	| Show customer list time < 500ms | FR5.2 |
+|  NFR4	| efficiency	| Show all the customers in < 500ms | FR5.2 |
 |  NFR5	| efficiency	| User authentication procedure time < 500ms| FR6.5|
 |  NFR6	| usability		| No specific training should be needed to use the software| All FR|
 |  NFR7	| portability	| Software should be available on any OS (Windows, Unix/Linux, MacOs)| All FR|
 |  NFR8	| localization	| Currency is EURO | all FR|
-|  NFR9| security		| all user roles should access only the functions their access rights allow to| all FR|
+|  NFR9| security		| All the users should access only the functions that are allowed by their access rights| all FR|
 |  NFR10| security		| Treat user data according to GDPR| |
 
 <br>
