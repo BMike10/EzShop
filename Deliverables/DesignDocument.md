@@ -24,16 +24,29 @@ The design must satisfy the Official Requirements document, notably functional a
 <discuss architectural styles used, if any>
 <report package diagram>
 
+pattern used:
+- MVC
+- Layered- 3 tiered
 
-
-
-
-
+@startuml HighLevel
+package GUI{}
+note left of EZShop: Contains application logic and model
+package EZShop{}
+GUI -- EZShop
+@enduml
 # Low level design
 
 <for each package, report class diagram>
 
+## Package GUI
 
+@startuml GUI
+@enduml
+## Package EZShop
+
+@startuml EZShop
+
+@enduml
 
 
 
