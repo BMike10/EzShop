@@ -56,18 +56,7 @@ class Shop{
     + login(String username, String password)
     + logout()
     + reset()
-}
-class User{
-    - int id
-    - String username
-    - String password
-    - Role role
-    - Shop shop
-}
-' interface Role{
-' }
-class Cashier{
-    + getAllProductTypes()
+       + getAllProductTypes()
     + defineCustomer(String customerName)
     + modifyCustomer(Integer id, String newCustomerName, String newCustomerCard)
     + deleteCustomer(Integer id)
@@ -76,13 +65,13 @@ class Cashier{
     + createCard()
     + attachCardToCustomer(String customerCard, Integer customerId)
     + modifyPointsOnCard(String customerCard, int pointsToBeAdded)
-    + startSaleTransaction()
+    + startTicket()
     + addProductToSale(Integer transactionId, String productCode, int amount)
     + deleteProductFromSale(Integer transactionId, String productCode, int amount)
     + applyDiscountRateToProduct(Integer transactionId, String productCode, double discountRate)
     + applyDiscountRateToSale(Integer transactionId, double discountRate)
     + computePointsForSale(Integer transactionId)
-    + closeSaleTransaction(Integer transactionId)
+    + closeTicket(Integer transactionId)
     + deleteSaleTicket(Integer ticketNumber)
     + getSaleTicket(Integer transactionId)
     + getTicketByNumber(Integer ticketNumber)
@@ -94,9 +83,6 @@ class Cashier{
     + receiveCreditCardPayment(Integer ticketNumber, String creditCard) 
     + returnCashPayment(Integer returnId)
     + returnCreditCardPayment(Integer returnId, String creditCard)
-
-}
-class ShopManager{
     + createProductType(String desc, String code, double price, String note)
     + updateProduct(int id, String newDesc, String newCode, double newPrice, String newNote)
     + deleteProduct(int id)
@@ -112,43 +98,58 @@ class ShopManager{
     + recordBalanceUpdate(double toBeAdded)
     + getCreditsAndDebits(LocalDate from, LocalDate to)
     + computeBalance()
-}
-class Admin{
     + createUser(String username, String password, String role)
     + deleteUser(int id)
     + updateUserRights(int id, String role)
     + getAllUsers()
     + getUser(int id)
 }
-User -- Cashier
-Shop -- User
-Cashier <|-- ShopManager
-ShopManager <|-- Admin
+class User{
+    - int id
+    - String username
+    - String password
+    - String role
+    - Shop shop
+}
+' interface Role{
+' }
 
-class AccountBook {
-    - Map<Integer, FinancialTransaction> transactions
+Shop -- User
+
+
+class AccountBook { 
+    - Map<Integer, Ticket> ticket
+    - Map<Integer, ReturnTransaction> return
+    - Map<Integer, Order> order
     '  methods
+    + addTicket(Ticket ticket)
+    + addReturnTransaction(ReturnTransaction return)
+    + addOrder(Order order)
+    + getTicket(int id)
+    + getReturnTransaction(int id)
+    + getOrder(int id)
+    
 
 }
 AccountBook - Shop
-class FinancialTransaction {
+class BalanceOperation {
  - int id
  - String description
  - double amount
  - LocalDate date
 }
-AccountBook -- "*" FinancialTransaction
+AccountBook -- "*" BalanceOperation
 
 ' class Credit 
 ' class Debit
 ' 
-' Credit --|> FinancialTransaction
-' Debit --|> FinancialTransaction
+' Credit --|> BalanceOperation
+' Debit --|> BalanceOperation
 
 'class Sale
 'class Return
-Order --|> FinancialTransaction
-SaleTransaction --|> FinancialTransaction
+Order --|> BalanceOperation
+Ticket --|> BalanceOperation
 'Order --|> Debit
 'Sale --|> Credit
 'Return --|> Debit
@@ -162,18 +163,25 @@ class ProductType{
     - int quantity
     - double discountRate
     - String notes
+    - Position position
 }
 
 Shop - "*" ProductType
 
-class SaleTransaction {
+class Ticket {
     - Time time
     - String paymentType
     - double discountRate
     - Map<ProductType, Integer> products
+    - Map<ProductType, Double> discountProduct
     - LoyaltyCard card
+    + addProduct(ProductType product, int quantity)
+    + deleteProduct(ProductType product, int quantity)
+    + addProductDiscount(ProductType product, double discount)
+    + checkout() 
+
 }
-SaleTransaction - "*" ProductType
+Ticket - "*" ProductType
 
 
 class LoyaltyCard {
@@ -190,7 +198,9 @@ class Customer {
 
 LoyaltyCard "0..1" - Customer
 
-SaleTransaction "*" -- "0..1" LoyaltyCard
+LoyaltyCard "*"-- Shop
+Customer "*"-- Shop
+Ticket "*" -- "0..1" LoyaltyCard
 
 
 
@@ -213,11 +223,14 @@ class Order {
 Order "*" - ProductType
 
 class ReturnTransaction {
-  -int quantity
-  -double returnedValue
+  -Map<ProductType,Integer> returnProduct
+  -Ticket ticket
+  + addReturnProduct(ProductType product, int quantity)
+
 }
 
-ReturnTransaction "*" - SaleTransaction
+ReturnTransaction --|> BalanceOperation
+ReturnTransaction "*" - Ticket
 ReturnTransaction "*" - ProductType
 
 @enduml
@@ -242,9 +255,9 @@ ReturnTransaction "*" - ProductType
 |Cashier                | | | | | | | |
 |ShopManager            | |X|X| | | | |
 |Admin                  |X| | | | | | |
-|FinancialTransaction   | | | | | | | |
+|BalanceOperation   | | | | | | | |
 |Order                  | | |X| | | | |
-|SaleTransaction        | | | | | | | |
+|Ticket        | | | | | | | |
 |ProductType            | |X| | | | | |
 |ReturnTransaction      | | | | | | | |
 |Customer               | | | | | | | |
