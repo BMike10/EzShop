@@ -118,11 +118,11 @@ Shop -- User
 
 
 class AccountBook { 
-    - Map<Integer, Ticket> ticket
+    - Map<Integer, SaleTransaction> saleTransaction
     - Map<Integer, ReturnTransaction> return
     - Map<Integer, Order> order
     '  methods
-    + addTicket(Ticket ticket)
+    + addTicket(SaleTransaction saleTransaction)
     + addReturnTransaction(ReturnTransaction return)
     + addOrder(Order order)
     + getTicket(int id)
@@ -149,7 +149,7 @@ AccountBook -- "*" BalanceOperation
 'class Sale
 'class Return
 Order --|> BalanceOperation
-Ticket --|> BalanceOperation
+SaleTransaction --|> BalanceOperation
 'Order --|> Debit
 'Sale --|> Credit
 'Return --|> Debit
@@ -168,7 +168,7 @@ class ProductType{
 
 Shop - "*" ProductType
 
-class Ticket {
+class SaleTransaction {
     - Time time
     - String paymentType
     - double discountRate
@@ -181,7 +181,7 @@ class Ticket {
     + checkout() 
 
 }
-Ticket - "*" ProductType
+SaleTransaction - "*" ProductType
 
 
 class LoyaltyCard {
@@ -200,7 +200,7 @@ LoyaltyCard "0..1" - Customer
 
 LoyaltyCard "*"-- Shop
 Customer "*"-- Shop
-Ticket "*" -- "0..1" LoyaltyCard
+SaleTransaction "*" -- "0..1" LoyaltyCard
 
 
 
@@ -224,13 +224,13 @@ Order "*" - ProductType
 
 class ReturnTransaction {
   -Map<ProductType,Integer> returnProduct
-  -Ticket ticket
+  -SaleTransaction saleTransaction
   + addReturnProduct(ProductType product, int quantity)
 
 }
 
 ReturnTransaction --|> BalanceOperation
-ReturnTransaction "*" - Ticket
+ReturnTransaction "*" - SaleTransaction
 ReturnTransaction "*" - ProductType
 
 @enduml
@@ -249,21 +249,19 @@ ReturnTransaction "*" - ProductType
 
 | Class| FR1 |FR3 |FR4 |FR5 |FR6 |FR7 |FR8 |
 |--|--|--|--|--|--|--|--|
-|Shop                   |X|X| | | | | |
-|User                   |X| | | | | | |
-|AccountBook            | | |X| | | | |
-|Cashier                | | | | | | | |
-|ShopManager            | |X|X| | | | |
-|Admin                  |X| | | | | | |
-|BalanceOperation   | | | | | | | |
-|Order                  | | |X| | | | |
-|Ticket        | | | | | | | |
-|ProductType            | |X| | | | | |
-|ReturnTransaction      | | | | | | | |
-|Customer               | | | | | | | |
-|LoyaltyCard            | | | | | | | |
+|Shop                   |X|X|X|X|X|X|X|
+|User                   |X| | | | | | | <!-- X everywhere? -->
+|AccountBook            | | |X| | |X|X|
+|BalanceOperation       | | |X| |X|X|X|
+|Order                  | | |X| | | |X|
+|SaleTransaction        | | | | |X|X|X|
+|ProductType            | |X|X| |X| | |
+|ReturnTransaction      | | | | |X| | |
+|Customer               | | | |X| | | |
+|LoyaltyCard            | | | |X| | | |
 |Position               | | |X| | | | |
-
+<!-- How do we menage FR7(Payment) ? --> 
+<!-- Should we enter paymentState in SaleTransaction ? --> 
 
 
 
