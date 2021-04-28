@@ -29,10 +29,16 @@ pattern used:
 - Layered- 3 tiered
 
 ```plantuml
-package GUI{}
+@startuml
+ package GUI{}
+' Do we consider exceptions?
+
+' package EXCEPTIONS{}
+' EXCEPTIONS -- EZShop
 note left of EZShop: Contains application logic and model
 package EZShop{}
 GUI -- EZShop
+@enduml
 ```
 # Low level design
 
