@@ -71,22 +71,21 @@ class Shop{
     + createCard()
     + attachCardToCustomer(String customerCard, Integer customerId)
     + modifyPointsOnCard(String customerCard, int pointsToBeAdded)
-    + startTicket()
+    + startSaleTransaction()
     + addProductToSale(Integer transactionId, String productCode, int amount)
     + deleteProductFromSale(Integer transactionId, String productCode, int amount)
     + applyDiscountRateToProduct(Integer transactionId, String productCode, double discountRate)
     + applyDiscountRateToSale(Integer transactionId, double discountRate)
     + computePointsForSale(Integer transactionId)
-    + closeTicket(Integer transactionId)
-    + deleteSaleTicket(Integer ticketNumber)
-    + getSaleTicket(Integer transactionId)
-    + getTicketByNumber(Integer ticketNumber)
-    + startReturnTransaction(Integer ticketNumber)
+    + endSaleTransaction(Integer transactionId)
+    + deleteSaleTransaction(Integer transactionId)
+    + getSaleTransaction(Integer transactionId)
+    + startReturnTransaction(Integer transactionId)
     + returnProduct(Integer returnId, String productCode, int amount)
     + endReturnTransaction(Integer returnId, boolean commit)
     + deleteReturnTransaction(Integer returnId)
-    + receiveCashPayment(Integer ticketNumber, double cash)
-    + receiveCreditCardPayment(Integer ticketNumber, String creditCard) 
+    + receiveCashPayment(Integer transactionId, double cash)
+    + receiveCreditCardPayment(Integer transactionId, String creditCard)
     + returnCashPayment(Integer returnId)
     + returnCreditCardPayment(Integer returnId, String creditCard)
     + createProductType(String desc, String code, double price, String note)
@@ -96,7 +95,7 @@ class Shop{
     + getProductTypesByDescription(String description)
     + updateQuantity(Integer productId, int toBeAdded)
     + updatePosition(Integer productId, String newPos)
-    + issueReorder(String productCode, int quantity, double pricePerUnit)
+    + issueOrder(String productCode, int quantity, double pricePerUnit)
     + payOrderFor(String productCode, int quantity, double pricePerUnit)
     + payOrder(Integer orderId)
     + recordOrderArrival(Integer orderId)
@@ -128,10 +127,10 @@ class AccountBook {
     - Map<Integer, ReturnTransaction> return
     - Map<Integer, Order> order
     '  methods
-    + addTicket(SaleTransaction saleTransaction)
+    + addSaleTransaction(SaleTransaction saleTransaction)
     + addReturnTransaction(ReturnTransaction return)
     + addOrder(Order order)
-    + getTicket(int id)
+    + getSaleTransacrion(int id)
     + getReturnTransaction(int id)
     + getOrder(int id)
     
@@ -278,3 +277,5 @@ ReturnTransaction "*" - ProductType
 # Verification sequence diagrams 
 \<select key scenarios from the requirement document. For each of them define a sequence diagram showing that the scenario can be implemented by the classes and methods in the design>
 
+<!-- Should we start every sequence diagram with EZShop Class?-->
+<!-- Should we communicate every step, every time with EZShop?-->
