@@ -32,31 +32,36 @@ pattern used:
 package GUI{}
 note left of EZShop: Contains application logic and model
 package EZShop{}
+package Exceptions{}
+GUI -- Exceptions
+EZShop -- Exceptions
 GUI -- EZShop
 ```
 # Low level design
 
 <for each package, report class diagram>
-
+<!--
 ## Package GUI
+-->
 
-```plantuml
-```
 ## Package EZShop
 
+### All classes are persistent
 ```plantuml
 @startuml
 class Shop{
-    - Map<String, User> users
-    - Map<Integer, ProductType> products
-    - Map<Integer, Customer> customers
-    - Map<String, LoyaltyCard> loyaltyCards
-    - AccountBook book
+    - users: Map<Integer, User>
+    - products: Map<Integer, ProductType>
+    - customers: Map<Integer, Customer>
+    - loyaltyCards: Map<String, LoyaltyCard> 
+    - creditCards: Map<String, Double>
+    - book: AccountBook 
+    - currentUser: User 
     ' methods
     + login(String username, String password)
     + logout()
     + reset()
-       + getAllProductTypes()
+    + getAllProductTypes()
     + defineCustomer(String customerName)
     + modifyCustomer(Integer id, String newCustomerName, String newCustomerCard)
     + deleteCustomer(Integer id)
@@ -65,22 +70,22 @@ class Shop{
     + createCard()
     + attachCardToCustomer(String customerCard, Integer customerId)
     + modifyPointsOnCard(String customerCard, int pointsToBeAdded)
-    + startTicket()
+    + startSaleTransaction()
     + addProductToSale(Integer transactionId, String productCode, int amount)
     + deleteProductFromSale(Integer transactionId, String productCode, int amount)
     + applyDiscountRateToProduct(Integer transactionId, String productCode, double discountRate)
     + applyDiscountRateToSale(Integer transactionId, double discountRate)
     + computePointsForSale(Integer transactionId)
-    + closeTicket(Integer transactionId)
-    + deleteSaleTicket(Integer ticketNumber)
-    + getSaleTicket(Integer transactionId)
-    + getTicketByNumber(Integer ticketNumber)
-    + startReturnTransaction(Integer ticketNumber)
+    + endSaleTransaction(Integer transactionId)
+    + deleteSaleTransaction(Integer transactionId)
+    + getSaleTransaction(Integer transactionId)
+    ' + getSaleTransactionByNumber(Integer SaleTransactionNumber)
+    + startReturnTransaction(Integer transactionId)
     + returnProduct(Integer returnId, String productCode, int amount)
     + endReturnTransaction(Integer returnId, boolean commit)
     + deleteReturnTransaction(Integer returnId)
-    + receiveCashPayment(Integer ticketNumber, double cash)
-    + receiveCreditCardPayment(Integer ticketNumber, String creditCard) 
+    + receiveCashPayment(Integer transactionId, double cash)
+    + receiveCreditCardPayment(Integer transactionId, String creditCard) 
     + returnCashPayment(Integer returnId)
     + returnCreditCardPayment(Integer returnId, String creditCard)
     + createProductType(String desc, String code, double price, String note)
@@ -90,7 +95,7 @@ class Shop{
     + getProductTypesByDescription(String description)
     + updateQuantity(Integer productId, int toBeAdded)
     + updatePosition(Integer productId, String newPos)
-    + issueReorder(String productCode, int quantity, double pricePerUnit)
+    + issueOrder(String productCode, int quantity, double pricePerUnit)
     + payOrderFor(String productCode, int quantity, double pricePerUnit)
     + payOrder(Integer orderId)
     + recordOrderArrival(Integer orderId)
@@ -103,40 +108,43 @@ class Shop{
     + updateUserRights(int id, String role)
     + getAllUsers()
     + getUser(int id)
+    - checkCreditCardNumber(String number)
 }
 class User{
-    - int id
-    - String username
-    - String password
-    - String role
-    - Shop shop
+    - id: int 
+    - username: String 
+    - password: String 
+    - role: String 
+    - shop: Shop 
 }
 ' interface Role{
 ' }
 
-Shop -- User
+User - Shop
 
 
 class AccountBook { 
-    - Map<Integer, Ticket> ticket
-    - Map<Integer, ReturnTransaction> return
-    - Map<Integer, Order> order
+    - saleTransactions: Map<Integer, SaleTransaction> 
+    - returns: Map<Integer, ReturnTransaction> 
+    - orders: Map<Integer, Order> 
+    - otherTransactions: List<BalanceOperation>
+    - balance: double
     '  methods
-    + addTicket(Ticket ticket)
+    + addSaleTransaction(SaleTransaction SaleTransaction)
     + addReturnTransaction(ReturnTransaction return)
     + addOrder(Order order)
-    + getTicket(int id)
+    + addTransaction(BalanceOperation bo)
+    + getSaleTransaction(int id)
     + getReturnTransaction(int id)
     + getOrder(int id)
-    
 
 }
 AccountBook - Shop
 class BalanceOperation {
- - int id
- - String description
- - double amount
- - LocalDate date
+ - id: int
+ - description: String
+ - amount: double 
+ - date: LocalDate
 }
 AccountBook -- "*" BalanceOperation
 
@@ -149,88 +157,109 @@ AccountBook -- "*" BalanceOperation
 'class Sale
 'class Return
 Order --|> BalanceOperation
-Ticket --|> BalanceOperation
+SaleTransaction --|> BalanceOperation
 'Order --|> Debit
 'Sale --|> Credit
 'Return --|> Debit
 
 
 class ProductType{
-    - int id
-    - String  barCode
-    - String description
-    - double sellPrice
-    - int quantity
-    - double discountRate
-    - String notes
-    - Position position
+    - id: int 
+    - barCode: String 
+    - description: String 
+    - sellPrice: double 
+    - quantity: int 
+    - discountRate: double 
+    - notes: String 
+    - position: Position 
 }
 
 Shop - "*" ProductType
 
-class Ticket {
-    - Time time
-    - String paymentType
-    - double discountRate
-    - Map<ProductType, Integer> products
-    - Map<ProductType, Double> discountProduct
-    - LoyaltyCard card
+class SaleTransaction {
+    - time: Time 
+    - paymentType: String 
+    - discountRate: double 
+    - products: Map<ProductType, Integer> 
+    - discountProduct: Map<ProductType, Double> 
+    - status: SaleStatus
+    - card: LoyaltyCard 
     + addProduct(ProductType product, int quantity)
     + deleteProduct(ProductType product, int quantity)
     + addProductDiscount(ProductType product, double discount)
     + checkout() 
 
 }
-Ticket - "*" ProductType
+
+enum SaleStatus{
+    + CLOSED
+    + PAYED
+    + STARTED
+}
+SaleTransaction -- SaleStatus
+SaleTransaction - "*" ProductType
 
 
 class LoyaltyCard {
-    - int ID
-    - int points
+    ' - ID: int 
+    - points: int 
+    - cardCode: String 
 }
 
 class Customer {
-    - int id
-    - String name
-    - String surname
-    - LoyaltyCard card
+    - id: int
+    - name: String 
+    - surname: String 
+    - card: LoyaltyCard 
 }
 
 LoyaltyCard "0..1" - Customer
 
 LoyaltyCard "*"-- Shop
 Customer "*"-- Shop
-Ticket "*" -- "0..1" LoyaltyCard
+SaleTransaction "*" -- "0..1" LoyaltyCard
 
 
 
 class Position {
-    - int aisleID
-    - int rackID
-    - int levelID
+    -  aisleID: int
+    -  rackID: int
+    -  levelID: int
 }
 
 ProductType - "0..1" Position
 
 
 class Order {
-  - String supplier
-  - double pricePerUnit
-  - int quantity
-  - String status
+  -  supplier: String
+  -  pricePerUnit:double
+  -  quantity: int
+  - product: ProductType
+  ' - String status
 }
-
+enum OrderStatus{
+    ' + ISSUED
+    + ORDERED
+    + PAYED
+    + COMPLETED
+}
+Order -- OrderStatus
 Order "*" - ProductType
 
 class ReturnTransaction {
-  -Map<ProductType,Integer> returnProduct
-  -Ticket ticket
+  - returnProduct: Map<ProductType,Integer>
+  - saleTransaction: SaleTransaction
+  - status: ReturnStatus
   + addReturnProduct(ProductType product, int quantity)
 
 }
-
+enum ReturnStatus{
+    + STARTED
+    + CLOSED
+}
+ReturnStatus -- ReturnTransaction
 ReturnTransaction --|> BalanceOperation
-ReturnTransaction "*" - Ticket
+ReturnTransaction "*" - SaleTransaction
 ReturnTransaction "*" - ProductType
 
 @enduml
@@ -257,7 +286,7 @@ ReturnTransaction "*" - ProductType
 |Admin                  |X| | | | | | |
 |BalanceOperation   | | | | | | | |
 |Order                  | | |X| | | | |
-|Ticket        | | | | | | | |
+|SaleTransaction        | | | | | | | |
 |ProductType            | |X| | | | | |
 |ReturnTransaction      | | | | | | | |
 |Customer               | | | | | | | |
