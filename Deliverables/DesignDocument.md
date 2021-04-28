@@ -49,7 +49,7 @@ GUI -- EZShop
 ### All classes are persistent
 ```plantuml
 @startuml
-class Shop{
+class EZShop{
     - users: Map<Integer, User>
     - products: Map<Integer, ProductType>
     - customers: Map<Integer, Customer>
@@ -114,13 +114,15 @@ class User{
     - id: int 
     - username: String 
     - password: String 
-    - role: String 
-    - shop: Shop 
+    - role: Role 
 }
-' interface Role{
-' }
-
-User - Shop
+enum Role{
+    + CASHIER
+    + SHOP_MANAGER
+    + ADMIN
+}
+Role -- User
+User - EZShop
 
 
 class AccountBook { 
@@ -139,7 +141,7 @@ class AccountBook {
     + getOrder(int id)
 
 }
-AccountBook - Shop
+AccountBook - EZShop
 class BalanceOperation {
  - id: int
  - description: String
@@ -172,9 +174,11 @@ class ProductType{
     - discountRate: double 
     - notes: String 
     - position: Position 
+
+    + updateQuantity(int qty)
 }
 
-Shop - "*" ProductType
+EZShop - "*" ProductType
 
 class SaleTransaction {
     - time: Time 
@@ -208,15 +212,14 @@ class LoyaltyCard {
 
 class Customer {
     - id: int
-    - name: String 
-    - surname: String 
+    - customerName: String 
     - card: LoyaltyCard 
 }
 
 LoyaltyCard "0..1" - Customer
 
-LoyaltyCard "*"-- Shop
-Customer "*"-- Shop
+LoyaltyCard "*"-- EZShop
+Customer "*"-- EZShop
 SaleTransaction "*" -- "0..1" LoyaltyCard
 
 
@@ -278,20 +281,18 @@ ReturnTransaction "*" - ProductType
 
 | Class| FR1 |FR3 |FR4 |FR5 |FR6 |FR7 |FR8 |
 |--|--|--|--|--|--|--|--|
-|Shop                   |X|X| | | | | |
-|User                   |X| | | | | | |
-|AccountBook            | | |X| | | | |
-|Cashier                | | | | | | | |
-|ShopManager            | |X|X| | | | |
-|Admin                  |X| | | | | | |
-|BalanceOperation   | | | | | | | |
+|EZShop                   |X|X|X|X|X|X|X|
+|User                   |X| | | | | | | 
+|AccountBook            | | |X| | |X|X|
+|BalanceOperation       | | |X| |X|X|X|
 |Order                  | | |X| | | | |
-|SaleTransaction        | | | | | | | |
-|ProductType            | |X| | | | | |
-|ReturnTransaction      | | | | | | | |
-|Customer               | | | | | | | |
-|LoyaltyCard            | | | | | | | |
+|SaleTransaction        | | | | |X|X| |
+|ProductType            | |X|X| |X| | |
+|ReturnTransaction      | | | | |X| | |
+|Customer               | | | |X| | | |
+|LoyaltyCard            | | | |X| | | |
 |Position               | | |X| | | | |
+
 
 
 
@@ -303,3 +304,26 @@ ReturnTransaction "*" - ProductType
 # Verification sequence diagrams 
 \<select key scenarios from the requirement document. For each of them define a sequence diagram showing that the scenario can be implemented by the classes and methods in the design>
 
+```plantuml
+@startuml
+actor Cashier as c
+participant EZShop as EZS
+participant User as u
+participant AccountBook as ab
+
+c ->EZS: receiveCreditCardPayment()
+
+EZS -> u:getRole()
+u --> EZS:return Role
+
+EZS -> ab:getSaleTransaction()
+ab -->EZS:return SaleTransaction
+
+EZS ->EZS:checkCreditCardNumber()
+EZS-->c:return false 
+
+@enduml
+```
+
+EZS -> u:login()
+u --> EZS:return User
