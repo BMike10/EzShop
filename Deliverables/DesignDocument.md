@@ -412,5 +412,33 @@ ezs --> c: return true
 @enduml
 ```
 
+### Sequence diagram related to scenario 9.1
+```plantuml
+@startuml
+actor "Shop Manager" as sm
+participant EZShop as ezs
+participant User as u
+participant AccountBook as ab
+
+sm -> ezs:getCreditsAndDebits()
+' role check
+ezs -> u:getRole()
+u --> ezs:return Role
+' get all operation
+ezs -> ab: getSaleTransactions()
+ab --> ezs: return Map<Integer, SaleTransaction> 
+ezs -> ab: getReturns()
+ab --> ezs: return Map<Integer, ReturnTransaction> 
+ezs -> ab: getOrders()
+ab --> ezs: return Map<Integer, Order> 
+
+ezs -> ab: getOtherTransactions()
+ab --> ezs: return List<BalanceOperation>
+
+ezs->sm: return List<BalanceOperation>
+
+@enduml
+```
+
 EZS -> u:login()
 u --> EZS:return User
