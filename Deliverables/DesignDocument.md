@@ -139,7 +139,7 @@ class AccountBook {
     + getSaleTransaction(int id)
     + getReturnTransaction(int id)
     + getOrder(int id)
-
+    + updateBalance(double amount)
 }
 AccountBook - EZShop
 class BalanceOperation {
@@ -200,7 +200,7 @@ enum SaleStatus{
     + PAYED
     + STARTED
 }
-SaleTransaction -- SaleStatus
+SaleStatus -- SaleTransaction 
 SaleTransaction - "*" ProductType
 
 
@@ -238,6 +238,7 @@ class Order {
   -  pricePerUnit:double
   -  quantity: int
   - product: ProductType
+  - status: OrderStatus 
   ' - String status
 }
 enum OrderStatus{
@@ -246,7 +247,7 @@ enum OrderStatus{
     + PAYED
     + COMPLETED
 }
-Order -- OrderStatus
+OrderStatus -- Order
 Order "*" - ProductType
 
 class ReturnTransaction {
@@ -304,6 +305,7 @@ ReturnTransaction "*" - ProductType
 # Verification sequence diagrams 
 \<select key scenarios from the requirement document. For each of them define a sequence diagram showing that the scenario can be implemented by the classes and methods in the design>
 
+### Sequence diagram related to scenario 7.2
 ```plantuml
 @startuml
 actor Cashier as c
@@ -322,6 +324,91 @@ ab -->EZS:return SaleTransaction
 EZS ->EZS:checkCreditCardNumber()
 EZS-->c:return false 
 
+@enduml
+```
+
+### Sequence diagram related to scenario 3.1
+```plantuml
+@startuml
+actor "Shop Manager" as sm
+participant EZShop as ezs
+participant User as u
+participant Order as o
+participant AccountBook as ab
+' API call
+sm -> ezs: issueOrder()
+' role check
+ezs -> u:getRole()
+u --> ezs:return Role
+' order creation
+ezs -> o: new
+' order insertion into map
+ezs -> ab: addOrder()
+
+ezs --> sm: return orderId
+@enduml
+```
+
+### Sequence diagram related to scenario 8.1
+```plantuml
+@startuml
+actor "Cashier" as c
+participant EZShop as ezs
+participant User as u
+participant ReturnTransaction as rt
+participant AccountBook as ab
+participant ProductType as pt
+' API call
+c -> ezs: startReturnTransaction()
+' role check
+ezs -> u:getRole()
+u --> ezs:return Role
+' get associated sale 
+ezs -> ab: getSaleTransaction()
+ab --> ezs: return SaleTransaction
+' init transaction
+ezs -> rt: new
+' insert into account book
+ezs -> ab: addReturnTransaction()
+ab --> ezs: return returnId
+' end
+ezs --> c: return returnID
+
+' add products to return 
+c -> ezs: returnProduct()
+' role check
+ezs -> u:getRole()
+u --> ezs:return Role
+' add product to return t
+ezs -> rt: addReturnProduct()
+' update quantity available
+ezs -> pt: updateQuantity()
+' end add product
+ezs -> c: return true
+
+' credit card return
+c -> ezs: returnCreditCardPayment()
+' role check
+ezs -> u:getRole()
+u --> ezs:return Role
+' get transaction and update balance
+ezs -> ab: getReturnTransaction()
+ab --> ezs: return ReturnTransaction
+ezs-> ezs: checkCreditCardNumber()
+ezs -> ab: updateBalance()
+ezs -> c: return returnTransaction.getAmount()
+
+' close return transaction
+c -> ezs: endReturnTransaction()
+' role check
+ezs -> u:getRole()
+u --> ezs:return Role
+' get and close transaction
+ezs -> ab: getReturnTransaction()
+ab --> ezs: return ReturnTransaction
+ezs -> rt: setStatus()
+' end close return 
+ezs --> c: return true
 @enduml
 ```
 
