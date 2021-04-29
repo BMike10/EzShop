@@ -64,11 +64,12 @@ Version:
 | ----------- | ------------------------------- |  
 | NC =  Estimated number of classes to be developed   |            11                 |             
 |  A = Estimated average size per class, in LOC       |                150            | 
-| S = Estimated size of project, in LOC (= NC * A) | 1650 |
-| E = Estimated effort, in person hours (here use productivity 10 LOC per person hour)  |               165                      |   
-| C = Estimated cost, in euro (here use 1 person hour cost = 30 euro) | 4950 | 
-| Estimated calendar time, in calendar weeks (Assume team of 4 people, 8 hours per day, 5 days per week ) |          20??? (40 p/h per week -> 165/(40*4)=~1    -> But Only the Coding Phase is in parallel -> 165(40)  -> 4weeks -> Does 165 p/h contain only the coding hours??? |     
-          
+| S = Estimated size of project, in LOC (= NC * A) | 3000|
+| E = Estimated effort, in person hours (here use productivity 10 LOC per person hour)  |               300                       |   
+| C = Estimated cost, in euro (here use 1 person hour cost = 30 euro) | 9000| 
+| Estimated calendar time, in calendar weeks (Assume team of 4 people, 8 hours per day, 5 days per week ) |          300/8/5/4=1.875 ~ 2        |    
+
+In the estimated calendar time we assumed that all people of the team can work in parallel in each phase of the project.
 # Estimate by activity decomposition
 ### 
 |         Activity name    | Estimated effort (person hours)   |             
@@ -80,9 +81,9 @@ Version:
 | Architectural design | 10 |
 | Design (high level, low level)| 40|
 | Design verification| 20|
-| Coding| 300|
+| Coding| 150|
 | Unit testing| 150|
-| Integration testing| 250 |
+| Integration testing| 200 |
 | 
 ###
 Insert here Gantt chart with above activities
@@ -94,9 +95,9 @@ Insert here Gantt chart with above activities
 [Architectural design] as [ad] lasts 2 days
 [Design (high level, low level)] as [d] lasts 5 days
 [Design verification] as [dv] lasts 3 days
-[Coding] as [c] lasts 27 days
+[Coding] as [c] lasts 15 days
 [Unit testing] as [ut] lasts 15 days
-[Integration testing] as [it] lasts 28 days
+[Integration testing] as [it] lasts 20 days
 
 [red] starts at [re]'s end
 [prd] starts at [red]'s end
@@ -105,6 +106,6 @@ Insert here Gantt chart with above activities
 [d] starts at [rir]'s end
 [dv] starts at [d]'s end
 [c] starts at [dv]'s end
-[ut] starts at [c]'s end
+[ut] starts at [dv]'s end
 [it] starts at [ut]'s end
 @endgantt
