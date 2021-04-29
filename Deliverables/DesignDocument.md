@@ -403,7 +403,46 @@ ab -> ezs:return True
 
 @enduml
 ```
+### Sequence diagram related to scenario 6.5
+```plantuml
+@startuml
+actor "Customer" as cust
+actor "Cashier" as c
+participant EZShop as ezs
+participant SaleTransaction as st
+participant ProductType as pt
+participant AccoountBook as ab
+' start new sale transaction
+ezs -> st: startSaleTransaction()
+st -> ezs:return transactionID
+' get product by barCode
+c -> ezs:scan new product by barCode
+ezs -> pt:getProductByBarCode()
+pt -> ezs:return productId
+' add new product to saleTransaction(succesfull)
+' update available quantity(succesfull)
+ezs -> st:addProductToSale()
+st -> ezs:return True
+ezs -> pt:updateQuantity()
+pt -> ezs:return True
+' cashier closes a transaction(succesfull)
+c -> ezs: close transaction
+ezs -> st: endSaleTransaction()
+st -> ezs: return True
+'cashier asks for payment type
+c -> ezs:ask payment type
+group Unsuccesfull Payment(usecase7)
+    ezs -> st:payment management
+    st -> ezs: return double or boolean
+end
+'Customer cancels the payment
+cust -> c: cancel payment
+c -> ezs: deleteTransaction
+ezs -> st:deleteSaleTransaction()
+st -> ezs: return True
 
+@enduml
+```
 
 ### Sequence diagram related to scenario 8.1
 ```plantuml
