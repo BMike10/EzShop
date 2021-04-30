@@ -311,6 +311,20 @@ ReturnTransaction "*" - ProductType
 
 # Verification sequence diagrams 
 \<select key scenarios from the requirement document. For each of them define a sequence diagram showing that the scenario can be implemented by the classes and methods in the design>
+### Sequence diagram related to scenario 5.1
+```plantuml
+@startuml
+actor "User" as au
+participant EZShop as ezs
+participant User as u
+' API call
+au -> ezs: login()
+' role check
+ezs -> u:getRole()
+u --> ezs:return Role
+ezs --> au: return true
+@enduml
+```
 
 ### Sequence diagram related to scenario 7.2
 ```plantuml
@@ -400,6 +414,42 @@ end
 c ->ezs: print sale receipt and update balance
 ezs -> ab:recordBalanceUpdate()
 ab -> ezs:return True
+
+@enduml
+```
+### Sequence diagram related to scenario 6.4
+```plantuml
+@startuml
+actor "Cashier" as c
+participant EZShop as ezs
+participant SaleTransaction as st
+participant ProductType as pt
+participant LoyalityCard as l 
+participant AccountBook as a 
+
+' start new sale transaction
+c -> ezs: startSaleTransaction()
+' get product by barCode
+ezs -> pt:getProductByBarCode()
+pt --> ezs:return productId
+' add new product to saleTransaction(succesfull)
+' update available quantity(succesfull)
+ezs -> st:addProductToSale()
+st --> ezs:return true
+ezs -> pt:updateQuantity()
+pt --> ezs:return true
+' cashier closes a transaction(succesfull)
+c -> ezs: endSaleTransaction()
+'system asks C for payment type
+c <-ezs:ask payment type
+group credit card payment(Scenario 7-1)
+ezs -> st: receiveCreditcardPayment()
+st --> ezs: return true
+end
+ezs->l:modifyPointsOnCard()
+l --> ezs: return true
+ezs->a:recordBalanceUpdate()
+a-->ezs: return true
 
 @enduml
 ```
