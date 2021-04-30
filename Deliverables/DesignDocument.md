@@ -214,6 +214,7 @@ class LoyaltyCard {
     ' - ID: int 
     - points: int 
     - cardCode: String 
+    + pointsUpdate(int)
 }
 
 class Customer {
@@ -373,47 +374,50 @@ ezs --> sm: return orderId
 ### Sequence diagram related to scenario 6.2
 ```plantuml
 @startuml
-'l'actor non può usare i metodi di EZShop ma solo eseguire azioni che gli competono, ad esempio cliccare su un pulsante e cosi via, dopo di che questa si trasforma in una chiamata ad un metodo in ezshop
-'Inoltre tutte quelle che rappresentano precondition e post condition non devono essere visualizzate(login..)
+
 actor "Cashier" as c
 participant EZShop as ezs
 participant SaleTransaction as st
 participant ProductType as pt
 participant AccoountBook as ab
 ' start new sale transaction
-ezs -> st: startSaleTransaction()
-st -> ezs:return transactionID
-' get product by barCode
-c -> ezs:scan new product by barCode
-ezs -> pt:getProductByBarCode()
-pt -> ezs:return productId
+c -> ezs: startSaleTransaction()
+ezs -> c:return transactionID
+'pt -> ezs:return productId
 ' add new product to saleTransaction(succesfull)
 ' update available quantity(succesfull)
-ezs -> st:addProductToSale()
-st -> ezs:return True
+c -> ezs:addProductToSale()
+' get product by barCode
+ezs -> ab:getSaleTransaction()
+ab -> ezs:return saleTransaction
+ezs -> ezs:getProductByBarCode()
+'add product to saleTransaction
+ezs -> st:addProduct()
+'update quantity product
 ezs -> pt:updateQuantity()
 pt -> ezs:return True
 ' cashier applies a discount
-c -> ezs: apply discountRate
-ezs -> pt:getDiscountRate()
-pt -> ezs:return discount rate
+c -> pt:getDiscountRate()
+pt -> c:return discount rate
 ' apply discount rate to product(succesfull)
-ezs -> st:applyDiscountRateToProduct()
-st ->ezs:return True
+c -> st:applyDiscountRateToProduct()
+ezs -> ab:getSaleTransaction()
+ab -> ezs:return saleTransaction
+ezs ->c:return True
 ' cashier closes a transaction(succesfull)
-c -> ezs: close transaction
-ezs -> st: endSaleTransaction()
-st -> ezs: return True
+c -> ezs: endSaleTransaction()
+ezs -> c: return True
 'cashier asks for payment type
-c -> ezs:ask payment type
 group Succesfull Payment(usecase7)
-    ezs -> st:payment management
-    st -> ezs: return double or boolean
+    c -> ezs:payment management
+    ezs -> c: return double or boolean
 end
 'update of balance(succesfull)
-c ->ezs: print sale receipt and update balance
-ezs -> ab:recordBalanceUpdate()
+c -> ezs:recordBalanceUpdate()
+ezs -> ab:UpdateBalance()
 ab -> ezs:return True
+ezs -> c:return true
+
 
 @enduml
 ```
@@ -427,32 +431,32 @@ participant ProductType as pt
 participant LoyalityCard as l 
 participant AccountBook as a 
 
-' start new sale transaction
 c -> ezs: startSaleTransaction()
-' get product by barCode
-ezs -> pt:getProductByBarCode()
-pt --> ezs:return productId
-' add new product to saleTransaction(succesfull)
-' update available quantity(succesfull)
-ezs -> st:addProductToSale()
-st --> ezs:return true
+ezs-->c: returntransactionID
+c -> ezs:addProductToSale()
+ezs->a: getSaleTransaction
+a-->ezs: returnsaleTransaction
+ezs -> ezs:getProductByBarCode()
+ezs -> st:addProduct()
 ezs -> pt:updateQuantity()
 pt --> ezs:return true
-' cashier closes a transaction(succesfull)
 c -> ezs: endSaleTransaction()
-'system asks C for payment type
-c <-ezs:ask payment type
-group credit card payment(Scenario 7-1)
-ezs -> st: receiveCreditcardPayment()
-st --> ezs: return true
+ezs->c: return true
+group credit card payment (Scenario 7-1)
+c -> ezs: receiveCreditcardPayment()
+ezs --> c: return true
 end
-ezs->l:modifyPointsOnCard()
-l --> ezs: return true
-ezs->a:recordBalanceUpdate()
+c->ezs:modifyPointsOnCard()
+ezs->l:pointsUpdate()
+ezs --> c: return true
+c->ezs:recordBalanceUpdate()
+ezs->a:UpdateBalance()
 a-->ezs: return true
+ezs-->c:return true
 
 @enduml
 ```
+
 ### Sequence diagram related to scenario 6.5
 ```plantuml
 @startuml
@@ -499,15 +503,12 @@ st -> ezs: return True
 @startuml
 actor "Cashier" as c
 participant EZShop as ezs
-participant User as u
 participant ReturnTransaction as rt
 participant AccountBook as ab
 participant ProductType as pt
 ' API call
 c -> ezs: startReturnTransaction()
-' role check
-ezs -> u:getRole()
-u --> ezs:return Role
+
 ' get associated sale 
 ezs -> ab: getSaleTransaction()
 ab --> ezs: return SaleTransaction
@@ -521,9 +522,6 @@ ezs --> c: return returnID
 
 ' add products to return 
 c -> ezs: returnProduct()
-' role check
-ezs -> u:getRole()
-u --> ezs:return Role
 ' add product to return t
 ezs -> rt: addReturnProduct()
 ' update quantity available
@@ -533,21 +531,20 @@ ezs -> c: return true
 
 ' credit card return
 c -> ezs: returnCreditCardPayment()
-' role check
-ezs -> u:getRole()
-u --> ezs:return Role
 ' get transaction and update balance
 ezs -> ab: getReturnTransaction()
 ab --> ezs: return ReturnTransaction
 ezs-> ezs: checkCreditCardNumber()
-ezs -> ab: updateBalance()
 ezs -> c: return returnTransaction.getAmount()
+
+'update of balance(succesfull)
+c -> ezs:recordBalanceUpdate()
+ezs -> ab:UpdateBalance()
+ab -> ezs:return True
+ezs -> c:return true
 
 ' close return transaction
 c -> ezs: endReturnTransaction()
-' role check
-ezs -> u:getRole()
-u --> ezs:return Role
 ' get and close transaction
 ezs -> ab: getReturnTransaction()
 ab --> ezs: return ReturnTransaction
@@ -562,13 +559,10 @@ ezs --> c: return true
 @startuml
 actor "Shop Manager" as sm
 participant EZShop as ezs
-participant User as u
+
 participant AccountBook as ab
 
 sm -> ezs:getCreditsAndDebits()
-' role check
-ezs -> u:getRole()
-u --> ezs:return Role
 ' get all operation
 ezs -> ab: getSaleTransactions()
 ab --> ezs: return Map<Integer, SaleTransaction> 
