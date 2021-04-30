@@ -51,23 +51,28 @@
 51
 # Project Estimation  
 Authors:
+Gambino Matteo, Valentini Valeria, Gigante Samuele, Basilico Michele
+
 Date:
+30/04/2021
+
 Version:
+1.0
 # Contents
 - [Estimate by product decomposition]
 - [Estimate by activity decomposition ]
 # Estimation approach
-<Consider the EZGas  project as described in YOUR requirement document, assume that you are going to develop the project INDEPENDENT of the deadlines of the course>
+
 # Estimate by product decomposition
 ### 
 |             | Estimate                        |             
 | ----------- | ------------------------------- |  
-| NC =  Estimated number of classes to be developed   |            11                 |             
+| NC =  Estimated number of classes to be developed   |            20                 |             
 |  A = Estimated average size per class, in LOC       |                150            | 
 | S = Estimated size of project, in LOC (= NC * A) | 3000|
 | E = Estimated effort, in person hours (here use productivity 10 LOC per person hour)  |               300                       |   
 | C = Estimated cost, in euro (here use 1 person hour cost = 30 euro) | 9000| 
-| Estimated calendar time, in calendar weeks (Assume team of 4 people, 8 hours per day, 5 days per week ) |          300/8/5/4=1.875 ~ 2        |    
+| Estimated calendar time, in calendar weeks (Assume team of 4 people, 8 hours per day, 5 days per week ) |           2        |    
 
 In the estimated calendar time we assumed that all people of the team can work in parallel in each phase of the project.
 # Estimate by activity decomposition
@@ -76,7 +81,7 @@ In the estimated calendar time we assumed that all people of the team can work i
 | ----------- | ------------------------------- | 
 | Requirements elicitation| 30|
 | Review existing documents| 5|
-| Produce requirement documents| 15 * 4 * 2=120|
+| Produce requirement documents| 120|
 | Requirements inspection and reading| 15|
 | Architectural design | 10 |
 | Design (high level, low level)| 40|
@@ -87,6 +92,8 @@ In the estimated calendar time we assumed that all people of the team can work i
 | 
 ###
 Insert here Gantt chart with above activities
+
+```plantuml
 @startgantt
 [Requirements elicitation] as [re] lasts 4 days
 [Review existing documents] as [red] lasts 1 days
@@ -109,3 +116,5 @@ Insert here Gantt chart with above activities
 [ut] starts at [dv]'s end
 [it] starts at [ut]'s end
 @endgantt
+
+```

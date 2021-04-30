@@ -1,11 +1,13 @@
 # Design Document 
 
-
-Authors: 
+Authors:
+Gambino Matteo, Valentini Valeria, Gigante Samuele, Basilico Michele
 
 Date:
+30/04/2021
 
 Version:
+1.0
 
 
 # Contents
@@ -21,8 +23,6 @@ The design must satisfy the Official Requirements document, notably functional a
 
 # High level design 
 
-<discuss architectural styles used, if any>
-<report package diagram>
 
 pattern used:
 - MVC
@@ -31,24 +31,14 @@ pattern used:
 ```plantuml
 @startuml
  package GUI{}
-' Do we consider exceptions?
-
-' package EXCEPTIONS{}
-' EXCEPTIONS -- EZShop
 note left of EZShop: Contains application logic and model
 package EZShop{}
 package Exceptions{}
-GUI -- Exceptions
 EZShop -- Exceptions
 GUI -- EZShop
 @enduml
 ```
 # Low level design
-
-<for each package, report class diagram>
-<!--
-## Package GUI
--->
 
 ## Package EZShop
 
@@ -141,6 +131,9 @@ class AccountBook {
     + addSaleTransaction(SaleTransaction SaleTransaction)
     + addReturnTransaction(ReturnTransaction return)
     + addOrder(Order order)
+    + removeSaleTransaction(SaleTransaction SaleTransaction)
+    + removeReturnTransaction(ReturnTransaction return)
+    + removeOrder(Order order)
     + addTransaction(BalanceOperation bo)
     + getSaleTransaction(int id)
     + getReturnTransaction(int id)
@@ -155,20 +148,8 @@ class BalanceOperation {
  - date: LocalDate
 }
 AccountBook -- "*" BalanceOperation
-
-' class Credit 
-' class Debit
-' 
-' Credit --|> BalanceOperation
-' Debit --|> BalanceOperation
-
-'class Sale
-'class Return
 Order --|> BalanceOperation
 SaleTransaction --|> BalanceOperation
-'Order --|> Debit
-'Sale --|> Credit
-'Return --|> Debit
 
 
 class ProductType{
@@ -284,12 +265,10 @@ ReturnTransaction "*" - ProductType
 
 # Verification traceability matrix
 
-\<for each functional requirement from the requirement document, list which classes concur to implement it>
-
 
 | Class| FR1 |FR3 |FR4 |FR5 |FR6 |FR7 |FR8 |
 |--|--|--|--|--|--|--|--|
-|EZShop                   |X|X|X|X|X|X|X|
+|EZShop                 |X|X|X|X|X|X|X|
 |User                   |X| | | | | | | 
 |AccountBook            | | |X| | |X|X|
 |BalanceOperation       | | |X| |X|X|X|
@@ -300,10 +279,6 @@ ReturnTransaction "*" - ProductType
 |Customer               | | | |X| | | |
 |LoyaltyCard            | | | |X| | | |
 |Position               | | |X| | | | |
-<!-- How do we menage FR7(Payment) ? --> 
-<!-- Should we enter paymentState in SaleTransaction ? --> 
-
-
 
 
 
@@ -311,7 +286,58 @@ ReturnTransaction "*" - ProductType
 
 
 # Verification sequence diagrams 
-\<select key scenarios from the requirement document. For each of them define a sequence diagram showing that the scenario can be implemented by the classes and methods in the design>
+
+
+### Sequence diagram related to scenario 1.1
+```plantuml
+@startuml
+
+actor ShopManager as admin
+participant EZShop as EZS
+participant ProductType as pt
+
+admin ->EZS: createProductType()
+EZS ->pt: new
+pt -->EZS: return product
+EZS ->admin: return productID
+
+@enduml
+```
+
+### Sequence diagram related to scenario 2.1
+```plantuml
+@startuml
+actor Administrator as admin
+participant EZShop as EZS
+participant User as u
+
+
+admin ->EZS: createUser()
+EZS ->u: new
+u -->EZS: return user
+EZS ->admin: return userID
+
+@enduml
+```
+### Sequence diagram related to scenario 3.1
+```plantuml
+@startuml
+actor "Shop Manager" as sm
+participant EZShop as ezs
+participant Order as o
+participant AccountBook as ab
+' API call
+sm -> ezs: issueOrder()
+' order creation
+ezs -> o: new
+o->ezs: return order
+' order insertion into map
+ezs -> ab: addOrder()
+ab->ezs: return orderId
+ezs --> sm: return orderId
+@enduml
+```
+
 ### Sequence diagram related to scenario 5.1
 ```plantuml
 @startuml
@@ -327,49 +353,6 @@ ezs --> au: return true
 @enduml
 ```
 
-### Sequence diagram related to scenario 7.2
-```plantuml
-@startuml
-actor Cashier as c
-participant EZShop as EZS
-participant User as u
-participant AccountBook as ab
-
-c ->EZS: receiveCreditCardPayment()
-
-EZS -> u:getRole()
-u --> EZS:return Role
-
-EZS -> ab:getSaleTransaction()
-ab -->EZS:return SaleTransaction
-
-EZS ->EZS:checkCreditCardNumber()
-EZS-->c:return false 
-
-@enduml
-```
-
-### Sequence diagram related to scenario 3.1
-```plantuml
-@startuml
-actor "Shop Manager" as sm
-participant EZShop as ezs
-participant User as u
-participant Order as o
-participant AccountBook as ab
-' API call
-sm -> ezs: issueOrder()
-' role check
-ezs -> u:getRole()
-u --> ezs:return Role
-' order creation
-ezs -> o: new
-' order insertion into map
-ezs -> ab: addOrder()
-
-ezs --> sm: return orderId
-@enduml
-```
 
 ### Sequence diagram related to scenario 6.2
 ```plantuml
@@ -383,9 +366,6 @@ participant AccoountBook as ab
 ' start new sale transaction
 c -> ezs: startSaleTransaction()
 ezs -> c:return transactionID
-'pt -> ezs:return productId
-' add new product to saleTransaction(succesfull)
-' update available quantity(succesfull)
 c -> ezs:addProductToSale()
 ' get product by barCode
 ezs -> ab:getSaleTransaction()
@@ -460,40 +440,67 @@ ezs-->c:return true
 ### Sequence diagram related to scenario 6.5
 ```plantuml
 @startuml
-actor "Customer" as cust
 actor "Cashier" as c
 participant EZShop as ezs
 participant SaleTransaction as st
 participant ProductType as pt
 participant AccoountBook as ab
 ' start new sale transaction
-ezs -> st: startSaleTransaction()
-st -> ezs:return transactionID
+c -> ezs: startSaleTransaction()
+ezs -> c:return transactionID
+c -> ezs:addProductToSale()
 ' get product by barCode
-c -> ezs:scan new product by barCode
-ezs -> pt:getProductByBarCode()
-pt -> ezs:return productId
-' add new product to saleTransaction(succesfull)
-' update available quantity(succesfull)
-ezs -> st:addProductToSale()
-st -> ezs:return True
+ezs -> ab:getSaleTransaction()
+ab -> ezs:return saleTransaction
+ezs -> ezs:getProductByBarCode()
+'add product to saleTransaction
+ezs -> st:addProduct()
+'update quantity product
 ezs -> pt:updateQuantity()
 pt -> ezs:return True
+' cashier applies a discount
+c -> pt:getDiscountRate()
+pt -> c:return discount rate
+' apply discount rate to product(succesfull)
+c -> st:applyDiscountRateToProduct()
+ezs -> ab:getSaleTransaction()
+ab -> ezs:return saleTransaction
+ezs ->c:return True
 ' cashier closes a transaction(succesfull)
-c -> ezs: close transaction
-ezs -> st: endSaleTransaction()
-st -> ezs: return True
+c -> ezs: endSaleTransaction()
+ezs -> c: return True
 'cashier asks for payment type
-c -> ezs:ask payment type
 group Unsuccesfull Payment(usecase7)
-    ezs -> st:payment management
-    st -> ezs: return double or boolean
+    c -> ezs:payment management
+    ezs -> c: return double or boolean
 end
 'Customer cancels the payment
-cust -> c: cancel payment
-c -> ezs: deleteTransaction
-ezs -> st:deleteSaleTransaction()
-st -> ezs: return True
+c -> ezs:deleteSaleTransaction()
+ezs -> ab:removeSaleTransaction()
+'update quantity product
+ab -> pt:updateQuantity()
+pt -> ab:return True
+ab -> ezs: return True
+ezs -> c: return True
+
+@enduml
+```
+
+
+### Sequence diagram related to scenario 7.2
+```plantuml
+@startuml
+actor Cashier as c
+participant EZShop as EZS
+participant AccountBook as ab
+
+c ->EZS: receiveCreditCardPayment()
+
+EZS -> ab:getSaleTransaction()
+ab -->EZS:return SaleTransaction
+
+EZS ->EZS:checkCreditCardNumber()
+EZS-->c:return false 
 
 @enduml
 ```
@@ -578,6 +585,3 @@ ezs->sm: return List<BalanceOperation>
 
 @enduml
 ```
-
-EZS -> u:login()
-u --> EZS:return User
