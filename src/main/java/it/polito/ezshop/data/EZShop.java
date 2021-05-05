@@ -92,6 +92,15 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updatePosition(Integer productId, String newPos) throws InvalidProductIdException, InvalidLocationException, UnauthorizedException {
+    	try (Statement stmt = conn.createStatement()) {
+    		String sql = "SELECT * FROM ProductTypes WHERE id = "+productId;
+    		ResultSet result = stmt.executeQuery(sql);
+    		while(result.next()) {
+    			
+    		}
+    	 } catch (SQLException e) {
+    		 e.printStackTrace();
+    	 }
         return false;
     }
 
