@@ -2,12 +2,17 @@ package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
 
 
 public class EZShop implements EZShopInterface {
-
+	private static Connection conn = null;
 
     @Override
     public void reset() {
@@ -41,6 +46,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public User login(String username, String password) throws InvalidUsernameException, InvalidPasswordException {
+    	connect();
         return null;
     }
 
@@ -252,5 +258,122 @@ public class EZShop implements EZShopInterface {
     @Override
     public double computeBalance() throws UnauthorizedException {
         return 0;
+    }
+    
+    public static void connect() {
+        
+        try {
+            // db parameters
+            String url = "jdbc:sqlite:db/ezshop.db";
+            // create a connection to the database
+            conn = DriverManager.getConnection(url);
+            createTables();
+            System.out.println("Connection to SQLite has been established.");
+            Statement stmt = conn.createStatement();
+            String insert = "INSERT INTO USER(id, username, password, role) values (2, \"dfjkskdkj\", \"fkdjkdfjkda\", 1)";
+            stmt.execute(insert);
+            String query = "SELECT * FROM USER";
+            
+            ResultSet result = stmt.executeQuery(query);
+            while(result.next()) {
+            	System.out.println(result.getString("username"));
+            }
+            
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } /*finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }*/
+    }
+    public static void createTables() {
+    	String tableUser = "CREATE TABLE IF NOT EXISTS User("
+    			+ "id INTEGER NOT NULL PRIMARY KEY,"
+    			+ "username text NOT NULL,"
+    			+ "password text NOT NULL,"
+    			+ "role INTEGER NOT NULL)";
+    	String loyaltyCard = "CREATE TABLE IF NOT EXISTS LoyaltyCard("
+    			+ "points INTEGER NOT NULL,"
+    			+ "number text NOT NULL PRIMARY KEY,"
+    			+ "role INTEGER NOT NULL)";
+    	String customerTable = "CREATE TABLE IF NOT EXISTS Customer("
+    			+ "id INTEGER NOT NULL PRIMARY KEY,"
+    			+ "customerName text NOT NULL,"
+    			+ "cardId text NOT NULL,"
+    			+ "role INTEGER NOT NULL,"
+    			+ "FOREIGN KEY (cardId) references LoyaltyCard(number))";
+    	String productTypes = "CREATE TABLE IF NOT EXISTS ProductTypes("
+    			+ "id INTEGER NOT NULL PRIMARY KEY,"
+    			+ "barCode text NOT NULL,"
+    			+ "description text NOT NULL,"
+    			+ "sellPrice number NOT NULL,"
+    			+ "quantity integer not null,"
+    			+ "discountRate number not null,"
+    			+ "notes text,"
+    			+ "position text"
+    			+ ")";
+    	String soldProduct = "CREATE TABLE IF NOT EXISTS SoldProducts("
+    			+ "id INTEGER NOT NULL PRIMARY KEY,"
+    			+ "productId integer NOT NULL,"
+    			+ "quantity integer NOT NULL,"
+    			+ "discountRate number,"
+    			+ "FOREIGN KEY (productId) references ProductTypes(id))";
+    	String saleTransaction = "CREATE TABLE IF NOT EXISTS SaleTransactions("
+    			+ "id INTEGER NOT NULL PRIMARY KEY,"
+    			+ "description text NOT NULL,"
+    			+ "amount number NOT NULL,"
+    			+ "date date NOT NULL,"
+    			+ "time time not null,"
+    			+ "paymentType text,"
+    			+ "discountRate number,"
+    			+ "status integer not null,"
+    			+ "cardId text, "
+    			+ "soldProducts integer not null,"
+    			+ "FOREIGN KEY (soldProducts) references SoldProducts(id),"
+    			+ "FOREIGN KEY (cardId) references LoyaltyCard(number))";
+    	String orders = "CREATE TABLE IF NOT EXISTS Orders("
+    			+ "id INTEGER NOT NULL PRIMARY KEY,"
+    			+ "description text NOT NULL,"
+    			+ "amount number NOT NULL,"
+    			+ "date date NOT NULL,"
+    			+ "supplier text,"
+    			+ "status integer not null,"
+    			+ "productId integer not null,"
+    			+ "unitPrice number not null,"
+    			+ "quantity integer not null,"
+    			+ "FOREIGN KEY (productId) references ProductType(id))";
+    	String returnedProduct = "CREATE TABLE IF NOT EXISTS ReturnedProducts("
+    			+ "id INTEGER NOT NULL PRIMARY KEY,"
+    			+ "productId integer NOT NULL,"
+    			+ "quantity integer NOT NULL,"
+    			+ "FOREIGN KEY (productId) references ProductTypes(id))";
+    	String returnTransaction = "CREATE TABLE IF NOT EXISTS ReturnTransactions("
+    			+ "id INTEGER NOT NULL PRIMARY KEY,"
+    			+ "description text NOT NULL,"
+    			+ "amount number NOT NULL,"
+    			+ "date date NOT NULL,"
+    			+ "status integer not null,"
+    			+ "saleId integer not null, "
+    			+ "returnedProductsId integer not null,"
+    			+ "FOREIGN KEY (returnedProductsId) references ReturnedProducts(id),"
+    			+ "FOREIGN KEY (saleId) references SaleTransactions(id))";
+    	try (Statement stmt = conn.createStatement()) {
+  	      stmt.executeUpdate(tableUser);
+  	      stmt.executeUpdate(loyaltyCard);
+  	      stmt.executeUpdate(customerTable);
+  	      stmt.executeUpdate(productTypes);
+  	      stmt.executeUpdate(soldProduct);
+  	      stmt.executeUpdate(saleTransaction);
+  	      stmt.executeUpdate(orders);
+  	      stmt.executeUpdate(returnedProduct);
+  	      stmt.executeUpdate(returnTransaction);
+  	    } catch (SQLException e) {
+  	      e.printStackTrace();
+  	    }
     }
 }
