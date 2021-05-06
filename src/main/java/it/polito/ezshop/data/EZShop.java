@@ -3,17 +3,21 @@ package it.polito.ezshop.data;
 import it.polito.ezshop.exceptions.*;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class EZShop implements EZShopInterface {
 	private static Connection conn = null;
-
+	private Map<Integer, ProductType> products;
+	
     @Override
     public void reset() {
 
@@ -57,76 +61,345 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer createProductType(String description, String productCode, double pricePerUnit, String note) throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
-        return null;
+        int nextId = products.size() + 1;
+        ProductType pt = new ProductTypeClass(nextId, description, productCode, pricePerUnit, note);
+        products.put(nextId,  pt);
+        // add to db
+        String sql = "insert into ProductsTypes( id, barcode, description, sellPrice, quantity, discountRate, notes, position)"
+        		+ "values("+nextId+","
+        		+ "'"+productCode+"',"
+        		+ "'"+description+"',"
+        		+ pricePerUnit+","
+        		+"0,"
+        		+"0,"
+        		+"'"+note+"',"+
+        		"NULL)";
+        try(Statement st = conn.createStatement()){
+        	st.execute(sql);
+        }catch(SQLException e) {
+        	e.printStackTrace();
+        	products.remove(nextId);
+        	return -1;
+        }
+    	return nextId;
     }
 
+    
     @Override
     public boolean updateProduct(Integer id, String newDescription, String newCode, double newPrice, String newNote) throws InvalidProductIdException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
-        return false;
+        if(!products.containsKey(id)) 
+        	throw new InvalidProductIdException();
+        if(getProductTypeByBarCode(newCode) != null)
+        	return false;
+        ProductType pt = new ProductTypeClass(id, newDescription, newCode, newPrice, newNote);
+        products.put(id, pt);
+        // add to db
+        String sql = "update ProductsTypes"
+        		+ "set "
+        		+ "barcode = '"+newCode+"',"
+        		+ "description = '"+newDescription+"',"
+        		+ "sellPrice="+newPrice+","
+        		+"notes='"+newNote+"',"+
+        		"where id = "+id;
+        try(Statement st = conn.createStatement()){
+        	st.execute(sql);
+        }catch(SQLException e) {
+        	e.printStackTrace();
+        	products.remove(id);
+        	return false;
+        }
+    	return true;
     }
 
     @Override
     public boolean deleteProductType(Integer id) throws InvalidProductIdException, UnauthorizedException {
-        return false;
+        if(!products.containsKey(id)) 
+        	throw new InvalidProductIdException();
+        ProductType tmp = products.remove(id);
+        String sql = "delete from ProductTypes where id = "+id;
+        try(Statement st = conn.createStatement()){
+        	st.execute(sql);
+        }catch(SQLException e) {
+        	e.printStackTrace();
+        	return false;
+        }
+        return true;
     }
 
     @Override
     public List<ProductType> getAllProductTypes() throws UnauthorizedException {
-        return null;
+    	List<ProductType> res = new ArrayList<>(products.values());
+        return res;
     }
 
     @Override
     public ProductType getProductTypeByBarCode(String barCode) throws InvalidProductCodeException, UnauthorizedException {
+    	if(!ProductTypeClass.validateBarCode(barCode))
+    		throw new InvalidProductCodeException();
+    	for(ProductType pt: products.values()) {
+    		if(pt.getBarCode().equals(barCode))
+    			return pt;
+    	}
         return null;
     }
 
     @Override
     public List<ProductType> getProductTypesByDescription(String description) throws UnauthorizedException {
-        return null;
+    	List<ProductType> res = new ArrayList<>();
+    	if(description == null || description.length() <= 0)
+    		return res;
+    	for(ProductType pt: products.values()) {
+    		if(pt.getProductDescription().contains(description))
+    			res.add(pt);
+    	}
+        return res;
     }
 
     @Override
     public boolean updateQuantity(Integer productId, int toBeAdded) throws InvalidProductIdException, UnauthorizedException {
-        return false;
+    	if(productId==null || productId <= 0)
+    		throw new InvalidProductIdException();
+    	ProductTypeClass pt = (ProductTypeClass) products.get(productId);
+    	if(pt == null || pt.getLocation() == null)
+    		return false;
+    	boolean updated = pt.updateQuantity(toBeAdded);
+    	if(!updated)
+    		return false;
+    	String sql = "update ProductsTypes"
+        		+ "set "
+        		+ "quantity = "+(pt.getQuantity())
+        		+"where id = "+productId;
+        try(Statement st = conn.createStatement()){
+        	st.execute(sql);
+        }catch(SQLException e) {
+        	e.printStackTrace();
+        	pt.updateQuantity(-toBeAdded);
+        	return false;
+        }
+        return true;
     }
 
     @Override
     public boolean updatePosition(Integer productId, String newPos) throws InvalidProductIdException, InvalidLocationException, UnauthorizedException {
-    	try (Statement stmt = conn.createStatement()) {
-    		String sql = "SELECT * FROM ProductTypes WHERE id = "+productId;
-    		ResultSet result = stmt.executeQuery(sql);
-    		while(result.next()) {
-    			
+    	if(productId==null || productId <= 0)
+    		throw new InvalidProductIdException();
+    	ProductTypeClass pt = (ProductTypeClass) products.get(productId);
+    	if(pt == null)
+    		return false;
+    	final Position prev = pt.getPosition();
+    	Position p = new Position(newPos);
+    	// check for uniqueness of position
+    	if(p.getAisleId() == -1) {
+    		for(ProductType prod:products.values()) {
+    			Position tmp = ((ProductTypeClass)prod).getPosition();
+    			if(tmp!=null && tmp.equals(p))
+    				return false;
     		}
-    	 } catch (SQLException e) {
-    		 e.printStackTrace();
-    	 }
-        return false;
+    	}
+    	pt.setPosition(p);
+    	// db update
+    	String sql = "UPDATE ProductTypes SET position = '"+p.toString()+"' where id = "+productId;
+    	try(Statement st = conn.createStatement()){
+        	st.execute(sql);
+        }catch(SQLException e) {
+        	e.printStackTrace();
+        	pt.setPosition(prev);
+        	return false;
+        }
+        return true;
     }
 
     @Override
     public Integer issueOrder(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
-        return null;
+        // parameters check
+    	if(quantity <= 0)
+        	throw new InvalidQuantityException();
+        if(pricePerUnit <= 0)
+        	throw new InvalidPricePerUnitException();
+        if(productCode == null || productCode.length() <= 0)
+        	throw new InvalidProductCodeException();
+        // get next id and check if product exixts
+    	/*String getMaxId = "SELECT MAX(id) FROM Orders";
+        String getProduct = "SELECT * FROM ProductTypes WHERE barCode = "+productCode;
+        int nextId = 1;
+        int productId = -1;
+        try(Statement stmnt = conn.createStatement()){
+        	ResultSet rs = stmnt.executeQuery(getMaxId);
+        	if(rs.next())
+        		nextId = rs.getInt(0) + 1;
+        	rs = stmnt.executeQuery(getProduct);
+        	if(!rs.next())
+        		throw new InvalidProductCodeException();
+        	rs.getInt("id");
+        }catch(SQLException e) {
+        	e.printStackTrace();
+			throw new UnauthorizedException(e.getMessage());
+        }*/
+        // check for productCode
+        ProductType pt = getProductTypeByBarCode(productCode);
+        if(pt == null)
+        	return -1;
+        // add to account book
+        int nextId=-1;
+        //nextId = accountBook.addOrder(new Order(prodctCode, quantity, pricePerUnit));
+        
+        // insert into db
+    	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
+        		+ "VALUES ("+nextId
+        		+", NULL, "
+        		+ (pricePerUnit * quantity) +", "
+        		+ "DATE('now'), "
+        		+ OrderStatus.ISSUED.ordinal()+", "
+        		+ pt.getId()+", "
+        		+ pricePerUnit+", "
+        		+ quantity+")";    	
+    	try(Statement st = conn.createStatement()){
+    		st.execute(sql);
+    	}catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+    	return nextId;
     }
 
     @Override
     public Integer payOrderFor(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
-        return null;
+    	// parameters check
+    	if(quantity <= 0)
+        	throw new InvalidQuantityException();
+        if(pricePerUnit <= 0)
+        	throw new InvalidPricePerUnitException();
+        if(productCode == null || productCode.length() <= 0)
+        	throw new InvalidProductCodeException();
+        // check for productCode
+        ProductType pt = getProductTypeByBarCode(productCode);
+        if(pt == null)
+        	return -1;
+    	int nextId=-1;
+        //nextId = accountBook.addOrder(new Order(prodctCode, quantity, pricePerUnit, OrderStatus.PAYED));
+    	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
+        		+ "VALUES ("+nextId
+        		+", NULL, "
+        		+ (pricePerUnit * quantity) +", "
+        		+ "DATE('now'), "
+        		+ OrderStatus.ISSUED.ordinal()+", "
+        		+ pt.getId()+", "
+        		+ pricePerUnit+", "
+        		+ quantity+")";    	
+    	try(Statement st = conn.createStatement()){
+    		st.execute(sql);
+    	}catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+    	return nextId;
     }
 
     @Override
     public boolean payOrder(Integer orderId) throws InvalidOrderIdException, UnauthorizedException {
+    	if(orderId == null || orderId <= 0)
+    		throw new InvalidOrderIdException();
+    	Order o = null;
+    	// o = accountBook.getOrder(orderId);
+    	if(o == null)
+    		throw new InvalidOrderIdException();
+    	
+    	if(o.getStatus().equals(OrderStatus.PAYED.name()))
+    		return false;
+    	o.setStatus("PAYED");
+    	// save status on db
+    	String sql = "UPDATE Orders SET status = "+OrderStatus.PAYED.ordinal() + " WHERE id = "+o.getOrderId();
+    	try(Statement st = conn.createStatement()){
+    		st.execute(sql);
+    	}catch (SQLException e) {
+			e.printStackTrace();
+			o.setStatus("ISSUED");
+			return false;
+		}
+    	recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
         return false;
     }
 
     @Override
     public boolean recordOrderArrival(Integer orderId) throws InvalidOrderIdException, UnauthorizedException, InvalidLocationException {
-        return false;
+    	if(orderId == null || orderId <= 0)
+    		throw new InvalidOrderIdException();
+    	OrderClass o = null;
+    	//o = (OrderClass)accountBook.getOrder(orderId);
+    	if(o == null)
+    		throw new InvalidOrderIdException();
+    	if(o.getOrderStatus() == OrderStatus.ISSUED)
+    		return false;
+    	if(o.getOrderStatus() == OrderStatus.COMPLETED)
+    		return true;
+    	
+    	String productCode = o.getProductCode();
+    	// find product
+    	ProductTypeClass pt = null;
+    	try {
+			 pt = (ProductTypeClass)getProductTypeByBarCode(productCode);
+		} catch (InvalidProductCodeException e) {
+			e.printStackTrace();
+			return false;
+		}
+    	if(pt == null)
+    		return false;
+    	pt.updateQuantity(o.getQuantity());
+    	// record on db
+    	String sql = "UPDATE Orders SET status = "+OrderStatus.COMPLETED.ordinal() + " WHERE id = "+o.getOrderId();
+    	try(Statement st = conn.createStatement()){
+    		st.execute(sql);
+    	}catch (SQLException e) {
+			e.printStackTrace();
+			pt.updateQuantity(-o.getQuantity());
+			o.setStatus("PAYED");
+			return false;
+		}
+    	String sql2 = "UPDATE ProductTyeps SET quantity = "+pt.getQuantity() + " WHERE id = "+pt.getId();
+    	try(Statement st = conn.createStatement()){
+    		st.execute(sql2);
+    	}catch (SQLException e) {
+			e.printStackTrace();
+			// delete completed status from db
+			String sql3 = "UPDATE Orders SET status = "+OrderStatus.PAYED.ordinal() + " WHERE id = "+o.getOrderId();
+	    	try(Statement st = conn.createStatement()){
+	    		st.execute(sql3);
+	    	}catch (SQLException e1) {
+				e.printStackTrace();
+			}
+			pt.updateQuantity(-o.getQuantity());
+			o.setStatus("PAYED");
+			return false;
+		}
+        return true;
     }
 
     @Override
     public List<Order> getAllOrders() throws UnauthorizedException {
-        return null;
+    	List<Order> orders = new ArrayList<Order>();
+    	try(Statement stmnt = conn.createStatement()){
+    		String sql = "SELECT * FROM orders";
+    		ResultSet rs = stmnt.executeQuery(sql);
+    		while(rs.next()) {
+    			int id = rs.getInt("id");
+    	    	String description = rs.getString("description"); 
+    	    	double amount = rs.getDouble("amount");
+    	    	Date date = rs.getDate("date");
+    	    	String supplier = rs.getString("supplier");
+    	    	int status = rs.getInt("status");
+    	    	int productId = rs.getInt("productId");
+    	    	double unitPrice = rs.getDouble("unitPrice");
+    	    	int quantity = rs.getInt("quantity");
+    	    	OrderStatus oStatus = OrderStatus.values()[status];
+    	    	ResultSet rs1 = stmnt.executeQuery("Select barCode from ProductTypes where id = "+id);
+    	    	rs1.next();
+    	    	OrderClass o = new OrderClass(id, rs1.getString(0), unitPrice, quantity, oStatus);
+    	    	orders.add((Order) o);
+    		}
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+    	}
+        return orders;
     }
 
     @Override
