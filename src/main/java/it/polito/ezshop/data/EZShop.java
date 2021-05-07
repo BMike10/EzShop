@@ -17,6 +17,7 @@ import java.util.Map;
 public class EZShop implements EZShopInterface {
 	private static Connection conn = null;
 	private Map<Integer, ProductType> products;
+	private User currentUser;
 	
     @Override
     public void reset() {
@@ -61,7 +62,10 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer createProductType(String description, String productCode, double pricePerUnit, String note) throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
-        int nextId = products.size() + 1;
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+        
+    	int nextId = products.size() + 1;
         ProductType pt = new ProductTypeClass(nextId, description, productCode, pricePerUnit, note);
         products.put(nextId,  pt);
         // add to db
@@ -72,7 +76,7 @@ public class EZShop implements EZShopInterface {
         		+ pricePerUnit+","
         		+"0,"
         		+"0,"
-        		+"'"+note+"',"+
+        		+(note==null?"NULL,":"'"+note+"',")+
         		"NULL)";
         try(Statement st = conn.createStatement()){
         	st.execute(sql);
@@ -87,25 +91,32 @@ public class EZShop implements EZShopInterface {
     
     @Override
     public boolean updateProduct(Integer id, String newDescription, String newCode, double newPrice, String newNote) throws InvalidProductIdException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
-        if(!products.containsKey(id)) 
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+    	if(!products.containsKey(id)) 
         	throw new InvalidProductIdException();
         if(getProductTypeByBarCode(newCode) != null)
         	return false;
+        
         ProductType pt = new ProductTypeClass(id, newDescription, newCode, newPrice, newNote);
-        products.put(id, pt);
+        ProductType tmp = products.put(id, pt);
         // add to db
         String sql = "update ProductsTypes"
         		+ "set "
         		+ "barcode = '"+newCode+"',"
         		+ "description = '"+newDescription+"',"
         		+ "sellPrice="+newPrice+","
-        		+"notes='"+newNote+"',"+
+        		+"notes="+(newNote==null?"NULL,":"'"+newNote+"',")+
         		"where id = "+id;
         try(Statement st = conn.createStatement()){
         	st.execute(sql);
         }catch(SQLException e) {
         	e.printStackTrace();
-        	products.remove(id);
+        	// rollback
+        	if(tmp != null)
+        		products.put(id, tmp);
+        	else
+        		products.remove(id);
         	return false;
         }
     	return true;
@@ -113,14 +124,20 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteProductType(Integer id) throws InvalidProductIdException, UnauthorizedException {
-        if(!products.containsKey(id)) 
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+    	if(!products.containsKey(id)) 
         	throw new InvalidProductIdException();
+    	
         ProductType tmp = products.remove(id);
+        // db update 
         String sql = "delete from ProductTypes where id = "+id;
         try(Statement st = conn.createStatement()){
         	st.execute(sql);
         }catch(SQLException e) {
         	e.printStackTrace();
+        	// rollback
+        	products.put(id, tmp);
         	return false;
         }
         return true;
@@ -128,14 +145,20 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<ProductType> getAllProductTypes() throws UnauthorizedException {
+    	if(currentUser == null)
+    		throw new UnauthorizedException();
+    	
     	List<ProductType> res = new ArrayList<>(products.values());
         return res;
     }
 
     @Override
     public ProductType getProductTypeByBarCode(String barCode) throws InvalidProductCodeException, UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	if(!ProductTypeClass.validateBarCode(barCode))
     		throw new InvalidProductCodeException();
+    	
     	for(ProductType pt: products.values()) {
     		if(pt.getBarCode().equals(barCode))
     			return pt;
@@ -145,6 +168,9 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<ProductType> getProductTypesByDescription(String description) throws UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+        
     	List<ProductType> res = new ArrayList<>();
     	if(description == null || description.length() <= 0)
     		return res;
@@ -157,8 +183,11 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updateQuantity(Integer productId, int toBeAdded) throws InvalidProductIdException, UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	if(productId==null || productId <= 0)
     		throw new InvalidProductIdException();
+    	
     	ProductTypeClass pt = (ProductTypeClass) products.get(productId);
     	if(pt == null || pt.getLocation() == null)
     		return false;
@@ -181,8 +210,11 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updatePosition(Integer productId, String newPos) throws InvalidProductIdException, InvalidLocationException, UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	if(productId==null || productId <= 0)
     		throw new InvalidProductIdException();
+    	
     	ProductTypeClass pt = (ProductTypeClass) products.get(productId);
     	if(pt == null)
     		return false;
@@ -211,7 +243,9 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer issueOrder(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
-        // parameters check
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+    	// parameters check
     	if(quantity <= 0)
         	throw new InvalidQuantityException();
         if(pricePerUnit <= 0)
@@ -241,8 +275,9 @@ public class EZShop implements EZShopInterface {
         	return -1;
         // add to account book
         int nextId=-1;
-        //nextId = accountBook.addOrder(new Order(prodctCode, quantity, pricePerUnit));
-        
+        OrderClass o = new OrderClass(productCode, pricePerUnit, quantity);
+        //nextId = accountBook.addOrder((Order) o);
+        o.setOrderId(nextId);
         // insert into db
     	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
         		+ "VALUES ("+nextId
@@ -257,6 +292,8 @@ public class EZShop implements EZShopInterface {
     		st.execute(sql);
     	}catch (SQLException e) {
 			e.printStackTrace();
+			// rollback
+			// accountBook.removeOrder(o);
 			return -1;
 		}
     	return nextId;
@@ -264,6 +301,8 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer payOrderFor(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	// parameters check
     	if(quantity <= 0)
         	throw new InvalidQuantityException();
@@ -275,8 +314,12 @@ public class EZShop implements EZShopInterface {
         ProductType pt = getProductTypeByBarCode(productCode);
         if(pt == null)
         	return -1;
+        // add order to account book
     	int nextId=-1;
-        //nextId = accountBook.addOrder(new Order(prodctCode, quantity, pricePerUnit, OrderStatus.PAYED));
+    	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
+        //nextId = accountBook.addOrder((Order) o);
+    	o.setOrderId(nextId);
+    	// update db
     	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
         		+ "VALUES ("+nextId
         		+", NULL, "
@@ -290,15 +333,26 @@ public class EZShop implements EZShopInterface {
     		st.execute(sql);
     	}catch (SQLException e) {
 			e.printStackTrace();
+			// rollback
+			// accountBook.removeOrder((Order) o);
 			return -1;
 		}
+    	// update balance
+    	if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
+    		// rollback
+    		// accountBook.removeOrder((Order) o);
+    		return -1;
+    	}
     	return nextId;
     }
 
     @Override
     public boolean payOrder(Integer orderId) throws InvalidOrderIdException, UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	if(orderId == null || orderId <= 0)
     		throw new InvalidOrderIdException();
+    	
     	Order o = null;
     	// o = accountBook.getOrder(orderId);
     	if(o == null)
@@ -313,17 +367,25 @@ public class EZShop implements EZShopInterface {
     		st.execute(sql);
     	}catch (SQLException e) {
 			e.printStackTrace();
+			// rollback
 			o.setStatus("ISSUED");
 			return false;
 		}
-    	recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
+    	if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
+    		// rollback
+			o.setStatus("ISSUED");
+			return false;
+    	}
         return false;
     }
 
     @Override
     public boolean recordOrderArrival(Integer orderId) throws InvalidOrderIdException, UnauthorizedException, InvalidLocationException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	if(orderId == null || orderId <= 0)
     		throw new InvalidOrderIdException();
+    	
     	OrderClass o = null;
     	//o = (OrderClass)accountBook.getOrder(orderId);
     	if(o == null)
@@ -344,6 +406,11 @@ public class EZShop implements EZShopInterface {
 		}
     	if(pt == null)
     		return false;
+    	// position cehck
+    	Position pos = pt.getPosition();
+    	if (pos == null || pos.getAisleId()<0)
+    		throw new InvalidLocationException();
+    	// quantity update
     	pt.updateQuantity(o.getQuantity());
     	// record on db
     	String sql = "UPDATE Orders SET status = "+OrderStatus.COMPLETED.ordinal() + " WHERE id = "+o.getOrderId();
@@ -351,6 +418,7 @@ public class EZShop implements EZShopInterface {
     		st.execute(sql);
     	}catch (SQLException e) {
 			e.printStackTrace();
+			// rollback
 			pt.updateQuantity(-o.getQuantity());
 			o.setStatus("PAYED");
 			return false;
@@ -360,6 +428,7 @@ public class EZShop implements EZShopInterface {
     		st.execute(sql2);
     	}catch (SQLException e) {
 			e.printStackTrace();
+			// rollback
 			// delete completed status from db
 			String sql3 = "UPDATE Orders SET status = "+OrderStatus.PAYED.ordinal() + " WHERE id = "+o.getOrderId();
 	    	try(Statement st = conn.createStatement()){
@@ -376,6 +445,9 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<Order> getAllOrders() throws UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+        
     	List<Order> orders = new ArrayList<Order>();
     	try(Statement stmnt = conn.createStatement()){
     		String sql = "SELECT * FROM orders";

@@ -1,9 +1,10 @@
 package it.polito.ezshop.data;
 
-import it.polito.ezshop.exceptions.InvalidLocationException;
 import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
+import it.polito.ezshop.exceptions.InvalidProductIdException;
+import it.polito.ezshop.exceptions.InvalidQuantityException;
 
 public final class ProductTypeClass implements ProductType {
 	private String description;
@@ -23,6 +24,8 @@ public final class ProductTypeClass implements ProductType {
         	throw new InvalidProductCodeException();
         if(pricePerUnit <= 0.0)
         	throw new InvalidPricePerUnitException();
+        if(id <= 0)
+        	throw new RuntimeException(new InvalidProductIdException());
 		this.id = id;
 		this.description = description;
 		this.barcode = productCode;
@@ -62,6 +65,8 @@ public final class ProductTypeClass implements ProductType {
 	}
 
 	public void setProductDescription(String description) {
+		if(description==null || description.length() <= 0)
+			throw new RuntimeException(new InvalidProductDescriptionException());
 		this.description = description;
 	}
 
@@ -77,22 +82,6 @@ public final class ProductTypeClass implements ProductType {
 		return barcode;
 	}
 
-	public void setBarcode(String barcode) {
-		this.barcode = barcode;
-	}
-
-	public double getUnitPrice() {
-		return unitPrice;
-	}
-
-	public void setUnitPrice(double unitPrice) {
-		this.unitPrice = unitPrice;
-	}
-
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
-
 	public void setLocation(Position location) {
 		this.location = location;
 	}
@@ -104,6 +93,8 @@ public final class ProductTypeClass implements ProductType {
 
 	@Override
 	public void setQuantity(Integer quantity) {
+		if(quantity == null || quantity < 0)
+			throw new RuntimeException(new InvalidQuantityException());
 		this.quantity = quantity;
 	}
 
@@ -126,6 +117,8 @@ public final class ProductTypeClass implements ProductType {
 
 	@Override
 	public void setBarCode(String barCode) {
+		if(barCode==null || !validateBarCode(barCode))
+			throw new RuntimeException(new InvalidProductCodeException());
 		this.barcode = barCode;
 	}
 
@@ -136,6 +129,8 @@ public final class ProductTypeClass implements ProductType {
 
 	@Override
 	public void setPricePerUnit(Double pricePerUnit) {
+		if(pricePerUnit==null || pricePerUnit <= 0.0)
+			throw new RuntimeException(new InvalidPricePerUnitException());
 		unitPrice = pricePerUnit;
 	}
 
@@ -146,6 +141,8 @@ public final class ProductTypeClass implements ProductType {
 
 	@Override
 	public void setId(Integer id) {
+		if(id == null || id <= 0)
+			throw new RuntimeException(new InvalidProductIdException());
 		this.id = id;
 	}
 
