@@ -38,12 +38,14 @@ public final class ProductTypeClass implements ProductType {
     public static boolean validateBarCode(String barcode) {
     	if(barcode == null)
     		return false;
+    	// delete spaces
+    	barcode = barcode.replaceAll("\\s", "");
     	int len = barcode.length();
     	if(len < 12 || len > 14)
     		return false;
     	// compute the check digit
     	int digit = 0;
-    	for(int i=0, j=0; i<14;i++) {
+    	for(int i=0, j=0; i<13;i++) {
     		// if length is less than 14 skip some iterations
     		if(len < 14 - i)
     			continue;
@@ -56,7 +58,7 @@ public final class ProductTypeClass implements ProductType {
     		j++;
     	}
     	// compute the rounded division to get the final check digit
-    	digit = (digit + 5) / 10;
+    	digit = ((digit + 9) / 10)*10 - digit;
     	int lastDigit = Integer.parseInt(""+barcode.charAt(len - 1));
     	return digit == lastDigit;
     }
