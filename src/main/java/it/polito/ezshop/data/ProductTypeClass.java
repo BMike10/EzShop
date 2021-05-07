@@ -7,13 +7,13 @@ import it.polito.ezshop.exceptions.InvalidProductIdException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
 
 public final class ProductTypeClass implements ProductType {
-	private String description;
-	private String notes;
-	private int quantity;
-	private Position location;
-	private String barcode;
-	private int id;
-	private double unitPrice;
+	private String description = null;
+	private String notes = null;
+	private int quantity = 0;
+	private Position location = null;
+	private String barcode = null;
+	private int id = 0;
+	private double unitPrice = 0.0;
 	
 	
 	public ProductTypeClass(int id, String description, String productCode, double pricePerUnit, String note) throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException{
@@ -32,6 +32,7 @@ public final class ProductTypeClass implements ProductType {
 		this.unitPrice = pricePerUnit;
 		this.notes = note;
 		this.quantity = 0;
+		this.location = null;
 	}
 	
     public static boolean validateBarCode(String barcode) {
