@@ -1,18 +1,19 @@
 package it.polito.ezshop.data;
 
-import it.polito.ezshop.exceptions.InvalidLocationException;
 import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
+import it.polito.ezshop.exceptions.InvalidProductIdException;
+import it.polito.ezshop.exceptions.InvalidQuantityException;
 
 public final class ProductTypeClass implements ProductType {
-	private String description;
-	private String notes;
-	private int quantity;
-	private Position location;
-	private String barcode;
-	private int id;
-	private double unitPrice;
+	private String description = null;
+	private String notes = null;
+	private int quantity = 0;
+	private Position location = null;
+	private String barcode = null;
+	private int id = 0;
+	private double unitPrice = 0.0;
 	
 	
 	public ProductTypeClass(int id, String description, String productCode, double pricePerUnit, String note) throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException{
@@ -23,23 +24,28 @@ public final class ProductTypeClass implements ProductType {
         	throw new InvalidProductCodeException();
         if(pricePerUnit <= 0.0)
         	throw new InvalidPricePerUnitException();
+        if(id <= 0)
+        	throw new RuntimeException(new InvalidProductIdException());
 		this.id = id;
 		this.description = description;
 		this.barcode = productCode;
 		this.unitPrice = pricePerUnit;
 		this.notes = note;
 		this.quantity = 0;
+		this.location = null;
 	}
 	
     public static boolean validateBarCode(String barcode) {
     	if(barcode == null)
     		return false;
+    	// delete spaces
+    	barcode = barcode.replaceAll("\\s", "");
     	int len = barcode.length();
     	if(len < 12 || len > 14)
     		return false;
     	// compute the check digit
     	int digit = 0;
-    	for(int i=0, j=0; i<14;i++) {
+    	for(int i=0, j=0; i<13;i++) {
     		// if length is less than 14 skip some iterations
     		if(len < 14 - i)
     			continue;
@@ -52,7 +58,7 @@ public final class ProductTypeClass implements ProductType {
     		j++;
     	}
     	// compute the rounded division to get the final check digit
-    	digit = (digit + 5) / 10;
+    	digit = ((digit + 9) / 10)*10 - digit;
     	int lastDigit = Integer.parseInt(""+barcode.charAt(len - 1));
     	return digit == lastDigit;
     }
@@ -62,6 +68,8 @@ public final class ProductTypeClass implements ProductType {
 	}
 
 	public void setProductDescription(String description) {
+		if(description==null || description.length() <= 0)
+			throw new RuntimeException(new InvalidProductDescriptionException());
 		this.description = description;
 	}
 
@@ -77,22 +85,6 @@ public final class ProductTypeClass implements ProductType {
 		return barcode;
 	}
 
-	public void setBarcode(String barcode) {
-		this.barcode = barcode;
-	}
-
-	public double getUnitPrice() {
-		return unitPrice;
-	}
-
-	public void setUnitPrice(double unitPrice) {
-		this.unitPrice = unitPrice;
-	}
-
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
-
 	public void setLocation(Position location) {
 		this.location = location;
 	}
@@ -104,6 +96,8 @@ public final class ProductTypeClass implements ProductType {
 
 	@Override
 	public void setQuantity(Integer quantity) {
+		if(quantity == null || quantity < 0)
+			throw new RuntimeException(new InvalidQuantityException());
 		this.quantity = quantity;
 	}
 
@@ -126,6 +120,8 @@ public final class ProductTypeClass implements ProductType {
 
 	@Override
 	public void setBarCode(String barCode) {
+		if(barCode==null || !validateBarCode(barCode))
+			throw new RuntimeException(new InvalidProductCodeException());
 		this.barcode = barCode;
 	}
 
@@ -136,6 +132,8 @@ public final class ProductTypeClass implements ProductType {
 
 	@Override
 	public void setPricePerUnit(Double pricePerUnit) {
+		if(pricePerUnit==null || pricePerUnit <= 0.0)
+			throw new RuntimeException(new InvalidPricePerUnitException());
 		unitPrice = pricePerUnit;
 	}
 
@@ -146,6 +144,8 @@ public final class ProductTypeClass implements ProductType {
 
 	@Override
 	public void setId(Integer id) {
+		if(id == null || id <= 0)
+			throw new RuntimeException(new InvalidProductIdException());
 		this.id = id;
 	}
 

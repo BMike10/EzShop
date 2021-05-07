@@ -1,7 +1,6 @@
 package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
-import jdk.vm.ci.meta.Local;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -10,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +16,9 @@ import java.util.Map;
 
 public class EZShop implements EZShopInterface {
 	private static Connection conn = null;
-	//private User currentUser;
 	private Map<Integer, ProductType> products;
-    private AccountBookClass accountBook = new AccountBookClass(0);
-
-
+	private User currentUser;
+	
     @Override
     public void reset() {
 
@@ -55,7 +51,6 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public User login(String username, String password) throws InvalidUsernameException, InvalidPasswordException {
-
     	connect();
         return null;
     }
@@ -67,7 +62,10 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer createProductType(String description, String productCode, double pricePerUnit, String note) throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
-        int nextId = products.size() + 1;
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+        
+    	int nextId = products.size() + 1;
         ProductType pt = new ProductTypeClass(nextId, description, productCode, pricePerUnit, note);
         products.put(nextId,  pt);
         // add to db
@@ -78,7 +76,7 @@ public class EZShop implements EZShopInterface {
         		+ pricePerUnit+","
         		+"0,"
         		+"0,"
-        		+"'"+note+"',"+
+        		+(note==null?"NULL,":"'"+note+"',")+
         		"NULL)";
         try(Statement st = conn.createStatement()){
         	st.execute(sql);
@@ -93,25 +91,32 @@ public class EZShop implements EZShopInterface {
     
     @Override
     public boolean updateProduct(Integer id, String newDescription, String newCode, double newPrice, String newNote) throws InvalidProductIdException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
-        if(!products.containsKey(id)) 
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+    	if(!products.containsKey(id)) 
         	throw new InvalidProductIdException();
         if(getProductTypeByBarCode(newCode) != null)
         	return false;
+        
         ProductType pt = new ProductTypeClass(id, newDescription, newCode, newPrice, newNote);
-        products.put(id, pt);
+        ProductType tmp = products.put(id, pt);
         // add to db
         String sql = "update ProductsTypes"
         		+ "set "
         		+ "barcode = '"+newCode+"',"
         		+ "description = '"+newDescription+"',"
         		+ "sellPrice="+newPrice+","
-        		+"notes='"+newNote+"',"+
+        		+"notes="+(newNote==null?"NULL,":"'"+newNote+"',")+
         		"where id = "+id;
         try(Statement st = conn.createStatement()){
         	st.execute(sql);
         }catch(SQLException e) {
         	e.printStackTrace();
-        	products.remove(id);
+        	// rollback
+        	if(tmp != null)
+        		products.put(id, tmp);
+        	else
+        		products.remove(id);
         	return false;
         }
     	return true;
@@ -119,14 +124,20 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteProductType(Integer id) throws InvalidProductIdException, UnauthorizedException {
-        if(!products.containsKey(id)) 
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+    	if(!products.containsKey(id)) 
         	throw new InvalidProductIdException();
+    	
         ProductType tmp = products.remove(id);
+        // db update 
         String sql = "delete from ProductTypes where id = "+id;
         try(Statement st = conn.createStatement()){
         	st.execute(sql);
         }catch(SQLException e) {
         	e.printStackTrace();
+        	// rollback
+        	products.put(id, tmp);
         	return false;
         }
         return true;
@@ -134,14 +145,20 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<ProductType> getAllProductTypes() throws UnauthorizedException {
+    	if(currentUser == null)
+    		throw new UnauthorizedException();
+    	
     	List<ProductType> res = new ArrayList<>(products.values());
         return res;
     }
 
     @Override
     public ProductType getProductTypeByBarCode(String barCode) throws InvalidProductCodeException, UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	if(!ProductTypeClass.validateBarCode(barCode))
     		throw new InvalidProductCodeException();
+    	
     	for(ProductType pt: products.values()) {
     		if(pt.getBarCode().equals(barCode))
     			return pt;
@@ -151,6 +168,9 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<ProductType> getProductTypesByDescription(String description) throws UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+        
     	List<ProductType> res = new ArrayList<>();
     	if(description == null || description.length() <= 0)
     		return res;
@@ -163,8 +183,11 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updateQuantity(Integer productId, int toBeAdded) throws InvalidProductIdException, UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	if(productId==null || productId <= 0)
     		throw new InvalidProductIdException();
+    	
     	ProductTypeClass pt = (ProductTypeClass) products.get(productId);
     	if(pt == null || pt.getLocation() == null)
     		return false;
@@ -187,8 +210,11 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updatePosition(Integer productId, String newPos) throws InvalidProductIdException, InvalidLocationException, UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	if(productId==null || productId <= 0)
     		throw new InvalidProductIdException();
+    	
     	ProductTypeClass pt = (ProductTypeClass) products.get(productId);
     	if(pt == null)
     		return false;
@@ -217,7 +243,9 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer issueOrder(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
-        // parameters check
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+    	// parameters check
     	if(quantity <= 0)
         	throw new InvalidQuantityException();
         if(pricePerUnit <= 0)
@@ -247,8 +275,9 @@ public class EZShop implements EZShopInterface {
         	return -1;
         // add to account book
         int nextId=-1;
-        //nextId = accountBook.addOrder(new Order(prodctCode, quantity, pricePerUnit));
-        
+        OrderClass o = new OrderClass(productCode, pricePerUnit, quantity);
+        //nextId = accountBook.addOrder((Order) o);
+        o.setOrderId(nextId);
         // insert into db
     	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
         		+ "VALUES ("+nextId
@@ -263,6 +292,8 @@ public class EZShop implements EZShopInterface {
     		st.execute(sql);
     	}catch (SQLException e) {
 			e.printStackTrace();
+			// rollback
+			// accountBook.removeOrder(o);
 			return -1;
 		}
     	return nextId;
@@ -270,6 +301,8 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer payOrderFor(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	// parameters check
     	if(quantity <= 0)
         	throw new InvalidQuantityException();
@@ -281,8 +314,12 @@ public class EZShop implements EZShopInterface {
         ProductType pt = getProductTypeByBarCode(productCode);
         if(pt == null)
         	return -1;
+        // add order to account book
     	int nextId=-1;
-        //nextId = accountBook.addOrder(new Order(prodctCode, quantity, pricePerUnit, OrderStatus.PAYED));
+    	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
+        //nextId = accountBook.addOrder((Order) o);
+    	o.setOrderId(nextId);
+    	// update db
     	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
         		+ "VALUES ("+nextId
         		+", NULL, "
@@ -296,15 +333,26 @@ public class EZShop implements EZShopInterface {
     		st.execute(sql);
     	}catch (SQLException e) {
 			e.printStackTrace();
+			// rollback
+			// accountBook.removeOrder((Order) o);
 			return -1;
 		}
+    	// update balance
+    	if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
+    		// rollback
+    		// accountBook.removeOrder((Order) o);
+    		return -1;
+    	}
     	return nextId;
     }
 
     @Override
-    public boolean payOrder(Integer orderId) throws InvalidOrderIdException, UnauthorizedException, InvalidTransactionIdException {
+    public boolean payOrder(Integer orderId) throws InvalidOrderIdException, UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	if(orderId == null || orderId <= 0)
     		throw new InvalidOrderIdException();
+    	
     	Order o = null;
     	// o = accountBook.getOrder(orderId);
     	if(o == null)
@@ -319,17 +367,25 @@ public class EZShop implements EZShopInterface {
     		st.execute(sql);
     	}catch (SQLException e) {
 			e.printStackTrace();
+			// rollback
 			o.setStatus("ISSUED");
 			return false;
 		}
-    	recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
+    	if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
+    		// rollback
+			o.setStatus("ISSUED");
+			return false;
+    	}
         return false;
     }
 
     @Override
     public boolean recordOrderArrival(Integer orderId) throws InvalidOrderIdException, UnauthorizedException, InvalidLocationException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
     	if(orderId == null || orderId <= 0)
     		throw new InvalidOrderIdException();
+    	
     	OrderClass o = null;
     	//o = (OrderClass)accountBook.getOrder(orderId);
     	if(o == null)
@@ -350,6 +406,11 @@ public class EZShop implements EZShopInterface {
 		}
     	if(pt == null)
     		return false;
+    	// position cehck
+    	Position pos = pt.getPosition();
+    	if (pos == null || pos.getAisleId()<0)
+    		throw new InvalidLocationException();
+    	// quantity update
     	pt.updateQuantity(o.getQuantity());
     	// record on db
     	String sql = "UPDATE Orders SET status = "+OrderStatus.COMPLETED.ordinal() + " WHERE id = "+o.getOrderId();
@@ -357,6 +418,7 @@ public class EZShop implements EZShopInterface {
     		st.execute(sql);
     	}catch (SQLException e) {
 			e.printStackTrace();
+			// rollback
 			pt.updateQuantity(-o.getQuantity());
 			o.setStatus("PAYED");
 			return false;
@@ -366,6 +428,7 @@ public class EZShop implements EZShopInterface {
     		st.execute(sql2);
     	}catch (SQLException e) {
 			e.printStackTrace();
+			// rollback
 			// delete completed status from db
 			String sql3 = "UPDATE Orders SET status = "+OrderStatus.PAYED.ordinal() + " WHERE id = "+o.getOrderId();
 	    	try(Statement st = conn.createStatement()){
@@ -382,6 +445,9 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<Order> getAllOrders() throws UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("CASHIER"))
+        	throw new UnauthorizedException();
+        
     	List<Order> orders = new ArrayList<Order>();
     	try(Statement stmnt = conn.createStatement()){
     		String sql = "SELECT * FROM orders";
@@ -515,41 +581,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public double receiveCashPayment(Integer ticketNumber, double cash) throws InvalidTransactionIdException, InvalidPaymentException, UnauthorizedException {
-
-        /*
-        if(ticketNumber == null || ticketNumber <= 0)
-            throw new InvalidTransactionIdException();
-
-        if(cash <= 0)
-            throw new InvalidPaymentException();
-
-
-        SaleTransactionClass saleTransaction = accountBook.getSaleTransaction(ticketNumber);
-        //If transaction does not exist return -1?
-
-        double saleAmount= saleTransaction.getMoney();
-        double change = cash - saleAmount;
-
-        if (change<0)
-            //Cash is not enough
-            return -1;
-
-        //Payment ok(Change<=0) -> Update map and db(STATUS)
-        //Update Map
-        saleTransaction.setStatus("PAYED");;
-        //Update DB
-        String sql = "UPDATE SaleTransaction SET status = PAYED WHERE id = "+saleTransaction.getId();
-        try(Statement st = conn.createStatement()){
-            st.execute(sql);
-        }catch (SQLException e) {
-            e.printStackTrace();
-            return -1;
-        }
-        //Update map and db(Balance)
-        recordBalanceUpdate(saleAmount);
-        */
         return 0;
-
     }
 
     @Override
@@ -559,35 +591,6 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public double returnCashPayment(Integer returnId) throws InvalidTransactionIdException, UnauthorizedException {
-        /*
-        if(returnId == null || returnId <= 0)
-            throw new InvalidTransactionIdException();
-
-
-        ReturnTransaction returnTransaction =  accountBook.getReturnTransaction(returnId);
-        //If transaction does not exist return -1?
-
-        String status= returnTransaction.getStatus();
-
-        if (!status.equals("CLOSED"))
-            //Return Transaction is not ended
-            return -1;
-
-        //Return Transaction is ended-> Update map and db(STATUS)
-        //Update Map
-        returnTransaction.setStatus("PAYED");;
-        //Update DB
-        String sql = "UPDATE returnTransaction SET status = PAYED WHERE id = "+returnTransaction.getId();
-        try(Statement st = conn.createStatement()){
-            st.execute(sql);
-        }catch (SQLException e) {
-            e.printStackTrace();
-            return -1;
-        }
-
-        //Update map and db(Balance)
-        recordBalanceUpdate(-(returnTransaction.getAmount()));
-        */
         return 0;
     }
 
@@ -597,153 +600,18 @@ public class EZShop implements EZShopInterface {
     }
 
     @Override
-    public boolean recordBalanceUpdate(double toBeAdded) throws UnauthorizedException, InvalidTransactionIdException {
-
-        //LOGIN
-
-        String newType;
-        double currentBalance = accountBook.getBalance();
-        double newBalance = currentBalance + toBeAdded;
-
-        //Negative new balance
-        if(newBalance < 0)
-            return false;
-
-        //Positive new Balance
-        if(toBeAdded < 0){
-            //DEBIT
-            newType = "DEBIT";
-            /*  Manca costruttore di default
-                Un order implementa BalanceOperation?
-
-                //Add to Map
-                OrderClass newOrderTransaction = new OrderClass();
-                accountBook.addSaleTransaction(newSaleTransacrion);
-
-                 //Add order operation to DB -> are there information?
-                String sql = "INSERT INTO Order(id, description, amount, date, supplier, status, productId, unitPrice) "
-                    + "VALUES ("+newBalanceOperation.getBalanceId()
-                    +", NULL, "
-                    + toBeAdded +", "
-                    + "DATE('now'), "
-                    + "supplier ,"
-                    + "status ,"
-                    + "productId ,"
-                    + "unitPrice ,"
-                    + "quantity ";
-                try(Statement st = conn.createStatement()){
-                    st.execute(sql);
-                }catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            */
-        }else{
-            //CREDIT
-            newType = "CREDIT";
-            /*
-                //Add to Map
-                SaleTransactionClass newSaleTransaction = new SaleTransactionClass();
-                accountBook.addSaleTransaction(newSaleTransaction);
-
-                //Add sale transaction to DB -> are there information?
-                String sql = "INSERT INTO SaleTransaction(id, description, amount, date, type) "
-                    + "VALUES ("+newBalanceOperation.getBalanceId()
-                    +", NULL, "
-                    + toBeAdded +", "
-                    + "DATE('now'), "
-                    + "time ,"
-                    + "paymentType ,"
-                    + "discountRate ,"
-                    + "status ,"
-                    + "cardId , "
-                    + "soldProducts ,"
-                try(Statement st = conn.createStatement()){
-                    st.execute(sql);
-                }catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-            */
-        }
-        BalanceOperationClass newBalanceOperation = new BalanceOperationClass(toBeAdded,newType);
-
-        //Map update
-        accountBook.addTransaction(newBalanceOperation);
-
-        //DB update
-        //Add balance operation to DB
-        String sql = "INSERT INTO BalanceTransaction(id, description, amount, date, type) "
-                + "VALUES ("+newBalanceOperation.getBalanceId()
-                +", NULL, "
-                + toBeAdded +", "
-                + "DATE('now'), "
-                + OrderStatus.ISSUED.ordinal()+", "
-                + newType+")";
-
-        try(Statement st = conn.createStatement()){
-            st.execute(sql);
-        }catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        //ADD NEW ID IN ACCOUNTBOOKTABLE?!
-
-        return true;
+    public boolean recordBalanceUpdate(double toBeAdded) throws UnauthorizedException {
+        return false;
     }
 
     @Override
     public List<BalanceOperation> getCreditsAndDebits(LocalDate from, LocalDate to) throws UnauthorizedException {
-
-        //LOGIN?
-
-        List<BalanceOperation> balanceOperations = new ArrayList<BalanceOperation>();
-        LocalDate newFrom = from,newTo = to;
-        String sql2 = "";
-
-        if(from!= null && to!= null){
-            if(from.isBefore(to)){
-                //Order Data Correction
-                newFrom = to;
-                newTo = from;
-            }
-        }
-
-        if(newFrom== null && newTo!=null){
-            //All balance operations before newTo
-            sql2 = "WHERE date <="+newTo;
-        }else if(newFrom!= null && newTo==null) {
-            //All balance operations after newFrom
-            sql2 = "WHERE date >=" + newFrom;
-        }else if(newFrom!=null){
-            //newFrom!=null && newTo!=null because second condition is always verified thanks to second control
-            sql2 = "WHERE date >=" + newFrom + "&& date <=" + newTo;
-        }
-        //if together are null -> no conditions(all balance operations)
-
-        //Download a list of Balance Operations
-        try(Statement stm = conn.createStatement()){
-            String sql = "SELECT * FROM BalanceOperation" + sql2;
-            ResultSet rs = stm.executeQuery(sql);
-            while(rs.next()) {
-                int id = rs.getInt("id");
-                String description = rs.getString("description");
-                double amount = rs.getDouble("amount");
-                LocalDate date =  rs.getDate("date").toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                String type = rs.getString("type");
-                BalanceOperationClass boc = new BalanceOperationClass(id, description, amount, date, type);
-                balanceOperations.add(boc);
-            }
-        }catch(SQLException e) {
-            e.printStackTrace();
-        }
-
-        return balanceOperations;
+        return null;
     }
 
     @Override
     public double computeBalance() throws UnauthorizedException {
-        //LOGIN
-        return accountBook.getBalance();
+        return 0;
     }
     
     public static void connect() {
@@ -848,34 +716,7 @@ public class EZShop implements EZShopInterface {
     			+ "returnedProductsId integer not null,"
     			+ "FOREIGN KEY (returnedProductsId) references ReturnedProducts(id),"
     			+ "FOREIGN KEY (saleId) references SaleTransactions(id))";
-
-
-    	//BALANCETRANSACTIONTABLE?//
-    	String balanceTransaction = "CREATE TABLE IF NOT EXISTS BalanceTransaction("
-                + "id INTEGER NOT NULL PRIMARY KEY,"
-                + "description text NOT NULL,"
-                + "amount number NOT NULL,"
-                + "date date NOT NULL,"
-                + "type text not null";
-    	//BALANCETRANSACTIONTABLE?//
-        //ACCOUNTBOOKTABLE?//
-        String accountBookTable = "CREATE TABLE IF NOT EXISTS AccountBookTable("
-                + "id INTEGER NOT NULL PRIMARY KEY,"
-                + "balance number NOT NULL,"
-                + "type text not null"
-                + "balanceTransactionId integer not null, "
-                + "returnTransactionId integer not null,"
-                + "orderTransactionId integer not null,"
-                + "saleTransactionId integer not null,"
-                + "FOREIGN KEY (balanceTransactionId) references balanceTransaction(id),"
-                + "FOREIGN KEY (saleTransactionId) references SaleTransactions(id))"
-                + "FOREIGN KEY (orderTransactionId) references orderTransaction(id),"
-                + "FOREIGN KEY (returnTransactionId) references returnTransaction(id))";
-        //ACCOUNTBOOKTABLE?//
-
-
-
-        try (Statement stmt = conn.createStatement()) {
+    	try (Statement stmt = conn.createStatement()) {
   	      stmt.executeUpdate(tableUser);
   	      stmt.executeUpdate(loyaltyCard);
   	      stmt.executeUpdate(customerTable);
@@ -885,9 +726,6 @@ public class EZShop implements EZShopInterface {
   	      stmt.executeUpdate(orders);
   	      stmt.executeUpdate(returnedProduct);
   	      stmt.executeUpdate(returnTransaction);
-  	      //stmt.executeUpdate(balanceTransaction);
-          //stmt.executeUpdate(balanceTransaction);
-
   	    } catch (SQLException e) {
   	      e.printStackTrace();
   	    }

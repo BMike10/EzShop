@@ -1,9 +1,13 @@
 package it.polito.ezshop.data;
 
+import it.polito.ezshop.exceptions.InvalidOrderIdException;
+import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
+import it.polito.ezshop.exceptions.InvalidProductCodeException;
+import it.polito.ezshop.exceptions.InvalidQuantityException;
+
 public final class OrderClass implements Order {
 	private int orderId;
 	private String productCode;
-	private ProductType product;
 	private double pricePerUnit;
 	private int quantity;
 	private OrderStatus status;
@@ -17,9 +21,25 @@ public final class OrderClass implements Order {
 		this.quantity = quantity;
 		this.status = status;
 	}
+	public OrderClass(String productCode, double pricePerUnit, int quantity, OrderStatus status) {
+		super();
+		this.orderId = orderId;
+		this.productCode = productCode;
+		this.pricePerUnit = pricePerUnit;
+		this.quantity = quantity;
+		this.status = status;
+	}
 	public OrderClass(int orderId, String productCode, double pricePerUnit, int quantity) {
 		super();
 		this.orderId = orderId;
+		this.productCode = productCode;
+		this.pricePerUnit = pricePerUnit;
+		this.quantity = quantity;
+		this.status = OrderStatus.ISSUED;
+	}
+	public OrderClass(String productCode, double pricePerUnit, int quantity) {
+		super();
+		this.orderId = -1;
 		this.productCode = productCode;
 		this.pricePerUnit = pricePerUnit;
 		this.quantity = quantity;
@@ -43,6 +63,8 @@ public final class OrderClass implements Order {
 
 	@Override
 	public void setProductCode(String productCode) {
+		if(productCode == null || !ProductTypeClass.validateBarCode(productCode))
+			throw new RuntimeException(new InvalidProductCodeException());
 		this.productCode = productCode;
 	}
 
@@ -53,6 +75,8 @@ public final class OrderClass implements Order {
 
 	@Override
 	public void setPricePerUnit(double pricePerUnit) {
+		if(pricePerUnit <= 0)
+			throw new RuntimeException(new InvalidPricePerUnitException());
 		this.pricePerUnit = pricePerUnit;
 
 	}
@@ -64,6 +88,8 @@ public final class OrderClass implements Order {
 
 	@Override
 	public void setQuantity(int quantity) {
+		if(quantity < 0)
+			throw new RuntimeException(new InvalidQuantityException());
 		this.quantity = quantity;
 	}
 
@@ -86,6 +112,8 @@ public final class OrderClass implements Order {
 
 	@Override
 	public void setOrderId(Integer orderId) {
+		if(orderId == null || orderId <= 0)
+			throw new RuntimeException(new InvalidOrderIdException());
 		this.orderId = orderId;
 	}
 
