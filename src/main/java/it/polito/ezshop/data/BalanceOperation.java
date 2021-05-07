@@ -19,4 +19,10 @@ public interface BalanceOperation {
     String getType();
 
     void setType(String type);
+
+    //MyMethods
+
+    String getDescription();
+
+    void setDescription(String desc);
 }
