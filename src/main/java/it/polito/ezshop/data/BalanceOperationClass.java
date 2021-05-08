@@ -5,24 +5,31 @@ import java.time.LocalDate;
 public class BalanceOperationClass implements BalanceOperation {
 
     //Our Design
-    private static int nBalance = 0;
-    private int id;
+    private Integer id;
     private String description;
     private double amount;
     private LocalDate date;
     //Other
     private String type;
 
+    public BalanceOperationClass(){
+        this.id = null;
+        this.description = null;
+        this.amount = 0;
+        this.date = LocalDate.now();
+        this.type = null;
+    }
+
     public BalanceOperationClass(double amount, String type) {
-        this.id = nBalance++;
+        this.id = null;
         this.description = "";
         this.amount = amount;
         this.date = LocalDate.now();
         this.type = type;
     }
 
-    public BalanceOperationClass(int orderId, String description, double amount, LocalDate date, String type) {
-        this.id = orderId;
+    public BalanceOperationClass(int transactionId, String description, double amount, LocalDate date, String type) {
+        this.id = transactionId;
         this.description = description;
         this.amount = amount;
         this.date = date;
@@ -30,12 +37,12 @@ public class BalanceOperationClass implements BalanceOperation {
     }
 
     @Override
-    public int getBalanceId() {
+    public Integer getBalanceId() {
         return this.id;
     }
 
     @Override
-    public void setBalanceId(int balanceId) {
+    public void setBalanceId(Integer balanceId) {
         this.id = balanceId;
     }
 
@@ -78,5 +85,6 @@ public class BalanceOperationClass implements BalanceOperation {
     public void setDescription(String desc) {
         this.description = desc;
     }
+
 
 }

@@ -5,7 +5,7 @@ import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
 
-public final class OrderClass implements Order {
+public final class OrderClass extends BalanceOperationClass implements Order {
 	private int orderId;
 	private String productCode;
 	private double pricePerUnit;
