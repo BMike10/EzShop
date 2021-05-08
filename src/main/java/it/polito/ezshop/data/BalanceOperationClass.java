@@ -79,5 +79,4 @@ public class BalanceOperationClass implements BalanceOperation {
         this.description = desc;
     }
 
-    //SETMAPPE
 }

@@ -109,6 +109,22 @@ public class AccountBookClass implements AccountBook{
         this.balance = amount;
     }
 
+    public void setSaleTransactionMap(Map<Integer,SaleTransaction> newSaleMap){
+        this.saleTransactionMap.clear();
+        this.saleTransactionMap.putAll(newSaleMap);
+    }
+
+    public void setOrderMap(Map<Integer,Order> newOrderMap){
+        this.orderMap.clear();
+        this.orderMap.putAll(newOrderMap);
+    }
+
+    public void setReturnTransactionMap(Map<Integer,ReturnTransaction> newReturnMap){
+        this.returnTransactionMap.clear();
+        this.returnTransactionMap.putAll(newReturnMap);
+    }
+
+
     public Integer newId(){
         Integer newKey = null;
         //What if map is empty?

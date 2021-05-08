@@ -2,6 +2,8 @@ package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 
+import java.util.Map;
+
 public interface AccountBook {
 
     Integer addSaleTransaction(SaleTransaction saleTransaction);
@@ -14,6 +16,9 @@ public interface AccountBook {
     void removeReturnTransaction(Integer returnTransactionId) throws InvalidTransactionIdException;
     void removeOrder(Integer orderTransactionId) throws InvalidTransactionIdException;
 
+    void setSaleTransactionMap(Map<Integer,SaleTransaction> newSaleMap);
+    void setOrderMap(Map<Integer,Order> newOrderMap);
+    void setReturnTransactionMap(Map<Integer,ReturnTransaction> newReturnMap);
 
     SaleTransaction getSaleTransaction(int id);
     ReturnTransaction getReturnTransaction(int id);
