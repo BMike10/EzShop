@@ -4,11 +4,9 @@ import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 
 public interface AccountBook {
 
-    Integer addSaleTransaction(SaleTransaction saleTransaction) throws InvalidTransactionIdException;
-    Integer addReturnTransaction(ReturnTransaction returnTransaction) throws InvalidTransactionIdException;
-    Integer addOrder(Order order) throws InvalidTransactionIdException;
-    Integer addTransaction(BalanceOperation bo) throws InvalidTransactionIdException;
-
+    Integer addSaleTransaction(SaleTransaction saleTransaction);
+    Integer addReturnTransaction(ReturnTransaction returnTransaction);
+    Integer addOrder(Order order);
 
 
     //In Design Transaction Objects are passed
@@ -22,7 +20,7 @@ public interface AccountBook {
     Order getOrder(int id);
     Double getBalance();
     void updateBalance(double amount);
-
+    Integer newId();
 
 
 }

@@ -7,7 +7,6 @@ import java.util.Map;
 public class AccountBookClass implements AccountBook{
     //Our Design
 
-    private int balanceOperationId;
     private double balance;
     private Map<Integer,SaleTransaction> saleTransactionMap;
     private Map<Integer,Order> orderMap;
@@ -16,13 +15,11 @@ public class AccountBookClass implements AccountBook{
 
     // Account Book Default Constructor
     public AccountBookClass(double balance) {
-        this.balanceOperationId = 0;
         this.balance = balance;
     }
 
     // Already existed Account Book
     public AccountBookClass(int balance, Map<Integer,SaleTransaction> SalOp, Map<Integer,Order> OrdOp, Map<Integer,ReturnTransaction> RetOp, Map<Integer,BalanceOperation> BalOp) {
-        this.balanceOperationId = returnTransactionMap.size()+orderMap.size()+saleTransactionMap.size();
         this.balance = balance;
         this.saleTransactionMap.putAll(SalOp);
         this.returnTransactionMap.putAll(RetOp);
@@ -32,81 +29,60 @@ public class AccountBookClass implements AccountBook{
 
 
     @Override
-    public Integer addSaleTransaction(SaleTransaction saleTransaction) throws InvalidTransactionIdException {
-        Integer saleTransactionId = SaleTransaction.getId();
-        balanceOperationId = id++;
-
-        if(saleTransactionId == null ||  saleTransactionId <= 0)
-            throw new InvalidTransactionIdException();
-
-        balanceOperationMap.put(balanceOperationId, (BalanceOperation) saleTransaction);
-        saleTransactionMap.put(saleTransactionId, saleTransaction);
+    public Integer addSaleTransaction(SaleTransaction saleTransaction) {
+        //Sale Transaction is complete but without id
+        Integer newId = newId();
+        this.balanceOperationMap.put(newId, (BalanceOperation) saleTransaction);
+        this.saleTransactionMap.put(newId, saleTransaction);
+        return newId;
     }
 
     @Override
-    public Integer addReturnTransaction(ReturnTransaction returnTransaction) throws InvalidTransactionIdException {
-        Integer returnTransactionId = returnTransaction.getId();
-        balanceOperationId = balanceOperationMap.size() + 1;
+    public Integer addReturnTransaction(ReturnTransaction returnTransaction) {
+        Integer newId = newId();
+        this.balanceOperationMap.put(newId, (BalanceOperation) returnTransaction);
+        this.returnTransactionMap.put(newId, returnTransaction);
+        return newId;
 
-        if (returnTransactionId == null || returnTransactionId <= 0)
-            throw new InvalidTransactionIdException();
-
-        balanceOperationMap.put(balanceOperationId, (BalanceOperation) returnTransaction);
-        returnTransactionMap.put(returnTransactionId, returnTransaction);
     }
 
     @Override
-    public Integer addOrder(Order order) throws InvalidTransactionIdException {
-        Integer orderTransactionId = order.getId();
-        balanceOperationId = balanceOperationMap.size() + 1;
-
-        if (orderTransactionId == null || orderTransactionId <= 0)
-            throw new InvalidTransactionIdException();
-
-        balanceOperationMap.put(balanceOperationId, (BalanceOperation) order);
-        orderMap.put(orderTransactionId, order);
+    public Integer addOrder(Order order){
+        Integer newId = newId();
+        this.balanceOperationMap.put(newId, (BalanceOperation) order);
+        this.orderMap.put(newId, order);
+        return newId;
     }
 
-    @Override
-    public Integer addTransaction(BalanceOperation balanceOperation) throws InvalidTransactionIdException {
-        //id max
-        balanceOperationMap.keySet()
-        balanceOperationId = balanceOperationMap.size() + 1;
 
-        if (balanceTransactionId <= 0)
-            throw new InvalidTransactionIdException();
-
-        balanceOperationMap.put(balanceOperationId, balanceOperation);
-
-    }
 
     //In Design Transaction Objects are passed
     @Override
     public void removeSaleTransaction(Integer saleTransactionId) throws InvalidTransactionIdException {
 
-        if(!saleTransactionMap.containsKey(saleTransactionId))
+        if(!this.saleTransactionMap.containsKey(saleTransactionId))
             throw new InvalidTransactionIdException();
-        //Id si basa sulla dimensione del vettore, la cancellazione può eliminare un qualsiasi elemento, non per forza l'ultimo
-        //Questo comporta che se togliamo il 5 elemento in un vettore di 10, il prossimo id sarà 10 ma c'è gia uno con chiave 10
-        saleTransactionMap.remove(saleTransactionId);
+
+        this.saleTransactionMap.remove(saleTransactionId);
+        this.balanceOperationMap.remove(saleTransactionId);
     }
 
     @Override
     public void removeReturnTransaction(Integer returnTransactionId) throws InvalidTransactionIdException {
-        if(!returnTransactionMap.containsKey(returnTransactionId))
+        if(!this.returnTransactionMap.containsKey(returnTransactionId))
             throw new InvalidTransactionIdException();
 
-        returnTransactionMap.remove(returnTransactionId);
+        this.returnTransactionMap.remove(returnTransactionId);
+        this.balanceOperationMap.remove(returnTransactionId);
     }
 
     @Override
     public void removeOrder(Integer orderTransactionId) throws InvalidTransactionIdException {
-        if(!orderMap.containsKey(orderTransactionId))
+        if(!this.orderMap.containsKey(orderTransactionId))
             throw new InvalidTransactionIdException();
-        saleTransactionMap.remove(orderTransactionId);
-
+        this.saleTransactionMap.remove(orderTransactionId);
+        this.balanceOperationMap.remove(orderTransactionId);
     }
-
 
     @Override
     public SaleTransaction getSaleTransaction(int id) {
@@ -131,5 +107,18 @@ public class AccountBookClass implements AccountBook{
     @Override
     public void updateBalance(double amount) {
         this.balance = amount;
+    }
+
+    public Integer newId(){
+        Integer newKey = null;
+        //What if map is empty?
+        for (Integer key : balanceOperationMap.keySet())
+        {
+            if (newKey == null || key.compareTo(newKey) > 0)
+            {
+                newKey = key;
+            }
+        }
+        return newKey;
     }
 }

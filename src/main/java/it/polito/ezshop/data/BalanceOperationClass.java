@@ -78,4 +78,6 @@ public class BalanceOperationClass implements BalanceOperation {
     public void setDescription(String desc) {
         this.description = desc;
     }
+
+    //SETMAPPE
 }
