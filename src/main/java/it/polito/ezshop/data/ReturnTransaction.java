@@ -11,7 +11,7 @@ public interface ReturnTransaction {
 
     void setSaleTransaction(SaleTransaction saleTransaction);
 
-    ReturnStatus getStatus() ;
+    String getStatus() ;
 
-    void setStatus(ReturnStatus status);
+    void setStatus(String status);
 }

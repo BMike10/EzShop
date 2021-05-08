@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,8 @@ public class EZShop implements EZShopInterface {
 	private static Connection conn = null;
 	private Map<Integer, ProductType> products;
 	private User currentUser;
+	private AccountBookClass accountBook = new AccountBookClass(0);
+	private Map<String,Double> CreditCardsMap;
 	
     @Override
     public void reset() {
@@ -581,40 +584,362 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public double receiveCashPayment(Integer ticketNumber, double cash) throws InvalidTransactionIdException, InvalidPaymentException, UnauthorizedException {
-        return 0;
-    }
 
-    @Override
+        /*
+        if(ticketNumber == null || ticketNumber <= 0)
+            throw new InvalidTransactionIdException();
+
+        if(cash <= 0)
+            throw new InvalidPaymentException();
+
+
+        SaleTransactionClass saleTransaction = accountBook.getSaleTransaction(ticketNumber);
+        //If transaction does not exist return -1?
+
+        double saleAmount= saleTransaction.getMoney();
+        double change = cash - saleAmount;
+
+        if (change<0)
+            //Cash is not enough
+            return -1;
+
+        //Payment ok(Change<=0) -> Update map and db(STATUS)
+        //Update Map
+        saleTransaction.setStatus("PAYED");;
+        //Update DB
+        String sql = "UPDATE SaleTransaction SET status = PAYED WHERE id = "+saleTransaction.getId();
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+        //Update map and db(Balance)
+        recordBalanceUpdate(saleAmount);
+        */
+		return 0;
+
+	}
+
+
+	@Override
     public boolean receiveCreditCardPayment(Integer ticketNumber, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
-        return false;
-    }
+		/*
+    	double userCash = 0;
+
+        if(ticketNumber == null || ticketNumber <= 0)
+            throw new InvalidTransactionIdException();
+
+        //Check card validity(creditCard consist of 13 or 16 elements)
+		if(creditCard ==null || (creditCard.length()!=13 && creditCard.length()!=16)){
+			throw new InvalidCreditCardException();
+		}else{
+			//Luhn Algorithm
+			int[] ints = new int[creditCard.length()];
+			for (int i = 0; i < creditCard.length(); i++) {
+				ints[i] = Integer.parseInt(creditCard.substring(i, i + 1));
+			}
+			for (int i = ints.length - 2; i >= 0; i = i - 2) {
+				int j = ints[i];
+				j = j * 2;
+				if (j > 9) {
+					j = j % 10 + 1;
+				}
+				ints[i] = j;
+			}
+			int sum = 0;
+			for (int anInt : ints) {
+				sum += anInt;
+			}
+			if (sum % 10 == 0) {
+				//VALID CREDIT CARD
+				if(CreditCardsMap.get(creditCard)==null || CreditCardsMap.get(creditCard)==0)
+					throw new InvalidCreditCardException();
+				else
+					userCash = CreditCardsMap.get(creditCard);
+
+			} else {
+				//INVALID CREDIT CARD
+				throw new InvalidCreditCardException();
+			}
+		}
+
+		//Credit card is validate and registered in the system
+		SaleTransaction sale = accountBook.getSaleTransaction(ticketNumber);
+		double saleAmount = sale.getPrice();
+        if(userCash < saleAmount)
+            throw new InvalidCreditCardException();
+
+        //Payment completed -> Update map and db(STATUS)
+        //Update Map
+        sale.setStatus("CLOSED");;
+        //Update DB
+        String sql = "UPDATE SaleTransaction SET status ="+SaleTransaction.CLOSED.ordinal() +" WHERE id = "+sale.getId();
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        //Update map and db(Balance)
+        recordBalanceUpdate(saleAmount);
+        */
+		return true;
+
+	}
 
     @Override
     public double returnCashPayment(Integer returnId) throws InvalidTransactionIdException, UnauthorizedException {
-        return 0;
+        /*
+        if(returnId == null || returnId <= 0)
+            throw new InvalidTransactionIdException();
+
+
+        ReturnTransaction returnTransaction =  accountBook.getReturnTransaction(returnId);
+        //If transaction does not exist return -1?
+
+        String status= returnTransaction.getStatus();
+
+        if (!status.equals("CLOSED"))
+            //Return Transaction is not ended
+            return -1;
+
+        //Return Transaction is ended-> Update map and db(STATUS)
+        //Update Map
+        returnTransaction.setStatus("PAYED");;
+        //Update DB
+        String sql = "UPDATE returnTransaction SET status = PAYED WHERE id = "+returnTransaction.getId();
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        //Update map and db(Balance)
+        recordBalanceUpdate(-(returnTransaction.getAmount()));
+        */
+
+
+		return 0;
     }
 
     @Override
     public double returnCreditCardPayment(Integer returnId, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
-        return 0;
+
+		/*
+    	double newCredit = 0;
+
+        if(returnId == null || returnId <= 0)
+            throw new InvalidTransactionIdException();
+
+		ReturnTransaction returnTransaction = accountBook.getReturnTransaction(returnId);
+
+		//Check card validity(creditCard consist of 13 or 16 elements)
+		if(creditCard ==null || (creditCard.length()!=13 && creditCard.length()!=16)){
+			throw new InvalidCreditCardException();
+		}else{
+			//Luhn Algorithm
+			int[] ints = new int[creditCard.length()];
+			for (int i = 0; i < creditCard.length(); i++) {
+				ints[i] = Integer.parseInt(creditCard.substring(i, i + 1));
+			}
+			for (int i = ints.length - 2; i >= 0; i = i - 2) {
+				int j = ints[i];
+				j = j * 2;
+				if (j > 9) {
+					j = j % 10 + 1;
+				}
+				ints[i] = j;
+			}
+			int sum = 0;
+			for (int anInt : ints) {
+				sum += anInt;
+			}
+			if (sum % 10 == 0) {
+				//VALID CREDIT CARD
+				if(CreditCardsMap.get(creditCard)==null)
+					throw new InvalidCreditCardException();
+			} else {
+				//INVALID CREDIT CARD
+				throw new InvalidCreditCardException();
+			}
+		}
+
+		//Update Map with new credit -> is return amount only the return part on total saleAmount?
+		newCredit = CreditCardsMap.get(creditCard) + returnTransaction.getAmount();
+		CreditCardsMap.put(creditCard, newCredit);
+
+        String status= returnTransaction.getStatus();
+
+        if (!status.equals("CLOSED"))
+            //Return Transaction is not ended
+            return -1;
+
+        //Return Transaction is ended-> Update map and db(STATUS)
+        //Update Map
+        returnTransaction.setStatus("PAYED");;
+        //Update DB
+		String sql = "UPDATE ReturnTransaction SET status ="+ReturnStatus.PAYED.ordinal() +" WHERE id = "+returnTransaction.getId();;
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        //Update map and db(Balance)
+        recordBalanceUpdate(-(returnTransaction.getAmount()));
+		*/
+    	return 0;
     }
 
     @Override
     public boolean recordBalanceUpdate(double toBeAdded) throws UnauthorizedException {
-        return false;
-    }
 
-    @Override
-    public List<BalanceOperation> getCreditsAndDebits(LocalDate from, LocalDate to) throws UnauthorizedException {
-        return null;
-    }
+		//LOGIN
 
-    @Override
-    public double computeBalance() throws UnauthorizedException {
-        return 0;
-    }
-    
-    public static void connect() {
+		String newType;
+		double currentBalance = accountBook.getBalance();
+		double newBalance = currentBalance + toBeAdded;
+
+		//Negative new balance
+		if(newBalance < 0)
+			return false;
+
+		//Positive new Balance
+		if(toBeAdded < 0){
+			//DEBIT
+			newType = "DEBIT";
+            /*
+                //Add to Map
+                OrderClass newOrderTransaction = new OrderClass();
+                accountBook.addOrderTransaction(newOrderTransaction);
+
+                 //Add order operation to DB - (Check that the CloseTransaction doesn't update DB too)
+                String sql = "INSERT INTO Order(id, description, amount, date, supplier, status, productId, unitPrice) "
+                    + "VALUES ("+newOrderTransaction.getBalanceId()
+                    +", NULL, "
+                    + toBeAdded +", "
+                    + "DATE('now'), "
+                    + "supplier ,"
+                    + "status ,"
+                    + "productId ,"
+                    + "unitPrice ,"
+                    + "quantity ";
+                try(Statement st = conn.createStatement()){
+                    st.execute(sql);
+                }catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            */
+		}else{
+			//CREDIT
+			newType = "CREDIT";
+            /*
+                //Add to Map (saleTransactionMap && BalanceOperationMap)
+                SaleTransactionClass newSaleTransaction = new SaleTransactionClass();
+                accountBook.addSaleTransaction(newSaleTransaction);
+
+                //Add sale transaction to DB -> are there information?
+                String sql = "INSERT INTO SaleTransaction(id, description, amount, date, type) "
+                    + "VALUES ("+newBalanceOperation.getBalanceId()
+                    +", NULL, "
+                    + toBeAdded +", "
+                    + "DATE('now'), "
+                    + "time ,"
+                    + "paymentType ,"
+                    + "discountRate ,"
+                    + "status ,"
+                    + "cardId , "
+                    + "soldProducts ,"
+                try(Statement st = conn.createStatement()){
+                    st.execute(sql);
+                }catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            */
+		}
+
+//		BalanceOperationClass newBalanceOperation = new BalanceOperationClass(toBeAdded,newType);
+//		//DB update
+//		//Add balance operation to DB
+//		String sql = "INSERT INTO BalanceTransaction(id, description, amount, date, type) "
+//				+ "VALUES ("+newBalanceOperation.getBalanceId()
+//				+", NULL, "
+//				+ toBeAdded +", "
+//				+ "DATE('now'), "
+//				+ OrderStatus.ISSUED.ordinal()+", "
+//				+ newType+")";
+//
+//		try(Statement st = conn.createStatement()){
+//			st.execute(sql);
+//		}catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+
+		return true;
+	}
+
+
+	@Override
+	public List<BalanceOperation> getCreditsAndDebits(LocalDate from, LocalDate to) throws UnauthorizedException {
+		//LOGIN?
+
+		List<BalanceOperation> balanceOperations = new ArrayList<>();
+		LocalDate newFrom = from,newTo = to;
+		String sql2 = "";
+
+		if(from!= null && to!= null){
+			if(from.isBefore(to)){
+				//Order Data Correction
+				newFrom = to;
+				newTo = from;
+			}
+		}
+
+		if(newFrom== null && newTo!=null){
+			//All balance operations before newTo
+			sql2 = "WHERE date <="+newTo;
+		}else if(newFrom!= null && newTo==null) {
+			//All balance operations after newFrom
+			sql2 = "WHERE date >=" + newFrom;
+		}else if(newFrom!=null){
+			//newFrom!=null && newTo!=null because second condition is always verified thanks to second control
+			sql2 = "WHERE date >=" + newFrom + "&& date <=" + newTo;
+		}
+		//if together are null -> no conditions(all balance operations)
+
+		//Download a list of Balance Operations
+		try(Statement stm = conn.createStatement()){
+			String sql = "SELECT * FROM BalanceOperation" + sql2;
+			ResultSet rs = stm.executeQuery(sql);
+			while(rs.next()) {
+				int id = rs.getInt("id");
+				String description = rs.getString("description");
+				double amount = rs.getDouble("amount");
+				LocalDate date =  rs.getDate("date").toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+				String type = rs.getString("type");
+				BalanceOperationClass boc = new BalanceOperationClass(id, description, amount, date, type);
+				balanceOperations.add(boc);
+			}
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+
+		return balanceOperations;
+	}
+
+
+	@Override
+	public double computeBalance() throws UnauthorizedException {
+		//LOGIN
+		return accountBook.getBalance();
+	}
+
+
+	public static void connect() {
         
         try {
             // db parameters
@@ -716,7 +1041,32 @@ public class EZShop implements EZShopInterface {
     			+ "returnedProductsId integer not null,"
     			+ "FOREIGN KEY (returnedProductsId) references ReturnedProducts(id),"
     			+ "FOREIGN KEY (saleId) references SaleTransactions(id))";
-    	try (Statement stmt = conn.createStatement()) {
+		//BALANCETRANSACTIONTABLE?//
+		String balanceTransaction = "CREATE TABLE IF NOT EXISTS BalanceTransaction("
+				+ "id INTEGER NOT NULL PRIMARY KEY,"
+				+ "description text NOT NULL,"
+				+ "amount number NOT NULL,"
+				+ "date date NOT NULL,"
+				+ "type text not null";
+		//BALANCETRANSACTIONTABLE?//
+		//ACCOUNTBOOKTABLE?//
+		String accountBookTable = "CREATE TABLE IF NOT EXISTS AccountBookTable("
+				+ "id INTEGER NOT NULL PRIMARY KEY,"
+				+ "balance number NOT NULL,"
+				+ "type text not null"
+				+ "balanceTransactionId integer not null, "
+				+ "returnTransactionId integer not null,"
+				+ "orderTransactionId integer not null,"
+				+ "saleTransactionId integer not null,"
+				+ "FOREIGN KEY (balanceTransactionId) references balanceTransaction(id),"
+				+ "FOREIGN KEY (saleTransactionId) references SaleTransactions(id))"
+				+ "FOREIGN KEY (orderTransactionId) references orderTransaction(id),"
+				+ "FOREIGN KEY (returnTransactionId) references returnTransaction(id))";
+		//ACCOUNTBOOKTABLE?//
+
+		//CREDITCARDTABLE//
+
+		try (Statement stmt = conn.createStatement()) {
   	      stmt.executeUpdate(tableUser);
   	      stmt.executeUpdate(loyaltyCard);
   	      stmt.executeUpdate(customerTable);
@@ -726,7 +1076,10 @@ public class EZShop implements EZShopInterface {
   	      stmt.executeUpdate(orders);
   	      stmt.executeUpdate(returnedProduct);
   	      stmt.executeUpdate(returnTransaction);
-  	    } catch (SQLException e) {
+			//stmt.executeUpdate(balanceTransaction);
+			//stmt.executeUpdate(balanceTransaction);
+
+		} catch (SQLException e) {
   	      e.printStackTrace();
   	    }
     }

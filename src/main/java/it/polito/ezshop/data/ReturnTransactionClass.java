@@ -23,32 +23,39 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
         this.status = retstatus;
     }
 
+    @Override
     public Map<Integer, ProductType> getReturnedProduct() {
         return returnedProduct;
     }
 
+    @Override
     public void setReturnedProduct(Map<Integer, ProductType> returnedProduct) {
         this.returnedProduct = returnedProduct;
     }
 
+    @Override
     public SaleTransaction getSaleTransaction() {
         return saleTransaction;
     }
 
+    @Override
     public void setSaleTransaction(SaleTransaction saleTransaction) {
         this.saleTransaction = saleTransaction;
     }
 
-    public ReturnStatus getStatus() {
-        return status;
+    @Override
+    public String getStatus() {
+        return status.name();
     }
 
-    public void setStatus(ReturnStatus status) {
-        this.status = status;
+    @Override
+    public void setStatus(String status) {
+        this.status = ReturnStatus.valueOf(status);
     }
+
     //Account book???
-//    public void addReturnProduct(ProductType product,int quantity){
-//
-//    }
+    //    public void addReturnProduct(ProductType product,int quantity){
+    //
+    //    }
 
 }

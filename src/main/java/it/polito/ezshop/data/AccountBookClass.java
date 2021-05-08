@@ -28,6 +28,14 @@ public class AccountBookClass implements AccountBook{
     }
 
 
+//    @Override
+//    public Integer addBalanceOperation(BalanceOperation balanceOperation) {
+//        //Sale Transaction is complete but without id
+//        Integer newId = newId();
+//        this.balanceOperationMap.put(newId, balanceOperation);
+//        return newId;
+//    }
+
     @Override
     public Integer addSaleTransaction(SaleTransaction saleTransaction) {
         //Sale Transaction is complete but without id
