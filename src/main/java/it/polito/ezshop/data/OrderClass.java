@@ -1,12 +1,14 @@
 package it.polito.ezshop.data;
 
+import java.time.LocalDate;
+
 import it.polito.ezshop.exceptions.InvalidOrderIdException;
 import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
 
-public final class OrderClass implements Order {
-	private int orderId;
+public final class OrderClass extends BalanceOperationClass implements Order {
+	//private int orderId;
 	private String productCode;
 	private double pricePerUnit;
 	private int quantity;
@@ -14,40 +16,27 @@ public final class OrderClass implements Order {
 	
 	
 	public OrderClass(int orderId, String productCode, double pricePerUnit, int quantity, OrderStatus status) {
-		super();
-		this.orderId = orderId;
-		this.productCode = productCode;
-		this.pricePerUnit = pricePerUnit;
-		this.quantity = quantity;
-		this.status = status;
+		this(orderId, (String)null, pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, status);
 	}
 	public OrderClass(String productCode, double pricePerUnit, int quantity, OrderStatus status) {
-		super();
-		this.orderId = orderId;
+		this(-1, (String)null, pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, status);
+	}
+	public OrderClass(int orderId, String productCode, double pricePerUnit, int quantity) {
+		this(orderId, (String)null, pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, OrderStatus.ISSUED);
+	}
+	public OrderClass(String productCode, double pricePerUnit, int quantity) {
+		this(-1, (String)null, pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, OrderStatus.ISSUED);
+	}
+	public OrderClass(int id, String desc, double amount, LocalDate date, String supplier, String productCode, double pricePerUnit, int quantity, OrderStatus status) {
+		super(id, desc, amount, date, "ORDER");
 		this.productCode = productCode;
 		this.pricePerUnit = pricePerUnit;
 		this.quantity = quantity;
 		this.status = status;
-	}
-	public OrderClass(int orderId, String productCode, double pricePerUnit, int quantity) {
-		super();
-		this.orderId = orderId;
-		this.productCode = productCode;
-		this.pricePerUnit = pricePerUnit;
-		this.quantity = quantity;
-		this.status = OrderStatus.ISSUED;
-	}
-	public OrderClass(String productCode, double pricePerUnit, int quantity) {
-		super();
-		this.orderId = -1;
-		this.productCode = productCode;
-		this.pricePerUnit = pricePerUnit;
-		this.quantity = quantity;
-		this.status = OrderStatus.ISSUED;
 	}
 	@Override
 	public Integer getBalanceId() {
-		return getOrderId();
+		return super.getBalanceId();
 	}
 
 	@Override
@@ -107,14 +96,14 @@ public final class OrderClass implements Order {
 	}
 	@Override
 	public Integer getOrderId() {
-		return orderId;
+		return getBalanceId();
 	}
 
 	@Override
 	public void setOrderId(Integer orderId) {
 		if(orderId == null || orderId <= 0)
 			throw new RuntimeException(new InvalidOrderIdException());
-		this.orderId = orderId;
+		super.setBalanceId(orderId);
 	}
 
 }

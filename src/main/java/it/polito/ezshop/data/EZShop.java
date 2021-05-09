@@ -8,8 +8,11 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +20,11 @@ import java.util.Map;
 public class EZShop implements EZShopInterface {
 	private static Connection conn = null;
 	private Map<Integer, ProductType> products;
+	private Map<Integer, User> users;
+	private Map<Integer, Customer> customers;
+	//private Map<String, LoyaltyCard> cards;
 	private User currentUser;
+	private AccountBook accountBook;
 	
     @Override
     public void reset() {
@@ -65,7 +72,7 @@ public class EZShop implements EZShopInterface {
         if(currentUser==null || currentUser.getRole().equals("CASHIER"))
         	throw new UnauthorizedException();
         
-    	int nextId = products.size() + 1;
+    	int nextId = products.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
         ProductType pt = new ProductTypeClass(nextId, description, productCode, pricePerUnit, note);
         products.put(nextId,  pt);
         // add to db
@@ -228,14 +235,14 @@ public class EZShop implements EZShopInterface {
     				return false;
     		}
     	}
-    	pt.setPosition(p);
+    	pt.setLocation(p);
     	// db update
     	String sql = "UPDATE ProductTypes SET position = '"+p.toString()+"' where id = "+productId;
     	try(Statement st = conn.createStatement()){
         	st.execute(sql);
         }catch(SQLException e) {
         	e.printStackTrace();
-        	pt.setPosition(prev);
+        	pt.setLocation(prev);
         	return false;
         }
         return true;
@@ -252,23 +259,7 @@ public class EZShop implements EZShopInterface {
         	throw new InvalidPricePerUnitException();
         if(productCode == null || productCode.length() <= 0)
         	throw new InvalidProductCodeException();
-        // get next id and check if product exixts
-    	/*String getMaxId = "SELECT MAX(id) FROM Orders";
-        String getProduct = "SELECT * FROM ProductTypes WHERE barCode = "+productCode;
-        int nextId = 1;
-        int productId = -1;
-        try(Statement stmnt = conn.createStatement()){
-        	ResultSet rs = stmnt.executeQuery(getMaxId);
-        	if(rs.next())
-        		nextId = rs.getInt(0) + 1;
-        	rs = stmnt.executeQuery(getProduct);
-        	if(!rs.next())
-        		throw new InvalidProductCodeException();
-        	rs.getInt("id");
-        }catch(SQLException e) {
-        	e.printStackTrace();
-			throw new UnauthorizedException(e.getMessage());
-        }*/
+        
         // check for productCode
         ProductType pt = getProductTypeByBarCode(productCode);
         if(pt == null)
@@ -276,7 +267,11 @@ public class EZShop implements EZShopInterface {
         // add to account book
         int nextId=-1;
         OrderClass o = new OrderClass(productCode, pricePerUnit, quantity);
-        //nextId = accountBook.addOrder((Order) o);
+        try {
+			nextId = accountBook.addOrder((Order) o);
+		} catch (InvalidTransactionIdException e2) {
+			e2.printStackTrace();
+		}
         o.setOrderId(nextId);
         // insert into db
     	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
@@ -293,7 +288,11 @@ public class EZShop implements EZShopInterface {
     	}catch (SQLException e) {
 			e.printStackTrace();
 			// rollback
-			// accountBook.removeOrder(o);
+			try {
+				accountBook.removeOrder(o.getBalanceId());
+			} catch (InvalidTransactionIdException e1) {
+				e1.printStackTrace();
+			}
 			return -1;
 		}
     	return nextId;
@@ -334,13 +333,21 @@ public class EZShop implements EZShopInterface {
     	}catch (SQLException e) {
 			e.printStackTrace();
 			// rollback
-			// accountBook.removeOrder((Order) o);
+			try {
+				accountBook.removeOrder(o.getOrderId());
+			} catch (InvalidTransactionIdException e1) {
+				e1.printStackTrace();
+			}
 			return -1;
 		}
     	// update balance
     	if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
     		// rollback
-    		// accountBook.removeOrder((Order) o);
+    		try {
+				accountBook.removeOrder(o.getOrderId());
+			} catch (InvalidTransactionIdException e) {
+				e.printStackTrace();
+			}
     		return -1;
     	}
     	return nextId;
@@ -387,7 +394,7 @@ public class EZShop implements EZShopInterface {
     		throw new InvalidOrderIdException();
     	
     	OrderClass o = null;
-    	//o = (OrderClass)accountBook.getOrder(orderId);
+    	o = (OrderClass)accountBook.getOrder(orderId);
     	if(o == null)
     		throw new InvalidOrderIdException();
     	if(o.getOrderStatus() == OrderStatus.ISSUED)
@@ -463,9 +470,8 @@ public class EZShop implements EZShopInterface {
     	    	double unitPrice = rs.getDouble("unitPrice");
     	    	int quantity = rs.getInt("quantity");
     	    	OrderStatus oStatus = OrderStatus.values()[status];
-    	    	ResultSet rs1 = stmnt.executeQuery("Select barCode from ProductTypes where id = "+id);
-    	    	rs1.next();
-    	    	OrderClass o = new OrderClass(id, rs1.getString(0), unitPrice, quantity, oStatus);
+    	    	String prodCode = products.get(productId).getBarCode();
+    	    	OrderClass o = new OrderClass(id, description, amount, date.toLocalDate(), supplier, prodCode, unitPrice, quantity, oStatus);
     	    	orders.add((Order) o);
     		}
     	}catch(SQLException e) {
@@ -614,26 +620,113 @@ public class EZShop implements EZShopInterface {
         return 0;
     }
     
-    public static void connect() {
+    public void connect() {
         
         try {
             // db parameters
-            String url = "jdbc:sqlite:db/ezshop.db";
+            final String url = "jdbc:sqlite:db/ezshop.db";
             // create a connection to the database
             conn = DriverManager.getConnection(url);
             createTables();
             System.out.println("Connection to SQLite has been established.");
             Statement stmt = conn.createStatement();
-            String insert = "INSERT INTO USER(id, username, password, role) values (2, \"dfjkskdkj\", \"fkdjkdfjkda\", 1)";
+            /*String insert = "INSERT INTO USER(id, username, password, role) values (2, \"dfjkskdkj\", \"fkdjkdfjkda\", 1)";
             stmt.execute(insert);
             String query = "SELECT * FROM USER";
             
             ResultSet result = stmt.executeQuery(query);
             while(result.next()) {
             	System.out.println(result.getString("username"));
-            }
+            }*/
             
-        } catch (SQLException e) {
+            // read all data
+            // USER 
+            String sql = "Select * from User";
+            ResultSet rs = stmt.executeQuery(sql);
+            users = new HashMap<>();
+            while(rs.next()) {
+            	int id = rs.getInt("id");
+            	//users.put(id,  new UserClass(id, ...));
+            }
+            // PRODUCT TYPES
+            products = new HashMap<>();
+            sql = "select * from ProductTypes";
+    		rs = stmt.executeQuery(sql);
+    		while(rs.next()) {
+    			int id = rs.getInt("id");
+    	    	String description = rs.getString("description"); 
+    	    	String barcode = rs.getString("barCode");
+    			double sellPrice = rs.getDouble("sellPrice");
+    			int qty = rs.getInt("quantity");
+    			// double discount = rs.getDouble("discountRate");
+    			String notes = rs.getString("notes");
+    			String position = rs.getString("position");
+    			ProductTypeClass pt = new ProductTypeClass(id, description, barcode, sellPrice, notes);
+    			pt.setLocation(position);
+    			pt.setQuantity(qty);
+    			products.put(id,  pt);
+    		}
+            // ORDERS
+            sql = "SELECT * FROM orders";
+    		rs = stmt.executeQuery(sql);
+    		HashMap<Integer, Order> orders = new HashMap<>();
+    		while(rs.next()) {
+    			int id = rs.getInt("id");
+    	    	String description = rs.getString("description"); 
+    	    	double amount = rs.getDouble("amount");
+    	    	Date date = rs.getDate("date");
+    	    	String supplier = rs.getString("supplier");
+    	    	int status = rs.getInt("status");
+    	    	int productId = rs.getInt("productId");
+    	    	double unitPrice = rs.getDouble("unitPrice");
+    	    	int quantity = rs.getInt("quantity");
+    	    	OrderStatus oStatus = OrderStatus.values()[status];
+    	    	String prodCode = products.get(productId).getBarCode();
+    	    	OrderClass o = new OrderClass(id, description, amount, date.toLocalDate(), supplier, prodCode, unitPrice, quantity, oStatus);
+    	    	orders.put(id, (Order) o);
+    		}
+    		//accountBook.setOrders(orders);
+    		// LOYALTY CARDS
+    		//cards = new HashMap<>();
+    		sql = "select * from LoyaltyCard";
+    		rs = stmt.executeQuery(sql);
+    		while(rs.next()) {
+    	    	String number = rs.getString("number"); 
+    	    	int points = rs.getInt("points");
+    	    	//cards.put(number, new LoyaltyCard(number, points));
+    		}
+    		// CUSTOMERS
+    		customers = new HashMap<>();
+    		sql = "select * from customer";
+    		rs = stmt.executeQuery(sql);
+    		while(rs.next()) {
+    			int id = rs.getInt("id");
+    	    	String customerName = rs.getString("customerName"); 
+    	    	String cardId = rs.getString("cardId"); 
+    	    	// LoyaltyCard usrCard = cards.get(cardId);
+    	    	// customers.put(id,  new Customer(id, customerName, userCard));
+    		}
+    		// SALE TRANSACTIONS
+    		sql = "SELECT * FROM SaleTransactions";
+    		rs = stmt.executeQuery(sql);
+    		HashMap<Integer, SaleTransaction> sales = new HashMap<>();
+    		while(rs.next()) {
+    			int id = rs.getInt("id");
+    	    	String description = rs.getString("description"); 	// TODO complete this 
+    	    	double amount = rs.getDouble("amount");
+    	    	Date date = rs.getDate("date");
+    	    	Time time = rs.getTime("time");
+    	    	String supplier = rs.getString("supplier");
+    	    	int status = rs.getInt("status");
+    	    	int productId = rs.getInt("productId");
+    	    	double unitPrice = rs.getDouble("unitPrice");
+    	    	int quantity = rs.getInt("quantity");
+    	    	OrderStatus oStatus = OrderStatus.values()[status];
+    	    	String prodCode = products.get(productId).getBarCode();
+    	    	OrderClass o = new OrderClass(id, prodCode, unitPrice, quantity, oStatus);
+    	    	orders.put(id, (Order) o);
+    		}
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         } /*finally {
             try {
@@ -653,13 +746,11 @@ public class EZShop implements EZShopInterface {
     			+ "role INTEGER NOT NULL)";
     	String loyaltyCard = "CREATE TABLE IF NOT EXISTS LoyaltyCard("
     			+ "points INTEGER NOT NULL,"
-    			+ "number text NOT NULL PRIMARY KEY,"
-    			+ "role INTEGER NOT NULL)";
+    			+ "number text NOT NULL PRIMARY KEY)";
     	String customerTable = "CREATE TABLE IF NOT EXISTS Customer("
     			+ "id INTEGER NOT NULL PRIMARY KEY,"
     			+ "customerName text NOT NULL,"
     			+ "cardId text NOT NULL,"
-    			+ "role INTEGER NOT NULL,"
     			+ "FOREIGN KEY (cardId) references LoyaltyCard(number))";
     	String productTypes = "CREATE TABLE IF NOT EXISTS ProductTypes("
     			+ "id INTEGER NOT NULL PRIMARY KEY,"
@@ -667,7 +758,7 @@ public class EZShop implements EZShopInterface {
     			+ "description text NOT NULL,"
     			+ "sellPrice number NOT NULL,"
     			+ "quantity integer not null,"
-    			+ "discountRate number not null,"
+    			//+ "discountRate number not null,"
     			+ "notes text,"
     			+ "position text"
     			+ ")";

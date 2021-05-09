@@ -104,16 +104,12 @@ public final class ProductTypeClass implements ProductType {
 	@Override
 	public String getLocation() {
 		if(location == null)
-			return null;
+			return "";
 		return location.toString();
 	}
 
 	@Override
 	public void setLocation(String location){
-		if(location == null) {
-			this.location = null;
-			return;
-		}
 		this.location = new Position(location);
 	}
 
@@ -154,9 +150,6 @@ public final class ProductTypeClass implements ProductType {
 			return false;
 		quantity += toBeAdded;
 		return true;
-	}
-	public void setPosition(Position p) {
-		this.location = p;
 	}
 	public Position getPosition() {
 		return location;

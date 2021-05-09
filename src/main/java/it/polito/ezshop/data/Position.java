@@ -21,7 +21,7 @@ public class Position {
 		try {
 		aisleId = Integer.parseInt(fields[0]);
 		rackId = fields[1];
-		aisleId = Integer.parseInt(fields[2]);
+		levelId = Integer.parseInt(fields[2]);
 		}catch(Exception e) {
 			throw new RuntimeException(new InvalidLocationException("Invalid position string: " + position));
 		}
