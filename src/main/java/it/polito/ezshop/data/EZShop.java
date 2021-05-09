@@ -32,42 +32,111 @@ public class EZShop implements EZShopInterface {
     public void reset() {
 
     }
-
     @Override
-    public Integer createUser(String username, String password, String role) throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
-        return null;
+    public Integer createUser(String username, String password, String role) throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {    	   	
+    	 if(username==null || username.isEmpty()) throw new InvalidUsernameException();
+    	 if(password==null || password.isEmpty()) throw new InvalidPasswordException();
+    	 if(role==null || role.isEmpty() ) throw new InvalidRoleException();
+    	 int id = users.size() + 1;
+         User user = new UserClass(id, username, password, role);  
+         users.put(id,user);
+         String sql = "insert into tableUser( id, username, password, role)"
+         		+ "values("+id+","
+         		+ "'"+username+"',"
+         		+ "'"+password+"',"
+         		+"'"+role+")";
+         try(Statement st = conn.createStatement()){
+         	st.execute(sql);
+         }catch(SQLException e) {
+         	e.printStackTrace();
+         	users.remove(id);
+         	return -1;
+         }   
+     	return id;
     }
 
     @Override
-    public boolean deleteUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
-        return false;
+    public boolean deleteUser(Integer id) throws InvalidUserIdException, UnauthorizedException {   	
+    	if(id<=0 ||id==null) throw new InvalidUserIdException();
+        if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException();       
+    	User u = users.remove(id);
+        String sql = "delete from tableUser"
+        		+ " where id = "+id;
+        try(Statement st = conn.createStatement()){
+        	st.execute(sql);
+        }catch(SQLException e) {
+        	e.printStackTrace();
+        	users.put(id, u);
+        	return false;
+        }
+		return true;
     }
 
     @Override
     public List<User> getAllUsers() throws UnauthorizedException {
-        return null;
+    	if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException(); 
+    	List<User> u = new ArrayList<>(users.values());
+		return u;
     }
 
     @Override
     public User getUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
-        return null;
+    	if(id<=0 ||id==null) throw new InvalidUserIdException();
+    	if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException(); 
+    	for(User user: users.values()) {
+    		if(user.getId().equals(id))
+    			return user;
+    	}
+    	return null;
     }
+   
 
     @Override
-    public boolean updateUserRights(Integer id, String role) throws InvalidUserIdException, InvalidRoleException, UnauthorizedException {
-        return false;
+    public boolean updateUserRights(Integer id, String role) throws InvalidUserIdException, InvalidRoleException, UnauthorizedException {      
+    	if(id==null || id <= 0) throw new InvalidUserIdException();
+       	if(role==null || role.isEmpty()) throw new InvalidRoleException();
+    	if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException(); 
+    	 UserClass user = (UserClass) users.get(id);
+        	if(user == null || user.getId() == null)
+        		//user doesn't exist
+        		return false;    
+    		String sql = "update tableUser"
+         		+ "set "
+         		+ "role = '"+role+"',"+
+         		"where id = "+id;
+         try(Statement st = conn.createStatement()){
+         	st.execute(sql);
+         }catch(SQLException e) {
+         	e.printStackTrace();
+         	//rollback al ruolo precedente
+         	return false;
+         }
+     	return true;
     }
+
 
     @Override
     public User login(String username, String password) throws InvalidUsernameException, InvalidPasswordException {
-    	connect();
-        return null;
-    }
+    	if(username==null||username.isEmpty()) throw new InvalidUsernameException();
+    	if(password==null||password.isEmpty()) throw new InvalidPasswordException(); 
+    	for(User user: users.values()) {
+    		if(user.getUsername().equals(username) && user.getPassword().equals(password))
+    		  user=currentUser;
+    	      connect();
+    			return user;   		    
+    	}
+    	//wrong credentials
+    	return null;
+    	}
 
     @Override
     public boolean logout() {
-        return false;
+    	if(currentUser==null) {
+    		return false;
+    	}
+        return true;
     }
+
 
     @Override
     public Integer createProductType(String description, String productCode, double pricePerUnit, String note) throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
