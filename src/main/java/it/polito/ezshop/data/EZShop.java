@@ -23,7 +23,8 @@ public class EZShop implements EZShopInterface {
 	private Map<Integer, ProductType> products;
 	private Map<Integer, User> users;
 	private Map<Integer, Customer> customers;
-	//private Map<String, LoyaltyCard> cards;
+    private Map<String, LoyaltyCard> cards;
+    private Map<LoyaltyCard,Customer> attachedCards;
 	private User currentUser;
 	private AccountBookClass accountBook = new AccountBookClass(0);
 	private Map<String,Double> CreditCardsMap;
@@ -54,42 +55,116 @@ public class EZShop implements EZShopInterface {
     		e.printStackTrace();
     	}
     }
-
     @Override
-    public Integer createUser(String username, String password, String role) throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
-        return null;
+    public Integer createUser(String username, String password, String role) throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {    	   	
+    	 if(username==null || username.isEmpty()) throw new InvalidUsernameException();
+    	 if(password==null || password.isEmpty()) throw new InvalidPasswordException();
+    	 if(role==null || role.isEmpty() ) throw new InvalidRoleException();
+    	 int id = users.size() + 1;
+         User user = new UserClass(id, username, password, RoleEnum.valueOf(role));  
+         users.put(id,user);
+         String sql = "insert into tableUser( id, username, password, role)"
+         		+ "values("+id+","
+         		+ "'"+username+"',"
+         		+ "'"+password+"',"
+         		+"'"+role+")";
+         try(Statement st = conn.createStatement()){
+         	st.execute(sql);
+         }catch(SQLException e) {
+         	e.printStackTrace();
+         	users.remove(id);
+         	return -1;
+         }   
+     	return id;
     }
 
     @Override
-    public boolean deleteUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
-        return false;
+    public boolean deleteUser(Integer id) throws InvalidUserIdException, UnauthorizedException {   	
+    	if(id<=0 ||id==null) throw new InvalidUserIdException();
+        if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException();       
+    	User u = users.remove(id);
+        String sql = "delete from tableUser"
+        		+ " where id = "+id;
+        try(Statement st = conn.createStatement()){
+        	st.execute(sql);
+        }catch(SQLException e) {
+        	e.printStackTrace();
+        	users.put(id, u);
+        	return false;
+        }
+		return true;
     }
 
     @Override
     public List<User> getAllUsers() throws UnauthorizedException {
-        return null;
+    	if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException(); 
+    	List<User> u = new ArrayList<>(users.values());
+		return u;
     }
 
     @Override
     public User getUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
-        return null;
+    	if(id<=0 ||id==null) throw new InvalidUserIdException();
+    	if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException(); 
+    	for(User user: users.values()) {
+    		if(user.getId().equals(id))
+    			return user;
+    	}
+    	return null;
+    }
+   
+
+    
+    @Override
+    public boolean updateUserRights(Integer id, String role) throws InvalidUserIdException, InvalidRoleException, UnauthorizedException {      
+    	if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException(); 
+    	if(id==null || id <= 0) throw new InvalidUserIdException();
+       	if(role==null || role.isEmpty()) throw new InvalidRoleException();
+       	
+       	UserClass user = (UserClass) users.get(id);
+        	if(user == null || user.getId() == null)
+        		//user doesn't exist
+        		return false;  
+        		//old role
+        	final String tmp = user.getRole(); 
+        	user.setRole(role);
+    		String sql = "update tableUser"
+         		+ "set "
+         		+ "role = '"+role+"',"+
+         		"where id = "+id;
+         try(Statement st = conn.createStatement()){
+         	st.execute(sql);
+         }catch(SQLException e) {
+         	e.printStackTrace();
+         user.setRole(role);
+         	return false;
+         }
+     	return true;
     }
 
-    @Override
-    public boolean updateUserRights(Integer id, String role) throws InvalidUserIdException, InvalidRoleException, UnauthorizedException {
-        return false;
-    }
 
     @Override
     public User login(String username, String password) throws InvalidUsernameException, InvalidPasswordException {
-    	connect();
-        return null;
-    }
+    	if(username==null||username.isEmpty()) throw new InvalidUsernameException();
+    	if(password==null||password.isEmpty()) throw new InvalidPasswordException(); 
+    	for(User user: users.values()) {
+    		if(user.getUsername().equals(username) && user.getPassword().equals(password))
+    		  user=currentUser;
+    	      connect();
+    			return user;   		    
+    	}
+    	//wrong credentials
+    	return null;
+    	}
 
     @Override
     public boolean logout() {
-        return false;
+    	if(currentUser==null) {
+    		return false;
+    	}
+        return true;
     }
+
 
     @Override
     public Integer createProductType(String description, String productCode, double pricePerUnit, String note) throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
@@ -502,7 +577,22 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer defineCustomer(String customerName) throws InvalidCustomerNameException, UnauthorizedException {
-        return null;
+    	 if(customerName==null ||customerName.isEmpty()) throw new InvalidCustomerNameException();
+         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
+    	 int id = customers.size() + 1;
+         Customer c = new CustomerClass(id, customerName); 
+         customers.put(id,c);
+         String sql = "insert into customerTable(id, customerName, customerCard, points)"
+         		+ "values("+id+","
+         		+"'"+customerName+")";
+         try(Statement st = conn.createStatement()){
+         	st.execute(sql);
+         }catch(SQLException e) {
+         	e.printStackTrace();
+         	customers.remove(id);
+         	return -1;
+         }   
+     	return id;
     }
 
     @Override
@@ -512,32 +602,97 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
-        return false;
+    	if(id<=0 ||id==null) throw new InvalidCustomerIdException();
+        if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
+
+    	Customer c = customers.remove(id);
+        String sql = "delete from customerTable"
+        		+ " where id = "+id;
+        try(Statement st = conn.createStatement()){
+        	st.execute(sql);
+        }catch(SQLException e) {
+        	e.printStackTrace();
+        	customers.put(id,c);
+        	return false;
+        }
+		return true;
     }
 
     @Override
     public Customer getCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
-        return null;
+    	if(id<=0 ||id==null) throw new InvalidCustomerIdException();
+        if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
+
+    	for(Customer c: customers.values()) {
+    		if(c.getId().equals(id))
+    			return c;
+    	}
+    	return null;
     }
 
     @Override
     public List<Customer> getAllCustomers() throws UnauthorizedException {
-        return null;
+        if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
+    	List<Customer> c = new ArrayList<>(customers.values());  	
+    	return c;
     }
 
     @Override
     public String createCard() throws UnauthorizedException {
-        return null;
+        if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
+        String number="card"+(cards.size()+1);       
+        LoyaltyCardClass newCard = new LoyaltyCardClass(number,0);
+        cards.put(number,newCard);        
+        String sql = "insert into loyaltyCard(number,points)"
+        		+ "values("+number+","
+        		+"'"+0+")";
+        try(Statement st = conn.createStatement()){
+        	st.execute(sql);
+        }catch(SQLException e) {
+        	e.printStackTrace();
+        	cards.remove(number);
+        	return "";     	
+        }   
+    	return number;
     }
 
     @Override
     public boolean attachCardToCustomer(String customerCard, Integer customerId) throws InvalidCustomerIdException, InvalidCustomerCardException, UnauthorizedException {
-        return false;
+    	 if(currentUser == null || currentUser.getRole().isEmpty())throw new UnauthorizedException();
+    	 if(customerId == null || customerId <= 0) throw new InvalidCustomerIdException();
+    	 if(customerCard == null || customerCard.isEmpty())throw new InvalidCustomerCardException();
+    	
+    	 LoyaltyCard card = cards.get(customerCard);
+    	 Customer customer = customers.get(customerId);
+    	 if(customer.getId() == null || attachedCards.containsKey(customerCard) ) return false;    	     	 
+    	 attachedCards.put(card,customer);  
+    	 //creare tabella?
+    	 return true;
+    	
     }
 
     @Override
     public boolean modifyPointsOnCard(String customerCard, int pointsToBeAdded) throws InvalidCustomerCardException, UnauthorizedException {
-        return false;
+    	  if(currentUser == null ||currentUser.getRole().isEmpty())
+    	    	throw new UnauthorizedException();
+    	  //invalidformat? non ho un formato predefinito però bo
+    LoyaltyCardClass card= (LoyaltyCardClass) attachedCards.get(customerCard);
+    if(card == null) throw new InvalidCustomerCardException();
+	boolean updated = card.updatePoints(pointsToBeAdded);
+	if(!updated)
+		return false;
+    String sql = "update loyaltyCard"
+    		+ "set "
+    		+ "points = "+(card.getPoints())
+    		+"where id = "+customerCard;
+    try(Statement st = conn.createStatement()){
+    	st.execute(sql);
+    }catch(SQLException e) {
+    	e.printStackTrace();
+    	card.updatePoints(-pointsToBeAdded);
+    	return false;
+    }
+    return true;
     }
 
     @Override
