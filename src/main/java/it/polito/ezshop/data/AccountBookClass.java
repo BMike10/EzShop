@@ -40,6 +40,7 @@ public class AccountBookClass implements AccountBook{
     public Integer addSaleTransaction(SaleTransaction saleTransaction) {
         //Sale Transaction is complete but without id
         Integer newId = newId();
+        //saleTransaction.setSaleId(newId);
         this.balanceOperationMap.put(newId, (BalanceOperation) saleTransaction);
         this.saleTransactionMap.put(newId, saleTransaction);
         return newId;
@@ -48,6 +49,7 @@ public class AccountBookClass implements AccountBook{
     @Override
     public Integer addReturnTransaction(ReturnTransaction returnTransaction) {
         Integer newId = newId();
+        returnTransaction.setReturnId(newId);
         this.balanceOperationMap.put(newId, (BalanceOperation) returnTransaction);
         this.returnTransactionMap.put(newId, returnTransaction);
         return newId;
@@ -57,6 +59,7 @@ public class AccountBookClass implements AccountBook{
     @Override
     public Integer addOrder(Order order){
         Integer newId = newId();
+        order.setOrderId(newId);
         this.balanceOperationMap.put(newId, (BalanceOperation) order);
         this.orderMap.put(newId, order);
         return newId;

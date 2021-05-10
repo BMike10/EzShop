@@ -1396,7 +1396,7 @@ public class EZShop implements EZShopInterface {
 				+ "FOREIGN KEY (returnTransactionId) references returnTransaction(id))";
 		//ACCOUNTBOOKTABLE?//
 
-		//CREDITCARDTABLE//
+		//CREDITCARDTABLE???//
 
 		try (Statement stmt = conn.createStatement()) {
   	      stmt.executeUpdate(tableUser);
