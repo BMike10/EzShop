@@ -11,6 +11,11 @@ public class CustomerClass implements Customer {
 		this.id = id;
 		this.customerName = customerName;
 	}
+	
+	public static boolean checkCardCode(String newCustomerCard) {
+		if(newCustomerCard.length() < 10) return false;
+		return true;
+	}
 
 
 	@Override

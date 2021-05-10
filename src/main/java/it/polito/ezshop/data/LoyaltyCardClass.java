@@ -11,6 +11,33 @@ public class LoyaltyCardClass implements LoyaltyCard {
 		this.cardCode=cardCode;
 		
 	}
+		
+public String createCardCode(int i) 
+	    { 
+	        String theAlphaNumericS;
+	        StringBuilder builder;
+	        
+	        theAlphaNumericS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	                                    + "0123456789"; 
+
+	        //create the StringBuffer
+	        builder = new StringBuilder(i); 
+
+	        for (int m = 0; m < i; m++) { 
+
+	            // generate numeric
+	            int myindex 
+	                = (int)(theAlphaNumericS.length() 
+	                        * Math.random()); 
+
+	            // add the characters
+	            builder.append(theAlphaNumericS 
+	                        .charAt(myindex)); 
+	        } 
+
+	        return builder.toString(); 
+	    } 
+
 	
 
 	public Integer getPoints() {
