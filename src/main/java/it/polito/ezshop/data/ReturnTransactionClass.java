@@ -25,6 +25,11 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
         this.status = retstatus;
     }
 
+    public ReturnTransactionClass(SaleTransaction saleT, ReturnStatus retstatus) {
+        this.saleTransaction = saleT;
+        this.status = retstatus;
+    }
+    
     @Override
     public Integer getReturnId() {
         return super.getBalanceId();
@@ -66,9 +71,20 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
         this.status = ReturnStatus.valueOf(status);
     }
 
-    //Account book???
-    //    public void addReturnProduct(ProductType product,int quantity){
-    //
-    //    }
+    public void addReturnProduct(ProductType product,int quantity){
+    	if(!this.returnedProduct.keySet().contains(product)) {
+    		this.returnedProduct.put(product, quantity);
+    	}
+    	else { //caso in cui non è la prima return transaction per quel product
+    		int q=this.returnedProduct.get(product);
+    		this.returnedProduct.remove(product);
+    		this.returnedProduct.put(product, quantity+q);
+    	}
+    	
+    	//dopo aver aggiornato la mappa, dovrei aggiornare anche this.saleTransaction?
+    	//come faccio a controllare che, se non è la prima return transaction per quel product,
+    	//la quantità già restituita non ecceda quella inizialmente acquistata?
+    }
 
+    
 }
