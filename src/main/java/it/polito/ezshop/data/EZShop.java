@@ -367,7 +367,7 @@ public class EZShop implements EZShopInterface {
         int nextId=-1;
         OrderClass o = new OrderClass(productCode, pricePerUnit, quantity);
         nextId = accountBook.addOrder((Order) o);
-        o.setOrderId(nextId);
+        //o.setOrderId(nextId);
         // insert into db
     	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
         		+ "VALUES ("+nextId
@@ -411,8 +411,8 @@ public class EZShop implements EZShopInterface {
         // add order to account book
     	int nextId=-1;
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
-        //nextId = accountBook.addOrder((Order) o);
-    	o.setOrderId(nextId);
+        nextId = accountBook.addOrder((Order) o);
+    	//o.setOrderId(nextId);
     	// update db
     	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
         		+ "VALUES ("+nextId
@@ -456,7 +456,7 @@ public class EZShop implements EZShopInterface {
     		throw new InvalidOrderIdException();
     	
     	Order o = null;
-    	// o = accountBook.getOrder(orderId);
+    	o = accountBook.getOrder(orderId);
     	if(o == null)
     		throw new InvalidOrderIdException();
     	
@@ -1161,7 +1161,9 @@ public class EZShop implements EZShopInterface {
             System.out.println("Connection to SQLite has been established.");
             Statement stmt = conn.createStatement();
             String insert = "INSERT INTO USER(id, username, password, role) values (1, \"admin\", \"admin\", 2)";
+            try {
             stmt.execute(insert);
+            }catch(Exception e) {}
             String query = "SELECT * FROM USER";
             
             ResultSet result = stmt.executeQuery(query);
@@ -1215,7 +1217,7 @@ public class EZShop implements EZShopInterface {
     	    	OrderClass o = new OrderClass(id, description, amount, date.toLocalDate(), supplier, prodCode, unitPrice, quantity, oStatus);
     	    	orders.put(id, (Order) o);
     		}
-    		//accountBook.setOrders(orders);
+    		accountBook.setOrderMap(orders);
     		// LOYALTY CARDS
     		cards = new HashMap<>();
     		sql = "select * from LoyaltyCard";
@@ -1261,6 +1263,7 @@ public class EZShop implements EZShopInterface {
     	    		/*TicketEntryClass te = new TicketEntryClass(pCode, qty, discount);
     	    		entries.add(te);*/
     	    	}
+    	    	// s.setEntries(entries);
     	    	//sales.put(id, s);
     		}
     		accountBook.setSaleTransactionMap(sales);
@@ -1286,7 +1289,7 @@ public class EZShop implements EZShopInterface {
     	    		ProductType pt = products.get(productId);
     	    		returnedProducts.put(pt, qty);
     	    	}
-    	    	//ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "RETURN", returnedProducts, s, rstatus);
+    	    	ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "RETURN", returnedProducts, s, rstatus);
     		}
     		accountBook.setReturnTransactionMap(returns);
     		
