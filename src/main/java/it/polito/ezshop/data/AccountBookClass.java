@@ -2,16 +2,17 @@ package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class AccountBookClass implements AccountBook{
     //Our Design
 
     private double balance;
-    private Map<Integer,SaleTransaction> saleTransactionMap;
-    private Map<Integer,Order> orderMap;
-    private Map<Integer,ReturnTransaction> returnTransactionMap;
-    private Map<Integer,BalanceOperation> balanceOperationMap;
+    private final Map<Integer,SaleTransaction> saleTransactionMap = new HashMap<>();
+    private final Map<Integer,Order> orderMap = new HashMap<>();
+    private final Map<Integer,ReturnTransaction> returnTransactionMap = new HashMap<>();
+    private final Map<Integer,BalanceOperation> balanceOperationMap = new HashMap<>();
 
     // Account Book Default Constructor
     public AccountBookClass(double balance) {
@@ -20,21 +21,13 @@ public class AccountBookClass implements AccountBook{
 
     // Already existed Account Book
     public AccountBookClass(int balance, Map<Integer,SaleTransaction> SalOp, Map<Integer,Order> OrdOp, Map<Integer,ReturnTransaction> RetOp, Map<Integer,BalanceOperation> BalOp) {
+
         this.balance = balance;
         this.saleTransactionMap.putAll(SalOp);
         this.returnTransactionMap.putAll(RetOp);
         this.orderMap.putAll(OrdOp);
         this.balanceOperationMap.putAll(BalOp);
     }
-
-
-//    @Override
-//    public Integer addBalanceOperation(BalanceOperation balanceOperation) {
-//        //Sale Transaction is complete but without id
-//        Integer newId = newId();
-//        this.balanceOperationMap.put(newId, balanceOperation);
-//        return newId;
-//    }
 
     @Override
     public Integer addSaleTransaction(SaleTransaction saleTransaction) {

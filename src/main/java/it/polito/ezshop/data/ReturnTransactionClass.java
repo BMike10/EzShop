@@ -1,12 +1,13 @@
 package it.polito.ezshop.data;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ReturnTransactionClass extends BalanceOperationClass implements ReturnTransaction{
 
     //Map with the barcode and quantity of product in the sale transaction
-    private Map<ProductType,Integer> returnedProduct;
+    private final Map<ProductType,Integer> returnedProduct = new HashMap<>();
     private SaleTransaction saleTransaction;
     private ReturnStatus status;
 
@@ -41,7 +42,8 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 
     @Override
     public void setReturnedProduct(Map<ProductType,Integer> returnedProduct) {
-        this.returnedProduct = returnedProduct;
+        this.returnedProduct.clear();
+        this.returnedProduct.putAll(returnedProduct);
     }
 
     @Override
