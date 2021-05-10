@@ -367,7 +367,7 @@ public class EZShop implements EZShopInterface {
         int nextId=-1;
         OrderClass o = new OrderClass(productCode, pricePerUnit, quantity);
         nextId = accountBook.addOrder((Order) o);
-        o.setOrderId(nextId);
+        //o.setOrderId(nextId);
         // insert into db
     	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
         		+ "VALUES ("+nextId
@@ -412,7 +412,7 @@ public class EZShop implements EZShopInterface {
     	int nextId=-1;
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
         nextId = accountBook.addOrder((Order) o);
-    	o.setOrderId(nextId);
+    	//o.setOrderId(nextId);
     	// update db
     	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
         		+ "VALUES ("+nextId
@@ -1217,7 +1217,7 @@ public class EZShop implements EZShopInterface {
     	    	OrderClass o = new OrderClass(id, description, amount, date.toLocalDate(), supplier, prodCode, unitPrice, quantity, oStatus);
     	    	orders.put(id, (Order) o);
     		}
-    		//accountBook.setOrders(orders);
+    		accountBook.setOrderMap(orders);
     		// LOYALTY CARDS
     		cards = new HashMap<>();
     		sql = "select * from LoyaltyCard";
@@ -1289,7 +1289,7 @@ public class EZShop implements EZShopInterface {
     	    		ProductType pt = products.get(productId);
     	    		returnedProducts.put(pt, qty);
     	    	}
-    	    	//ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "RETURN", returnedProducts, s, rstatus);
+    	    	ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "RETURN", returnedProducts, s, rstatus);
     		}
     		accountBook.setReturnTransactionMap(returns);
     		
