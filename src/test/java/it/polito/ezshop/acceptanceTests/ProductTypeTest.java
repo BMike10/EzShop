@@ -41,6 +41,8 @@ public class ProductTypeTest {
 		// with spaces
 		str = " 400 638 133 3900 ";
 		assertTrue(ProductTypeClass.validateBarCode(str));
+		str = " 400 638 133 3901 ";
+		assertFalse(ProductTypeClass.validateBarCode(str));
 		assertFalse(ProductTypeClass.validateBarCode("             "));
 		// invalid 11
 		str = "4006381333";
@@ -97,8 +99,10 @@ public class ProductTypeTest {
 		assertEquals(new Integer(0), pt.getQuantity());
 		// try update with negative
 		assertFalse(pt.updateQuantity(-1));
+		assertEquals(new Integer(0), pt.getQuantity());
 		assertTrue(pt.updateQuantity(2));
 		assertTrue(pt.updateQuantity(0));
+		assertEquals(new Integer(2), pt.getQuantity());
 	}
 	
 	@Test
@@ -113,15 +117,17 @@ public class ProductTypeTest {
 			pt.setProductDescription("");
 			fail();
 		}catch(Exception e) {}
+		assertEquals("null", pt.getProductDescription());
 		try {
 			pt.setProductDescription(null);
 			fail();
 		}catch(Exception e) {}
+		assertEquals("null", pt.getProductDescription());
 		// valid description
 		try {
 			pt.setProductDescription("prova");			
 		}catch(Exception e) {fail();}
-		
+		assertEquals("prova", pt.getProductDescription());		
 	}
 	
 	@Test

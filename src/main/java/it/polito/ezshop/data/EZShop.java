@@ -20,14 +20,14 @@ import java.util.Map;
 
 public class EZShop implements EZShopInterface {
 	private static Connection conn = null;
-	private Map<Integer, ProductType> products;
-	private Map<Integer, User> users;
-	private Map<Integer, Customer> customers;
-    private Map<String, LoyaltyCard> cards;
-    private Map<LoyaltyCard,Customer> attachedCards;
+	private Map<Integer, ProductType> products = new HashMap<>();
+	private Map<Integer, User> users = new HashMap<>();
+	private Map<Integer, Customer> customers = new HashMap<>();
+    private Map<String, LoyaltyCard> cards = new HashMap<>();
+    private Map<LoyaltyCard,Customer> attachedCards = new HashMap<>();
 	private User currentUser;
 	private AccountBookClass accountBook = new AccountBookClass(0);
-	private Map<String,Double> CreditCardsMap;
+	private Map<String,Double> CreditCardsMap = new HashMap<>();
 	
     @Override
     public void reset() {
@@ -1126,14 +1126,14 @@ public class EZShop implements EZShopInterface {
             createTables();
             System.out.println("Connection to SQLite has been established.");
             Statement stmt = conn.createStatement();
-            /*String insert = "INSERT INTO USER(id, username, password, role) values (2, \"dfjkskdkj\", \"fkdjkdfjkda\", 1)";
+            String insert = "INSERT INTO USER(id, username, password, role) values (1, \"admin\", \"admin\", 2)";
             stmt.execute(insert);
             String query = "SELECT * FROM USER";
             
             ResultSet result = stmt.executeQuery(query);
             while(result.next()) {
             	System.out.println(result.getString("username"));
-            }*/
+            }
             
             // read all data
             // USER 
@@ -1142,8 +1142,7 @@ public class EZShop implements EZShopInterface {
             users = new HashMap<>();
             while(rs.next()) {
             	int id = rs.getInt("id");
-            	// TODO complete user add
-            	//users.put(id,  new UserClass(id, ...));
+            	users.put(id,  new UserClass(id, rs.getString("username"), rs.getString("password"), RoleEnum.values()[rs.getInt("role")]));
             }
             // PRODUCT TYPES
             products = new HashMap<>();
@@ -1184,14 +1183,13 @@ public class EZShop implements EZShopInterface {
     		}
     		//accountBook.setOrders(orders);
     		// LOYALTY CARDS
-    		//cards = new HashMap<>();
+    		cards = new HashMap<>();
     		sql = "select * from LoyaltyCard";
     		rs = stmt.executeQuery(sql);
     		while(rs.next()) {
     	    	String number = rs.getString("number"); 
     	    	int points = rs.getInt("points");
-    	    	// TODO complete loyalty card add
-    	    	//cards.put(number, new LoyaltyCard(number, points));
+    	    	cards.put(number, new LoyaltyCardClass(number, points));
     		}
     		// CUSTOMERS
     		customers = new HashMap<>();
@@ -1201,9 +1199,10 @@ public class EZShop implements EZShopInterface {
     			int id = rs.getInt("id");
     	    	String customerName = rs.getString("customerName"); 
     	    	String cardId = rs.getString("cardId"); 
-    	    	// TODO complete customer add
-    	    	// LoyaltyCard usrCard = cards.get(cardId);
-    	    	// customers.put(id,  new Customer(id, customerName, userCard));
+    	    	LoyaltyCard usrCard = cards.get(cardId);
+    	    	CustomerClass c = new CustomerClass(id, customerName);
+    	    	c.setCustomerCard(cardId);
+    	    	customers.put(id,  c);
     		}
     		// SALE TRANSACTIONS
     		sql = "SELECT * FROM SaleTransactions";
