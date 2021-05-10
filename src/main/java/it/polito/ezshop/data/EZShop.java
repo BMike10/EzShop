@@ -30,7 +30,29 @@ public class EZShop implements EZShopInterface {
 	
     @Override
     public void reset() {
-
+    	try {
+    	if(conn == null) {
+    		final String url = "jdbc:sqlite:db/ezshop.db";
+            // create a connection to the database
+            conn = DriverManager.getConnection(url);
+            // drop all tables
+            String sqlDrop = "drop table ProductTypes;"
+            		+ "drop table SoldProducts;"
+            		+ "drop table SaleTransactions;"
+            		+ "drop table user;"
+            		+ "drop table customer;"
+            		+ "drop table loyaltyCard;"
+            		+ "drop table orders;"
+            		+ "drop table returnedProducts;"
+            		+ "drop table ReturnTransactions;";
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(sqlDrop);
+            System.out.println("All tables dropped");
+            conn.close();
+    	}
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
     }
 
     @Override
@@ -965,6 +987,7 @@ public class EZShop implements EZShopInterface {
             users = new HashMap<>();
             while(rs.next()) {
             	int id = rs.getInt("id");
+            	// TODO complete user add
             	//users.put(id,  new UserClass(id, ...));
             }
             // PRODUCT TYPES
@@ -1012,6 +1035,7 @@ public class EZShop implements EZShopInterface {
     		while(rs.next()) {
     	    	String number = rs.getString("number"); 
     	    	int points = rs.getInt("points");
+    	    	// TODO complete loyalty card add
     	    	//cards.put(number, new LoyaltyCard(number, points));
     		}
     		// CUSTOMERS
@@ -1022,6 +1046,7 @@ public class EZShop implements EZShopInterface {
     			int id = rs.getInt("id");
     	    	String customerName = rs.getString("customerName"); 
     	    	String cardId = rs.getString("cardId"); 
+    	    	// TODO complete customer add
     	    	// LoyaltyCard usrCard = cards.get(cardId);
     	    	// customers.put(id,  new Customer(id, customerName, userCard));
     		}
@@ -1031,20 +1056,52 @@ public class EZShop implements EZShopInterface {
     		HashMap<Integer, SaleTransaction> sales = new HashMap<>();
     		while(rs.next()) {
     			int id = rs.getInt("id");
-    	    	String description = rs.getString("description"); 	// TODO complete this 
+    	    	String description = rs.getString("description"); 	 
     	    	double amount = rs.getDouble("amount");
     	    	Date date = rs.getDate("date");
     	    	Time time = rs.getTime("time");
-    	    	String supplier = rs.getString("supplier");
     	    	int status = rs.getInt("status");
-    	    	int productId = rs.getInt("productId");
-    	    	double unitPrice = rs.getDouble("unitPrice");
-    	    	int quantity = rs.getInt("quantity");
-    	    	OrderStatus oStatus = OrderStatus.values()[status];
-    	    	String prodCode = products.get(productId).getBarCode();
-    	    	OrderClass o = new OrderClass(id, prodCode, unitPrice, quantity, oStatus);
-    	    	orders.put(id, (Order) o);
+    	    	//SaleTransactionClass s = new SaleTransactionClass(id, description, amount, date, time, status);
+    	    	List<TicketEntry> entries = new ArrayList<>();
+    	    	String sql2 = "select * from SoldProducts where id="+id;
+    	    	ResultSet rs1 = stmt.executeQuery(sql2);
+    	    	while(rs1.next()) {
+    	    		int productId = rs1.getInt("productId");
+    	    		int qty = rs1.getInt("quantity");
+    	    		double discount = rs1.getDouble("discountRate");
+    	    		String pCode = products.get(productId).getBarCode();
+    	    		/*TicketEntryClass te = new TicketEntryClass(pCode, qty, discount);
+    	    		entries.add(te);*/
+    	    	}
+    	    	//sales.put(id, s);
     		}
+    		accountBook.setSaleTransactionMap(sales);
+    		// RETURN TRANSACTION
+    		sql = "select * from ReturnTransactions";
+    		rs = stmt.executeQuery(sql);
+    		HashMap<Integer, ReturnTransaction> returns = new HashMap<>();
+    		while(rs.next()) {
+    			int id = rs.getInt("id");
+    	    	String description = rs.getString("description"); 	 
+    	    	double amount = rs.getDouble("amount");
+    	    	Date date = rs.getDate("date");
+    	    	int status = rs.getInt("status");
+    	    	int saleId = rs.getInt("saleId");
+    	    	ReturnStatus rstatus = ReturnStatus.values()[status];
+    	    	SaleTransaction s = accountBook.getSaleTransaction(id);
+    	    	Map<ProductType, Integer> returnedProducts = new HashMap<>();
+    	    	String getReturnedProd = "select * from ReturnedProducts where id = "+id;
+    	    	ResultSet rs1 = stmt.executeQuery(getReturnedProd);
+    	    	while(rs1.next()) {
+    	    		int productId = rs1.getInt("productId");
+    	    		int qty = rs1.getInt("quantity");
+    	    		ProductType pt = products.get(productId);
+    	    		returnedProducts.put(pt, qty);
+    	    	}
+    	    	//ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "RETURN", returnedProducts, s, rstatus);
+    		}
+    		accountBook.setReturnTransactionMap(returns);
+    		
         } catch (Exception e) {
             System.out.println(e.getMessage());
         } /*finally {
@@ -1082,10 +1139,11 @@ public class EZShop implements EZShopInterface {
     			+ "position text"
     			+ ")";
     	String soldProduct = "CREATE TABLE IF NOT EXISTS SoldProducts("
-    			+ "id INTEGER NOT NULL PRIMARY KEY,"
+    			+ "id INTEGER NOT NULL,"
     			+ "productId integer NOT NULL,"
     			+ "quantity integer NOT NULL,"
     			+ "discountRate number,"
+    			+ "PRIMARY KEY(id, productId),"
     			+ "FOREIGN KEY (productId) references ProductTypes(id))";
     	String saleTransaction = "CREATE TABLE IF NOT EXISTS SaleTransactions("
     			+ "id INTEGER NOT NULL PRIMARY KEY,"
@@ -1112,9 +1170,10 @@ public class EZShop implements EZShopInterface {
     			+ "quantity integer not null,"
     			+ "FOREIGN KEY (productId) references ProductType(id))";
     	String returnedProduct = "CREATE TABLE IF NOT EXISTS ReturnedProducts("
-    			+ "id INTEGER NOT NULL PRIMARY KEY,"
+    			+ "id INTEGER NOT NULL,"
     			+ "productId integer NOT NULL,"
     			+ "quantity integer NOT NULL,"
+    			+ "PRIMARY KEY(id, productId),"
     			+ "FOREIGN KEY (productId) references ProductTypes(id))";
     	String returnTransaction = "CREATE TABLE IF NOT EXISTS ReturnTransactions("
     			+ "id INTEGER NOT NULL PRIMARY KEY,"
