@@ -5,18 +5,19 @@ import java.util.Map;
 
 public class ReturnTransactionClass extends BalanceOperationClass implements ReturnTransaction{
 
-    private Map<Integer,ProductType> returnedProduct;
+    //Map with the barcode and quantity of product in the sale transaction
+    private Map<ProductType,Integer> returnedProduct;
     private SaleTransaction saleTransaction;
     private ReturnStatus status;
 
-    public ReturnTransactionClass(double amount, String type, Map<Integer,ProductType> returned, SaleTransaction saleT, ReturnStatus retstatus) {
+    public ReturnTransactionClass(double amount, String type, Map<ProductType,Integer> returned, SaleTransaction saleT, ReturnStatus retstatus) {
         super(amount, type);
         this.returnedProduct.putAll(returned);
         this.saleTransaction = saleT;
         this.status = retstatus;
     }
 
-    public ReturnTransactionClass(int orderId, String description, double amount, LocalDate date, String type,Map<Integer,ProductType> returned, SaleTransaction saleT, ReturnStatus retstatus) {
+    public ReturnTransactionClass(int orderId, String description, double amount, LocalDate date, String type,Map<ProductType,Integer> returned, SaleTransaction saleT, ReturnStatus retstatus) {
         super(orderId, description, amount, date, type);
         this.returnedProduct.putAll(returned);
         this.saleTransaction = saleT;
@@ -24,12 +25,22 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
     }
 
     @Override
-    public Map<Integer, ProductType> getReturnedProduct() {
+    public Integer getReturnId() {
+        return super.getBalanceId();
+    }
+
+    @Override
+    public void setReturnId(Integer balanceId) {
+        super.setBalanceId(balanceId);
+    }
+
+    @Override
+    public Map<ProductType,Integer> getReturnedProduct() {
         return returnedProduct;
     }
 
     @Override
-    public void setReturnedProduct(Map<Integer, ProductType> returnedProduct) {
+    public void setReturnedProduct(Map<ProductType,Integer> returnedProduct) {
         this.returnedProduct = returnedProduct;
     }
 

@@ -3,9 +3,14 @@ package it.polito.ezshop.data;
 import java.util.Map;
 
 public interface ReturnTransaction {
-    Map<Integer, ProductType> getReturnedProduct();
 
-    void setReturnedProduct(Map<Integer, ProductType> returnedProduct) ;
+    Integer getReturnId();
+
+    void setReturnId(Integer balanceId);
+
+    Map<ProductType, Integer> getReturnedProduct();
+
+    void setReturnedProduct(Map<ProductType,Integer> returnedProduct) ;
 
     SaleTransaction getSaleTransaction();
 
