@@ -578,9 +578,10 @@ public class EZShop implements EZShopInterface {
     @Override
     public Integer defineCustomer(String customerName) throws InvalidCustomerNameException, UnauthorizedException {
     	 if(customerName==null ||customerName.isEmpty()) throw new InvalidCustomerNameException();
-         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-    	 int id = customers.size() + 1;
+         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();        
+     	 int id = customers.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
          Customer c = new CustomerClass(id, customerName); 
+         if (customers.containsValue(customerName)) return -1;
          customers.put(id,c);
          String sql = "insert into customerTable(id, customerName, customerCard, points)"
          		+ "values("+id+","
@@ -597,14 +598,48 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard) throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException, UnauthorizedException {
-        return false;
+    	if(newCustomerName==null ||newCustomerName.isEmpty()) throw new InvalidCustomerNameException();
+    	if(newCustomerCard==null ||newCustomerCard.isEmpty()||!CustomerClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
+        if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException(); 
+        	
+        CustomerClass c = (CustomerClass) customers.get(id);       
+        String prevName= c.getCustomerName();
+        String prevCardCode= c.getCustomerCard();
+        
+        if(newCustomerCard == "")
+        {
+        //any existing card code connected to the customer will be removed  
+        	cards.remove(newCustomerCard);
+        	c.setCustomerCard("");
+        	attachedCards.values().remove(c);   
+        }
+        if(newCustomerCard == null)
+        {
+        //the card code related to the customer should not be affected from the update
+        	c.setCustomerCard(prevCardCode);
+        }
+    	c.setCustomerCard(newCustomerCard);
+    	c.setCustomerName(newCustomerName);
+        String sql = "update customerTable"
+        		+ "set "
+        		+ "customerName = "+(newCustomerName)
+        		+ "cardId = "+(newCustomerCard)
+        		+"where id = "+id;
+         try(Statement st = conn.createStatement()){
+         	st.execute(sql);
+         }catch(SQLException e) {
+         	e.printStackTrace();
+         	c.setCustomerName(prevName);
+         	c.setCustomerCard(prevCardCode);
+         	return false;
+         }   
+     	return true;
     }
 
     @Override
     public boolean deleteCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
     	if(id<=0 ||id==null) throw new InvalidCustomerIdException();
         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-
     	Customer c = customers.remove(id);
         String sql = "delete from customerTable"
         		+ " where id = "+id;
@@ -622,12 +657,8 @@ public class EZShop implements EZShopInterface {
     public Customer getCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
     	if(id<=0 ||id==null) throw new InvalidCustomerIdException();
         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-
-    	for(Customer c: customers.values()) {
-    		if(c.getId().equals(id))
-    			return c;
-    	}
-    	return null;
+        Customer c = customers.get(id);
+    	return c;
     }
 
     @Override
@@ -640,8 +671,9 @@ public class EZShop implements EZShopInterface {
     @Override
     public String createCard() throws UnauthorizedException {
         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-        String number="card"+(cards.size()+1);       
-        LoyaltyCardClass newCard = new LoyaltyCardClass(number,0);
+          //String of 10 digits      
+        LoyaltyCardClass newCard = new LoyaltyCardClass("",0);
+        String number = newCard.createCardCode(10);
         cards.put(number,newCard);        
         String sql = "insert into loyaltyCard(number,points)"
         		+ "values("+number+","
@@ -666,6 +698,8 @@ public class EZShop implements EZShopInterface {
     	 Customer customer = customers.get(customerId);
     	 if(customer.getId() == null || attachedCards.containsKey(customerCard) ) return false;    	     	 
     	 attachedCards.put(card,customer);  
+    	 customer.setCustomerCard(customerCard);
+    	 
     	 //creare tabella?
     	 return true;
     	
@@ -675,7 +709,7 @@ public class EZShop implements EZShopInterface {
     public boolean modifyPointsOnCard(String customerCard, int pointsToBeAdded) throws InvalidCustomerCardException, UnauthorizedException {
     	  if(currentUser == null ||currentUser.getRole().isEmpty())
     	    	throw new UnauthorizedException();
-    	  //invalidformat? non ho un formato predefinito però bo
+    	  if(!CustomerClass.checkCardCode(customerCard)) throw new InvalidCustomerCardException();
     LoyaltyCardClass card= (LoyaltyCardClass) attachedCards.get(customerCard);
     if(card == null) throw new InvalidCustomerCardException();
 	boolean updated = card.updatePoints(pointsToBeAdded);
