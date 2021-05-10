@@ -15,14 +15,8 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 	private OrderStatus status;
 	
 	
-	public OrderClass(int orderId, String productCode, double pricePerUnit, int quantity, OrderStatus status) {
-		this(orderId, (String)null, pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, status);
-	}
 	public OrderClass(String productCode, double pricePerUnit, int quantity, OrderStatus status) {
 		this(-1, (String)null, pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, status);
-	}
-	public OrderClass(int orderId, String productCode, double pricePerUnit, int quantity) {
-		this(orderId, (String)null, pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, OrderStatus.ISSUED);
 	}
 	public OrderClass(String productCode, double pricePerUnit, int quantity) {
 		this(-1, (String)null, pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, OrderStatus.ISSUED);

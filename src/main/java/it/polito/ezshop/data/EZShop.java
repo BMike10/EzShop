@@ -411,7 +411,7 @@ public class EZShop implements EZShopInterface {
         // add order to account book
     	int nextId=-1;
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
-        //nextId = accountBook.addOrder((Order) o);
+        nextId = accountBook.addOrder((Order) o);
     	o.setOrderId(nextId);
     	// update db
     	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
@@ -456,7 +456,7 @@ public class EZShop implements EZShopInterface {
     		throw new InvalidOrderIdException();
     	
     	Order o = null;
-    	// o = accountBook.getOrder(orderId);
+    	o = accountBook.getOrder(orderId);
     	if(o == null)
     		throw new InvalidOrderIdException();
     	
@@ -1127,7 +1127,9 @@ public class EZShop implements EZShopInterface {
             System.out.println("Connection to SQLite has been established.");
             Statement stmt = conn.createStatement();
             String insert = "INSERT INTO USER(id, username, password, role) values (1, \"admin\", \"admin\", 2)";
+            try {
             stmt.execute(insert);
+            }catch(Exception e) {}
             String query = "SELECT * FROM USER";
             
             ResultSet result = stmt.executeQuery(query);
@@ -1227,6 +1229,7 @@ public class EZShop implements EZShopInterface {
     	    		/*TicketEntryClass te = new TicketEntryClass(pCode, qty, discount);
     	    		entries.add(te);*/
     	    	}
+    	    	// s.setEntries(entries);
     	    	//sales.put(id, s);
     		}
     		accountBook.setSaleTransactionMap(sales);
