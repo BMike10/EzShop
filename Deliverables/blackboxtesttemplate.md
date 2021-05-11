@@ -198,3 +198,170 @@ In the table, report the description of the black box test case and the correspo
 | valid| yes| Valid | T3("1_a_1") |testSetPosition|
 
 
+## Class AccountBookClass
+
+### Method removeSaleTransaction
+
+**Criteria for method removeSaleTransaction:**
+	
+
+- Signature of returnTransactionId
+- Presence of not numeric characters in Id
+- Validity of returnTransactionId
+- Existence of SaleTransaction object
+
+**Predicates for method removeSaleTransaction:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of returnTransactionId | >=0 |
+|             | <0 |
+| Presence of not numeric characters in returnTransactionId         | yes          |
+|             |     no         |
+| Validity of returnTransactionId| valid|
+|               | null|
+| Existence of SaleTransaction object | Yes |
+|                                     |  No |
+
+
+**Boundaries for method removeSaleTransaction**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of returnTransactionId  |    -1, 0, +1       |
+
+
+ **Combination of predicates for method removeSaleTransaction**
+
+|   Validity of returnTransactionId | Signature of returnTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+| --------- | --------- | ------- |--------| ------ | -------- |
+|   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  |
+|   valid     |  <0       |   *   |    Invalid    |    T2(-6) -> InvalidTransactionIdException      |  |
+|   "     |  >=0       |  no      | Invalid    |   removeSaleTransaction(100); removeSaleTransaction(100) ->  InvalidTransactionIdException      |  |
+|   "     |  "       |  yes   |   Valid    | removeSaleTransaction(100);  ->  SaleTransaction removed succesfully         |  |
+
+### Method updateBalance
+
+**Criteria for method updateBalance:**
+	
+- Signature of amount
+
+**Predicates for method updateBalance:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of returnTransactionId | >=0 |
+|             | <0 |
+
+
+
+**Boundaries for method updateBalance**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of returnTransactionId  |    -1, +500       |
+
+
+ **Combination of predicates for method updateBalance**
+
+|   Validity of updateBalance | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+| --------- | --------- | --------| --------| 
+
+
+## Class BalanceOperation
+
+### setBalanceId
+**Criteria for method setBalanceId:**
+- Signature of BalanceId
+- Validity of BalanceId
+
+**Predicates for method setBalanceId:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of BalanceId | <0 |
+| | >= 0|
+| Validity of BalanceId | null|
+|   | valid|
+
+
+**Boundaries for method setBalanceId**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+|  |  |
+
+**Combination of predicates for method setBalanceId**
+
+| Signature of BalanceId | Validity of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| ----------- | ---|------------- | -------- | ------- |
+| <0  |  *  | Invalid | T1(-1)  |     |
+| * |  null  | Invalid | T2(null)   |   |
+| >0 | valid  | Valid   | T3(10)         ||
+
+### setType
+**Criteria for method setType:**
+- Validity of type
+- Type allowed
+
+
+**Predicates for method setType:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Validity of type | null |
+| | valid|
+| Type allowed | false |
+|   | true |
+| String contains only characters  |  false  |
+|   |  true  |
+
+
+**Boundaries for method setType**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Type allowed | "nothing","credit" |
+| String contains only characters | "hi","hi67",'debit' |
+
+**Combination of predicates for method setType**
+
+| Validity of type | Type allowed | String contains only character | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| ----------- | --- | ------ |------------- | -------- | ------- |
+| null  |  *  |  *  | Invalid | T1(null; error)  |     |
+| valid | no  |  *  | Valid   | T2("cia90"; no output)   |   |
+|       |       |       |       | T2b(nothing)  |   |
+| *     | yes |  yes   | Valid   | T3("Credit")         |   |
+
+## Class ReturnTransactionClass
+
+### setStatus
+**Criteria for method setStatus:**
+- Validity of status
+- Status allowed
+- String contains only characters
+
+**Predicates for method setStatus:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Validity of type | null |
+| | valid|
+| Type allowed | false |
+|   | true |
+| String contains only characters  |  false  |
+|   |  true  |
+
+
+**Boundaries for method setStatus**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Type allowed | "finish","payed" |
+| String contains only characters | "closed50",'closed' |
+
+**Combination of predicates for method setStatus**
+
+| Validity of type | Type allowed | String contains only character | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| ----------- | --- | ------ |------------- | -------- | ------- |
+| null  |  *  |  *  | Invalid | T1(null; error)  |     |
+| valid | no  |  *  | Valid   | T2("pa1ed"; no output)   |   |
+|       |       |       |       | T2b(closed50)  |   |
+| *     | yes |  yes   | Valid   | T3b("closed")         |   |
