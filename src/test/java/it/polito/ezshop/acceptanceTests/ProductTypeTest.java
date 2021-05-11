@@ -53,35 +53,22 @@ public class ProductTypeTest {
 	}
 	@Test
 	public void testProductTypeConstructor() {
-		ProductTypeClass pt;
 		// invalid description
-		try {
-			pt = new ProductTypeClass(1, null, "4006381333900", 1.0, null);
-			fail();
-		}catch(InvalidProductDescriptionException e1) {}
-		catch(Exception e) {fail();}
+		assertThrows(InvalidProductDescriptionException.class, ()->{
+			ProductTypeClass pt = new ProductTypeClass(1, null, "4006381333900", 1.0, null);});
 		// invalid id
-		try {
-			pt = new ProductTypeClass(0, "null", "4006381333900", 1.0, null);
-			fail();
-			}
-		catch(Exception e) {}
+		assertThrows(Exception.class, ()->{
+			ProductTypeClass pt = new ProductTypeClass(0, "null", "4006381333900", 1.0, null);});
 		// invalid product code
-		try {
-			pt = new ProductTypeClass(1, "null", "40063813339", 1.0, null);
-			fail();
-			}catch(InvalidProductCodeException e) {}
-		catch(Exception e) {fail();}
+		assertThrows(InvalidProductCodeException.class, ()->{
+			ProductTypeClass pt = new ProductTypeClass(1, "null", "40063813339", 1.0, null);});
 		
 		// invalid price
-		try {
-			pt = new ProductTypeClass(1, "null", "4006381333900", -0.0, null);
-			fail();
-			}catch(InvalidPricePerUnitException e) {}
-		catch(Exception e) {fail();}
+		assertThrows(InvalidPricePerUnitException.class, ()->{
+			ProductTypeClass pt = new ProductTypeClass(1, "null", "4006381333900", -0.0, null);});
 		// valid
 		try {
-			pt = new ProductTypeClass(1, "null", "4006381333900", 2.0, "notes");
+			ProductTypeClass pt = new ProductTypeClass(1, "null", "4006381333900", 2.0, "notes");
 			assertEquals("4006381333900", pt.getBarCode());
 			assertEquals(new Integer(1), pt.getId());
 			assertEquals("notes", pt.getNote());
@@ -106,22 +93,17 @@ public class ProductTypeTest {
 	}
 	
 	@Test
-	public void testDescription() {
-		ProductTypeClass pt=null;
-		try {
-			pt = new ProductTypeClass(1, "null", "4006381333900", 2.0, "notes");
-		} catch (Exception e1) {}
+	public void testDescription() throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
+		final ProductTypeClass pt = new ProductTypeClass(1, "null", "4006381333900", 2.0, "notes");
+		
 		assertEquals("null", pt.getProductDescription());
 		// invalid new description
-		try {
-			pt.setProductDescription("");
-			fail();
-		}catch(Exception e) {}
+		assertThrows(Exception.class, ()->{
+			pt.setProductDescription("");});
+		
 		assertEquals("null", pt.getProductDescription());
-		try {
-			pt.setProductDescription(null);
-			fail();
-		}catch(Exception e) {}
+		assertThrows(Exception.class, ()->{
+			pt.setProductDescription(null);});
 		assertEquals("null", pt.getProductDescription());
 		// valid description
 		try {
@@ -135,7 +117,7 @@ public class ProductTypeTest {
 		ProductTypeClass pt=null;
 		try {
 			pt = new ProductTypeClass(1, "null", "4006381333900", 2.0, "notes");
-		} catch (Exception e1) {}
+		} catch (Exception e1) {fail();}
 		// neagtive 
 		try {
 			pt.setId(-1);
@@ -159,7 +141,7 @@ public class ProductTypeTest {
 		ProductTypeClass pt=null;
 		try {
 			pt = new ProductTypeClass(1, "null", "4006381333900", 2.0, "notes");
-		} catch (Exception e1) {}
+		} catch (Exception e1) {fail();}
 
 		pt.setLocation("");
 		assertEquals("", pt.getLocation());
@@ -167,14 +149,14 @@ public class ProductTypeTest {
 		pt.setLocation((String)null);
 		assertEquals("", pt.getLocation());
 		//valid
-		pt.setLocation("1_a_1");
-		assertEquals("1_a_1", pt.getLocation());
+		pt.setLocation("1-a-1");
+		assertEquals("1-a-1", pt.getLocation());
 		
 		// with object position
 		pt.setLocation((Position)null);
 		assertEquals("", pt.getLocation());
-		Position p = new Position("1_a_2");
+		Position p = new Position("1-a-2");
 		pt.setLocation(p);
-		assertEquals("1_a_2", pt.getLocation());
+		assertEquals("1-a-2", pt.getLocation());
 	}
 }

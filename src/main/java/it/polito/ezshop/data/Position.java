@@ -14,7 +14,7 @@ public class Position {
 			levelId = -1;
 			return;
 		}
-		String[] fields = position.split("_");
+		String[] fields = position.split("-");
 		if(fields.length != 3) {
 			throw new RuntimeException(new InvalidLocationException("Invalid position string: " + position));
 		}
@@ -41,7 +41,7 @@ public class Position {
 	public String toString() {
 		if(aisleId<=0 || rackId==null || rackId.equals("") || levelId <=0)
 			return "";
-		return ""+aisleId + "_" + rackId + "_" + levelId;
+		return ""+aisleId + "-" + rackId + "-" + levelId;
 	}
 
 	@Override
