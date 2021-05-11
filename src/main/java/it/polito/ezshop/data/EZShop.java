@@ -730,6 +730,7 @@ public class EZShop implements EZShopInterface {
     return true;
     }
 
+    // PERCHÈ HAI CAMBIATO I PARAMETRI DEL METODO???
     public Integer startSaleTransaction(Time time, String paymentType, LoyaltyCard loyaltyCard,
 			Integer ticketNumber) throws UnauthorizedException {
     	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("ADMIN"))
@@ -739,7 +740,11 @@ public class EZShop implements EZShopInterface {
     	st.setTicketNumber(i);
     	return i;
     }
-
+	@Override
+	public Integer startSaleTransaction() throws UnauthorizedException {
+		// TODO Auto-generated method stub
+		return null;
+	}
     @Override
     public boolean addProductToSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
     	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("ADMIN"))
@@ -871,7 +876,7 @@ public class EZShop implements EZShopInterface {
     	if(!st.getProductsEntries().containsKey(productCode)) throw new InvalidProductCodeException();
     	int q=st.getProductsEntries().get(productCode).getAmount();
     	if(q<amount) throw new InvalidQuantityException();
-    	rt.addReturnProduct(this.products.get(productCode), amount);
+    	((ReturnTransactionClass)rt).addReturnProduct(this.products.get(productCode), amount);
     	return true;
     }
 
@@ -1367,9 +1372,9 @@ public class EZShop implements EZShopInterface {
     	    		int productId = rs1.getInt("productId");
     	    		int qty = rs1.getInt("quantity");
     	    		double discount = rs1.getDouble("discountRate");
-    	    		String pCode = products.get(productId).getBarCode();
-    	    		/*TicketEntryClass te = new TicketEntryClass(pCode, qty, discount);
-    	    		entries.add(te);*/
+    	    		ProductType pt = products.get(productId);
+    	    		TicketEntryClass te = new TicketEntryClass(pt.getBarCode(), pt.getProductDescription(), qty, discount, id);
+    	    		entries.add(te);
     	    	}
     	    	// s.setEntries(entries);
     	    	//sales.put(id, s);
@@ -1526,4 +1531,5 @@ public class EZShop implements EZShopInterface {
   	      e.printStackTrace();
   	    }
     }
+
 }
