@@ -29,6 +29,9 @@ public class EZShop implements EZShopInterface {
 	private final AccountBookClass accountBook = new AccountBookClass(0);
 	private Map<String,Double> CreditCardsMap = new HashMap<>();
 	
+	public EZShop() {
+		//connect();
+	}
     @Override
     public void reset() {
     	try {
@@ -63,11 +66,11 @@ public class EZShop implements EZShopInterface {
     	 int id = users.size() + 1;
          User user = new UserClass(id, username, password, RoleEnum.valueOf(role));  
          users.put(id,user);
-         String sql = "insert into tableUser( id, username, password, role)"
+         String sql = "insert into User( id, username, password, role)"
          		+ "values("+id+","
          		+ "'"+username+"',"
          		+ "'"+password+"',"
-         		+"'"+role+")";
+         		+ RoleEnum.valueOf(role).ordinal()+")";
          try(Statement st = conn.createStatement()){
          	st.execute(sql);
          }catch(SQLException e) {
@@ -81,9 +84,9 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean deleteUser(Integer id) throws InvalidUserIdException, UnauthorizedException {   	
     	if(id<=0 ||id==null) throw new InvalidUserIdException();
-        if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException();       
+        if(currentUser==null || !currentUser.getRole().equals("Administrator")) throw new UnauthorizedException();       
     	User u = users.remove(id);
-        String sql = "delete from tableUser"
+        String sql = "delete from User"
         		+ " where id = "+id;
         try(Statement st = conn.createStatement()){
         	st.execute(sql);
@@ -97,7 +100,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<User> getAllUsers() throws UnauthorizedException {
-    	if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException(); 
+    	if(currentUser==null || !currentUser.getRole().equals("Administrator")) throw new UnauthorizedException(); 
     	List<User> u = new ArrayList<>(users.values());
 		return u;
     }
@@ -105,7 +108,7 @@ public class EZShop implements EZShopInterface {
     @Override
     public User getUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
     	if(id<=0 ||id==null) throw new InvalidUserIdException();
-    	if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException(); 
+    	if(currentUser==null || !currentUser.getRole().equals("Administrator")) throw new UnauthorizedException(); 
     	for(User user: users.values()) {
     		if(user.getId().equals(id))
     			return user;
@@ -117,7 +120,7 @@ public class EZShop implements EZShopInterface {
     
     @Override
     public boolean updateUserRights(Integer id, String role) throws InvalidUserIdException, InvalidRoleException, UnauthorizedException {      
-    	if(currentUser==null || !currentUser.getRole().equals("ADMIN")) throw new UnauthorizedException(); 
+    	if(currentUser==null || !currentUser.getRole().equals("Administrator")) throw new UnauthorizedException(); 
     	if(id==null || id <= 0) throw new InvalidUserIdException();
        	if(role==null || role.isEmpty()) throw new InvalidRoleException();
        	
@@ -128,10 +131,10 @@ public class EZShop implements EZShopInterface {
         		//old role
         	final String tmp = user.getRole(); 
         	user.setRole(role);
-    		String sql = "update tableUser"
-         		+ "set "
-         		+ "role = '"+role+"',"+
-         		"where id = "+id;
+    		String sql = "update User"
+         		+ " set "
+         		+ "role = "+RoleEnum.valueOf(role).ordinal()+
+         		" where id = "+id;
          try(Statement st = conn.createStatement()){
          	st.execute(sql);
          }catch(SQLException e) {
@@ -147,11 +150,13 @@ public class EZShop implements EZShopInterface {
     public User login(String username, String password) throws InvalidUsernameException, InvalidPasswordException {
     	if(username==null||username.isEmpty()) throw new InvalidUsernameException();
     	if(password==null||password.isEmpty()) throw new InvalidPasswordException(); 
+    	connect();
     	for(User user: users.values()) {
-    		if(user.getUsername().equals(username) && user.getPassword().equals(password))
-    		  user=currentUser;
-    	      connect();
-    			return user;   		    
+    		if(user.getUsername().equals(username) && user.getPassword().equals(password)) {
+    		  //user=currentUser;
+    	      currentUser = user;
+    	      return currentUser;   		 
+    		}
     	}
     	//wrong credentials
     	return null;
@@ -162,6 +167,7 @@ public class EZShop implements EZShopInterface {
     	if(currentUser==null) {
     		return false;
     	}
+    	currentUser = null;
         return true;
     }
 
@@ -175,12 +181,11 @@ public class EZShop implements EZShopInterface {
         ProductType pt = new ProductTypeClass(nextId, description, productCode, pricePerUnit, note);
         products.put(nextId,  pt);
         // add to db
-        String sql = "insert into ProductsTypes( id, barcode, description, sellPrice, quantity, discountRate, notes, position)"
+        String sql = "insert into ProductTypes( id, barcode, description, sellPrice, quantity, notes, position)"
         		+ "values("+nextId+","
         		+ "'"+productCode+"',"
         		+ "'"+description+"',"
         		+ pricePerUnit+","
-        		+"0,"
         		+"0,"
         		+(note==null?"NULL,":"'"+note+"',")+
         		"NULL)";
@@ -207,7 +212,7 @@ public class EZShop implements EZShopInterface {
         ProductType pt = new ProductTypeClass(id, newDescription, newCode, newPrice, newNote);
         ProductType tmp = products.put(id, pt);
         // add to db
-        String sql = "update ProductsTypes"
+        String sql = "update ProductTypes"
         		+ "set "
         		+ "barcode = '"+newCode+"',"
         		+ "description = '"+newDescription+"',"
@@ -301,10 +306,10 @@ public class EZShop implements EZShopInterface {
     	boolean updated = pt.updateQuantity(toBeAdded);
     	if(!updated)
     		return false;
-    	String sql = "update ProductsTypes"
+    	String sql = "update ProductTypes "
         		+ "set "
         		+ "quantity = "+(pt.getQuantity())
-        		+"where id = "+productId;
+        		+" where id = "+productId;
         try(Statement st = conn.createStatement()){
         	st.execute(sql);
         }catch(SQLException e) {
@@ -584,7 +589,7 @@ public class EZShop implements EZShopInterface {
          Customer c = new CustomerClass(id, customerName); 
          if (customers.containsValue(customerName)) return -1;
          customers.put(id,c);
-         String sql = "insert into customerTable(id, customerName, customerCard, points)"
+         String sql = "insert into Customer(id, customerName, customerCard, points)"
          		+ "values("+id+","
          		+"'"+customerName+")";
          try(Statement st = conn.createStatement()){
@@ -602,7 +607,11 @@ public class EZShop implements EZShopInterface {
     	if(newCustomerName==null ||newCustomerName.isEmpty()) throw new InvalidCustomerNameException();
     	if(newCustomerCard==null ||newCustomerCard.isEmpty()||!CustomerClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException(); 
-        	
+        /*if(newCustomerCard == null)
+        {
+        //the card code related to the customer should not be affected from the update
+        	return false;
+        }*/	
         CustomerClass c = (CustomerClass) customers.get(id);       
         String prevName= c.getCustomerName();
         String prevCardCode= c.getCustomerCard();
@@ -614,14 +623,10 @@ public class EZShop implements EZShopInterface {
         	c.setCustomerCard("");
         	attachedCards.values().remove(c);   
         }
-        if(newCustomerCard == null)
-        {
-        //the card code related to the customer should not be affected from the update
-        	c.setCustomerCard(prevCardCode);
-        }
+        
     	c.setCustomerCard(newCustomerCard);
     	c.setCustomerName(newCustomerName);
-        String sql = "update customerTable"
+        String sql = "update Customer"
         		+ "set "
         		+ "customerName = "+(newCustomerName)
         		+ "cardId = "+(newCustomerCard)
@@ -642,7 +647,7 @@ public class EZShop implements EZShopInterface {
     	if(id<=0 ||id==null) throw new InvalidCustomerIdException();
         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
     	Customer c = customers.remove(id);
-        String sql = "delete from customerTable"
+        String sql = "delete from Customer"
         		+ " where id = "+id;
         try(Statement st = conn.createStatement()){
         	st.execute(sql);
@@ -733,7 +738,7 @@ public class EZShop implements EZShopInterface {
     // PERCHÈ HAI CAMBIATO I PARAMETRI DEL METODO???
     public Integer startSaleTransaction(Time time, String paymentType, LoyaltyCard loyaltyCard,
 			Integer ticketNumber) throws UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("ADMIN"))
+    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("Administrator"))
         	throw new UnauthorizedException();
     	SaleTransaction st=new SaleTransactionClass(time, paymentType, loyaltyCard, ticketNumber);
     	int i=accountBook.addSaleTransaction(st);
@@ -747,7 +752,7 @@ public class EZShop implements EZShopInterface {
 	}
     @Override
     public boolean addProductToSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("ADMIN"))
+    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("Administrator"))
         	throw new UnauthorizedException();
     	SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
     	if (st== null) {
@@ -764,7 +769,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteProductFromSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("ADMIN"))
+    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("Administrator"))
         	throw new UnauthorizedException();
     	SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
     	if (st== null) {
@@ -780,7 +785,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean applyDiscountRateToProduct(Integer transactionId, String productCode, double discountRate) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidDiscountRateException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("ADMIN"))
+    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("Administrator"))
         	throw new UnauthorizedException();
     	SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
     	if (st== null || st.getStatus()!=SaleStatus.STARTED ) {
@@ -795,7 +800,7 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean applyDiscountRateToSale(Integer transactionId, double discountRate) throws InvalidTransactionIdException, InvalidDiscountRateException, UnauthorizedException {
         
-    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER") && !currentUser.getRole().equals("ADMIN")))
+    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER") && !currentUser.getRole().equals("Administrator")))
         	throw new UnauthorizedException();
     	SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
     	if (st == null) {
@@ -808,7 +813,7 @@ public class EZShop implements EZShopInterface {
     @Override
     public int computePointsForSale(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
         if(accountBook.getSaleTransaction(transactionId)==null) throw new InvalidTransactionIdException();
-        if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER") && !currentUser.getRole().equals("ADMIN")))
+        if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER") && !currentUser.getRole().equals("Administrator")))
         	throw new UnauthorizedException();
         return (int)accountBook.getSaleTransaction(transactionId).getPrice()/10;
     }
@@ -857,7 +862,7 @@ public class EZShop implements EZShopInterface {
     //DA RIVEDERE
     @Override
     public Integer startReturnTransaction(Integer saleNumber) throws /*InvalidTicketNumberException,*/InvalidTransactionIdException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("ADMIN"))
+    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("Administrator"))
         	throw new UnauthorizedException();
     	SaleTransaction st=accountBook.getSaleTransaction(saleNumber);
     	if(st==null) throw new InvalidTransactionIdException();
@@ -868,7 +873,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean returnProduct(Integer returnId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("ADMIN"))
+    	if(currentUser==null || (!currentUser.getRole().equals("CASHIER") && !currentUser.getRole().equals("SHOP MANAGER")) && !currentUser.getRole().equals("Administrator"))
         	throw new UnauthorizedException();
     	ReturnTransaction rt=accountBook.getReturnTransaction(returnId);
     	if(rt==null) throw new InvalidTransactionIdException();
@@ -1236,7 +1241,7 @@ public class EZShop implements EZShopInterface {
 		//if together are null -> no conditions(all balance operations)
 
 		//Download a list of Balance Operations
-		try(Statement stm = conn.createStatement()){
+		/*try(Statement stm = conn.createStatement()){
 			String sql = "SELECT * FROM BalanceOperation" + sql2;
 			ResultSet rs = stm.executeQuery(sql);
 			while(rs.next()) {
@@ -1250,7 +1255,7 @@ public class EZShop implements EZShopInterface {
 			}
 		}catch(SQLException e) {
 			e.printStackTrace();
-		}
+		}*/
 
 		return balanceOperations;
 	}
@@ -1263,7 +1268,7 @@ public class EZShop implements EZShopInterface {
 	}
 
 
-	public void connect() {
+	public static void connect() {
         
         try {
             // db parameters
@@ -1273,7 +1278,7 @@ public class EZShop implements EZShopInterface {
             createTables();
             System.out.println("Connection to SQLite has been established.");
             Statement stmt = conn.createStatement();
-            String insert = "INSERT INTO USER(id, username, password, role) values (1, \"admin\", \"admin\", 2)";
+            String insert = "INSERT INTO USER(id, username, password, role) values (2, \"admin2\", \"admin\", 0)";
             try {
             stmt.execute(insert);
             }catch(Exception e) {}
