@@ -924,7 +924,10 @@ public class EZShop implements EZShopInterface {
     @Override
     public double receiveCashPayment(Integer ticketNumber, double cash) throws InvalidTransactionIdException, InvalidPaymentException, UnauthorizedException {
 
-		/*
+    	//LOGIN
+		if(currentUser==null || currentUser.getRole().equals("Cashier"))
+			throw new UnauthorizedException();
+
         if(ticketNumber == null || ticketNumber <= 0)
             throw new InvalidTransactionIdException();
 
@@ -938,21 +941,23 @@ public class EZShop implements EZShopInterface {
         if (change<0)
             //Cash is not enough
             return -1;
-
+/*
         //Payment ok(Change<=0) -> Update map and db(STATUS)
         //Update Map
-        saleTransaction.setStatus("PAYED");;
+        //saleTransaction.setStatus("PAYED");;
         //Update DB
-        String sql = "UPDATE SaleTransaction SET status = PAYED WHERE id = "+saleTransaction.getId();
+        //String sql = "UPDATE SaleTransaction SET status = PAYED WHERE id = "+saleTransaction.getId();
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch (SQLException e) {
             e.printStackTrace();
             return -1;
         }
+
+ */
         //Update map and db(Balance)
         recordBalanceUpdate(saleAmount);
-*/
+
 		return 0;
 
 	}
@@ -960,7 +965,11 @@ public class EZShop implements EZShopInterface {
 
 	@Override
     public boolean receiveCreditCardPayment(Integer ticketNumber, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
-		/*
+
+		//LOGIN
+		if(currentUser==null || currentUser.getRole().equals("Cashier"))
+			throw new UnauthorizedException();
+
     	double userCash = 0;
 
         if(ticketNumber == null || ticketNumber <= 0)
@@ -1005,7 +1014,7 @@ public class EZShop implements EZShopInterface {
 		double saleAmount = sale.getPrice();
         if(userCash < saleAmount)
             throw new InvalidCreditCardException();
-
+/*
         //Payment completed -> Update map and db(STATUS)
         //Update Map
         sale.setStatus("CLOSED");;
@@ -1026,14 +1035,15 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public double returnCashPayment(Integer returnId) throws InvalidTransactionIdException, UnauthorizedException {
-        /*
+
+		//LOGIN
+		if(currentUser==null || currentUser.getRole().equals("Cashier"))
+			throw new UnauthorizedException();
+
         if(returnId == null || returnId <= 0)
             throw new InvalidTransactionIdException();
 
-
         ReturnTransaction returnTransaction =  accountBook.getReturnTransaction(returnId);
-        //If transaction does not exist return -1?
-
         String status= returnTransaction.getStatus();
 
         if (!status.equals("CLOSED"))
@@ -1044,7 +1054,7 @@ public class EZShop implements EZShopInterface {
         //Update Map
         returnTransaction.setStatus("PAYED");;
         //Update DB
-        String sql = "UPDATE returnTransaction SET status = PAYED WHERE id = "+returnTransaction.getId();
+        String sql = "UPDATE returnTransaction SET status = PAYED WHERE id = "+returnTransaction.getReturnId();
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch (SQLException e) {
@@ -1052,9 +1062,9 @@ public class EZShop implements EZShopInterface {
             return -1;
         }
 
-        //Update map and db(Balance)
-        recordBalanceUpdate(-(returnTransaction.getAmount()));
-        */
+        //Update map and db(Balance) -> where is amount return???
+        //recordBalanceUpdate(-(returnTransaction.getAmount()));
+
 
 
 		return 0;
@@ -1063,7 +1073,10 @@ public class EZShop implements EZShopInterface {
     @Override
     public double returnCreditCardPayment(Integer returnId, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
 
-		/*
+		//LOGIN
+		if(currentUser==null || currentUser.getRole().equals("Cashier"))
+			throw new UnauthorizedException();
+
     	double newCredit = 0;
 
         if(returnId == null || returnId <= 0)
@@ -1103,8 +1116,8 @@ public class EZShop implements EZShopInterface {
 		}
 
 		//Update Map with new credit -> is return amount only the return part on total saleAmount?
-		newCredit = CreditCardsMap.get(creditCard) + returnTransaction.getAmount();
-		CreditCardsMap.put(creditCard, newCredit);
+		//newCredit = CreditCardsMap.get(creditCard) + returnTransaction.getAmount();
+		//CreditCardsMap.put(creditCard, newCredit);
 
         String status= returnTransaction.getStatus();
 
@@ -1116,7 +1129,7 @@ public class EZShop implements EZShopInterface {
         //Update Map
         returnTransaction.setStatus("PAYED");;
         //Update DB
-		String sql = "UPDATE ReturnTransaction SET status ="+ReturnStatus.PAYED.ordinal() +" WHERE id = "+returnTransaction.getId();;
+		String sql = "UPDATE ReturnTransaction SET status ="+ReturnStatus.PAYED.ordinal() +" WHERE id = "+returnTransaction.getReturnId();;
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch (SQLException e) {
@@ -1125,8 +1138,8 @@ public class EZShop implements EZShopInterface {
         }
 
         //Update map and db(Balance)
-        recordBalanceUpdate(-(returnTransaction.getAmount()));
-		*/
+        //recordBalanceUpdate(-(returnTransaction.getAmount()));
+
     	return 0;
     }
 
@@ -1134,6 +1147,9 @@ public class EZShop implements EZShopInterface {
     public boolean recordBalanceUpdate(double toBeAdded) throws UnauthorizedException {
 
 		//LOGIN
+		if(currentUser==null || currentUser.getRole().equals("Administrator"))
+			throw new UnauthorizedException();
+
 		String newType;
 		double currentBalance = accountBook.getBalance();
 		double newBalance = currentBalance + toBeAdded;
@@ -1220,7 +1236,9 @@ public class EZShop implements EZShopInterface {
 
 	@Override
 	public List<BalanceOperation> getCreditsAndDebits(LocalDate from, LocalDate to) throws UnauthorizedException {
-		//LOGIN?
+		//LOGIN
+		if(currentUser==null || currentUser.getRole().equals("Administrator"))
+			throw new UnauthorizedException();
 
 		LocalDate newFrom = from,newTo = to;
 
