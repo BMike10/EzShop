@@ -290,7 +290,7 @@ public class Connect {
         return true;
     }
 
-    //LOYALTY CARD
+    //LOYALTY CARD(COMPLETED)
     public static Map<String,LoyaltyCard> getLoyaltyCard(){
 
         Map<String,LoyaltyCard> cards = new HashMap<>();
@@ -306,6 +306,33 @@ public class Connect {
             e.printStackTrace();
         }
         return cards;
+    }
+
+    public static boolean addLoyaltyCard(String number){
+        String sql = "insert into loyaltyCard(number,points)"
+                + "values("+number+","
+                +"'"+0+")";
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean updateLoyaltyCard(String customerCard,int points){
+        String sql = "update loyaltyCard"
+                + "set "
+                + "points = "+points
+                +"where id = "+customerCard;
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     //CUSTOMERS(COMPLETED)
