@@ -625,7 +625,7 @@ Version:
 | Unit name | JUnit test case |
 |--|--|
 |OrderClass| it.polito.ezshop.OrderClassTest.testWhiteBox|
-|||
+|ProductTypeClass|it.polito.ezshop.ProductTypeClassTest.testWhiteBox|
 ||||
 
 ### Code coverage report
