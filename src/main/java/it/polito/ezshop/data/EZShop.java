@@ -20,18 +20,27 @@ import java.util.Map;
 
 public class EZShop implements EZShopInterface {
 	private static Connection conn = null;
-	private Map<Integer, ProductType> products = new HashMap<>();
-	private Map<Integer, User> users = new HashMap<>();
-	private Map<Integer, Customer> customers = new HashMap<>();
-    private Map<String, LoyaltyCard> cards = new HashMap<>();
+	private Map<Integer, ProductType> products;
+	private Map<Integer, User> users;
+	private Map<Integer, Customer> customers;
+    private Map<String, LoyaltyCard> cards;
     private Map<LoyaltyCard,Customer> attachedCards = new HashMap<>();
 	private User currentUser;
 	private final AccountBookClass accountBook = new AccountBookClass(0);
 	private Map<String,Double> CreditCardsMap = new HashMap<>();
 	
 	public EZShop() {
-		//connect();
+		Connect.connect();
+		products = Connect.getProduct();
+		users = Connect.getUsers();
+		customers = Connect.getCustomer();
+		cards = Connect.getLoyaltyCard();
+		accountBook.setOrderMap(Connect.getOrder());
+		accountBook.setReturnTransactionMap(Connect.getReturnTransaction());
+		accountBook.setSaleTransactionMap(Connect.getSaleTransaction());
 	}
+
+
     @Override
     public void reset() {
     	try {
@@ -150,7 +159,6 @@ public class EZShop implements EZShopInterface {
     public User login(String username, String password) throws InvalidUsernameException, InvalidPasswordException {
     	if(username==null||username.isEmpty()) throw new InvalidUsernameException();
     	if(password==null||password.isEmpty()) throw new InvalidPasswordException(); 
-    	connect();
     	for(User user: users.values()) {
     		if(user.getUsername().equals(username) && user.getPassword().equals(password)) {
     		  //user=currentUser;
@@ -916,18 +924,15 @@ public class EZShop implements EZShopInterface {
     @Override
     public double receiveCashPayment(Integer ticketNumber, double cash) throws InvalidTransactionIdException, InvalidPaymentException, UnauthorizedException {
 
-        /*
+		/*
         if(ticketNumber == null || ticketNumber <= 0)
             throw new InvalidTransactionIdException();
 
         if(cash <= 0)
             throw new InvalidPaymentException();
 
-
-        SaleTransactionClass saleTransaction = accountBook.getSaleTransaction(ticketNumber);
-        //If transaction does not exist return -1?
-
-        double saleAmount= saleTransaction.getMoney();
+        SaleTransaction saleTransaction = accountBook.getSaleTransaction(ticketNumber);
+        double saleAmount= ((SaleTransactionClass)saleTransaction).getMoney();
         double change = cash - saleAmount;
 
         if (change<0)
@@ -947,7 +952,7 @@ public class EZShop implements EZShopInterface {
         }
         //Update map and db(Balance)
         recordBalanceUpdate(saleAmount);
-        */
+*/
 		return 0;
 
 	}
@@ -1236,275 +1241,5 @@ public class EZShop implements EZShopInterface {
 		//LOGIN
 		return accountBook.getBalance();
 	}
-
-
-	public void connect() {
-        
-        try {
-            // db parameters
-            final String url = "jdbc:sqlite:db/ezshop.db";
-            // create a connection to the database
-            conn = DriverManager.getConnection(url);
-            createTables();
-            System.out.println("Connection to SQLite has been established.");
-            Statement stmt = conn.createStatement();
-            String insert = "INSERT INTO USER(id, username, password, role) values (2, \"admin2\", \"admin\", 0)";
-            try {
-            stmt.execute(insert);
-            }catch(Exception e) {}
-            String query = "SELECT * FROM USER";
-            
-            ResultSet result = stmt.executeQuery(query);
-            while(result.next()) {
-            	System.out.println(result.getString("username"));
-            }
-            
-            // read all data
-            // USER 
-            String sql = "Select * from User";
-            ResultSet rs = stmt.executeQuery(sql);
-            users = new HashMap<>();
-            while(rs.next()) {
-            	int id = rs.getInt("id");
-            	users.put(id,  new UserClass(id, rs.getString("username"), rs.getString("password"), RoleEnum.values()[rs.getInt("role")]));
-            }
-            // PRODUCT TYPES
-            products = new HashMap<>();
-            sql = "select * from ProductTypes";
-    		rs = stmt.executeQuery(sql);
-    		while(rs.next()) {
-    			int id = rs.getInt("id");
-    	    	String description = rs.getString("description"); 
-    	    	String barcode = rs.getString("barCode");
-    			double sellPrice = rs.getDouble("sellPrice");
-    			int qty = rs.getInt("quantity");
-    			// double discount = rs.getDouble("discountRate");
-    			String notes = rs.getString("notes");
-    			String position = rs.getString("position");
-    			ProductTypeClass pt = new ProductTypeClass(id, description, barcode, sellPrice, notes);
-    			pt.setLocation(position);
-    			pt.setQuantity(qty);
-    			products.put(id,  pt);
-    		}
-            // ORDERS
-            sql = "SELECT * FROM orders";
-    		rs = stmt.executeQuery(sql);
-    		HashMap<Integer, Order> orders = new HashMap<>();
-    		while(rs.next()) {
-    			int id = rs.getInt("id");
-    	    	String description = rs.getString("description"); 
-    	    	double amount = rs.getDouble("amount");
-    	    	Date date = rs.getDate("date");
-    	    	String supplier = rs.getString("supplier");
-    	    	int status = rs.getInt("status");
-    	    	int productId = rs.getInt("productId");
-    	    	double unitPrice = rs.getDouble("unitPrice");
-    	    	int quantity = rs.getInt("quantity");
-    	    	OrderStatus oStatus = OrderStatus.values()[status];
-    	    	String prodCode = products.get(productId).getBarCode();
-    	    	OrderClass o = new OrderClass(id, description, amount, date.toLocalDate(), supplier, prodCode, unitPrice, quantity, oStatus);
-    	    	orders.put(id, (Order) o);
-    		}
-    		accountBook.setOrderMap(orders);
-    		// LOYALTY CARDS
-    		cards = new HashMap<>();
-    		sql = "select * from LoyaltyCard";
-    		rs = stmt.executeQuery(sql);
-    		while(rs.next()) {
-    	    	String number = rs.getString("number"); 
-    	    	int points = rs.getInt("points");
-    	    	cards.put(number, new LoyaltyCardClass(number, points));
-    		}
-    		// CUSTOMERS
-    		customers = new HashMap<>();
-    		sql = "select * from customer";
-    		rs = stmt.executeQuery(sql);
-    		while(rs.next()) {
-    			int id = rs.getInt("id");
-    	    	String customerName = rs.getString("customerName"); 
-    	    	String cardId = rs.getString("cardId"); 
-    	    	LoyaltyCard usrCard = cards.get(cardId);
-    	    	CustomerClass c = new CustomerClass(id, customerName);
-    	    	c.setCustomerCard(cardId);
-    	    	customers.put(id,  c);
-    		}
-    		// SALE TRANSACTIONS
-    		sql = "SELECT * FROM SaleTransactions";
-    		rs = stmt.executeQuery(sql);
-    		HashMap<Integer, SaleTransaction> sales = new HashMap<>();
-    		while(rs.next()) {
-    			int id = rs.getInt("id");
-    	    	String description = rs.getString("description"); 	 
-    	    	double amount = rs.getDouble("amount");
-    	    	Date date = rs.getDate("date");
-    	    	Time time = rs.getTime("time");
-    	    	int status = rs.getInt("status");
-    	    	//SaleTransactionClass s = new SaleTransactionClass(id, description, amount, date, time, status);
-    	    	List<TicketEntry> entries = new ArrayList<>();
-    	    	String sql2 = "select * from SoldProducts where id="+id;
-    	    	ResultSet rs1 = stmt.executeQuery(sql2);
-    	    	while(rs1.next()) {
-    	    		int productId = rs1.getInt("productId");
-    	    		int qty = rs1.getInt("quantity");
-    	    		double discount = rs1.getDouble("discountRate");
-    	    		ProductType pt = products.get(productId);
-    	    		TicketEntryClass te = new TicketEntryClass(pt.getBarCode(), pt.getProductDescription(), qty, discount, id);
-    	    		entries.add(te);
-    	    	}
-    	    	// s.setEntries(entries);
-    	    	//sales.put(id, s);
-    		}
-    		accountBook.setSaleTransactionMap(sales);
-    		// RETURN TRANSACTION
-    		sql = "select * from ReturnTransactions";
-    		rs = stmt.executeQuery(sql);
-    		HashMap<Integer, ReturnTransaction> returns = new HashMap<>();
-    		while(rs.next()) {
-    			int id = rs.getInt("id");
-    	    	String description = rs.getString("description"); 	 
-    	    	double amount = rs.getDouble("amount");
-    	    	Date date = rs.getDate("date");
-    	    	int status = rs.getInt("status");
-    	    	int saleId = rs.getInt("saleId");
-    	    	ReturnStatus rstatus = ReturnStatus.values()[status];
-    	    	SaleTransaction s = accountBook.getSaleTransaction(id);
-    	    	Map<ProductType, Integer> returnedProducts = new HashMap<>();
-    	    	String getReturnedProd = "select * from ReturnedProducts where id = "+id;
-    	    	ResultSet rs1 = stmt.executeQuery(getReturnedProd);
-    	    	while(rs1.next()) {
-    	    		int productId = rs1.getInt("productId");
-    	    		int qty = rs1.getInt("quantity");
-    	    		ProductType pt = products.get(productId);
-    	    		returnedProducts.put(pt, qty);
-    	    	}
-    	    	ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "RETURN", returnedProducts, s, rstatus);
-    		}
-    		accountBook.setReturnTransactionMap(returns);
-    		
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        } /*finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }*/
-    }
-    public static void createTables() {
-    	String tableUser = "CREATE TABLE IF NOT EXISTS User("
-    			+ "id INTEGER NOT NULL PRIMARY KEY,"
-    			+ "username text NOT NULL,"
-    			+ "password text NOT NULL,"
-    			+ "role INTEGER NOT NULL)";
-    	String loyaltyCard = "CREATE TABLE IF NOT EXISTS LoyaltyCard("
-    			+ "points INTEGER NOT NULL,"
-    			+ "number text NOT NULL PRIMARY KEY)";
-    	String customerTable = "CREATE TABLE IF NOT EXISTS Customer("
-    			+ "id INTEGER NOT NULL PRIMARY KEY,"
-    			+ "customerName text NOT NULL,"
-    			+ "cardId text NOT NULL,"
-    			+ "FOREIGN KEY (cardId) references LoyaltyCard(number))";
-    	String productTypes = "CREATE TABLE IF NOT EXISTS ProductTypes("
-    			+ "id INTEGER NOT NULL PRIMARY KEY,"
-    			+ "barCode text NOT NULL,"
-    			+ "description text NOT NULL,"
-    			+ "sellPrice number NOT NULL,"
-    			+ "quantity integer not null,"
-    			//+ "discountRate number not null,"
-    			+ "notes text,"
-    			+ "position text"
-    			+ ")";
-    	String soldProduct = "CREATE TABLE IF NOT EXISTS SoldProducts("
-    			+ "id INTEGER NOT NULL,"
-    			+ "productId integer NOT NULL,"
-    			+ "quantity integer NOT NULL,"
-    			+ "discountRate number,"
-    			+ "PRIMARY KEY(id, productId),"
-    			+ "FOREIGN KEY (productId) references ProductTypes(id))";
-    	String saleTransaction = "CREATE TABLE IF NOT EXISTS SaleTransactions("
-    			+ "id INTEGER NOT NULL PRIMARY KEY,"
-    			+ "description text NOT NULL,"
-    			+ "amount number NOT NULL,"
-    			+ "date date NOT NULL,"
-    			+ "time time not null,"
-    			+ "paymentType text,"
-    			+ "discountRate number,"
-    			+ "status integer not null,"
-    			+ "cardId text, "
-    			+ "soldProducts integer not null,"
-    			+ "FOREIGN KEY (soldProducts) references SoldProducts(id),"
-    			+ "FOREIGN KEY (cardId) references LoyaltyCard(number))";
-    	String orders = "CREATE TABLE IF NOT EXISTS Orders("
-    			+ "id INTEGER NOT NULL PRIMARY KEY,"
-    			+ "description text NOT NULL,"
-    			+ "amount number NOT NULL,"
-    			+ "date date NOT NULL,"
-    			+ "supplier text,"
-    			+ "status integer not null,"
-    			+ "productId integer not null,"
-    			+ "unitPrice number not null,"
-    			+ "quantity integer not null,"
-    			+ "FOREIGN KEY (productId) references ProductType(id))";
-    	String returnedProduct = "CREATE TABLE IF NOT EXISTS ReturnedProducts("
-    			+ "id INTEGER NOT NULL,"
-    			+ "productId integer NOT NULL,"
-    			+ "quantity integer NOT NULL,"
-    			+ "PRIMARY KEY(id, productId),"
-    			+ "FOREIGN KEY (productId) references ProductTypes(id))";
-    	String returnTransaction = "CREATE TABLE IF NOT EXISTS ReturnTransactions("
-    			+ "id INTEGER NOT NULL PRIMARY KEY,"
-    			+ "description text NOT NULL,"
-    			+ "amount number NOT NULL,"
-    			+ "date date NOT NULL,"
-    			+ "status integer not null,"
-    			+ "saleId integer not null, "
-    			+ "returnedProductsId integer not null,"
-    			+ "FOREIGN KEY (returnedProductsId) references ReturnedProducts(id),"
-    			+ "FOREIGN KEY (saleId) references SaleTransactions(id))";
-		//BALANCETRANSACTIONTABLE?//
-		String balanceTransaction = "CREATE TABLE IF NOT EXISTS BalanceTransaction("
-				+ "id INTEGER NOT NULL PRIMARY KEY,"
-				+ "description text NOT NULL,"
-				+ "amount number NOT NULL,"
-				+ "date date NOT NULL,"
-				+ "type text not null";
-		//BALANCETRANSACTIONTABLE?//
-		//ACCOUNTBOOKTABLE?//
-		String accountBookTable = "CREATE TABLE IF NOT EXISTS AccountBookTable("
-				+ "id INTEGER NOT NULL PRIMARY KEY,"
-				+ "balance number NOT NULL,"
-				+ "type text not null"
-				+ "balanceTransactionId integer not null, "
-				+ "returnTransactionId integer not null,"
-				+ "orderTransactionId integer not null,"
-				+ "saleTransactionId integer not null,"
-				+ "FOREIGN KEY (balanceTransactionId) references balanceTransaction(id),"
-				+ "FOREIGN KEY (saleTransactionId) references SaleTransactions(id))"
-				+ "FOREIGN KEY (orderTransactionId) references orderTransaction(id),"
-				+ "FOREIGN KEY (returnTransactionId) references returnTransaction(id))";
-		//ACCOUNTBOOKTABLE?//
-
-		//CREDITCARDTABLE???//
-
-		try (Statement stmt = conn.createStatement()) {
-  	      stmt.executeUpdate(tableUser);
-  	      stmt.executeUpdate(loyaltyCard);
-  	      stmt.executeUpdate(customerTable);
-  	      stmt.executeUpdate(productTypes);
-  	      stmt.executeUpdate(soldProduct);
-  	      stmt.executeUpdate(saleTransaction);
-  	      stmt.executeUpdate(orders);
-  	      stmt.executeUpdate(returnedProduct);
-  	      stmt.executeUpdate(returnTransaction);
-			//stmt.executeUpdate(balanceTransaction);
-			//stmt.executeUpdate(balanceTransaction);
-
-		} catch (SQLException e) {
-  	      e.printStackTrace();
-  	    }
-    }
 
 }
