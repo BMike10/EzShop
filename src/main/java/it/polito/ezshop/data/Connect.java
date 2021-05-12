@@ -5,6 +5,7 @@ import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
 
 import java.sql.*;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -382,7 +383,7 @@ public class Connect {
                 int id = rs.getInt("id");
                 String description = rs.getString("description");
                 double amount = rs.getDouble("amount");
-                Date date = rs.getDate("date");
+                Date date = Date.valueOf(rs.getString("date"));
                 String supplier = rs.getString("supplier");
                 int status = rs.getInt("status");
                 int productId = rs.getInt("productId");
@@ -399,7 +400,36 @@ public class Connect {
 
         return orders;
     }
-
+    
+    public static boolean addOrder(int nextId, double pricePerUnit, int quantity, OrderStatus status, int productId ) {
+    	// insert into db
+    	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
+        		+ "VALUES ("+nextId
+        		+", 'DEBIT', "
+        		+ (pricePerUnit * quantity) +", "
+        		+ "DATE('now'), "
+        		+ status.ordinal()+", "
+        		+ productId+", "
+        		+ pricePerUnit+", "
+        		+ quantity+")";    	
+    	try(Statement st = conn.createStatement()){
+    		st.execute(sql);
+    	}catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+    	}
+    	return true;
+    }
+    public static boolean updateOrderStatus(int id, OrderStatus status) {
+    	String sql = "UPDATE Orders SET status = "+status.ordinal() + " WHERE id = "+id;
+    	try(Statement st = conn.createStatement()){
+    		st.execute(sql);
+    	}catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+    	}
+    	return true;
+    }
     public static Map<Integer, SaleTransaction> getSaleTransaction(){
         // SaleTransaction
         HashMap<Integer, SaleTransaction> sales = new HashMap<>();

@@ -189,18 +189,7 @@ public class EZShop implements EZShopInterface {
         ProductType pt = new ProductTypeClass(nextId, description, productCode, pricePerUnit, note);
         products.put(nextId,  pt);
         // add to db
-        String sql = "insert into ProductTypes( id, barcode, description, sellPrice, quantity, notes, position)"
-        		+ "values("+nextId+","
-        		+ "'"+productCode+"',"
-        		+ "'"+description+"',"
-        		+ pricePerUnit+","
-        		+"0,"
-        		+(note==null?"NULL,":"'"+note+"',")+
-        		"NULL)";
-        try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
+        if(!Connect.addProduct(nextId, productCode, description, pricePerUnit, note)) {
         	products.remove(nextId);
         	return -1;
         }
@@ -221,17 +210,7 @@ public class EZShop implements EZShopInterface {
         	return false;
         products.put(id, pt);
         // add to db
-        String sql = "update ProductTypes "
-        		+ "set "
-        		+ "barcode = '"+newCode+"',"
-        		+ "description = '"+newDescription+"',"
-        		+ "sellPrice="+newPrice+","
-        		+"notes="+(newNote==null?" NULL ":"'"+newNote+"' ")+
-        		" where id = "+id;
-        try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
+        if(!Connect.updateProduct(id, newCode, newDescription, newPrice, newNote)) {
         	// rollback
         	if(tmp != null)
         		products.put(id, tmp);
@@ -315,14 +294,7 @@ public class EZShop implements EZShopInterface {
     	boolean updated = pt.updateQuantity(toBeAdded);
     	if(!updated)
     		return false;
-    	String sql = "update ProductTypes "
-        		+ "set "
-        		+ "quantity = "+(pt.getQuantity())
-        		+" where id = "+productId;
-        try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
+    	if(!Connect.updateProductQuantity(productId, pt.getQuantity())) {
         	pt.updateQuantity(-toBeAdded);
         	return false;
         }
@@ -351,11 +323,7 @@ public class EZShop implements EZShopInterface {
     	}
     	pt.setLocation(p);
     	// db update
-    	String sql = "UPDATE ProductTypes SET position = '"+p.toString()+"' where id = "+productId;
-    	try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
+    	if(!Connect.updateProductPosition(productId, p)) {
         	pt.setLocation(prev);
         	return false;
         }
@@ -383,20 +351,7 @@ public class EZShop implements EZShopInterface {
         OrderClass o = new OrderClass(productCode, pricePerUnit, quantity);
         nextId = accountBook.addOrder((Order) o);
         //o.setOrderId(nextId);
-        // insert into db
-    	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
-        		+ "VALUES ("+nextId
-        		+", NULL, "
-        		+ (pricePerUnit * quantity) +", "
-        		+ "DATE('now'), "
-        		+ OrderStatus.ISSUED.ordinal()+", "
-        		+ pt.getId()+", "
-        		+ pricePerUnit+", "
-        		+ quantity+")";    	
-    	try(Statement st = conn.createStatement()){
-    		st.execute(sql);
-    	}catch (SQLException e) {
-			e.printStackTrace();
+        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.ISSUED, pt.getId())) {
 			// rollback
 			try {
 				accountBook.removeOrder(o.getBalanceId());
@@ -429,20 +384,8 @@ public class EZShop implements EZShopInterface {
         nextId = accountBook.addOrder((Order) o);
     	//o.setOrderId(nextId);
     	// update db
-    	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
-        		+ "VALUES ("+nextId
-        		+", NULL, "
-        		+ (pricePerUnit * quantity) +", "
-        		+ "DATE('now'), "
-        		+ OrderStatus.ISSUED.ordinal()+", "
-        		+ pt.getId()+", "
-        		+ pricePerUnit+", "
-        		+ quantity+")";    	
-    	try(Statement st = conn.createStatement()){
-    		st.execute(sql);
-    	}catch (SQLException e) {
-			e.printStackTrace();
-			// rollback
+
+        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
 			try {
 				accountBook.removeOrder(o.getOrderId());
 			} catch (InvalidTransactionIdException e1) {
@@ -451,7 +394,7 @@ public class EZShop implements EZShopInterface {
 			return -1;
 		}
     	// update balance
-    	if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
+    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
     		// rollback
     		try {
 				accountBook.removeOrder(o.getOrderId());
@@ -479,17 +422,14 @@ public class EZShop implements EZShopInterface {
     		return false;
     	o.setStatus("PAYED");
     	// save status on db
-    	String sql = "UPDATE Orders SET status = "+OrderStatus.PAYED.ordinal() + " WHERE id = "+o.getOrderId();
-    	try(Statement st = conn.createStatement()){
-    		st.execute(sql);
-    	}catch (SQLException e) {
-			e.printStackTrace();
+    	if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED)) {
 			// rollback
 			o.setStatus("ISSUED");
 			return false;
 		}
-    	if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
+    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
     		// rollback
+    		Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.ISSUED);
 			o.setStatus("ISSUED");
 			return false;
     	}
@@ -523,36 +463,23 @@ public class EZShop implements EZShopInterface {
 		}
     	if(pt == null)
     		return false;
-    	// position cehck
+    	// position check
     	Position pos = pt.getPosition();
     	if (pos == null || pos.getAisleId()<0)
     		throw new InvalidLocationException();
     	// quantity update
     	pt.updateQuantity(o.getQuantity());
     	// record on db
-    	String sql = "UPDATE Orders SET status = "+OrderStatus.COMPLETED.ordinal() + " WHERE id = "+o.getOrderId();
-    	try(Statement st = conn.createStatement()){
-    		st.execute(sql);
-    	}catch (SQLException e) {
-			e.printStackTrace();
+		if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED)) {
 			// rollback
 			pt.updateQuantity(-o.getQuantity());
 			o.setStatus("PAYED");
 			return false;
 		}
-    	String sql2 = "UPDATE ProductTyeps SET quantity = "+pt.getQuantity() + " WHERE id = "+pt.getId();
-    	try(Statement st = conn.createStatement()){
-    		st.execute(sql2);
-    	}catch (SQLException e) {
-			e.printStackTrace();
+		if(!Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
 			// rollback
 			// delete completed status from db
-			String sql3 = "UPDATE Orders SET status = "+OrderStatus.PAYED.ordinal() + " WHERE id = "+o.getOrderId();
-	    	try(Statement st = conn.createStatement()){
-	    		st.execute(sql3);
-	    	}catch (SQLException e1) {
-				e.printStackTrace();
-			}
+			Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED);
 			pt.updateQuantity(-o.getQuantity());
 			o.setStatus("PAYED");
 			return false;
@@ -564,30 +491,7 @@ public class EZShop implements EZShopInterface {
     public List<Order> getAllOrders() throws UnauthorizedException {
         if(currentUser==null || currentUser.getRole().equals("Cashier"))
         	throw new UnauthorizedException();
-        
-    	List<Order> orders = new ArrayList<Order>();
-    	try(Statement stmnt = conn.createStatement()){
-    		String sql = "SELECT * FROM orders";
-    		ResultSet rs = stmnt.executeQuery(sql);
-    		while(rs.next()) {
-    			int id = rs.getInt("id");
-    	    	String description = rs.getString("description"); 
-    	    	double amount = rs.getDouble("amount");
-    	    	Date date = rs.getDate("date");
-    	    	String supplier = rs.getString("supplier");
-    	    	int status = rs.getInt("status");
-    	    	int productId = rs.getInt("productId");
-    	    	double unitPrice = rs.getDouble("unitPrice");
-    	    	int quantity = rs.getInt("quantity");
-    	    	OrderStatus oStatus = OrderStatus.values()[status];
-    	    	String prodCode = products.get(productId).getBarCode();
-    	    	OrderClass o = new OrderClass(id, description, amount, date.toLocalDate(), supplier, prodCode, unitPrice, quantity, oStatus);
-    	    	orders.add((Order) o);
-    		}
-    	}catch(SQLException e) {
-    		e.printStackTrace();
-    	}
-        return orders;
+        return new ArrayList<>(Connect.getOrder().values());
     }
 
     @Override
