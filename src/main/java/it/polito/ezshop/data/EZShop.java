@@ -214,8 +214,6 @@ public class EZShop implements EZShopInterface {
         	// rollback
         	if(tmp != null)
         		products.put(id, tmp);
-        	else
-        		products.remove(id);
         	return false;
         }
     	return true;
