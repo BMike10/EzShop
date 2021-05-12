@@ -18,6 +18,8 @@ public class Position {
 		if(fields.length != 3) {
 			throw new RuntimeException(new InvalidLocationException("Invalid position string: " + position));
 		}
+		if(fields[1].length() <= 0)
+			throw new RuntimeException(new InvalidLocationException("Invalid position string: " + position));			
 		try {
 		aisleId = Integer.parseInt(fields[0]);
 		rackId = fields[1];
@@ -39,7 +41,7 @@ public class Position {
 
 	@Override
 	public String toString() {
-		if(aisleId<=0 || rackId==null || rackId.equals("") || levelId <=0)
+		if(aisleId<=0 || rackId.equals("") || levelId <=0)
 			return "";
 		return ""+aisleId + "-" + rackId + "-" + levelId;
 	}
@@ -57,10 +59,7 @@ public class Position {
 			return false;
 		if (levelId != other.levelId)
 			return false;
-		if (rackId == null) {
-			if (other.rackId != null)
-				return false;
-		} else if (!rackId.equals(other.rackId))
+		if (!rackId.equals(other.rackId))
 			return false;
 		return true;
 	}	

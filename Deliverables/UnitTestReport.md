@@ -74,6 +74,7 @@ Version:
 |||||||
 
 
+
 ## Class ProductTypeClass
 
 ### Method validateBarCode
@@ -253,6 +254,65 @@ Version:
 | valid| no| Invalid | T2("")|testSetPosition|
 | valid| yes| Valid | T3("1_a_1") |testSetPosition|
 
+## Class Position
+### Constructor
+**Criteria for method Constructor:**
+- Valid position
+- Fields of location = 3
+
+**Predicates for method Constructor:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Fields of location = 3| yes|
+| | no|
+| Valid position | yes|
+|       | no|
+
+**Boundaries for method Constructor**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| | |
+
+**Combination of predicates for method Constructor**
+
+| Valid position | Fields of location = 3|Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ---|------------- | ---------------------------- | --------------- |
+| yes | no|Valid | T1(null) <br> T2("") | PositionTest.testConstructor|
+| "   | yes| Valid| T3("1-b-2") | PositionTest.testConstructor|
+| no  | no | Invalid| T4("-a")|PositionTest.testConstructor|
+| "   | yes| Invalid| T5("1--4")->Exception <br> T6("a-2-c")->Exception <br> T7("1_2_3_4")->Exception|PositionTest.testConstructor|
+
+### Equals
+**Criteria for method Equals:**
+- Signature of oth
+- Fields of oth Position
+- Class of oth
+
+**Predicates for method Equals:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of oth | null|
+|       | valid|
+| Class of oth| same|
+| | different|
+| Fields of oth Position| all same|
+| | >= 1 different|
+
+**Boundaries for method Equals**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| | |
+
+**Combination of predicates for method Equals**
+
+| Signature of oth | Class of oth|Fields of oth Position|Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ---|---|------------ | ---------------------------- | --------------- |
+| null | * | * | Invalid | T1(null)->false| PositionTest.testEquals|
+| valid|different| *| Invalid| T2("")->false| PositionTest.testEquals|
+| valid| same| >= 1 different| Invalid | Position p1 = new Position("1-a-1"); T3("2-a-1")->false <br> Position p1 = new Position("1-a-1"); T3b("1-b-1")->false <br> Position p1 = new Position("1-a-1"); T3c("1-a-2")->false|PositionTest.testEquals|
+|valid|same| all same| Valid| Position p1 = new Position("1-a-1"); T3c("1-a-1")->true|PositionTest.testEquals|
 
 ## Class AccountBookClass
 
