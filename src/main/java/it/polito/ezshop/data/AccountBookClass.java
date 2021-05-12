@@ -1,9 +1,11 @@
 package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
+import sun.util.resources.LocaleData;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class AccountBookClass implements AccountBook{
     //Our Design
@@ -128,10 +130,32 @@ public class AccountBookClass implements AccountBook{
         this.returnTransactionMap.putAll(newReturnMap);
     }
 
+    public List<BalanceOperation> getBalanceOperationByDate(LocalDate from, LocalDate to){
+        List<BalanceOperation> bo;
+        if(from==null && to!=null){
+            //All Balance operation from start to LocalDateTo
+            bo = balanceOperationMap.values().stream().
+                    filter(t -> (t.getDate().isBefore(to))).collect(Collectors.toList());
+        }else if(from!=null && to==null){
+            //All Balance operation from LocalDateFrom to end
+            bo = balanceOperationMap.values().stream().
+                    filter(t -> (t.getDate().isAfter(from))).collect(Collectors.toList());
+        }else if (from==null){
+            //All Balance operation -> to==null(if it's not -> first if)
+            bo = new ArrayList<>(balanceOperationMap.values());
+        }else{
+            bo = balanceOperationMap.values().stream().
+                    filter(t -> (t.getDate().isAfter(from))).filter(t -> (t.getDate().isBefore(to))).collect(Collectors.toList());
+        }
+        return bo;
+    }
+
 
     public Integer newId(){
         Integer newKey = null;
-        //What if map is empty?
+
+        if(balanceOperationMap.isEmpty())
+            return 1;
         for (Integer key : balanceOperationMap.keySet())
         {
             if (newKey == null || key.compareTo(newKey) > 0)

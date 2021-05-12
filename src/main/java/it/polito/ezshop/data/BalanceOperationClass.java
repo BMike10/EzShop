@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 public class BalanceOperationClass implements BalanceOperation {
 
-    //Our Design
     private Integer id;
     private String description;
     private double amount;
@@ -76,12 +75,10 @@ public class BalanceOperationClass implements BalanceOperation {
         this.type = type;
     }
 
-    @Override
     public String getDescription() {
         return this.description;
     }
 
-    @Override
     public void setDescription(String desc) {
         this.description = desc;
     }

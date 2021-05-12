@@ -4,8 +4,8 @@ import java.time.LocalDate;
 
 public interface BalanceOperation {
 
+    //Can be changed interface? -> Order and SaleTransaction require Integer(Not Int)
     Integer getBalanceId();
-
     void setBalanceId(Integer balanceId);
 
     LocalDate getDate();
@@ -19,11 +19,5 @@ public interface BalanceOperation {
     String getType();
 
     void setType(String type);
-
-    //MyMethods
-
-    String getDescription();
-
-    void setDescription(String desc);
-
 }
+

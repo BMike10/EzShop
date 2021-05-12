@@ -9,8 +9,6 @@ public interface AccountBook {
     Integer addSaleTransaction(SaleTransaction saleTransaction);
     Integer addReturnTransaction(ReturnTransaction returnTransaction);
     Integer addOrder(Order order);
-    //Integer addBalanceOperation(BalanceOperation balanceOperation);
-
 
     //In Design Transaction Objects are passed
     void removeSaleTransaction(Integer saleTransactionId) throws InvalidTransactionIdException;

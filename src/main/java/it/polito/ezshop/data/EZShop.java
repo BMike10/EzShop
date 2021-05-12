@@ -1217,9 +1217,7 @@ public class EZShop implements EZShopInterface {
 	public List<BalanceOperation> getCreditsAndDebits(LocalDate from, LocalDate to) throws UnauthorizedException {
 		//LOGIN?
 
-		List<BalanceOperation> balanceOperations = new ArrayList<>();
 		LocalDate newFrom = from,newTo = to;
-		String sql2 = "";
 
 		if(from!= null && to!= null){
 			if(from.isBefore(to)){
@@ -1229,36 +1227,7 @@ public class EZShop implements EZShopInterface {
 			}
 		}
 
-		if(newFrom== null && newTo!=null){
-			//All balance operations before newTo
-			sql2 = "WHERE date <="+newTo;
-		}else if(newFrom!= null && newTo==null) {
-			//All balance operations after newFrom
-			sql2 = "WHERE date >=" + newFrom;
-		}else if(newFrom!=null){
-			//newFrom!=null && newTo!=null because second condition is always verified thanks to second control
-			sql2 = "WHERE date >=" + newFrom + "&& date <=" + newTo;
-		}
-		//if together are null -> no conditions(all balance operations)
-
-		//Download a list of Balance Operations
-		/*try(Statement stm = conn.createStatement()){
-			String sql = "SELECT * FROM BalanceOperation" + sql2;
-			ResultSet rs = stm.executeQuery(sql);
-			while(rs.next()) {
-				int id = rs.getInt("id");
-				String description = rs.getString("description");
-				double amount = rs.getDouble("amount");
-				LocalDate date =  rs.getDate("date").toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-				String type = rs.getString("type");
-				BalanceOperationClass boc = new BalanceOperationClass(id, description, amount, date, type);
-				balanceOperations.add(boc);
-			}
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}*/
-
-		return balanceOperations;
+		return accountBook.getBalanceOperationByDate(newFrom,newTo);
 	}
 
 
