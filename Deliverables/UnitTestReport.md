@@ -313,7 +313,136 @@ Version:
 | valid|different| *| Invalid| T2("")->false| PositionTest.testEquals|
 | valid| same| >= 1 different| Invalid | Position p1 = new Position("1-a-1"); T3("2-a-1")->false <br> Position p1 = new Position("1-a-1"); T3b("1-b-1")->false <br> Position p1 = new Position("1-a-1"); T3c("1-a-2")->false|PositionTest.testEquals|
 |valid|same| all same| Valid| Position p1 = new Position("1-a-1"); T3c("1-a-1")->true|PositionTest.testEquals|
+## Class OrderClass
+### Constructor
+**Criteria for method Constructor:**
+- Signature of productCode
+- Value of unitPrice
+- Value of quantity
 
+**Predicates for method Constructor:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of productCode| null|
+| | valid|
+| Value of unitPrice | > 0.0|
+|       | <= 0.0|
+| Value of quantity| > 0|
+| | <= 0|
+
+**Boundaries for method Constructor**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of unitPrice| -inf, 0, +inf |
+| Value of quantity| -inf, 0, +inf |
+
+**Combination of predicates for method Constructor**
+
+| Signature of productCode | Value of unitPrice| Value of quantity|Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ---|---|------------ | ---------------------------- | --------------- |
+| null | *      | *     | Invalid| T1(1, "ORDER", 10, LocalDate.now(), null, null, 1, 10, OrderStatus.ISSUED)->Exception| OrderClassTest.testConstructor|
+| valid| <= 0   | *     | Invalid| T2(1, "ORDER", 10, LocalDate.now(), null, "4006381333931", -0.0, 10, OrderStatus.ISSUED)->Exception| OrderClassTest.testConstructor|
+| valid| > 0    | <=0   | Invalid| T3(1, "ORDER", 10, LocalDate.now(), null, "4006381333931", 1, -10, OrderStatus.ISSUED)->Exception|OrderClassTest.testConstructor|
+| valid| > 0    | > 0   | Valid | T4(, "ORDER", 10, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED)|OrderClassTest.testConstructor|
+
+### setOrderId
+**Criteria for method setOrderId:**
+- Signature of orderId
+- Value of orderId
+
+**Predicates for method setOrderId:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of orderId | null|
+|       | valid|
+| Value of orderId| > 0|
+| | <= 0|
+
+**Boundaries for method setOrderId**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of orderId| -inf, 0, +inf |
+
+**Combination of predicates for method setOrderId**
+
+| Signature of orderId | Value of orderId|Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ---|------------ | ---------------------------- | --------------- |
+| null  | - | Invalid| T1(null)->Exception| OrderClassTest.testSetOrderId|
+| valid |<= 0| Invalid| T2(-1)->Exception| OrderClassTest.testSetOrderId|
+| valid | > 0| Valid  | T3(2)|OrderClassTest.testSetOrderId|
+### setQuantity
+**Criteria for method setQuantity:**
+- Value of quantity
+
+**Predicates for method setQuantity:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Value of quantity| > 0|
+| | <= 0|
+
+**Boundaries for method setQuantity**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of quantity| -inf, 0, +inf |
+
+**Combination of predicates for method setQuantity**
+
+| Value of quantity|Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ------------ | ---------------------------- | --------------- |
+| <= 0 | Invalid| T1(-1)->Exception| OrderClassTest.testSetQuantity|
+| > 0  | Valid| T2(1)| OrderClassTest.testSetQuantity|
+### setPricePerUnit
+**Criteria for method setPricePerUnit:**
+- Value of pricePerUnit
+
+**Predicates for method setPricePerUnit:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Value of pricePerUnit| > 0|
+| | <= 0|
+
+**Boundaries for method setPricePerUnit**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of pricePerUnit| -inf, 0, +inf |
+
+**Combination of predicates for method setPricePerUnit**
+
+| Value of pricePerUnit|Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ------------ | ---------------------------- | --------------- |
+| <= 0 | Invalid| T1(-0.0)->Exception| OrderClassTest.testSetPricePerUnit|
+| > 0  | Valid| T2(2.0)| OrderClassTest.testSetPricePerUnit|
+
+### setProductCode
+**Criteria for method setProductCode:**
+- Signature of productCode
+- Validity of productCode
+
+**Predicates for method setProductCode:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of productCode | null|
+|       | valid|
+| Validity of productCode| valid|
+| | invalid|
+
+**Boundaries for method setProductCode**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| ||
+
+**Combination of predicates for method setProductCode**
+
+| Signature of productCode | Validity of productCode|Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ---|------------ | ---------------------------- | --------------- |
+| null  | -     | Invalid| T1(null)->Exception  | OrderClassTest.testSetProductCode|
+| valid | invalid| Invalid| T2("")->Exception   | OrderClassTest.testSetProductCode|
+| valid | valid | Valid   | T3("4006381333900") | OrderClassTest.testSetProductCode|
 ## Class AccountBookClass
 
 ### Method removeSaleTransaction
@@ -495,7 +624,7 @@ Version:
 
 | Unit name | JUnit test case |
 |--|--|
-|||
+|OrderClass| it.polito.ezshop.OrderClassTest.testWhiteBox|
 |||
 ||||
 
