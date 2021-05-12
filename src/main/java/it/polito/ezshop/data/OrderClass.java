@@ -23,6 +23,12 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 	}
 	public OrderClass(int id, String desc, double amount, LocalDate date, String supplier, String productCode, double pricePerUnit, int quantity, OrderStatus status) {
 		super(id, desc, amount, date, "ORDER");
+		if(productCode == null || !ProductTypeClass.validateBarCode(productCode))
+			throw new RuntimeException(new InvalidProductCodeException());
+		if(pricePerUnit <= 0)
+			throw new RuntimeException(new InvalidPricePerUnitException());
+		if(quantity <= 0)
+			throw new RuntimeException(new InvalidQuantityException());
 		this.productCode = productCode;
 		this.pricePerUnit = pricePerUnit;
 		this.quantity = quantity;
@@ -61,7 +67,7 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 		if(pricePerUnit <= 0)
 			throw new RuntimeException(new InvalidPricePerUnitException());
 		this.pricePerUnit = pricePerUnit;
-
+		setMoney(quantity * pricePerUnit);
 	}
 
 	@Override
@@ -71,9 +77,10 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 
 	@Override
 	public void setQuantity(int quantity) {
-		if(quantity < 0)
+		if(quantity <= 0)
 			throw new RuntimeException(new InvalidQuantityException());
 		this.quantity = quantity;
+		setMoney(quantity * pricePerUnit);
 	}
 
 	@Override
