@@ -477,7 +477,7 @@ public class EZShop implements EZShopInterface {
          if(users.values().stream().map(e->e.getUsername()).anyMatch(e->e==customerName)) return -1;
           
          int id = customers.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
-          Customer c = new CustomerClass(id, customerName);
+          Customer c = new CustomerClass(id, customerName,"",0);
           customers.put(id,c);
           c.setCustomerName(customerName);
           c.setId(id);
@@ -491,7 +491,7 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard) throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException, UnauthorizedException {
     	if(newCustomerName==null ||newCustomerName.isEmpty()) throw new InvalidCustomerNameException();
-    	if(newCustomerCard==null ||newCustomerCard.isEmpty()||!CustomerClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
+    	//if(newCustomerCard==null ||newCustomerCard.isEmpty()||!CustomerClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException(); 
         /*if(newCustomerCard == null)
         {
@@ -500,8 +500,9 @@ public class EZShop implements EZShopInterface {
         }*/	
         CustomerClass c = (CustomerClass) customers.get(id);       
         String prevName= c.getCustomerName();
-        String prevCardCode= c.getCustomerCard();        
-        if(newCustomerCard == "")
+        String prevCardCode= c.getCustomerCard(); 
+        
+        if(newCustomerCard.isEmpty())
         {
         //any existing card code connected to the customer will be removed  
         	cards.remove(newCustomerCard);
@@ -587,6 +588,9 @@ public class EZShop implements EZShopInterface {
     	    	throw new UnauthorizedException();
     	  if(!CustomerClass.checkCardCode(customerCard)) throw new InvalidCustomerCardException();
     LoyaltyCardClass card= (LoyaltyCardClass) cards.get(customerCard);
+    for(Customer c: customers.values()) {
+ 	   if(c.getCustomerCard().equals(customerCard))
+ 	   c.setPoints(pointsToBeAdded);} 
     if(card == null) throw new InvalidCustomerCardException();
 	boolean updated = card.updatePoints(pointsToBeAdded);
 	if(!updated)
