@@ -160,7 +160,8 @@ public class EZShop implements EZShopInterface {
     public Integer createProductType(String description, String productCode, double pricePerUnit, String note) throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
         if(currentUser==null || currentUser.getRole().equals("Cashier"))
         	throw new UnauthorizedException();
-        
+        if(getProductTypeByBarCode(productCode)!=null)
+        	return -1;
     	int nextId = products.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
         ProductType pt = new ProductTypeClass(nextId, description, productCode, pricePerUnit, note);
         products.put(nextId,  pt);
@@ -199,17 +200,13 @@ public class EZShop implements EZShopInterface {
     public boolean deleteProductType(Integer id) throws InvalidProductIdException, UnauthorizedException {
         if(currentUser==null || currentUser.getRole().equals("Cashier"))
         	throw new UnauthorizedException();
-    	if(!products.containsKey(id)) 
+    	if(id == null || id <= 0) 
         	throw new InvalidProductIdException();
-    	
+    	if(!products.containsKey(id))
+    		return false;
         ProductType tmp = products.remove(id);
         // db update 
-        String sql = "delete from ProductTypes where id = "+id;
-        try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
-        	// rollback
+        if(!Connect.removeProduct(id)) {
         	products.put(id, tmp);
         	return false;
         }
@@ -235,8 +232,7 @@ public class EZShop implements EZShopInterface {
     	for(ProductType pt: products.values()) {
     		if(pt.getBarCode().equals(barCode))
     			return pt;
-    	}
-    	
+    	}    	
         return null;
     }
 
@@ -246,8 +242,8 @@ public class EZShop implements EZShopInterface {
         	throw new UnauthorizedException();
         
     	List<ProductType> res = new ArrayList<>();
-    	if(description == null || description.length() <= 0)
-    		return res;
+    	if(description == null)
+    		description="";
     	for(ProductType pt: products.values()) {
     		if(pt.getProductDescription().contains(description))
     			res.add(pt);
@@ -356,17 +352,6 @@ public class EZShop implements EZShopInterface {
     	int nextId=-1;
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
         nextId = accountBook.addOrder((Order) o);
-    	//o.setOrderId(nextId);
-    	// update db
-
-        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
-			try {
-				accountBook.removeOrder(o.getOrderId());
-			} catch (InvalidTransactionIdException e1) {
-				e1.printStackTrace();
-			}
-			return -1;
-		}
     	// update balance
     	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
     		// rollback
@@ -377,6 +362,16 @@ public class EZShop implements EZShopInterface {
 			}
     		return -1;
     	}
+    	// update db
+        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
+			try {
+				accountBook.removeOrder(o.getOrderId());
+				recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
+			} catch (InvalidTransactionIdException e1) {
+				e1.printStackTrace();
+			}
+			return -1;
+		}
     	return nextId;
     }
 
@@ -407,7 +402,7 @@ public class EZShop implements EZShopInterface {
 			o.setStatus("ISSUED");
 			return false;
     	}
-        return false;
+        return true;
     }
 
     @Override
