@@ -443,6 +443,8 @@ Version:
 | null  | -     | Invalid| T1(null)->Exception  | OrderClassTest.testSetProductCode|
 | valid | invalid| Invalid| T2("")->Exception   | OrderClassTest.testSetProductCode|
 | valid | valid | Valid   | T3("4006381333900") | OrderClassTest.testSetProductCode|
+
+
 ## Class AccountBookClass
 
 ### Method removeSaleTransaction
@@ -451,7 +453,6 @@ Version:
 	
 
 - Signature of returnTransactionId
-- Presence of not numeric characters in Id
 - Validity of returnTransactionId
 - Existence of SaleTransaction object
 
@@ -461,8 +462,6 @@ Version:
 | ----------- | ------------- |
 | Signature of returnTransactionId | >=0 |
 |             | <0 |
-| Presence of not numeric characters in returnTransactionId         | yes          |
-|             |     no         |
 | Validity of returnTransactionId| valid|
 |               | null|
 | Existence of SaleTransaction object | Yes |
@@ -482,39 +481,110 @@ Version:
 | --------- | --------- | ------- |--------| ------ | -------- |
 |   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  |
 |   valid     |  <0       |   *   |    Invalid    |    T2(-6) -> InvalidTransactionIdException      |  |
-|   "     |  >=0       |  no      | Invalid    |   removeSaleTransaction(100); removeSaleTransaction(100) ->  InvalidTransactionIdException      |  |
+|   "     |  (>=)0       |  no      | Invalid    |   removeSaleTransaction(100); removeSaleTransaction(100) ->  InvalidTransactionIdException      |  |
 |   "     |  "       |  yes   |   Valid    | removeSaleTransaction(100);  ->  SaleTransaction removed succesfully         |  |
 
-### Method updateBalance
+### Method setBalance
 
-**Criteria for method updateBalance:**
+**Criteria for method setBalance:**
 	
 - Signature of amount
 
-**Predicates for method updateBalance:**
+**Predicates for method setBalance:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of balance | >=0 |
+|             | <0 |
+
+**Boundaries for method setBalance**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of balance |    -1, +1       |
+
+
+ **Combination of predicates for method setBalance**
+
+ Signature of amount  | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+| --------- | --------| --------| --------| 
+|  <0    | Invalid         |   T1(-500) ->  false     |   |
+|  (>=0)    | Valid         |   T1(500) ->  true     |   |
+
+### Method getSaleTransaction
+
+**Criteria for method getSaleTransaction:**
+
+
+- Signature of SaleTransactionId
+- Validity of SaleTransactionId
+- Existence of SaleTransaction object
+
+**Predicates for method getSaleTransaction:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
 | Signature of returnTransactionId | >=0 |
 |             | <0 |
+| Validity of returnTransactionId| valid|
+|               | null|
+| Existence of SaleTransaction object | Yes |
+|                                     |  No |
 
 
-
-**Boundaries for method updateBalance**:
+**Boundaries for method getSaleTransaction**:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of returnTransactionId  |    -1, +500       |
+| Signature of SaleTransactionId  |    -5, 0, +5       |
 
 
- **Combination of predicates for method updateBalance**
+**Combination of predicates for method getSaleTransaction**
 
-|   Validity of updateBalance | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
-| --------- | --------- | --------| --------| 
-
+|   Validity of returnTransactionId | Signature of returnTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+| --------- | --------- | ------- |--------| ------ | -------- |
+|   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  |
+|   valid     |  <0       |   *   |    Invalid    |    T2(-5) -> InvalidTransactionIdException      |  |
+|   "     |  (>=)0       |  no      | Invalid    |   removeSaleTransaction(500); getSaleTransaction(500) ->  InvalidTransactionIdException      |  |
+|   "     |  "       |  yes   |   Valid    | addSaleTransaction(500); getSaleTransaction(500);  ->  SaleTransaction removed successfully         |  |
 
 
 ## Class BalanceOperation
+
+### BalanceOperationClass(double,String)
+**Criteria for method BalanceOperationClass:**
+- Signature of money
+- Validity of type
+- Presence of numeric character in type
+
+**Predicates for method BalanceOperationClass:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of money | =0 |
+| | <0 || >0 |
+| Presence of numeric character| true |
+|       |   false|
+| Validity of type | true |
+|                   | false|
+
+
+
+**Boundaries for method BalanceOperationClass**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of money | 0, 1 |
+
+**Combination of predicates for method BalanceOperationClass**
+
+| Signature of money | Presence of numeric character| Validity of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| ----------- | ---| ---|------------- | -------- | ------- |
+| =0  |  *  | *  | Invalid | T1(-1)  |     |
+| <0 OR >0 |  yes  | ---| Invalid | T2(deb1t)   |   |
+| " | no  | no | Invalid   | T3(ciao)         ||
+| " | "  | yes | Valid   | T4(credit)         ||
+
 
 ### setBalanceId
 **Criteria for method setBalanceId:**
@@ -544,38 +614,35 @@ Version:
 | * |  null  | Invalid | T2(null)   |   |
 | >0 | valid  | Valid   | T3(10)         ||
 
-### setType
-**Criteria for method setType:**
-- Validity of type
-- Type allowed
+### setDescription
+**Criteria for method setDescription:**
+- Validity of Description
+- Length of string
 
+**Predicates for method setDescription:**
 
-**Predicates for method setType:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Validity of type | null |
+| Validity of Description | null |
 | | valid|
-| Type allowed | false |
-|   | true |
-| String contains only characters  |  false  |
-|   |  true  |
+| Length of string | <=1000 |
+|   | (>1000) |
 
 
-**Boundaries for method setType**:
+
+**Boundaries for method setDescription**:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Type allowed | "nothing","credit" |
-| String contains only characters | "hi","hi67",'debit' |
 
-**Combination of predicates for method setType**
 
-| Validity of type | Type allowed | String contains only character | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
-| ----------- | --- | ------ |------------- | -------- | ------- |
-| null  |  *  |  *  | Invalid | T1(null; error)  |     |
-| valid | no  |  *  | Valid   | T2("cia90"; no output)   |   |
-|       |       |       |       | T2b(nothing)  |   |
-| *     | yes |  yes   | Valid   | T3("Credit")         |   |
+**Combination of predicates for method setDescription**
+
+| Validity of Description | Length of string | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| --- | ------ |------------- | -------- | ------- |
+| null  |  *  | Invalid | T1(null; error)  |     |
+| valid | (>1000)  | Invalid   | T2("cia90......";)   |   |
+| "    | <=1000 | Valid   | T3("Nuova transazione")         |   |
 
 ## Class ReturnTransactionClass
 
@@ -586,6 +653,7 @@ Version:
 - String contains only characters
 
 **Predicates for method setStatus:**
+
 | Criterion   | Predicate     |
 | ----------- | ------------- |
 | Validity of type | null |

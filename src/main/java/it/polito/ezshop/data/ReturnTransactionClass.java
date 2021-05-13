@@ -30,6 +30,10 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
         this.status = retstatus;
     }
 
+    public ReturnTransactionClass(SaleTransaction saleT) {
+        this.saleTransaction = saleT;
+    }
+
 
     @Override
     public Integer getReturnId() {

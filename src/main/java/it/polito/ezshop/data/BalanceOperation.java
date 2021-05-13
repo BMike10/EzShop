@@ -1,5 +1,7 @@
 package it.polito.ezshop.data;
 
+import it.polito.ezshop.exceptions.InvalidTransactionIdException;
+
 import java.time.LocalDate;
 
 public interface BalanceOperation {
