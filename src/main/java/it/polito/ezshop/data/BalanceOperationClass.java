@@ -1,36 +1,41 @@
 package it.polito.ezshop.data;
 
+import it.polito.ezshop.exceptions.InvalidOrderIdException;
+import it.polito.ezshop.exceptions.InvalidProductCodeException;
+import it.polito.ezshop.exceptions.InvalidTransactionIdException;
+
 import java.time.LocalDate;
 
 public class BalanceOperationClass implements BalanceOperation {
 
     private Integer id;
     private String description;
-    private double amount;
+    private double money;
     private LocalDate date;
     //Other
     private String type;
 
     public BalanceOperationClass(){
-        this.id = null;
-        this.description = null;
-        this.amount = 0;
+        this.money = 0;
         this.date = LocalDate.now();
-        this.type = null;
     }
 
-    public BalanceOperationClass(double amount, String type) {
-        this.id = null;
-        this.description = "";
-        this.amount = amount;
+    public BalanceOperationClass(double money, String type) {
+        if(money==0)
+            throw new RuntimeException(new Exception());
+        else
+            this.money = money;
         this.date = LocalDate.now();
-        this.type = type;
+        if(type.equalsIgnoreCase("CREDIT") || type.equalsIgnoreCase("DEBIT"))
+            this.type = type;
+        else
+            throw new RuntimeException(new Exception());
     }
 
-    public BalanceOperationClass(int transactionId, String description, double amount, LocalDate date, String type) {
+    public BalanceOperationClass(int transactionId, String description, double money, LocalDate date, String type) {
         this.id = transactionId;
         this.description = description;
-        this.amount = amount;
+        this.money = money;
         this.date = date;
         this.type = type;
     }
@@ -41,7 +46,9 @@ public class BalanceOperationClass implements BalanceOperation {
     }
 
     @Override
-    public void setBalanceId(Integer balanceId) {
+    public void setBalanceId(Integer balanceId)  {
+        if(balanceId<=0 || balanceId==null)
+            throw new RuntimeException(new InvalidTransactionIdException());
         this.id = balanceId;
     }
 
@@ -57,12 +64,12 @@ public class BalanceOperationClass implements BalanceOperation {
 
     @Override
     public double getMoney() {
-        return this.amount;
+        return this.money;
     }
 
     @Override
     public void setMoney(double money) {
-        this.amount = money;
+        this.money = money;
     }
 
     @Override
@@ -79,7 +86,10 @@ public class BalanceOperationClass implements BalanceOperation {
         return this.description;
     }
 
-    public void setDescription(String desc) {
+    public void setDescription(String desc) throws Exception {
+
+        if (desc.length()>1000 || desc==null)
+            throw new Exception();
         this.description = desc;
     }
 

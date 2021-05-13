@@ -19,11 +19,11 @@ public interface AccountBook {
     void setOrderMap(Map<Integer,Order> newOrderMap);
     void setReturnTransactionMap(Map<Integer,ReturnTransaction> newReturnMap);
 
-    SaleTransaction getSaleTransaction(int id);
-    ReturnTransaction getReturnTransaction(int id);
-    Order getOrder(int id);
+    SaleTransaction getSaleTransaction(Integer id) throws InvalidTransactionIdException;
+    ReturnTransaction getReturnTransaction(Integer id) throws InvalidTransactionIdException;
+    Order getOrder(Integer id) throws InvalidTransactionIdException ;
     Double getBalance();
-    void updateBalance(double amount);
+    boolean setBalance(double amount);
     Integer newId();
 
 

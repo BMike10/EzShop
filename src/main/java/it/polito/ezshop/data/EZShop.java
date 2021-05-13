@@ -1003,7 +1003,7 @@ public class EZShop implements EZShopInterface {
 		if(currentUser==null || currentUser.getRole().equals("Cashier"))
 			throw new UnauthorizedException();
 
-		String newType;
+		//String newType;
 		double currentBalance = accountBook.getBalance();
 		double newBalance = currentBalance + toBeAdded;
 
@@ -1082,6 +1082,7 @@ public class EZShop implements EZShopInterface {
 //			e.printStackTrace();
 //		}
 */
+		accountBook.setBalance(newBalance);
 		return true;
 	}
 

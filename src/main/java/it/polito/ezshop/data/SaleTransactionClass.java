@@ -66,6 +66,9 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		this.price = 0.0;
 
 	}
+	public SaleTransactionClass() {
+		super(0.0, "CREDIT");
+	}
 	
 	private Time time;
 	private String paymentType;

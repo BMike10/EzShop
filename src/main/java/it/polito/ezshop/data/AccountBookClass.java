@@ -1,5 +1,6 @@
 package it.polito.ezshop.data;
 
+import it.polito.ezshop.exceptions.InvalidOrderIdException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import sun.util.resources.LocaleData;
 
@@ -18,7 +19,9 @@ public class AccountBookClass implements AccountBook{
 
     // Account Book Default Constructor
     public AccountBookClass(double balance) {
-        this.balance = balance;
+        if(balance>=0)
+            this.balance = balance;
+        else this.balance = 0;
     }
 
     // Already existed Account Book
@@ -81,7 +84,7 @@ public class AccountBookClass implements AccountBook{
     @Override
     public void removeSaleTransaction(Integer saleTransactionId) throws InvalidTransactionIdException {
 
-        if(!this.saleTransactionMap.containsKey(saleTransactionId))
+        if(!this.saleTransactionMap.containsKey(saleTransactionId) || saleTransactionId==null || saleTransactionId<=0)
             throw new InvalidTransactionIdException();
 
         this.saleTransactionMap.remove(saleTransactionId);
@@ -90,7 +93,7 @@ public class AccountBookClass implements AccountBook{
 
     @Override
     public void removeReturnTransaction(Integer returnTransactionId) throws InvalidTransactionIdException {
-        if(!this.returnTransactionMap.containsKey(returnTransactionId))
+        if(!this.returnTransactionMap.containsKey(returnTransactionId) || returnTransactionId==null || returnTransactionId<=0)
             throw new InvalidTransactionIdException();
 
         this.returnTransactionMap.remove(returnTransactionId);
@@ -99,25 +102,33 @@ public class AccountBookClass implements AccountBook{
 
     @Override
     public void removeOrder(Integer orderTransactionId) throws InvalidTransactionIdException {
-        if(!this.orderMap.containsKey(orderTransactionId))
+        if(!this.orderMap.containsKey(orderTransactionId) || orderTransactionId==null || orderTransactionId<=0)
             throw new InvalidTransactionIdException();
         this.saleTransactionMap.remove(orderTransactionId);
         this.balanceOperationMap.remove(orderTransactionId);
     }
 
     @Override
-    public SaleTransaction getSaleTransaction(int id) {
+    public SaleTransaction getSaleTransaction(Integer id) {
+        if(!this.saleTransactionMap.containsKey(id) || id==null || id<=0)
+            throw new RuntimeException(new InvalidTransactionIdException());
+
         return this.saleTransactionMap.get(id);
     }
 
     @Override
-    public ReturnTransaction getReturnTransaction(int id) {
+    public ReturnTransaction getReturnTransaction(Integer id)  {
+        if(!this.returnTransactionMap.containsKey(id) || id==null || id<=0)
+            throw new RuntimeException(new InvalidTransactionIdException());
+
         return this.returnTransactionMap.get(id);
     }
 
     @Override
-    public Order getOrder(int id) {
-        return this.orderMap.get(id);
+    public Order getOrder(Integer id)  {
+        if(!this.orderMap.containsKey(id) || id==null || id<=0)
+            throw new RuntimeException(new InvalidTransactionIdException());
+            return this.orderMap.get(id);
     }
 
     @Override
@@ -125,13 +136,11 @@ public class AccountBookClass implements AccountBook{
         return this.balance;
     }
 
-    public void setBalance(double balance) {
+    public boolean setBalance(double balance) {
+        if(balance<0)
+            return false;
         this.balance = balance;
-    }
-
-    @Override
-    public void updateBalance(double amount) {
-        this.balance = amount;
+        return true;
     }
 
     public Map<Integer,SaleTransaction> getSaleTransactionMap(){
