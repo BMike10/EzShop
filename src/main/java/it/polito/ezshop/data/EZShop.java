@@ -26,7 +26,7 @@ public class EZShop implements EZShopInterface {
     private Map<String, LoyaltyCard> cards;
     private Map<LoyaltyCard,Customer> attachedCards = new HashMap<>();
 	private User currentUser;
-	private final AccountBookClass accountBook = new AccountBookClass(0);
+	private final AccountBookClass accountBook;
 	private Map<String,Double> CreditCardsMap = new HashMap<>();
 	
 	public EZShop() {
@@ -35,21 +35,7 @@ public class EZShop implements EZShopInterface {
 		users = Connect.getUsers();
 		customers = Connect.getCustomer();
 		cards = Connect.getLoyaltyCard();
-		accountBook.setOrderMap(Connect.getOrder());
-		accountBook.setReturnTransactionMap(Connect.getReturnTransaction());
-		accountBook.setSaleTransactionMap(Connect.getSaleTransaction());
-		accountBook.setBalanceOperationMap(accountBook.getReturnTransactionMap(), accountBook.getOrderMap(), accountBook.getSaleTransactionMap());
-		//SET INITIAL BALANCE
-		if(!accountBook.getBalanceOperationMap().isEmpty()){
-			double newBalance;
-			//IS BALANCE MONEY VALUE ALWAYS SET TO A CORRECT VALUE?
-			double CREDIT = accountBook.getBalanceOperationMap().values().stream().
-					filter(balanceOperation -> balanceOperation.getMoney() > 0).mapToDouble(BalanceOperation::getMoney).sum();
-			double DEBIT = accountBook.getBalanceOperationMap().values().stream().
-					filter(balanceOperation -> balanceOperation.getMoney() < 0).mapToDouble(BalanceOperation::getMoney).sum();
-			newBalance = CREDIT - DEBIT;
-			accountBook.setBalance(newBalance);
-		}
+		accountBook = new AccountBookClass(Connect.getSaleTransaction(), Connect.getOrder(), Connect.getReturnTransaction());
 	}
 
 

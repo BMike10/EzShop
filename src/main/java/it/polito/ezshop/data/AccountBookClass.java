@@ -22,13 +22,28 @@ public class AccountBookClass implements AccountBook{
     }
 
     // Already existed Account Book
-    public AccountBookClass(int balance, Map<Integer,SaleTransaction> SalOp, Map<Integer,Order> OrdOp, Map<Integer,ReturnTransaction> RetOp, Map<Integer,BalanceOperation> BalOp) {
+    public AccountBookClass(Map<Integer,SaleTransaction> SalOp, Map<Integer,Order> OrdOp, Map<Integer,ReturnTransaction> RetOp) {
 
-        this.balance = balance;
         this.saleTransactionMap.putAll(SalOp);
-        this.returnTransactionMap.putAll(RetOp);
         this.orderMap.putAll(OrdOp);
-        this.balanceOperationMap.putAll(BalOp);
+        this.returnTransactionMap.putAll(RetOp);
+        //WILL IT WORK?!
+        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.orderMap);
+        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.returnTransactionMap);
+        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.saleTransactionMap);
+        //
+        // SET INITIAL BALANCE
+        if(!balanceOperationMap.isEmpty()){
+            double newBalance;
+            //IS BALANCE MONEY VALUE ALWAYS SET TO A CORRECT VALUE?
+            //It's works if the saleTransaction doesn't update after returnTransaction
+            double CREDIT = this.balanceOperationMap.values().stream().
+                    filter(balanceOperation -> balanceOperation.getMoney() > 0).mapToDouble(BalanceOperation::getMoney).sum();
+            double DEBIT = this.balanceOperationMap.values().stream().
+                    filter(balanceOperation -> balanceOperation.getMoney() < 0).mapToDouble(BalanceOperation::getMoney).sum();
+            newBalance = CREDIT - DEBIT;
+            this.balance = newBalance;
+        }
     }
 
     @Override
@@ -149,13 +164,7 @@ public class AccountBookClass implements AccountBook{
         this.returnTransactionMap.clear();
         this.returnTransactionMap.putAll(newReturnMap);
     }
-    public void setBalanceOperationMap(Map<Integer,ReturnTransaction> newReturnMap,Map<Integer,Order> newOrderMap,Map<Integer,SaleTransaction> newSaleMap){
-        this.balanceOperationMap.clear();
-        //WILL IT WORK?!
-        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) newOrderMap);
-        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) newReturnMap);
-        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) newSaleMap);
-    }
+
 
     public List<BalanceOperation> getBalanceOperationByDate(LocalDate from, LocalDate to){
         List<BalanceOperation> bo;
@@ -179,8 +188,6 @@ public class AccountBookClass implements AccountBook{
 
 
     public Integer newId(){
-
-        Integer newId= balanceOperationMap.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
-        return newId;
+        return balanceOperationMap.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
     }
 }
