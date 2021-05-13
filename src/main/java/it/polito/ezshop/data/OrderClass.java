@@ -22,7 +22,7 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 		this(-1, (String)null, pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, OrderStatus.ISSUED);
 	}
 	public OrderClass(int id, String desc, double amount, LocalDate date, String supplier, String productCode, double pricePerUnit, int quantity, OrderStatus status) {
-		super(id, desc, amount, date, "ORDER");
+		super(id, desc, amount, date, "DEBIT");
 		if(productCode == null || !ProductTypeClass.validateBarCode(productCode))
 			throw new RuntimeException(new InvalidProductCodeException());
 		if(pricePerUnit <= 0)

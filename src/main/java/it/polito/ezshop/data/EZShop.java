@@ -72,18 +72,10 @@ public class EZShop implements EZShopInterface {
     	 if(username==null || username.isEmpty()) throw new InvalidUsernameException();
     	 if(password==null || password.isEmpty()) throw new InvalidPasswordException();
     	 if(role==null || role.isEmpty() ) throw new InvalidRoleException();
-    	 int id = users.size() + 1;
+     	int id = users.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
          User user = new UserClass(id, username, password, RoleEnum.valueOf(role));  
          users.put(id,user);
-         String sql = "insert into User( id, username, password, role)"
-         		+ "values("+id+","
-         		+ "'"+username+"',"
-         		+ "'"+password+"',"
-         		+ RoleEnum.valueOf(role).ordinal()+")";
-         try(Statement st = conn.createStatement()){
-         	st.execute(sql);
-         }catch(SQLException e) {
-         	e.printStackTrace();
+         if(!Connect.addUsers(id, username, password,role)) {
          	users.remove(id);
          	return -1;
          }   
@@ -95,12 +87,7 @@ public class EZShop implements EZShopInterface {
     	if(id<=0 ||id==null) throw new InvalidUserIdException();
         if(currentUser==null || !currentUser.getRole().equals("Administrator")) throw new UnauthorizedException();       
     	User u = users.remove(id);
-        String sql = "delete from User"
-        		+ " where id = "+id;
-        try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
+    	if(!Connect.deleteUser(id)) {
         	users.put(id, u);
         	return false;
         }
@@ -131,8 +118,7 @@ public class EZShop implements EZShopInterface {
     public boolean updateUserRights(Integer id, String role) throws InvalidUserIdException, InvalidRoleException, UnauthorizedException {      
     	if(currentUser==null || !currentUser.getRole().equals("Administrator")) throw new UnauthorizedException(); 
     	if(id==null || id <= 0) throw new InvalidUserIdException();
-       	if(role==null || role.isEmpty()) throw new InvalidRoleException();
-       	
+       	if(role==null || role.isEmpty()) throw new InvalidRoleException();       	
        	UserClass user = (UserClass) users.get(id);
         	if(user == null || user.getId() == null)
         		//user doesn't exist
@@ -140,15 +126,8 @@ public class EZShop implements EZShopInterface {
         		//old role
         	final String tmp = user.getRole(); 
         	user.setRole(role);
-    		String sql = "update User"
-         		+ " set "
-         		+ "role = "+RoleEnum.valueOf(role).ordinal()+
-         		" where id = "+id;
-         try(Statement st = conn.createStatement()){
-         	st.execute(sql);
-         }catch(SQLException e) {
-         	e.printStackTrace();
-         user.setRole(role);
+        	if(!Connect.updateUserRights(id,role)) {
+        		user.setRole(role);
          	return false;
          }
      	return true;
@@ -161,7 +140,6 @@ public class EZShop implements EZShopInterface {
     	if(password==null||password.isEmpty()) throw new InvalidPasswordException(); 
     	for(User user: users.values()) {
     		if(user.getUsername().equals(username) && user.getPassword().equals(password)) {
-    		  //user=currentUser;
     	      currentUser = user;
     	      return currentUser;   		 
     		}
@@ -189,18 +167,7 @@ public class EZShop implements EZShopInterface {
         ProductType pt = new ProductTypeClass(nextId, description, productCode, pricePerUnit, note);
         products.put(nextId,  pt);
         // add to db
-        String sql = "insert into ProductTypes( id, barcode, description, sellPrice, quantity, notes, position)"
-        		+ "values("+nextId+","
-        		+ "'"+productCode+"',"
-        		+ "'"+description+"',"
-        		+ pricePerUnit+","
-        		+"0,"
-        		+(note==null?"NULL,":"'"+note+"',")+
-        		"NULL)";
-        try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
+        if(!Connect.addProduct(nextId, productCode, description, pricePerUnit, note)) {
         	products.remove(nextId);
         	return -1;
         }
@@ -221,22 +188,10 @@ public class EZShop implements EZShopInterface {
         	return false;
         products.put(id, pt);
         // add to db
-        String sql = "update ProductTypes "
-        		+ "set "
-        		+ "barcode = '"+newCode+"',"
-        		+ "description = '"+newDescription+"',"
-        		+ "sellPrice="+newPrice+","
-        		+"notes="+(newNote==null?" NULL ":"'"+newNote+"' ")+
-        		" where id = "+id;
-        try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
+        if(!Connect.updateProduct(id, newCode, newDescription, newPrice, newNote)) {
         	// rollback
         	if(tmp != null)
         		products.put(id, tmp);
-        	else
-        		products.remove(id);
         	return false;
         }
     	return true;
@@ -315,14 +270,7 @@ public class EZShop implements EZShopInterface {
     	boolean updated = pt.updateQuantity(toBeAdded);
     	if(!updated)
     		return false;
-    	String sql = "update ProductTypes "
-        		+ "set "
-        		+ "quantity = "+(pt.getQuantity())
-        		+" where id = "+productId;
-        try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
+    	if(!Connect.updateProductQuantity(productId, pt.getQuantity())) {
         	pt.updateQuantity(-toBeAdded);
         	return false;
         }
@@ -351,11 +299,7 @@ public class EZShop implements EZShopInterface {
     	}
     	pt.setLocation(p);
     	// db update
-    	String sql = "UPDATE ProductTypes SET position = '"+p.toString()+"' where id = "+productId;
-    	try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
+    	if(!Connect.updateProductPosition(productId, p)) {
         	pt.setLocation(prev);
         	return false;
         }
@@ -383,20 +327,7 @@ public class EZShop implements EZShopInterface {
         OrderClass o = new OrderClass(productCode, pricePerUnit, quantity);
         nextId = accountBook.addOrder((Order) o);
         //o.setOrderId(nextId);
-        // insert into db
-    	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
-        		+ "VALUES ("+nextId
-        		+", NULL, "
-        		+ (pricePerUnit * quantity) +", "
-        		+ "DATE('now'), "
-        		+ OrderStatus.ISSUED.ordinal()+", "
-        		+ pt.getId()+", "
-        		+ pricePerUnit+", "
-        		+ quantity+")";    	
-    	try(Statement st = conn.createStatement()){
-    		st.execute(sql);
-    	}catch (SQLException e) {
-			e.printStackTrace();
+        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.ISSUED, pt.getId())) {
 			// rollback
 			try {
 				accountBook.removeOrder(o.getBalanceId());
@@ -429,20 +360,8 @@ public class EZShop implements EZShopInterface {
         nextId = accountBook.addOrder((Order) o);
     	//o.setOrderId(nextId);
     	// update db
-    	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
-        		+ "VALUES ("+nextId
-        		+", NULL, "
-        		+ (pricePerUnit * quantity) +", "
-        		+ "DATE('now'), "
-        		+ OrderStatus.ISSUED.ordinal()+", "
-        		+ pt.getId()+", "
-        		+ pricePerUnit+", "
-        		+ quantity+")";    	
-    	try(Statement st = conn.createStatement()){
-    		st.execute(sql);
-    	}catch (SQLException e) {
-			e.printStackTrace();
-			// rollback
+
+        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
 			try {
 				accountBook.removeOrder(o.getOrderId());
 			} catch (InvalidTransactionIdException e1) {
@@ -451,7 +370,7 @@ public class EZShop implements EZShopInterface {
 			return -1;
 		}
     	// update balance
-    	if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
+    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
     		// rollback
     		try {
 				accountBook.removeOrder(o.getOrderId());
@@ -479,17 +398,14 @@ public class EZShop implements EZShopInterface {
     		return false;
     	o.setStatus("PAYED");
     	// save status on db
-    	String sql = "UPDATE Orders SET status = "+OrderStatus.PAYED.ordinal() + " WHERE id = "+o.getOrderId();
-    	try(Statement st = conn.createStatement()){
-    		st.execute(sql);
-    	}catch (SQLException e) {
-			e.printStackTrace();
+    	if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED)) {
 			// rollback
 			o.setStatus("ISSUED");
 			return false;
 		}
-    	if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
+    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
     		// rollback
+    		Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.ISSUED);
 			o.setStatus("ISSUED");
 			return false;
     	}
@@ -523,36 +439,23 @@ public class EZShop implements EZShopInterface {
 		}
     	if(pt == null)
     		return false;
-    	// position cehck
+    	// position check
     	Position pos = pt.getPosition();
     	if (pos == null || pos.getAisleId()<0)
     		throw new InvalidLocationException();
     	// quantity update
     	pt.updateQuantity(o.getQuantity());
     	// record on db
-    	String sql = "UPDATE Orders SET status = "+OrderStatus.COMPLETED.ordinal() + " WHERE id = "+o.getOrderId();
-    	try(Statement st = conn.createStatement()){
-    		st.execute(sql);
-    	}catch (SQLException e) {
-			e.printStackTrace();
+		if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED)) {
 			// rollback
 			pt.updateQuantity(-o.getQuantity());
 			o.setStatus("PAYED");
 			return false;
 		}
-    	String sql2 = "UPDATE ProductTyeps SET quantity = "+pt.getQuantity() + " WHERE id = "+pt.getId();
-    	try(Statement st = conn.createStatement()){
-    		st.execute(sql2);
-    	}catch (SQLException e) {
-			e.printStackTrace();
+		if(!Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
 			// rollback
 			// delete completed status from db
-			String sql3 = "UPDATE Orders SET status = "+OrderStatus.PAYED.ordinal() + " WHERE id = "+o.getOrderId();
-	    	try(Statement st = conn.createStatement()){
-	    		st.execute(sql3);
-	    	}catch (SQLException e1) {
-				e.printStackTrace();
-			}
+			Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED);
 			pt.updateQuantity(-o.getQuantity());
 			o.setStatus("PAYED");
 			return false;
@@ -564,47 +467,23 @@ public class EZShop implements EZShopInterface {
     public List<Order> getAllOrders() throws UnauthorizedException {
         if(currentUser==null || currentUser.getRole().equals("Cashier"))
         	throw new UnauthorizedException();
-        
-    	List<Order> orders = new ArrayList<Order>();
-    	try(Statement stmnt = conn.createStatement()){
-    		String sql = "SELECT * FROM orders";
-    		ResultSet rs = stmnt.executeQuery(sql);
-    		while(rs.next()) {
-    			int id = rs.getInt("id");
-    	    	String description = rs.getString("description"); 
-    	    	double amount = rs.getDouble("amount");
-    	    	Date date = rs.getDate("date");
-    	    	String supplier = rs.getString("supplier");
-    	    	int status = rs.getInt("status");
-    	    	int productId = rs.getInt("productId");
-    	    	double unitPrice = rs.getDouble("unitPrice");
-    	    	int quantity = rs.getInt("quantity");
-    	    	OrderStatus oStatus = OrderStatus.values()[status];
-    	    	String prodCode = products.get(productId).getBarCode();
-    	    	OrderClass o = new OrderClass(id, description, amount, date.toLocalDate(), supplier, prodCode, unitPrice, quantity, oStatus);
-    	    	orders.add((Order) o);
-    		}
-    	}catch(SQLException e) {
-    		e.printStackTrace();
-    	}
-        return orders;
+        return new ArrayList<>(Connect.getOrder().values());
     }
+
 
     @Override
     public Integer defineCustomer(String customerName) throws InvalidCustomerNameException, UnauthorizedException {
     	 if(customerName==null ||customerName.isEmpty()) throw new InvalidCustomerNameException();
          if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();        
-     	 int id = customers.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
-         Customer c = new CustomerClass(id, customerName); 
-         if (customers.containsValue(customerName)) return -1;
-         customers.put(id,c);
-         String sql = "insert into Customer(id, customerName, customerCard, points)"
-         		+ "values("+id+","
-         		+"'"+customerName+")";
-         try(Statement st = conn.createStatement()){
-         	st.execute(sql);
-         }catch(SQLException e) {
-         	e.printStackTrace();
+        
+         if(users.values().stream().map(e->e.getUsername()).anyMatch(e->e==customerName)) return -1;
+          
+         int id = customers.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
+          Customer c = new CustomerClass(id, customerName);
+          customers.put(id,c);
+          c.setCustomerName(customerName);
+          c.setId(id);
+  		if(!Connect.addCustomer(id, customerName)) {
          	customers.remove(id);
          	return -1;
          }   
@@ -623,8 +502,7 @@ public class EZShop implements EZShopInterface {
         }*/	
         CustomerClass c = (CustomerClass) customers.get(id);       
         String prevName= c.getCustomerName();
-        String prevCardCode= c.getCustomerCard();
-        
+        String prevCardCode= c.getCustomerCard();        
         if(newCustomerCard == "")
         {
         //any existing card code connected to the customer will be removed  
@@ -635,15 +513,7 @@ public class EZShop implements EZShopInterface {
         
     	c.setCustomerCard(newCustomerCard);
     	c.setCustomerName(newCustomerName);
-        String sql = "update Customer"
-        		+ "set "
-        		+ "customerName = "+(newCustomerName)
-        		+ "cardId = "+(newCustomerCard)
-        		+"where id = "+id;
-         try(Statement st = conn.createStatement()){
-         	st.execute(sql);
-         }catch(SQLException e) {
-         	e.printStackTrace();
+		if(!Connect.updateCustomer(id, newCustomerName, newCustomerCard)){
          	c.setCustomerName(prevName);
          	c.setCustomerCard(prevCardCode);
          	return false;
@@ -656,12 +526,7 @@ public class EZShop implements EZShopInterface {
     	if(id<=0 ||id==null) throw new InvalidCustomerIdException();
         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
     	Customer c = customers.remove(id);
-        String sql = "delete from Customer"
-        		+ " where id = "+id;
-        try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
+		if(!Connect.removeCustomer(id)) {
         	customers.put(id,c);
         	return false;
         }
@@ -685,18 +550,14 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public String createCard() throws UnauthorizedException {
-        if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
+    	  if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
           //String of 10 digits      
         LoyaltyCardClass newCard = new LoyaltyCardClass("",0);
         String number = newCard.createCardCode(10);
-        cards.put(number,newCard);        
-        String sql = "insert into loyaltyCard(number,points)"
-        		+ "values("+number+","
-        		+"'"+0+")";
-        try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
+        newCard.setCardCode(number);
+        cards.put(number,newCard);  
+        
+		if(!Connect.addLoyaltyCard(number)) {
         	cards.remove(number);
         	return "";     	
         }   
@@ -704,15 +565,17 @@ public class EZShop implements EZShopInterface {
     }
 
     @Override
-    public boolean attachCardToCustomer(String customerCard, Integer customerId) throws InvalidCustomerIdException, InvalidCustomerCardException, UnauthorizedException {
-    	 if(currentUser == null || currentUser.getRole().isEmpty())throw new UnauthorizedException();
+    public boolean attachCardToCustomer(String customerCard, Integer customerId) throws InvalidCustomerIdException, InvalidCustomerCardException, UnauthorizedException {      	 
+    	if(currentUser == null || currentUser.getRole().isEmpty())throw new UnauthorizedException();
     	 if(customerId == null || customerId <= 0) throw new InvalidCustomerIdException();
-    	 if(customerCard == null || customerCard.isEmpty())throw new InvalidCustomerCardException();
-    	
+    	 if(customerCard == null || customerCard.isEmpty())throw new InvalidCustomerCardException();   	
     	 LoyaltyCard card = cards.get(customerCard);
-    	 Customer customer = customers.get(customerId);
-    	 if(customer.getId() == null || attachedCards.containsKey(customerCard) ) return false;    	     	 
-    	 attachedCards.put(card,customer);  
+    	 Customer customer = customers.get(customerId);  	 
+    	 if(customer.getId() == null || attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e==customerCard))    	 
+    	
+    	attachedCards.put(card,customer); 
+    	 cards.put(customerCard, card);
+
     	 customer.setCustomerCard(customerCard);
     	 
     	 //creare tabella?
@@ -725,19 +588,12 @@ public class EZShop implements EZShopInterface {
     	  if(currentUser == null ||currentUser.getRole().isEmpty())
     	    	throw new UnauthorizedException();
     	  if(!CustomerClass.checkCardCode(customerCard)) throw new InvalidCustomerCardException();
-    LoyaltyCardClass card= (LoyaltyCardClass) attachedCards.get(customerCard);
+    LoyaltyCardClass card= (LoyaltyCardClass) cards.get(customerCard);
     if(card == null) throw new InvalidCustomerCardException();
 	boolean updated = card.updatePoints(pointsToBeAdded);
 	if(!updated)
 		return false;
-    String sql = "update loyaltyCard"
-    		+ "set "
-    		+ "points = "+(card.getPoints())
-    		+"where id = "+customerCard;
-    try(Statement st = conn.createStatement()){
-    	st.execute(sql);
-    }catch(SQLException e) {
-    	e.printStackTrace();
+	if(!Connect.updateLoyaltyCard(customerCard, card.getPoints())) {
     	card.updatePoints(-pointsToBeAdded);
     	return false;
     }
