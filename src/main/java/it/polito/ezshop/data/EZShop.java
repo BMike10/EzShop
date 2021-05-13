@@ -177,11 +177,17 @@ public class EZShop implements EZShopInterface {
     public boolean updateProduct(Integer id, String newDescription, String newCode, double newPrice, String newNote) throws InvalidProductIdException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
         if(currentUser==null || currentUser.getRole().equals("Cashier"))
         	throw new UnauthorizedException();
-    	if(!products.containsKey(id)) 
+        if(id == null || id <= 0)
         	throw new InvalidProductIdException();
+    	if(!products.containsKey(id)) 
+        	return false;
         
         ProductType pt = new ProductTypeClass(id, newDescription, newCode, newPrice, newNote);
         ProductType tmp = products.get(id);
+        int qty = tmp.getQuantity();
+        String location = tmp.getLocation();
+        pt.setQuantity(qty);
+        pt.setLocation(location);
         if(!tmp.getBarCode().equals(newCode) && getProductTypeByBarCode(newCode) != null)
         	return false;
         products.put(id, pt);
