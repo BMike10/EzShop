@@ -468,9 +468,8 @@ public class EZShop implements EZShopInterface {
     public Integer defineCustomer(String customerName) throws InvalidCustomerNameException, UnauthorizedException {
     	 if(customerName==null ||customerName.isEmpty()) throw new InvalidCustomerNameException();
          if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();        
-        
-         if(users.values().stream().map(e->e.getUsername()).anyMatch(e->e==customerName)) return -1;
-          
+         if(customers.values().stream().map(e->e.getCustomerName()).anyMatch(e->e==customerName)) return -1;
+
          int id = customers.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
           Customer c = new CustomerClass(id, customerName,"",0);
           customers.put(id,c);
