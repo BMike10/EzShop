@@ -486,8 +486,9 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard) throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException, UnauthorizedException {
     	if(newCustomerName==null ||newCustomerName.isEmpty()) throw new InvalidCustomerNameException();
-    	//if(newCustomerCard==null ||newCustomerCard.isEmpty()||!CustomerClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
-        if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException(); 
+    	// ||newCustomerCard.isEmpty()||!CustomerClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
+    	if(newCustomerCard==null) throw new InvalidCustomerCardException();
+    	if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException(); 
         /*if(newCustomerCard == null)
         {
         //the card code related to the customer should not be affected from the update
@@ -500,9 +501,9 @@ public class EZShop implements EZShopInterface {
         if(newCustomerCard.isEmpty())
         {
         //any existing card code connected to the customer will be removed  
-        	cards.remove(newCustomerCard);
+        	cards.remove(prevCardCode);
         	c.setCustomerCard("");
-        	attachedCards.values().remove(c);   
+        	//attachedCards.values().remove(c);   
         }
         
     	c.setCustomerCard(newCustomerCard);
@@ -568,28 +569,29 @@ public class EZShop implements EZShopInterface {
     	 if(customer.getId() == null || attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e==customerCard))    	 
     	
     	attachedCards.put(card,customer); 
-    	 cards.put(customerCard, card);
 
     	 customer.setCustomerCard(customerCard);
-    	 
-    	 //creare tabella?
+    	
+    	 //non entra mai in questo metodo? 
     	 return true;
     	
     }
 
     @Override
     public boolean modifyPointsOnCard(String customerCard, int pointsToBeAdded) throws InvalidCustomerCardException, UnauthorizedException {
-    	  if(currentUser == null ||currentUser.getRole().isEmpty())
-    	    	throw new UnauthorizedException();
+    	  if(currentUser == null ||currentUser.getRole().isEmpty()) throw new UnauthorizedException();
     	  if(!CustomerClass.checkCardCode(customerCard)) throw new InvalidCustomerCardException();
+    	  
     LoyaltyCardClass card= (LoyaltyCardClass) cards.get(customerCard);
-    for(Customer c: customers.values()) {
- 	   if(c.getCustomerCard().equals(customerCard))
- 	   c.setPoints(pointsToBeAdded);} 
     if(card == null) throw new InvalidCustomerCardException();
 	boolean updated = card.updatePoints(pointsToBeAdded);
 	if(!updated)
-		return false;
+		return false;	
+	 for(Customer c: customers.values()) {
+	 	   if(c.getCustomerCard().equals(customerCard))
+	 	   c.setPoints(pointsToBeAdded);
+	 	   } 
+	
 	if(!Connect.updateLoyaltyCard(customerCard, card.getPoints())) {
     	card.updatePoints(-pointsToBeAdded);
     	return false;
