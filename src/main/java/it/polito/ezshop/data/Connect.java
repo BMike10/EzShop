@@ -309,9 +309,9 @@ public class Connect {
     }
 
     public static boolean addLoyaltyCard(String number){
-        String sql = "insert into loyaltyCard(number,points)"
-                + "values("+number+","
-                +"'"+0+")";
+    	String sql = "insert into loyaltyCard(number, points)"
+        		+ "values('"+number+"',"
+        		+"0)";
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch(SQLException e) {
@@ -322,10 +322,10 @@ public class Connect {
     }
 
     public static boolean updateLoyaltyCard(String customerCard,int points){
-        String sql = "update loyaltyCard"
-                + "set "
-                + "points = "+points
-                +"where id = "+customerCard;
+    	String sql = "update loyaltyCard "
+        		+ "set "
+        		+ "points = "+points
+        		+" where number = "+customerCard;
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch(SQLException e) {
@@ -359,9 +359,11 @@ public class Connect {
         return customers;
     }
     public static boolean addCustomer(int id,String customerName){
-        String sql = "insert into Customer(id, customerName, customerCard, points)"
-                + "values("+id+","
-                +"'"+customerName+")";
+        String cardId = "";
+    	String sql = "insert into Customer(id, customerName, cardId)"
+         		+ "values("+id+","
+         		+"'"+customerName+"',"
+         		+"'"+cardId+"')";
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch(SQLException e) {
@@ -371,11 +373,11 @@ public class Connect {
         return true;
     }
     public static boolean updateCustomer(int id,String newCustomerName,String newCustomerCard){
-        String sql = "update Customer"
-                + "set "
-                + "customerName = "+(newCustomerName)
-                + "cardId = "+(newCustomerCard)
-                +"where id = "+id;
+    	String sql = "update Customer "
+        		+ "set "
+        		+ "customerName = '"+ newCustomerName +"',"
+        		+ "cardId = '"+ newCustomerCard +"'"
+        		+ "where id ="+id;
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch(SQLException e) {
