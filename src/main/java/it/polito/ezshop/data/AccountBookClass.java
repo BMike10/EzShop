@@ -110,9 +110,29 @@ public class AccountBookClass implements AccountBook{
         return this.balance;
     }
 
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
     @Override
     public void updateBalance(double amount) {
         this.balance = amount;
+    }
+
+    public Map<Integer,SaleTransaction> getSaleTransactionMap(){
+        return this.saleTransactionMap;
+    }
+
+    public Map<Integer,Order> getOrderMap(){
+        return this.orderMap;
+    }
+
+    public Map<Integer,ReturnTransaction> getReturnTransactionMap(){
+        return this.returnTransactionMap;
+    }
+
+    public Map<Integer,BalanceOperation> getBalanceOperationMap(){
+        return this.balanceOperationMap;
     }
 
     public void setSaleTransactionMap(Map<Integer,SaleTransaction> newSaleMap){
@@ -128,6 +148,13 @@ public class AccountBookClass implements AccountBook{
     public void setReturnTransactionMap(Map<Integer,ReturnTransaction> newReturnMap){
         this.returnTransactionMap.clear();
         this.returnTransactionMap.putAll(newReturnMap);
+    }
+    public void setBalanceOperationMap(Map<Integer,ReturnTransaction> newReturnMap,Map<Integer,Order> newOrderMap,Map<Integer,SaleTransaction> newSaleMap){
+        this.balanceOperationMap.clear();
+        //WILL IT WORK?!
+        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) newOrderMap);
+        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) newReturnMap);
+        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) newSaleMap);
     }
 
     public List<BalanceOperation> getBalanceOperationByDate(LocalDate from, LocalDate to){
@@ -152,17 +179,8 @@ public class AccountBookClass implements AccountBook{
 
 
     public Integer newId(){
-        Integer newKey = null;
 
-        if(balanceOperationMap.isEmpty())
-            return 1;
-        for (Integer key : balanceOperationMap.keySet())
-        {
-            if (newKey == null || key.compareTo(newKey) > 0)
-            {
-                newKey = key;
-            }
-        }
-        return newKey;
+        Integer newId= balanceOperationMap.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
+        return newId;
     }
 }

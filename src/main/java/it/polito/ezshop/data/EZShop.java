@@ -38,6 +38,18 @@ public class EZShop implements EZShopInterface {
 		accountBook.setOrderMap(Connect.getOrder());
 		accountBook.setReturnTransactionMap(Connect.getReturnTransaction());
 		accountBook.setSaleTransactionMap(Connect.getSaleTransaction());
+		accountBook.setBalanceOperationMap(accountBook.getReturnTransactionMap(), accountBook.getOrderMap(), accountBook.getSaleTransactionMap());
+		//SET INITIAL BALANCE
+		if(!accountBook.getBalanceOperationMap().isEmpty()){
+			double newBalance;
+			//IS BALANCE MONEY VALUE ALWAYS SET TO A CORRECT VALUE?
+			double CREDIT = accountBook.getBalanceOperationMap().values().stream().
+					filter(balanceOperation -> balanceOperation.getMoney() > 0).mapToDouble(BalanceOperation::getMoney).sum();
+			double DEBIT = accountBook.getBalanceOperationMap().values().stream().
+					filter(balanceOperation -> balanceOperation.getMoney() < 0).mapToDouble(BalanceOperation::getMoney).sum();
+			newBalance = CREDIT - DEBIT;
+			accountBook.setBalance(newBalance);
+		}
 	}
 
 
@@ -1003,7 +1015,7 @@ public class EZShop implements EZShopInterface {
     public boolean recordBalanceUpdate(double toBeAdded) throws UnauthorizedException {
 
 		//LOGIN
-		if(currentUser==null || currentUser.getRole().equals("Administrator"))
+		if(currentUser==null || currentUser.getRole().equals("Cashier"))
 			throw new UnauthorizedException();
 
 		String newType;
@@ -1013,12 +1025,12 @@ public class EZShop implements EZShopInterface {
 		//Negative new balance
 		if(newBalance < 0)
 			return false;
-
+/*
 		//Positive new Balance
 		if(toBeAdded < 0){
 			//DEBIT
 			newType = "DEBIT";
-            /*
+
                 //Add to Map
                 OrderClass newOrderTransaction = new OrderClass();
                 accountBook.addOrderTransaction(newOrderTransaction);
@@ -1039,11 +1051,11 @@ public class EZShop implements EZShopInterface {
                 }catch (SQLException e) {
                     e.printStackTrace();
                 }
-            */
+
 		}else{
 			//CREDIT
 			newType = "CREDIT";
-            /*
+
                 //Add to Map (saleTransactionMap && BalanceOperationMap)
                 SaleTransactionClass newSaleTransaction = new SaleTransactionClass();
                 accountBook.addSaleTransaction(newSaleTransaction);
@@ -1066,8 +1078,7 @@ public class EZShop implements EZShopInterface {
                     e.printStackTrace();
                 }
 
-            */
-		}
+
 
 //		BalanceOperationClass newBalanceOperation = new BalanceOperationClass(toBeAdded,newType);
 //		//DB update
@@ -1085,7 +1096,7 @@ public class EZShop implements EZShopInterface {
 //		}catch (SQLException e) {
 //			e.printStackTrace();
 //		}
-
+*/
 		return true;
 	}
 
@@ -1093,7 +1104,7 @@ public class EZShop implements EZShopInterface {
 	@Override
 	public List<BalanceOperation> getCreditsAndDebits(LocalDate from, LocalDate to) throws UnauthorizedException {
 		//LOGIN
-		if(currentUser==null || currentUser.getRole().equals("Administrator"))
+		if(currentUser==null || currentUser.getRole().equals("Cashier"))
 			throw new UnauthorizedException();
 
 		LocalDate newFrom = from,newTo = to;
