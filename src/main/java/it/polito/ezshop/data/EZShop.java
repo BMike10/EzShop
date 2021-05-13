@@ -3,14 +3,11 @@ package it.polito.ezshop.data;
 import it.polito.ezshop.exceptions.*;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -24,7 +21,7 @@ public class EZShop implements EZShopInterface {
 	private Map<Integer, User> users;
 	private Map<Integer, Customer> customers;
     private Map<String, LoyaltyCard> cards;
-    private Map<LoyaltyCard,Customer> attachedCards = new HashMap<>();
+    private Map<LoyaltyCard,Customer> attachedCards;
 	private User currentUser;
 	private final AccountBookClass accountBook;
 	private Map<String,Double> CreditCardsMap = new HashMap<>();
@@ -33,9 +30,11 @@ public class EZShop implements EZShopInterface {
 		Connect.connect();
 		products = Connect.getProduct();
 		users = Connect.getUsers();
-		customers = Connect.getCustomer();
 		cards = Connect.getLoyaltyCard();
-		accountBook = new AccountBookClass(Connect.getSaleTransaction(), Connect.getOrder(), Connect.getReturnTransaction());
+		customers = Connect.getCustomer(cards);
+		attachedCards = Connect.getAttachedCard(cards, customers);
+		Map<Integer,SaleTransaction> sales = Connect.getSaleTransaction(products);
+		accountBook = new AccountBookClass(sales, Connect.getOrder(products), Connect.getReturnTransaction(products, sales));
 	}
 
 
@@ -460,7 +459,7 @@ public class EZShop implements EZShopInterface {
     public List<Order> getAllOrders() throws UnauthorizedException {
         if(currentUser==null || currentUser.getRole().equals("Cashier"))
         	throw new UnauthorizedException();
-        return new ArrayList<>(Connect.getOrder().values());
+        return new ArrayList<>(Connect.getOrder(products).values());
     }
 
 

@@ -336,10 +336,10 @@ public class Connect {
     }
 
     //CUSTOMERS(COMPLETED)
-    public static Map<Integer, Customer> getCustomer(){
+    public static Map<Integer, Customer> getCustomer(Map<String, LoyaltyCard> cards){
 
         Map<Integer, Customer> customers = new HashMap<>();
-        Map<String, LoyaltyCard> cards = getLoyaltyCard();
+        //Map<String, LoyaltyCard> cards = getLoyaltyCard();
         try (Statement stmt = conn.createStatement()) {
             String sql = "select * from customer";
             ResultSet rs = stmt.executeQuery(sql);
@@ -350,7 +350,7 @@ public class Connect {
                 String cardId = rs.getString("cardId");
                 //Integer points = rs.getInt("points");
                 LoyaltyCard usrCard = cards.get(cardId);
-                CustomerClass c = new CustomerClass(id, customerName,cardId,usrCard.getPoints()/*points*/);
+                CustomerClass c = new CustomerClass(id, customerName,cardId,usrCard==null?0:usrCard.getPoints()/*points*/);
                 c.setCustomerCard(cardId);
                 customers.put(id,  c);
             }
@@ -400,10 +400,23 @@ public class Connect {
         return true;
     }
 
-    public static Map<Integer, Order> getOrder(){
+    public static Map<LoyaltyCard, Customer> getAttachedCard(Map<String, LoyaltyCard> cards, Map<Integer, Customer> customers){
+    	Map<LoyaltyCard, Customer> res = new HashMap<>();
+    	for(Customer c: customers.values()) {
+    		String cardCode = c.getCustomerCard();
+    		if(cardCode!=null && !cardCode.equals("")) {
+    			LoyaltyCard card = cards.get(cardCode);
+    			if(card!=null) {
+    				res.put(card, c);
+    			}
+    		}
+    	}
+    	return res;
+    }
+    public static Map<Integer, Order> getOrder(Map<Integer, ProductType> products){
         // ORDER
         Map<Integer, Order> orders = new HashMap<>();
-        Map<Integer, ProductType> products = getProduct();
+        //Map<Integer, ProductType> products = getProduct();
 
         try (Statement stmt = conn.createStatement()) {
             String sql = "SELECT * FROM orders";
@@ -460,10 +473,10 @@ public class Connect {
     	}
     	return true;
     }
-    public static Map<Integer, SaleTransaction> getSaleTransaction(){
+    public static Map<Integer, SaleTransaction> getSaleTransaction(Map<Integer, ProductType> products){
         // SaleTransaction
         HashMap<Integer, SaleTransaction> sales = new HashMap<>();
-        Map<Integer, ProductType> products = getProduct();
+        //Map<Integer, ProductType> products = getProduct();
 
         try (Statement stmt = conn.createStatement()) {
             String sql = "SELECT * FROM SaleTransactions";
@@ -497,11 +510,11 @@ public class Connect {
 
     }
 
-    public static Map<Integer, ReturnTransaction> getReturnTransaction(){
+    public static Map<Integer, ReturnTransaction> getReturnTransaction(Map<Integer, ProductType> products, Map<Integer, SaleTransaction> sales){
        // RETURN TRANSACTION
         HashMap<Integer, ReturnTransaction> returns = new HashMap<>();
-        Map<Integer, SaleTransaction> sales = getSaleTransaction();
-        Map<Integer, ProductType> products = getProduct();
+        //Map<Integer, SaleTransaction> sales = getSaleTransaction();
+        //Map<Integer, ProductType> products = getProduct();
 
         try (Statement stmt = conn.createStatement()) {
             String sql = "select * from ReturnTransactions";
