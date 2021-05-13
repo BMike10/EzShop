@@ -7,11 +7,16 @@ public class CustomerClass implements Customer {
 	private Integer id;
 	private Integer points;
 	
-	public CustomerClass(int id, String customerName) {
+
+	public CustomerClass(int id, String customerName, String customerCard, Integer points) {
+		super();
 		this.id = id;
 		this.customerName = customerName;
+		this.customerCard = customerCard;
+		this.points = points;
 	}
-	
+
+
 	public static boolean checkCardCode(String newCustomerCard) {
 		if(newCustomerCard.length() < 10) return false;
 		return true;

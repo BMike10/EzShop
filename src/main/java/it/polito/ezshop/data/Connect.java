@@ -325,8 +325,8 @@ public class Connect {
     	String sql = "update loyaltyCard "
         		+ "set "
         		+ "points = "+points
-        		+" where number = "+customerCard;
-        try(Statement st = conn.createStatement()){
+        		+" where number = '"+customerCard+"'";
+    	try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch(SQLException e) {
             e.printStackTrace();
@@ -348,8 +348,9 @@ public class Connect {
                 int id = rs.getInt("id");
                 String customerName = rs.getString("customerName");
                 String cardId = rs.getString("cardId");
+                //Integer points = rs.getInt("points");
                 LoyaltyCard usrCard = cards.get(cardId);
-                CustomerClass c = new CustomerClass(id, customerName);
+                CustomerClass c = new CustomerClass(id, customerName,cardId,usrCard.getPoints()/*points*/);
                 c.setCustomerCard(cardId);
                 customers.put(id,  c);
             }

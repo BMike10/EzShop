@@ -160,7 +160,8 @@ public class EZShop implements EZShopInterface {
     public Integer createProductType(String description, String productCode, double pricePerUnit, String note) throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
         if(currentUser==null || currentUser.getRole().equals("Cashier"))
         	throw new UnauthorizedException();
-        
+        if(getProductTypeByBarCode(productCode)!=null)
+        	return -1;
     	int nextId = products.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
         ProductType pt = new ProductTypeClass(nextId, description, productCode, pricePerUnit, note);
         products.put(nextId,  pt);
@@ -199,17 +200,13 @@ public class EZShop implements EZShopInterface {
     public boolean deleteProductType(Integer id) throws InvalidProductIdException, UnauthorizedException {
         if(currentUser==null || currentUser.getRole().equals("Cashier"))
         	throw new UnauthorizedException();
-    	if(!products.containsKey(id)) 
+    	if(id == null || id <= 0) 
         	throw new InvalidProductIdException();
-    	
+    	if(!products.containsKey(id))
+    		return false;
         ProductType tmp = products.remove(id);
         // db update 
-        String sql = "delete from ProductTypes where id = "+id;
-        try(Statement st = conn.createStatement()){
-        	st.execute(sql);
-        }catch(SQLException e) {
-        	e.printStackTrace();
-        	// rollback
+        if(!Connect.removeProduct(id)) {
         	products.put(id, tmp);
         	return false;
         }
@@ -235,8 +232,7 @@ public class EZShop implements EZShopInterface {
     	for(ProductType pt: products.values()) {
     		if(pt.getBarCode().equals(barCode))
     			return pt;
-    	}
-    	
+    	}    	
         return null;
     }
 
@@ -246,8 +242,8 @@ public class EZShop implements EZShopInterface {
         	throw new UnauthorizedException();
         
     	List<ProductType> res = new ArrayList<>();
-    	if(description == null || description.length() <= 0)
-    		return res;
+    	if(description == null)
+    		description="";
     	for(ProductType pt: products.values()) {
     		if(pt.getProductDescription().contains(description))
     			res.add(pt);
@@ -356,17 +352,6 @@ public class EZShop implements EZShopInterface {
     	int nextId=-1;
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
         nextId = accountBook.addOrder((Order) o);
-    	//o.setOrderId(nextId);
-    	// update db
-
-        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
-			try {
-				accountBook.removeOrder(o.getOrderId());
-			} catch (InvalidTransactionIdException e1) {
-				e1.printStackTrace();
-			}
-			return -1;
-		}
     	// update balance
     	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
     		// rollback
@@ -377,6 +362,16 @@ public class EZShop implements EZShopInterface {
 			}
     		return -1;
     	}
+    	// update db
+        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
+			try {
+				accountBook.removeOrder(o.getOrderId());
+				recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
+			} catch (InvalidTransactionIdException e1) {
+				e1.printStackTrace();
+			}
+			return -1;
+		}
     	return nextId;
     }
 
@@ -407,7 +402,7 @@ public class EZShop implements EZShopInterface {
 			o.setStatus("ISSUED");
 			return false;
     	}
-        return false;
+        return true;
     }
 
     @Override
@@ -473,11 +468,10 @@ public class EZShop implements EZShopInterface {
     public Integer defineCustomer(String customerName) throws InvalidCustomerNameException, UnauthorizedException {
     	 if(customerName==null ||customerName.isEmpty()) throw new InvalidCustomerNameException();
          if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();        
-        
-         if(users.values().stream().map(e->e.getUsername()).anyMatch(e->e==customerName)) return -1;
-          
+         if(customers.values().stream().map(e->e.getCustomerName()).anyMatch(e->e==customerName)) return -1;
+
          int id = customers.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
-          Customer c = new CustomerClass(id, customerName);
+          Customer c = new CustomerClass(id, customerName,"",0);
           customers.put(id,c);
           c.setCustomerName(customerName);
           c.setId(id);
@@ -491,8 +485,9 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard) throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException, UnauthorizedException {
     	if(newCustomerName==null ||newCustomerName.isEmpty()) throw new InvalidCustomerNameException();
-    	if(newCustomerCard==null ||newCustomerCard.isEmpty()||!CustomerClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
-        if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException(); 
+    	// ||newCustomerCard.isEmpty()||!CustomerClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
+    	if(newCustomerCard==null) throw new InvalidCustomerCardException();
+    	if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException(); 
         /*if(newCustomerCard == null)
         {
         //the card code related to the customer should not be affected from the update
@@ -500,13 +495,14 @@ public class EZShop implements EZShopInterface {
         }*/	
         CustomerClass c = (CustomerClass) customers.get(id);       
         String prevName= c.getCustomerName();
-        String prevCardCode= c.getCustomerCard();        
-        if(newCustomerCard == "")
+        String prevCardCode= c.getCustomerCard(); 
+        
+        if(newCustomerCard.isEmpty())
         {
         //any existing card code connected to the customer will be removed  
-        	cards.remove(newCustomerCard);
+        	cards.remove(prevCardCode);
         	c.setCustomerCard("");
-        	attachedCards.values().remove(c);   
+        	//attachedCards.values().remove(c);   
         }
         
     	c.setCustomerCard(newCustomerCard);
@@ -572,25 +568,29 @@ public class EZShop implements EZShopInterface {
     	 if(customer.getId() == null || attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e==customerCard))    	 
     	
     	attachedCards.put(card,customer); 
-    	 cards.put(customerCard, card);
 
     	 customer.setCustomerCard(customerCard);
-    	 
-    	 //creare tabella?
+    	
+    	 //non entra mai in questo metodo? 
     	 return true;
     	
     }
 
     @Override
     public boolean modifyPointsOnCard(String customerCard, int pointsToBeAdded) throws InvalidCustomerCardException, UnauthorizedException {
-    	  if(currentUser == null ||currentUser.getRole().isEmpty())
-    	    	throw new UnauthorizedException();
+    	  if(currentUser == null ||currentUser.getRole().isEmpty()) throw new UnauthorizedException();
     	  if(!CustomerClass.checkCardCode(customerCard)) throw new InvalidCustomerCardException();
+    	  
     LoyaltyCardClass card= (LoyaltyCardClass) cards.get(customerCard);
     if(card == null) throw new InvalidCustomerCardException();
 	boolean updated = card.updatePoints(pointsToBeAdded);
 	if(!updated)
-		return false;
+		return false;	
+	 for(Customer c: customers.values()) {
+	 	   if(c.getCustomerCard().equals(customerCard))
+	 	   c.setPoints(pointsToBeAdded);
+	 	   } 
+	
 	if(!Connect.updateLoyaltyCard(customerCard, card.getPoints())) {
     	card.updatePoints(-pointsToBeAdded);
     	return false;
