@@ -474,8 +474,10 @@ public class Connect {
     	}
     	return true;
     }
+
+    //SALE TRANSACTION
+
     public static Map<Integer, SaleTransaction> getSaleTransaction(Map<Integer, ProductType> products){
-        // SaleTransaction
         HashMap<Integer, SaleTransaction> sales = new HashMap<>();
         //Map<Integer, ProductType> products = getProduct();
 
@@ -511,8 +513,40 @@ public class Connect {
 
     }
 
+    public static boolean addSaleTransaction(int nextId, double amount, String paymentType, double discountRate,OrderStatus status, String cardId,Integer soldProducts ) {
+        // insert into db
+        String sql = "INSERT INTO Orders(id, description, amount, date, time, paymentType, discountRate, status, cardId,soldProducts) "
+                + "VALUES ("+nextId
+                +", 'CREDIT', "
+                + amount +", "
+                + "DATE('now'), "
+                + "CAST(DATE('now') AS time), "
+                + paymentType+", "
+                + discountRate+", "
+                + status.ordinal()+", "
+                + cardId+", "
+                + soldProducts
+                + ")";
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    public static boolean updateSaleTransactionStatus(int id, SaleStatus status) {
+        String sql = "UPDATE SaleTransaction SET status = " + status.ordinal() + " WHERE id = " + id;
+        try (Statement st = conn.createStatement()) {
+            st.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    // RETURN TRANSACTION
     public static Map<Integer, ReturnTransaction> getReturnTransaction(Map<Integer, ProductType> products, Map<Integer, SaleTransaction> sales){
-       // RETURN TRANSACTION
         HashMap<Integer, ReturnTransaction> returns = new HashMap<>();
         //Map<Integer, SaleTransaction> sales = getSaleTransaction();
         //Map<Integer, ProductType> products = getProduct();
@@ -549,4 +583,33 @@ public class Connect {
         return returns;
     }
 
+    public static boolean addReturnTransaction(int nextId, double amount, ReturnStatus status, Integer saleId, Integer returnedProductsId) {
+        // insert into db
+        String sql = "INSERT INTO ReturnTransaction(id, description, amount, date, status, saleId, returnedProductsId) "
+                + "VALUES ("+nextId
+                +", 'DEBIT', "
+                + amount +", "
+                + "DATE('now'), "
+                + status.ordinal()+", "
+                + saleId+", "
+                + returnedProductsId+")";
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean updateReturnTransactionStatus(int id, ReturnStatus status) {
+        String sql = "UPDATE ReturnTransaction SET status = " + status.ordinal() + " WHERE id = " + id;
+        try (Statement st = conn.createStatement()) {
+            st.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }
