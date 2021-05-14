@@ -24,6 +24,7 @@ public class AccountBookClass implements AccountBook{
     }
 
     // Already existed Account Book
+    @SuppressWarnings("unchecked")
     public AccountBookClass(Map<Integer,SaleTransaction> SalOp, Map<Integer,Order> OrdOp, Map<Integer,ReturnTransaction> RetOp) {
 
         this.saleTransactionMap.putAll(SalOp);
@@ -65,9 +66,9 @@ public class AccountBookClass implements AccountBook{
             //IS BALANCE MONEY VALUE ALWAYS SET TO A CORRECT VALUE?
             //It's works if the saleTransaction doesn't update after returnTransaction
             double CREDIT = this.balanceOperationMap.values().stream().
-                    filter(balanceOperation -> balanceOperation.getMoney() > 0).mapToDouble(BalanceOperation::getMoney).sum();
+                    filter(balanceOperation -> balanceOperation.getType().equals("CREDIT")).mapToDouble(BalanceOperation::getMoney).sum();
             double DEBIT = this.balanceOperationMap.values().stream().
-                    filter(balanceOperation -> balanceOperation.getMoney() < 0).mapToDouble(BalanceOperation::getMoney).sum();
+                    filter(balanceOperation -> balanceOperation.getType().equals("DEBIT")).mapToDouble(BalanceOperation::getMoney).sum();
             newBalance = CREDIT - DEBIT;
             this.balance = newBalance;
         }
