@@ -95,5 +95,23 @@ public class UserClassTest {
 					}
 		}
 		
+		@Test
+		public void testSetRole() {
+			final UserClass u = new UserClass(1, "username", "password", RoleEnum.Administrator );					
+			assertEquals("Administrator", u.getRole());
+					// null
+					assertThrows(Exception.class, ()->{u.setRole(null);});
+					assertEquals("Administrator", u.getRole());
+					// empty
+					assertThrows(Exception.class, ()->{u.setRole("");});
+					assertEquals("Administrator", u.getRole());
+					// valid
+					try {
+						u.setPassword("Administrator");
+					}catch(Exception e) {
+						fail();
+					}
+		}
+		
 	
 }

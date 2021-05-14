@@ -512,7 +512,7 @@ public class EZShop implements EZShopInterface {
         //any existing card code connected to the customer will be removed  
         	cards.remove(prevCardCode);
         	c.setCustomerCard("");
-        	//attachedCards.values().remove(c);   
+        	attachedCards.values().remove(c);   
         }
         
     	c.setCustomerCard(newCustomerCard);
@@ -575,7 +575,7 @@ public class EZShop implements EZShopInterface {
     	 if(customerCard == null || customerCard.isEmpty())throw new InvalidCustomerCardException();   	
     	 LoyaltyCard card = cards.get(customerCard);
     	 Customer customer = customers.get(customerId);  	 
-    	 if(customer.getId() == null || attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e==customerCard))    	 
+    	 if(customer.getId() == null || attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e==customerCard))  return false;   	 
     	
     	attachedCards.put(card,customer); 
 
@@ -592,17 +592,23 @@ public class EZShop implements EZShopInterface {
     	  if(!CustomerClass.checkCardCode(customerCard)) throw new InvalidCustomerCardException();
     	  
     LoyaltyCardClass card= (LoyaltyCardClass) cards.get(customerCard);
+    CustomerClass tmp = null;
     if(card == null) throw new InvalidCustomerCardException();
 	boolean updated = card.updatePoints(pointsToBeAdded);
 	if(!updated)
 		return false;	
-	 for(Customer c: customers.values()) {
-	 	   if(c.getCustomerCard().equals(customerCard))
-	 	   c.setPoints(pointsToBeAdded);
-	 	   } 
+	for(Customer c: customers.values()) {
+	 	   if(c.getCustomerCard().equals(customerCard)) {
+	 		   tmp = (CustomerClass) c;
+	 		   int tot =((CustomerClass) c).updateCustomerPoints(pointsToBeAdded); 
+	 		   c.setPoints(tot);
+	 	   }
+	 	  } 
 	
 	if(!Connect.updateLoyaltyCard(customerCard, card.getPoints())) {
     	card.updatePoints(-pointsToBeAdded);
+    	if(tmp!= null)
+        	tmp.updateCustomerPoints(-pointsToBeAdded);
     	return false;
     }
     return true;

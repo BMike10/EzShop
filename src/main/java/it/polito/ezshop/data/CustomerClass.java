@@ -1,5 +1,9 @@
 package it.polito.ezshop.data;
 
+import it.polito.ezshop.exceptions.InvalidCustomerCardException;
+import it.polito.ezshop.exceptions.InvalidCustomerIdException;
+import it.polito.ezshop.exceptions.InvalidCustomerNameException;
+
 public class CustomerClass implements Customer {
 
 	private String customerName;
@@ -9,7 +13,8 @@ public class CustomerClass implements Customer {
 	
 
 	public CustomerClass(int id, String customerName, String customerCard, Integer points) {
-		super();
+		//if(	customerCard == null || customerCard.length() <= 10) throw new RuntimeException(new InvalidCustomerCardException());
+		//if(id <= 0) throw new RuntimeException(new InvalidCustomerIdException());
 		this.id = id;
 		this.customerName = customerName;
 		this.customerCard = customerCard;
@@ -18,8 +23,12 @@ public class CustomerClass implements Customer {
 
 
 	public static boolean checkCardCode(String newCustomerCard) {
-		if(newCustomerCard.length() < 10) return false;
+		if(newCustomerCard.length()!=10) return false;
 		return true;
+	}
+	
+	public int updateCustomerPoints(int toBeAdded) {
+		return points += toBeAdded;
 	}
 
 
@@ -31,6 +40,9 @@ public class CustomerClass implements Customer {
 
 	@Override
 	public void setCustomerName(String customerName) {
+		if(customerName==null || customerName.length() <= 0)
+			throw new RuntimeException(new InvalidCustomerNameException());
+		
 		this.customerName=customerName;
 		
 	}
@@ -53,6 +65,9 @@ public class CustomerClass implements Customer {
 
 	@Override
 	public void setId(Integer id) {
+		if(id == null || id <= 0)
+			throw new RuntimeException(new InvalidCustomerIdException());
+		
 		this.id=id;		
 	}
 
@@ -62,9 +77,10 @@ public class CustomerClass implements Customer {
 	}
 
 	@Override
-	public void setPoints(Integer points) {
+	public void setPoints(Integer points) {		
 		this.points=points;
 		
 	}
+	
 
 }

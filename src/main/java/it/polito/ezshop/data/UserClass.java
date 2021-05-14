@@ -1,5 +1,10 @@
 package it.polito.ezshop.data;
 
+import it.polito.ezshop.exceptions.InvalidPasswordException;
+import it.polito.ezshop.exceptions.InvalidRoleException;
+import it.polito.ezshop.exceptions.InvalidUserIdException;
+import it.polito.ezshop.exceptions.InvalidUsernameException;
+
 public class UserClass implements User {
 	
 	private int id;
@@ -23,6 +28,9 @@ public class UserClass implements User {
 
 	@Override
 	public void setId(Integer id) {
+		if(id == null || id <= 0)
+			throw new RuntimeException(new InvalidUserIdException());
+	
 		this.id=id;
 	}
 
@@ -33,6 +41,7 @@ public class UserClass implements User {
 
 	@Override
 	public void setUsername(String username) {
+	   	 if(username==null || username.isEmpty()) throw new RuntimeException(new InvalidUsernameException());
 		this.username=username;
 	}
 
@@ -43,6 +52,7 @@ public class UserClass implements User {
 
 	@Override
 	public void setPassword(String password) {
+	   	 if(password==null || password.isEmpty()) throw new RuntimeException(new InvalidPasswordException());
 		this.password=password;
 	}
 
@@ -53,6 +63,7 @@ public class UserClass implements User {
 
 	@Override
 	public void setRole(String role) {
+	   	 if(role==null || role.isEmpty()) throw new RuntimeException(new InvalidRoleException());
 	   this.role=RoleEnum.valueOf(role);
 	}
 	public RoleEnum getRoleEnum () {
