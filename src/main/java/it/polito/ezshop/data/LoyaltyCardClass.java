@@ -7,7 +7,7 @@ public class LoyaltyCardClass implements LoyaltyCard {
 	public LoyaltyCardClass(String cardCode, int points)
 	{
 		super();
-		this.points=0;
+		this.points=points;
 		this.cardCode=cardCode;
 		
 	}
