@@ -2,7 +2,6 @@ package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.InvalidOrderIdException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
-import sun.util.resources.LocaleData;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -31,10 +30,35 @@ public class AccountBookClass implements AccountBook{
         this.orderMap.putAll(OrdOp);
         this.returnTransactionMap.putAll(RetOp);
         //WILL IT WORK?!
-        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.orderMap);
-        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.returnTransactionMap);
-        this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.saleTransactionMap);
+        for (Map.Entry<Integer, Order> entry : orderMap.entrySet()) {
+            //-> SAFE CASTING
+            //if (entry instanceof BalanceOperation) {
+            //    balanceOperationMap.put(entry.getKey(),(BalanceOperation)entry.getValue());
+            //}
+            balanceOperationMap.put(entry.getKey(), (BalanceOperation) entry.getValue());
+        }
+        for (Map.Entry<Integer, ReturnTransaction> entry : returnTransactionMap.entrySet()) {
+//            if (entry instanceof BalanceOperation) {
+//                balanceOperationMap.put(entry.getKey(),(BalanceOperation)entry);
+//            }
+            balanceOperationMap.put(entry.getKey(), (BalanceOperation) entry.getValue());
+
+        }
+        for (Map.Entry<Integer, SaleTransaction> entry : saleTransactionMap.entrySet()) {
+//            if (entry instanceof BalanceOperation) {
+//                balanceOperationMap.put(entry.getKey(),(BalanceOperation)entry);
+//            }
+            balanceOperationMap.put(entry.getKey(), (BalanceOperation) entry.getValue());
+
+        }
         //
+
+        //THIS DOES NOT WORK
+        //this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.orderMap);
+        //this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.returnTransactionMap);
+        //this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.saleTransactionMap);
+        //
+
         // SET INITIAL BALANCE
         if(!balanceOperationMap.isEmpty()){
             double newBalance;
