@@ -19,7 +19,6 @@ public class UserClass implements User {
 		this.password=password;
 		this.role=role;
 	}
-	
 
 	@Override
 	public Integer getId() {

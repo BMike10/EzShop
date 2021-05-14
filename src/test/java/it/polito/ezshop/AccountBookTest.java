@@ -33,9 +33,9 @@ public class AccountBookTest {
         AccountBook aB = new AccountBookClass(0);
 
         //Check remove if id exist in Sale Transaction (IMPLICIT TESTING)
-        SaleTransactionClass sT = new SaleTransactionClass();
-        Integer id = aB.addSaleTransaction(sT);
-        aB.removeSaleTransaction(id);
+        //SaleTransactionClass sT = new SaleTransactionClass();
+        //Integer id = aB.addSaleTransaction(sT);
+        //aB.removeSaleTransaction(id);
 
     }
 
@@ -68,9 +68,9 @@ public class AccountBookTest {
         AccountBook aB = new AccountBookClass(0);
 
         //Check add saleTransaction (IMPLICIT TESTING)
-        SaleTransactionClass sT = new SaleTransactionClass();
-        Integer id = aB.addSaleTransaction(sT);
-        aB.getSaleTransaction(id);
+        //SaleTransactionClass sT = new SaleTransactionClass();
+        //Integer id = aB.addSaleTransaction(sT);
+        //aB.getSaleTransaction(id);
 
     }
 

@@ -8,6 +8,7 @@ public interface BalanceOperation {
 
     //Can be changed interface? -> Order and SaleTransaction require Integer(Not Int)
     Integer getBalanceId();
+
     void setBalanceId(Integer balanceId);
 
     LocalDate getDate();

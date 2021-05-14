@@ -477,6 +477,8 @@ public class Connect {
 
     //SALE TRANSACTION
 
+    //SALE TRANSACTION
+
     public static Map<Integer, SaleTransaction> getSaleTransaction(Map<Integer, ProductType> products){
         HashMap<Integer, SaleTransaction> sales = new HashMap<>();
         //Map<Integer, ProductType> products = getProduct();
@@ -500,7 +502,7 @@ public class Connect {
                     int qty = rs1.getInt("quantity");
                     double discount = rs1.getDouble("discountRate");
                     ProductType pt = products.get(productId);
-                    TicketEntryClass te = new TicketEntryClass(pt.getBarCode(), pt.getProductDescription(), qty, discount, id);
+                    TicketEntryClass te = new TicketEntryClass(pt, qty, discount);
                     entries.add(te);
                 }
 
@@ -513,38 +515,85 @@ public class Connect {
 
     }
 
-    public static boolean addSaleTransaction(int nextId, double amount, String paymentType, double discountRate,OrderStatus status, String cardId,Integer soldProducts ) {
-        // insert into db
-        String sql = "INSERT INTO Orders(id, description, amount, date, time, paymentType, discountRate, status, cardId,soldProducts) "
-                + "VALUES ("+nextId
-                +", 'CREDIT', "
-                + amount +", "
-                + "DATE('now'), "
-                + "CAST(DATE('now') AS time), "
-                + paymentType+", "
-                + discountRate+", "
-                + status.ordinal()+", "
-                + cardId+", "
-                + soldProducts
-                + ")";
+    //    public static boolean addSaleTransaction(int nextId, double amount, String paymentType, double discountRate,OrderStatus status, String cardId,Integer soldProducts ) {
+//        // insert into db
+//        String sql = "INSERT INTO Orders(id, description, amount, date, time, paymentType, discountRate, status, cardId,soldProducts) "
+//                + "VALUES ("+nextId
+//                +", 'CREDIT', "
+//                + amount +", "
+//                + "DATE('now'), "
+//                + "CAST(DATE('now') AS time), "
+//                + paymentType+", "
+//                + discountRate+", "
+//                + status.ordinal()+", "
+//                + cardId+", "
+//                + soldProducts
+//                + ")";
+//        try(Statement st = conn.createStatement()){
+//            st.execute(sql);
+//        }catch (SQLException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//        return true;
+//    }
+//    public static boolean updateSaleTransactionStatus(int id, SaleStatus status) {
+//        String sql = "UPDATE SaleTransaction SET status = " + status.ordinal() + " WHERE id = " + id;
+//        try (Statement st = conn.createStatement()) {
+//            st.execute(sql);
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//        return true;
+//    }
+    public static boolean addSaleTransaction(SaleTransactionClass sale, int id, String description, double amount,
+                                             String paymentType, double discountRate, LoyaltyCard lt) {
+        String sql = "INSERT INTO SaleTransaction(id, description, amount, date, time, paymentType, discountRate, status, cardId) "
+                +"VALUES ("+id
+                +", "+description
+                +", "+amount
+                +"DATE('now'), "
+                +"TIME('now'), "   					//is it ok?
+                +", "+paymentType
+                +", "+discountRate
+                +", "+SaleStatus.CLOSED.ordinal()
+                +", "+lt.getCardCode()+")";
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+        for(int i=0; i<sale.getEntries().size(); i++) {
+            TicketEntryClass tec=(TicketEntryClass) sale.getEntries().get(i);
+            String sql2 = "INSERT INTO SoldProduct(id, productId, quantity, discountRate) "
+                    +"VALUES ("+sale.getBalanceId()
+                    +", "+tec.getBarCode()
+                    +", "+tec.getAmount()
+                    +", "+tec.getDiscountRate()+")";
+            try(Statement st = conn.createStatement()){
+                st.execute(sql2);
+            }catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
         return true;
     }
-    public static boolean updateSaleTransactionStatus(int id, SaleStatus status) {
-        String sql = "UPDATE SaleTransaction SET status = " + status.ordinal() + " WHERE id = " + id;
-        try (Statement st = conn.createStatement()) {
+
+    public static boolean removeSaleTransaction(int id) {
+        String sql = "DELETE from SaleTransaction"
+                + " WHERE id = "+id;
+        try(Statement st = conn.createStatement()){
             st.execute(sql);
-        } catch (SQLException e) {
+        }catch(SQLException e) {
             e.printStackTrace();
             return false;
         }
         return true;
     }
+
     // RETURN TRANSACTION
     public static Map<Integer, ReturnTransaction> getReturnTransaction(Map<Integer, ProductType> products, Map<Integer, SaleTransaction> sales){
         HashMap<Integer, ReturnTransaction> returns = new HashMap<>();
@@ -583,33 +632,64 @@ public class Connect {
         return returns;
     }
 
-    public static boolean addReturnTransaction(int nextId, double amount, ReturnStatus status, Integer saleId, Integer returnedProductsId) {
-        // insert into db
-        String sql = "INSERT INTO ReturnTransaction(id, description, amount, date, status, saleId, returnedProductsId) "
-                + "VALUES ("+nextId
-                +", 'DEBIT', "
-                + amount +", "
+    //    public static boolean addReturnTransaction(int nextId, double amount, ReturnStatus status, Integer saleId, Integer returnedProductsId) {
+//        // insert into db
+//        String sql = "INSERT INTO ReturnTransaction(id, description, amount, date, status, saleId, returnedProductsId) "
+//                + "VALUES ("+nextId
+//                +", 'DEBIT', "
+//                + amount +", "
+//                + "DATE('now'), "
+//                + status.ordinal()+", "
+//                + saleId+", "
+//                + returnedProductsId+")";
+//        try(Statement st = conn.createStatement()){
+//            st.execute(sql);
+//        }catch (SQLException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//        return true;
+//    }
+//
+//    public static boolean updateReturnTransactionStatus(int id, ReturnStatus status) {
+//        String sql = "UPDATE ReturnTransaction SET status = " + status.ordinal() + " WHERE id = " + id;
+//        try (Statement st = conn.createStatement()) {
+//            st.execute(sql);
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//        return true;
+//    }
+    public static boolean addReturnTransaction(ReturnTransactionClass ret, int id, String description, double amount,
+                                               ReturnStatus status, Integer saleId) {
+        Integer i=ret.getBalanceId();
+        String sql = "INSERT INTO ReturnTransaction(id, description, amount, date, status, saleId) "
+                + "VALUES ("+id
+                +", "+description
+                +", "+amount
                 + "DATE('now'), "
-                + status.ordinal()+", "
-                + saleId+", "
-                + returnedProductsId+")";
+                + ReturnStatus.CLOSED.ordinal()+", "
+                + i +")";
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
-        return true;
-    }
+        ret.getReturnedProduct().forEach((p,q)->{
+            String sql2 = "INSERT INTO ReturnedProduct(id, productId, quantity) "
+                    + "VALUES ("+ret.getBalanceId()
+                    +", "+p.getId()
+                    +", "+q +")";
+            try(Statement st = conn.createStatement()){
+                st.execute(sql2);
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+            //here the sale transaction table should be uploaded
+        });
 
-    public static boolean updateReturnTransactionStatus(int id, ReturnStatus status) {
-        String sql = "UPDATE ReturnTransaction SET status = " + status.ordinal() + " WHERE id = " + id;
-        try (Statement st = conn.createStatement()) {
-            st.execute(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
         return true;
     }
 }

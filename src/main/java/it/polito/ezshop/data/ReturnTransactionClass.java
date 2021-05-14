@@ -30,11 +30,6 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
         this.status = retstatus;
     }
 
-    public ReturnTransactionClass(SaleTransaction saleT) {
-        this.saleTransaction = saleT;
-    }
-
-
     @Override
     public Integer getReturnId() {
         return super.getBalanceId();
@@ -76,20 +71,25 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
         this.status = ReturnStatus.valueOf(status);
     }
 
-    public void addReturnProduct(ProductType product,int quantity){
-    	if(!this.returnedProduct.keySet().contains(product)) {
-    		this.returnedProduct.put(product, quantity);
-    	}
-    	else { //caso in cui non è la prima return transaction per quel product
-    		int q=this.returnedProduct.get(product);
-    		this.returnedProduct.remove(product);
-    		this.returnedProduct.put(product, quantity+q);
-    	}
-    	
-    	//dopo aver aggiornato la mappa, dovrei aggiornare anche this.saleTransaction?
-    	//come faccio a controllare che, se non è la prima return transaction per quel product,
-    	//la quantità già restituita non ecceda quella inizialmente acquistata?
+    public int addReturnProduct(ProductType product,int quantity){
+        SaleTransactionClass st=(SaleTransactionClass)this.saleTransaction;
+        int amount=st.getTicketEntries().get(product.getBarCode()).getAmount();
+
+        if(!this.returnedProduct.keySet().contains(product)) {
+            if(amount<quantity) return -1;
+            this.returnedProduct.put(product, quantity);
+            //st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity);
+            return 1;
+        }
+        else { //if it's not the first return transaction for that product
+            int q=this.returnedProduct.get(product);
+            if(amount<quantity+q) return -1;
+            this.returnedProduct.remove(product);
+            this.returnedProduct.put(product, quantity+q);
+            //st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity+q);
+            return 1;
+        }
     }
 
-    
+
 }

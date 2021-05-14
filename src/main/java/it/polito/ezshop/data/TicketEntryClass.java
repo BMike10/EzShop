@@ -1,60 +1,42 @@
 package it.polito.ezshop.data;
 
 public class TicketEntryClass implements TicketEntry {
-	
-	private String barCode;
-	private String productDescription;
-	private int amount;
-	private double pricePerUnit;
-	private double discountRate;
-	private Integer ticketNumber;
-	
-	public TicketEntryClass(String barCode, String productDescription, int amount, Double pricePerUnit, int i) {
-		// TODO Auto-generated constructor stub
-		this.barCode=barCode;
-		this.productDescription=productDescription;
-		this.amount=amount;
-		this.pricePerUnit=pricePerUnit;
-		this.ticketNumber=i;
-		this.discountRate=0.0;
-	}
-	public TicketEntryClass(String barCode, String productDescription, int amount, Double pricePerUnit, int i, double disc) {
-		// TODO Auto-generated constructor stub
-		this.barCode=barCode;
-		this.productDescription=productDescription;
-		this.amount=amount;
-		this.pricePerUnit=pricePerUnit;
-		this.ticketNumber=i;
-		this.discountRate=disc;
-	}
 
+	private ProductType productType;
+	private int amount;
+	private double discountRate;
+
+	public TicketEntryClass(ProductType p, int amount, double discRate) {
+		this.productType=p;
+		this.discountRate=discRate;
+		this.amount=amount;
+	}
+	public TicketEntryClass(ProductType p, int amount) {
+		this.productType=p;
+		this.discountRate=0.0;
+		this.amount=amount;
+	}
+	public ProductType getProductType() {
+		return this.productType;
+	}
 	@Override
 	public String getBarCode() {
-		return this.barCode;
+		return this.productType.getBarCode();
 	}
 
-	public void setTicketNumber(Integer tickN) {
-		this.ticketNumber=tickN;
-	}
-	
-	public Integer getTicketNumber() {
-		return this.ticketNumber;
-	}
-	
 	@Override
 	public void setBarCode(String barCode) {
-		this.barCode=barCode;
+		this.productType.setBarCode(barCode);
 	}
 
 	@Override
 	public String getProductDescription() {
-		
-		return this.productDescription;
+		return this.productType.getProductDescription();
 	}
 
 	@Override
 	public void setProductDescription(String productDescription) {
-		this.productDescription=productDescription;
+		this.productType.setProductDescription(productDescription);
 	}
 
 	@Override
@@ -69,12 +51,12 @@ public class TicketEntryClass implements TicketEntry {
 
 	@Override
 	public double getPricePerUnit() {
-		return this.pricePerUnit;
+		return this.productType.getPricePerUnit();
 	}
 
 	@Override
 	public void setPricePerUnit(double pricePerUnit) {
-		this.pricePerUnit=pricePerUnit;
+		this.productType.setPricePerUnit(pricePerUnit);
 	}
 
 	@Override

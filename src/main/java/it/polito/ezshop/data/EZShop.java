@@ -614,182 +614,234 @@ public class EZShop implements EZShopInterface {
     return true;
     }
 
-    // PERCHÈ HAI CAMBIATO I PARAMETRI DEL METODO???
-    public Integer startSaleTransaction(Time time, String paymentType, LoyaltyCard loyaltyCard,
-			Integer ticketNumber) throws UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
-        	throw new UnauthorizedException();
-    	SaleTransaction st=new SaleTransactionClass(time, paymentType, loyaltyCard, ticketNumber);
-    	int i=accountBook.addSaleTransaction(st);
-    	st.setTicketNumber(i);
-    	return i;
-    }
 	@Override
 	public Integer startSaleTransaction() throws UnauthorizedException {
-		// TODO Auto-generated method stub
-		return null;
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+			throw new UnauthorizedException();
+		SaleTransaction st=new SaleTransactionClass(new Time(System.currentTimeMillis()), SaleStatus.STARTED);
+		int i=accountBook.addSaleTransaction(st);
+
+		//st.setTicketNumber(i);
+		return i;
 	}
-    @Override
-    public boolean addProductToSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
-        	throw new UnauthorizedException();
-    	SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
-    	if (st== null) {
-        	throw new InvalidTransactionIdException();
-        }
-        if(amount<=0) throw new InvalidQuantityException();
-        if(!products.values().stream().map(e->e.getBarCode()).anyMatch(e->e==productCode)) throw new InvalidProductCodeException();
-        st.addProduct(this.getProductTypeByBarCode(productCode), amount);
-        int q=products.get(this.getProductTypeByBarCode(productCode).getId()).getQuantity();
-        if(q<amount) throw new InvalidQuantityException();
-        products.get(this.getProductTypeByBarCode(productCode).getId()).setQuantity(q-amount);
-        return true;
-    }
 
-    @Override
-    public boolean deleteProductFromSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
-        	throw new UnauthorizedException();
-    	SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
-    	if (st== null) {
-        	throw new InvalidTransactionIdException();
-        }
-        if(amount<=0) throw new InvalidQuantityException();
-        if(!products.values().stream().map(e->e.getBarCode()).anyMatch(e->e==productCode)) throw new InvalidProductCodeException();
-        st.deleteProduct(this.getProductTypeByBarCode(productCode), amount);
-        int q=products.get(this.getProductTypeByBarCode(productCode).getId()).getQuantity();
-        products.get(this.getProductTypeByBarCode(productCode).getId()).setQuantity(q+amount);
-    	return true;
-    }
+	@Override
+	public boolean addProductToSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+			throw new UnauthorizedException();
+		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		if (st== null) {
+			throw new InvalidTransactionIdException();
+		}
+		if(amount<=0) throw new InvalidQuantityException();
+		ProductType pt = getProductTypeByBarCode(productCode);
+		if(pt == null) throw new InvalidProductCodeException();
+		st.addProduct(pt, amount);
+		return ((ProductTypeClass) pt).updateQuantity(-amount);
+	}
 
-    @Override
-    public boolean applyDiscountRateToProduct(Integer transactionId, String productCode, double discountRate) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidDiscountRateException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
-        	throw new UnauthorizedException();
-    	SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
-    	if (st== null || st.getStatus()!=SaleStatus.STARTED ) {
-        	throw new InvalidTransactionIdException();
-        }
-    	if(!products.values().stream().map(e->e.getBarCode()).anyMatch(e->e==productCode)) throw new InvalidProductCodeException();
-    	if(discountRate<=0.0 || discountRate>=1.0) throw new InvalidDiscountRateException();
-    	st.addProductDiscount(this.getProductTypeByBarCode(productCode), discountRate);
-    	return true;
-    }
+	@Override
+	public boolean deleteProductFromSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+			throw new UnauthorizedException();
+		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		if (st== null) {
+			throw new InvalidTransactionIdException();
+		}
+		if(amount<=0) throw new InvalidQuantityException();
+		ProductType pt = getProductTypeByBarCode(productCode);
+		if(pt == null) throw new InvalidProductCodeException();
+		st.deleteProduct(pt, amount);
+		return ((ProductTypeClass) pt).updateQuantity(amount);
+	}
 
-    @Override
-    public boolean applyDiscountRateToSale(Integer transactionId, double discountRate) throws InvalidTransactionIdException, InvalidDiscountRateException, UnauthorizedException {
-        
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
-        	throw new UnauthorizedException();
-    	SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
-    	if (st == null) {
-        	throw new InvalidTransactionIdException();
-        }
-    	st.setDiscountRate(discountRate);
-    	return true;
-    }
+	@Override
+	public boolean applyDiscountRateToProduct(Integer transactionId, String productCode, double discountRate) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidDiscountRateException, UnauthorizedException {
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+			throw new UnauthorizedException();
+		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		if (st== null || st.getStatus()!=SaleStatus.STARTED ) {
+			throw new InvalidTransactionIdException();
+		}
+		ProductType pt = getProductTypeByBarCode(productCode);
+		if(pt == null) throw new InvalidProductCodeException();
+		if(discountRate<=0.0 || discountRate>=1.0) throw new InvalidDiscountRateException();
+		st.addProductDiscount(pt, discountRate);
+		return true;
+	}
 
-    @Override
-    public int computePointsForSale(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
-        if(accountBook.getSaleTransaction(transactionId)==null) throw new InvalidTransactionIdException();
-        if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
-        	throw new UnauthorizedException();
-        return (int)accountBook.getSaleTransaction(transactionId).getPrice()/10;
-    }
+	@Override
+	public boolean applyDiscountRateToSale(Integer transactionId, double discountRate) throws InvalidTransactionIdException, InvalidDiscountRateException, UnauthorizedException {
 
-    //DA RIVEDERE
-    @Override
-    public boolean endSaleTransaction(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")))
-        	throw new UnauthorizedException();
-    	SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
-    	if (st == null) {
-        	throw new InvalidTransactionIdException();
-        }
-    	st.checkout();
-    	accountBook.addSaleTransaction(st);
-    	return true;
-    }
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		if (st == null) {
+			throw new InvalidTransactionIdException();
+		}
+		st.setDiscountRate(discountRate);
+		return true;
+	}
+
+	@Override
+	public int computePointsForSale(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
+		if(accountBook.getSaleTransaction(transactionId)==null) throw new InvalidTransactionIdException();
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		return (int)accountBook.getSaleTransaction(transactionId).getPrice()/10;
+	}
+
+	@Override
+	public boolean endSaleTransaction(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")))
+			throw new UnauthorizedException();
+		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		if (st == null || st.getStatus()==SaleStatus.CLOSED) {
+			throw new InvalidTransactionIdException();
+		}
+		st.checkout();
+
+		if(!Connect.addSaleTransaction(st, st.getBalanceId(), st.getDescription(), st.getPrice(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))
+			try {
+				accountBook.removeSaleTransaction(st.getBalanceId());
+			} catch (InvalidTransactionIdException e) {
+				e.printStackTrace();
+			}
+		recordBalanceUpdate(st.getMoney());
+		return true;
+	}
 
 
-    @Override
-    public boolean deleteSaleTransaction(Integer saleNumber) throws InvalidTransactionIdException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")))
-        	throw new UnauthorizedException();
-    	SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
-    	if (st == null) {
-        	throw new InvalidTransactionIdException();
-        }
-    	//dovrei reinserire i prodotti acquistati 
-    	for(int i=0; i<st.getEntries().size(); i++) {
-    	
-    	}
-    	
-    	accountBook.removeSaleTransaction(saleNumber);
-    	
-    	return true;
-    }
+	@Override
+	public boolean deleteSaleTransaction(Integer saleNumber) throws InvalidTransactionIdException, UnauthorizedException {
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")))
+			throw new UnauthorizedException();
+		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
+		if (st == null) {
+			throw new InvalidTransactionIdException();
+		}
+		//dovrei reinserire i prodotti acquistati
+		for(int i=0; i<st.getEntries().size(); i++) {
+			TicketEntryClass te=(TicketEntryClass)st.getEntries().get(i);
+			ProductType pt=te.getProductType();
+			try {
+				this.updateQuantity(pt.getId(),
+						-te.getAmount());
+			} catch (InvalidProductIdException e) {
+				e.printStackTrace();
+			}
+		}
+		accountBook.removeSaleTransaction(saleNumber);
+		if(!Connect.addSaleTransaction(st, st.getBalanceId(), st.getDescription(), st.getPrice(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))
+			try {
+				accountBook.removeSaleTransaction(st.getBalanceId());
+			} catch (InvalidTransactionIdException e) {
+				e.printStackTrace();
+			}
+		return true;
+	}
 
-    @Override
-    //DOVREBBE RITORNARE UNA TRANSAZIONE CON STATO CLOSED, FILTRO?
-    public SaleTransaction getSaleTransaction(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")))
-        	throw new UnauthorizedException();
-    	return accountBook.getSaleTransaction(transactionId);
-    }
+	@Override
+	public SaleTransaction getSaleTransaction(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")))
+			throw new UnauthorizedException();
+		if(transactionId==null || transactionId<0) throw new InvalidTransactionIdException();
+		SaleTransactionClass t=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		if(!t.getStatus().equals(SaleStatus.CLOSED)) return null;
+		return t;
+	}
 
-    //DA RIVEDERE
-    @Override
-    public Integer startReturnTransaction(Integer saleNumber) throws /*InvalidTicketNumberException,*/InvalidTransactionIdException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
-        	throw new UnauthorizedException();
-    	SaleTransaction st=accountBook.getSaleTransaction(saleNumber);
-    	if(st==null) throw new InvalidTransactionIdException();
-    	ReturnTransaction rt=new ReturnTransactionClass(st, ReturnStatus.STARTED);
-    	
-    	return accountBook.addReturnTransaction(rt);
-    }
+	@Override
+	public Integer startReturnTransaction(Integer saleNumber) throws /*InvalidTicketNumberException,*/InvalidTransactionIdException, UnauthorizedException {
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+			throw new UnauthorizedException();
+		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
+		if(st==null || st.getStatus()!=SaleStatus.CLOSED || st.getStatus()!=SaleStatus.PAYED) throw new InvalidTransactionIdException();
+		ReturnTransaction rt=new ReturnTransactionClass(st, ReturnStatus.STARTED);
 
-    @Override
-    public boolean returnProduct(Integer returnId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
-        	throw new UnauthorizedException();
-    	ReturnTransaction rt=accountBook.getReturnTransaction(returnId);
-    	if(rt==null) throw new InvalidTransactionIdException();
-    	SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
-    	if(!st.getProductsEntries().containsKey(productCode)) throw new InvalidProductCodeException();
-    	int q=st.getProductsEntries().get(productCode).getAmount();
-    	if(q<amount) throw new InvalidQuantityException();
-    	((ReturnTransactionClass)rt).addReturnProduct(this.products.get(productCode), amount);
-    	return true;
-    }
+		return accountBook.addReturnTransaction(rt);
+	}
 
-    @Override
-    public boolean endReturnTransaction(Integer returnId, boolean commit) throws InvalidTransactionIdException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")))
-        	throw new UnauthorizedException();
-    	ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
-    	if (rt == null) {
-        	throw new InvalidTransactionIdException();
-        }
-    	rt.setStatus("CLOSED");
-    	accountBook.addReturnTransaction(rt);
-    	return true;
-    	
-    }
-    
-    //DA RIVEDERE (GUARDA DEFINIZIONE FUNZIONE)
-    @Override
-    public boolean deleteReturnTransaction(Integer returnId) throws InvalidTransactionIdException, UnauthorizedException {
-    	if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")))
-        	throw new UnauthorizedException();
-    	ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
-    	if (rt == null) {
-        	throw new InvalidTransactionIdException();
-        }
-    	accountBook.removeReturnTransaction(returnId);
-    	return true;
-    }
+	@Override
+	public boolean returnProduct(Integer returnId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+			throw new UnauthorizedException();
+		ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		if(rt==null) throw new InvalidTransactionIdException();
+		SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
+		if(!st.getProductsEntries().containsKey(productCode)) throw new InvalidProductCodeException();
+		int q=st.getProductsEntries().get(productCode).getAmount();
+		if(q<amount) throw new InvalidQuantityException();
+		int a=rt.addReturnProduct(this.getProductTypeByBarCode(productCode), amount);
+		if(a==-1) throw new InvalidQuantityException();
+		else return true;
+	}
+
+	@Override
+	public boolean endReturnTransaction(Integer returnId, boolean commit) throws InvalidTransactionIdException, UnauthorizedException {
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("ShopManager")))
+			throw new UnauthorizedException();
+		ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		if (rt == null) {
+			throw new InvalidTransactionIdException();
+		}
+		if(commit) {
+			SaleTransactionClass st=(SaleTransactionClass)rt.getSaleTransaction();
+			rt.getReturnedProduct().forEach((p,q)->{
+				try {
+					this.updateQuantity(p.getId(), -q);
+					st.deleteProduct(p, q);
+				} catch (InvalidProductIdException | UnauthorizedException e) {
+					e.printStackTrace();
+				}
+			});
+			if(!Connect.addReturnTransaction(rt, returnId, "RETURN ", rt.getMoney(), ReturnStatus.CLOSED, st.getBalanceId())) {
+				//rollback
+				rt.getReturnedProduct().forEach((p,q)->{
+					try {
+						this.updateQuantity(p.getId(), q);
+						st.deleteProduct(p, -q);
+					} catch (InvalidProductIdException | UnauthorizedException e) {
+						e.printStackTrace();
+					}
+				});
+				return false;
+			}
+			return true;
+		}
+		else {
+			//how should i undo the return transaction?
+			accountBook.removeReturnTransaction(returnId);
+			return true;
+		}
+	}
+	@Override
+	public boolean deleteReturnTransaction(Integer returnId) throws InvalidTransactionIdException, UnauthorizedException {
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") &&!currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		if (rt == null || rt.getStatus()!=ReturnStatus.CLOSED.name()) {
+			throw new InvalidTransactionIdException();
+		}
+		SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
+		//put back the products into the transaction
+		//for each of the returned products, find the matching ticket entry of the ST and update the amount
+		for(int i=0; i<rt.getReturnedProduct().size(); i++) {
+			st.getEntries().forEach(e->{
+				if(rt.getReturnedProduct().containsKey(( (TicketEntryClass) e).getProductType())) {
+					e.setAmount(e.getAmount()+rt.getReturnedProduct().get(( (TicketEntryClass) e).getProductType()));
+					//update the quantity of the product
+					try {
+						this.updateQuantity(this.getProductTypeByBarCode(( (TicketEntryClass) e).getBarCode()).getId(), rt.getReturnedProduct().get(( (TicketEntryClass) e).getProductType()));
+					} catch (InvalidProductIdException | UnauthorizedException | InvalidProductCodeException e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+		}
+		accountBook.removeReturnTransaction(returnId);
+		return true;
+	}
 
     @Override
     public double receiveCashPayment(Integer ticketNumber, double cash) throws InvalidTransactionIdException, InvalidPaymentException, UnauthorizedException {

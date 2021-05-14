@@ -7,74 +7,60 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import static java.util.stream.Collectors.*;
 
 public class SaleTransactionClass extends BalanceOperationClass implements SaleTransaction {
 
-	public SaleTransactionClass(Time time, String paymentType, SaleStatus status, LoyaltyCard loyaltyCard,
-			Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries, double discountRate, double price) {
-		super(price, paymentType);
+	public SaleTransactionClass(double price, String paymentType, Time time, SaleStatus status,  LoyaltyCard loyaltyCard,
+								Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries, double discountRate) {
+		super(price, "SALE");
+		this.setPaymentType(paymentType);
 		this.time = time;
-		this.paymentType = paymentType;
 		this.status = status;
 		this.loyaltyCard = loyaltyCard;
-		this.ticketNumber = ticketNumber;
+		//this.ticketNumber = ticketNumber;
 		this.ticketEntries = ticketEntries;
 		this.discountRate = discountRate;
-		this.price = price;
-
+	}
+	public SaleTransactionClass(Time time, SaleStatus saleStatus) {
+		this(0.0, "", time, saleStatus, null, -1, new HashMap<>(), 0.0);
 	}
 
 	public SaleTransactionClass(Time time, String paymentType, SaleStatus status, LoyaltyCard loyaltyCard,
-			Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries) {
-		super(0.0, paymentType);
-		this.time = time;
-		this.paymentType = paymentType;
-		this.status = status;
-		this.loyaltyCard = loyaltyCard;
-		this.ticketNumber = ticketNumber;
-		this.ticketEntries = ticketEntries;
-		this.discountRate = 0.0;
-		this.price = 0.0;
-
+								Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries) {
+		this(0.0, paymentType, time, status, loyaltyCard, ticketNumber, ticketEntries, 0.0);
 	}
-	
+
 	public SaleTransactionClass(Time time, String paymentType, LoyaltyCard loyaltyCard,
-			Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries) {
-		super(0.0, paymentType);
-		this.time = time;
-		this.paymentType = paymentType;
-		this.status = SaleStatus.STARTED;
-		this.loyaltyCard = loyaltyCard;
-		this.ticketNumber = ticketNumber;
-		this.ticketEntries = ticketEntries;
-		this.discountRate = 0.0;
-		this.price = 0.0;
+								Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries) {
+		this(0.0, paymentType, time, SaleStatus.STARTED, loyaltyCard, ticketNumber, ticketEntries, 0.0);
 
 	}
-	
+
 	public SaleTransactionClass(Time time, String paymentType, LoyaltyCard loyaltyCard,
-			Integer ticketNumber) {
-		super(0.0, paymentType);
-		this.time = time;
-		this.paymentType = paymentType;
-		this.status = SaleStatus.STARTED;
-		this.loyaltyCard = loyaltyCard;
-		this.ticketNumber = ticketNumber;
-		this.ticketEntries = new HashMap<>();
-		this.discountRate = 0.0;
-		this.price = 0.0;
+								Integer ticketNumber) {
+		this(0.0, paymentType, time, SaleStatus.STARTED, loyaltyCard, ticketNumber, new HashMap<>(), 0.0);
+	}
 
+	//New constructor
+	public SaleTransactionClass(int transactionId, String description, double money, LocalDate date, String type, String paymentType, Time time,
+								SaleStatus status,  LoyaltyCard loyaltyCard, Map<String, TicketEntryClass> ticketEntries, double discountRate){
+		super();
 	}
-	public SaleTransactionClass() {
-		super(0.0, "CREDIT");
-	}
-	
+
 	private Time time;
-	private String paymentType;
 	private SaleStatus status;
-	
+	private LoyaltyCard loyaltyCard;
+	//private Integer ticketNumber;
+	//(barcode, TicketEntryClass)
+	private Map<String, TicketEntryClass> ticketEntries;
+	private double discountRate;
+	private String paymentType="";
+
 	public Time getTime() {
+
 		return time;
 	}
 
@@ -82,20 +68,10 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		this.time = time;
 	}
 
-	public String getPaymentType() {
-		return paymentType;
+	public void setStatus(SaleStatus status) {
+		this.status = status;
 	}
 
-	public void setPaymentType(String paymentType) {
-		this.paymentType = paymentType;
-	}
-
-	private LoyaltyCard loyaltyCard;
-	private Integer ticketNumber;
-	private Map<String, TicketEntryClass> ticketEntries;
-	private double discountRate = 0.0;
-	private double price = 0.0;
-	
 	public void setLoyaltyCard(LoyaltyCard l) {
 		this.loyaltyCard=l;
 	}
@@ -107,12 +83,12 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	}
 	@Override
 	public Integer getTicketNumber() {
-		return this.ticketNumber;
+		return super.getBalanceId();
 	}
 
 	@Override
 	public void setTicketNumber(Integer ticketNumber) {
-		this.ticketNumber = ticketNumber;
+		super.setBalanceId(ticketNumber);
 	}
 
 	@Override
@@ -128,7 +104,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		}
 
 	}
-	
+
 	@Override
 	public double getDiscountRate() {
 		return this.discountRate;
@@ -139,15 +115,6 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		this.discountRate = discountRate;
 	}
 
-	@Override
-	public double getPrice() {
-		return this.price;
-	}
-
-	@Override
-	public void setPrice(double price) {
-		this.price = price;
-	}
 
 	public void addProduct(ProductType product, int quantity) {
 		if (ticketEntries.containsKey(product.getBarCode())) {
@@ -156,11 +123,12 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 			ticketEntries.remove(product.getBarCode());
 			ticketEntries.put(product.getBarCode(), t);
 		} else {
-			TicketEntryClass t = new TicketEntryClass(product.getBarCode(), product.getProductDescription(), quantity,
-					product.getPricePerUnit(), this.getTicketNumber()); //////////////////////////////////////////////// ticketNumber?
+			TicketEntryClass t = new TicketEntryClass(product, quantity);
 			ticketEntries.put(product.getBarCode(), t);
 		}
-		this.price+=product.getPricePerUnit()*quantity*(1-this.discountRate);
+		double a=this.getPrice();
+		a+=product.getPricePerUnit()*quantity*(1-this.discountRate);
+		this.setPrice(a);
 	}
 
 	public void deleteProduct(ProductType product, int quantity) {
@@ -179,14 +147,13 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	public SaleStatus getStatus() {
 		return this.status;
 	}
-	//QUANDO DOVRO' SETTARE A CLOSED E QUANDO A PAYED?
 	public void checkout() {
-		this.price=0.0;
-		ticketEntries.values().forEach(e->{
-			this.price+=(e.getPricePerUnit()*e.getAmount())*(1-e.getDiscountRate());
-		});
-		this.price=this.price*(1-this.getDiscountRate());
-		this.setMoney(this.price);
+		double a=0.0;
+		for(TicketEntryClass te : ticketEntries.values()) {
+			a+=(te.getPricePerUnit()*te.getAmount())*(1-te.getDiscountRate());
+		}
+		a=a*(1-this.getDiscountRate());
+		this.setPrice(a);
 		this.status=SaleStatus.CLOSED;
 	}
 
@@ -195,6 +162,24 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 			ticketEntries.get(product.getBarCode()).setDiscountRate(discount);
 		}
 	}
-	
-	
+
+	@Override
+	public double getPrice() {
+		return super.getMoney();
+	}
+
+	@Override
+	public void setPrice(double price) {
+		super.setMoney(price);
+	}
+
+	public Map<String, TicketEntryClass> getTicketEntries() {
+		return this.ticketEntries;
+	}
+	public String getPaymentType() {
+		return paymentType;
+	}
+	public void setPaymentType(String paymentType) {
+		this.paymentType = paymentType;
+	}
 }
