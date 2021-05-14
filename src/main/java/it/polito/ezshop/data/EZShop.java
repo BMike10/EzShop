@@ -2,17 +2,14 @@ package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
 
+import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class EZShop implements EZShopInterface {
@@ -35,6 +32,23 @@ public class EZShop implements EZShopInterface {
 		attachedCards = Connect.getAttachedCard(cards, customers);
 		Map<Integer,SaleTransaction> sales = Connect.getSaleTransaction(products);
 		accountBook = new AccountBookClass(sales, Connect.getOrder(products), Connect.getReturnTransaction(products, sales));
+
+		try {
+			File myObj = new File("creditCard.txt");
+			Scanner myReader = new Scanner(myObj);
+			while (myReader.hasNextLine()) {
+				String data = myReader.nextLine();
+				if(data.startsWith("#"))
+					continue;
+				System.out.println(data);
+				String[] fields = data.split(";");
+				CreditCardsMap.put(fields[0],Double.parseDouble(fields[1]));
+			}
+			myReader.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
 	}
 
 
@@ -892,8 +906,6 @@ public class EZShop implements EZShopInterface {
 		if(currentUser==null || currentUser.getRole().equals("Cashier"))
 			throw new UnauthorizedException();
 
-    	double userCash = 0;
-
         if(ticketNumber == null || ticketNumber <= 0)
             throw new InvalidTransactionIdException();
 
@@ -906,10 +918,38 @@ public class EZShop implements EZShopInterface {
 		}
 
 		//Credit card is validate and registered in the system
+		if(!CreditCardsMap.containsKey(creditCard))
+			return false;
+		double userCash = CreditCardsMap.get(creditCard);
 		SaleTransaction sale = accountBook.getSaleTransaction(ticketNumber);
 		double saleAmount = sale.getPrice();
         if(userCash < saleAmount)
-            throw new InvalidCreditCardException();
+            return false;
+
+		// read file one line at a time
+		// replace line as you read the file and store updated lines in StringBuffer
+		// overwrite the file with the new lines
+		try {
+			// input the (modified) file content to the StringBuffer "input"
+			BufferedReader file = new BufferedReader(new FileReader("creditCard.txt"));
+			StringBuilder inputBuffer = new StringBuilder();
+			String line;
+
+			while ((line = file.readLine()) != null)  {
+				if(line.startsWith(creditCard))
+					line = creditCard+";"+(userCash-saleAmount); // replace the line here
+				inputBuffer.append(line).append('\n');
+			}
+			file.close();
+
+			// write the new string with the replaced line OVER the same file
+			FileOutputStream fileOut = new FileOutputStream("creditCard.txt");
+			fileOut.write(inputBuffer.toString().getBytes());
+			fileOut.close();
+
+		} catch (Exception e) {
+			System.out.println("Problem reading file.");
+		}
 /*
         //Payment completed -> Update map and db(STATUS)
         //Update Map

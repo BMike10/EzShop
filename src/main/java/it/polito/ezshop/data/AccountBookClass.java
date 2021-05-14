@@ -213,9 +213,9 @@ public class AccountBookClass implements AccountBook{
         }else if (from==null){
             //All Balance operation -> to==null(if it's not -> first if)
             bo = new ArrayList<>(balanceOperationMap.values());
-        }else{
-            bo = balanceOperationMap.values().stream().
-                    filter(t -> (t.getDate().isAfter(from))).filter(t -> (t.getDate().isBefore(to))).collect(Collectors.toList());
+        }else {
+            System.out.println("Ciao");
+            bo = balanceOperationMap.values().stream().filter(t -> (t.getDate().isBefore(to)) || (t.getDate().isAfter(from))).collect(Collectors.toList());
         }
         return bo;
     }
