@@ -29,11 +29,12 @@ public class Connect {
                 stmt.execute(insert);
             }catch(Exception e) {}
             String query = "SELECT * FROM USER";
-
+            
             ResultSet result = stmt.executeQuery(query);
             while(result.next()) {
                 System.out.println(result.getString("username"));
             }
+            stmt.executeUpdate("delete from ProductTypes where id = 2 or id = 3");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         } /*finally {

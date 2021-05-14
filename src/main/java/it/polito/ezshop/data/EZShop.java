@@ -287,9 +287,14 @@ public class EZShop implements EZShopInterface {
     	if(pt == null)
     		return false;
     	final Position prev = pt.getPosition();
-    	Position p = new Position(newPos);
+    	Position p = null;
+    	try{
+    		p = new Position(newPos);
+    	}catch(Exception e) {
+    		throw new InvalidLocationException();
+    	}
     	// check for uniqueness of position
-    	if(p.getAisleId() == -1) {
+    	if(p.getAisleId() != -1) {
     		for(ProductType prod:products.values()) {
     			Position tmp = ((ProductTypeClass)prod).getPosition();
     			if(tmp!=null && tmp.equals(p))

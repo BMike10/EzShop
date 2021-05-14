@@ -7,11 +7,13 @@ import java.util.List;
 import org.junit.Test;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.ProductType;
+import it.polito.ezshop.exceptions.InvalidLocationException;
 import it.polito.ezshop.exceptions.InvalidPasswordException;
 import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
 import it.polito.ezshop.exceptions.InvalidProductIdException;
+import it.polito.ezshop.exceptions.InvalidQuantityException;
 import it.polito.ezshop.exceptions.InvalidUsernameException;
 import it.polito.ezshop.exceptions.UnauthorizedException;
 
@@ -227,5 +229,79 @@ public class ProductAPITest {
 			ezshop.deleteProductType(id);
 		}catch(Exception e) {fail();}
 		
+	}
+	
+	@Test
+	public void testUpdateQuantity() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException {
+		final EZShop ezshop = new EZShop();
+		// before login
+		assertThrows(UnauthorizedException.class, ()->{ezshop.updateQuantity(1, 10);});	
+		// login
+		ezshop.login("admin2", "admin");
+		// create test products
+		final int id = ezshop.createProductType("apple", "400638133390", 10.0, "apple");
+		ProductType pt = ezshop.getProductTypeByBarCode("400638133390");
+		pt.setQuantity(10);
+		assertEquals(new Integer(10), pt.getQuantity());
+		// invalid id
+		assertThrows(InvalidProductIdException.class, ()->{ezshop.updateQuantity(0, 100);});	// invalid
+		assertFalse(ezshop.updateQuantity(Integer.MAX_VALUE, 1));	// not present
+		// invalid location
+		assertFalse(ezshop.updateQuantity(id, 1));
+		// set position
+		pt.setLocation("1-a-1");
+		assertEquals("1-a-1", pt.getLocation());
+		// invalid quantity
+		assertFalse(ezshop.updateQuantity(id, -11));
+		// valid
+		assertTrue(ezshop.updateQuantity(id, -10));
+		assertEquals(new Integer(0), pt.getQuantity());
+		
+		// clean
+		ezshop.deleteProductType(id);
+	}
+	
+	@Test
+	public void testUpdateLocation() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException, InvalidLocationException {
+		final EZShop ezshop = new EZShop();
+		// before login
+		assertThrows(UnauthorizedException.class, ()->{ezshop.updatePosition(1, "1-a-1");});	
+		// login
+		ezshop.login("admin2", "admin");
+		// create test products
+		final int id = ezshop.createProductType("apple", "400638133390", 10.0, "apple");
+		ProductType pt = ezshop.getProductTypeByBarCode("400638133390");
+		pt.setQuantity(10);
+		String startPos = pt.getLocation();
+		final int id2 = ezshop.createProductType("ananas", "4006381333931", 10.0, "ananas");
+		ProductType pt2 = ezshop.getProductTypeByBarCode("4006381333931");
+		pt.setQuantity(10);
+		// invalid id
+		assertThrows(InvalidProductIdException.class, ()->{ezshop.updatePosition(0, "1-a-1");});	// invalid
+		assertFalse(ezshop.updatePosition(Integer.MAX_VALUE, "1-a-1"));	// not present
+		// invalid location
+		assertThrows(InvalidLocationException.class, ()->{ezshop.updatePosition(id, "1-1");});
+		assertEquals(startPos, pt.getLocation());
+		// already present
+		pt2.setLocation("2-b-2");
+		assertEquals("2-b-2", pt2.getLocation());
+		assertFalse(ezshop.updatePosition(id, "2-b-2"));
+		assertEquals(startPos, pt.getLocation());		
+		// valid
+		try {
+			ezshop.updatePosition(id, "3-c-3");
+			assertEquals("3-c-3", pt.getLocation());
+			// reset with null
+			ezshop.updatePosition(id, null);
+			assertEquals("", pt.getLocation());
+			// reset with empty
+			ezshop.updatePosition(id, "3-c-3");
+			assertEquals("3-c-3", pt.getLocation());
+			ezshop.updatePosition(id, "");
+			assertEquals("", pt.getLocation());
+		}catch(Exception e) {fail();}
+		// clean
+		ezshop.deleteProductType(id);
+		ezshop.deleteProductType(id2);
 	}
 }
