@@ -448,7 +448,7 @@ public class Connect {
     	// insert into db
     	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
         		+ "VALUES ("+nextId
-        		+", 'DEBIT', "
+        		+", 'ORDER', "
         		+ (pricePerUnit * quantity) +", "
         		+ "DATE('now'), "
         		+ status.ordinal()+", "

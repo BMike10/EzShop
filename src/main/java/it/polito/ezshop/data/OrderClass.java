@@ -16,10 +16,10 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 	
 	
 	public OrderClass(String productCode, double pricePerUnit, int quantity, OrderStatus status) {
-		this(-1, (String)null, pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, status);
+		this(-1, "ORDER", pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, status);
 	}
 	public OrderClass(String productCode, double pricePerUnit, int quantity) {
-		this(-1, (String)null, pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, OrderStatus.ISSUED);
+		this(-1, "ORDER", pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, OrderStatus.ISSUED);
 	}
 	public OrderClass(int id, String desc, double amount, LocalDate date, String supplier, String productCode, double pricePerUnit, int quantity, OrderStatus status) {
 		super(id, desc, amount, date, "DEBIT");
