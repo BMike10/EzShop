@@ -16,6 +16,11 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
         this.returnedProduct.putAll(returned);
         this.saleTransaction = saleT;
         this.status = retstatus;
+        try {
+			super.setDescription("RETURN");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 
     public ReturnTransactionClass(int orderId, String description, double amount, LocalDate date, String type,Map<ProductType,Integer> returned, SaleTransaction saleT, ReturnStatus retstatus) {
@@ -29,6 +34,11 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
     	super(0.0, "DEBIT");
         this.saleTransaction = saleT;
         this.status = retstatus;
+        try {
+			super.setDescription("RETURN");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 
     @Override

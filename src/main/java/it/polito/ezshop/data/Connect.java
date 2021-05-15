@@ -627,7 +627,7 @@ public class Connect {
                     ProductType pt = products.get(productId);
                     returnedProducts.put(pt, qty);
                 }
-                ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "RETURN", returnedProducts, s, rstatus);
+                ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "DEBIT", returnedProducts, s, rstatus);
                 returns.put(id,  rt);
             }
         } catch (SQLException e) {
