@@ -30,7 +30,7 @@ public class EZShop implements EZShopInterface {
 		cards = Connect.getLoyaltyCard();
 		customers = Connect.getCustomer(cards);
 		attachedCards = Connect.getAttachedCard(cards, customers);
-		Map<Integer,SaleTransaction> sales = Connect.getSaleTransaction(products);
+		Map<Integer,SaleTransaction> sales = Connect.getSaleTransaction(products, cards);
 		accountBook = new AccountBookClass(sales, Connect.getOrder(products), Connect.getReturnTransaction(products, sales));
 
 		try {
@@ -138,7 +138,7 @@ public class EZShop implements EZShopInterface {
         	final String tmp = user.getRole(); 
         	user.setRole(role);
         	if(!Connect.updateUserRights(id,role)) {
-        		user.setRole(role);
+        		user.setRole(tmp);
          	return false;
          }
      	return true;
@@ -589,7 +589,7 @@ public class EZShop implements EZShopInterface {
     	 if(customerCard == null || customerCard.isEmpty())throw new InvalidCustomerCardException();   	
     	 LoyaltyCard card = cards.get(customerCard);
     	 Customer customer = customers.get(customerId);  	 
-    	 if(customer.getId() == null || attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e==customerCard))  return false;   	 
+    	 if(customer.getId() == null || !attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e.equals(customerCard)))  return false;   	 
     	
     	attachedCards.put(card,customer); 
 
@@ -630,7 +630,7 @@ public class EZShop implements EZShopInterface {
 
 	@Override
 	public Integer startSaleTransaction() throws UnauthorizedException {
-		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
 		SaleTransaction st=new SaleTransactionClass(new Time(System.currentTimeMillis()), SaleStatus.STARTED);
 		int i=accountBook.addSaleTransaction(st);
@@ -641,38 +641,59 @@ public class EZShop implements EZShopInterface {
 
 	@Override
 	public boolean addProductToSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
-		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
+		if(transactionId == null || transactionId <= 0)
+			throw new InvalidTransactionIdException();
+			
 		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		if (st== null) {
-			throw new InvalidTransactionIdException();
+			return false;
 		}
 		if(amount<=0) throw new InvalidQuantityException();
 		ProductType pt = getProductTypeByBarCode(productCode);
-		if(pt == null) throw new InvalidProductCodeException();
-		st.addProduct(pt, amount);
-		return ((ProductTypeClass) pt).updateQuantity(-amount);
+		if(pt == null) return false;
+		try {
+			if(updateQuantity(pt.getId(), -amount)) {
+				st.addProduct(pt, amount);
+				return true;
+			}
+		} catch (InvalidProductIdException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return false;
 	}
 
 	@Override
 	public boolean deleteProductFromSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
-		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
+		if(transactionId == null || transactionId <= 0)
+			throw new InvalidTransactionIdException();
 		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		if (st== null) {
 			throw new InvalidTransactionIdException();
 		}
 		if(amount<=0) throw new InvalidQuantityException();
 		ProductType pt = getProductTypeByBarCode(productCode);
-		if(pt == null) throw new InvalidProductCodeException();
+		if(pt == null) 
+			return false;
 		st.deleteProduct(pt, amount);
-		return ((ProductTypeClass) pt).updateQuantity(amount);
+		try {
+			return updateQuantity(pt.getId(),amount);
+		} catch (InvalidProductIdException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	@Override
 	public boolean applyDiscountRateToProduct(Integer transactionId, String productCode, double discountRate) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidDiscountRateException, UnauthorizedException {
-		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
+		if(transactionId == null || transactionId <= 0)
+			throw new InvalidTransactionIdException();
 		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		if (st== null || st.getStatus()!=SaleStatus.STARTED ) {
 			throw new InvalidTransactionIdException();
@@ -686,12 +707,15 @@ public class EZShop implements EZShopInterface {
 
 	@Override
 	public boolean applyDiscountRateToSale(Integer transactionId, double discountRate) throws InvalidTransactionIdException, InvalidDiscountRateException, UnauthorizedException {
-
 		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
+		if(transactionId == null || transactionId <= 0)
+			throw new InvalidTransactionIdException();
+		if(discountRate < 0.0 || discountRate >= 1.0)
+			throw new InvalidDiscountRateException();
 		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		if (st == null) {
-			throw new InvalidTransactionIdException();
+			return false;
 		}
 		st.setDiscountRate(discountRate);
 		return true;
@@ -699,65 +723,69 @@ public class EZShop implements EZShopInterface {
 
 	@Override
 	public int computePointsForSale(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
-		if(accountBook.getSaleTransaction(transactionId)==null) throw new InvalidTransactionIdException();
 		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
-		return (int)accountBook.getSaleTransaction(transactionId).getPrice()/10;
+		if(transactionId == null || transactionId <= 0)
+			throw new InvalidTransactionIdException();
+		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		if(st==null) throw new InvalidTransactionIdException();
+		return (int)st.getPrice()/10;
 	}
 
 	@Override
 	public boolean endSaleTransaction(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
-		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")))
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
+		if(transactionId == null || transactionId <= 0)
+			throw new InvalidTransactionIdException();
 		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		if (st == null || st.getStatus()==SaleStatus.CLOSED) {
-			throw new InvalidTransactionIdException();
+			return false;
 		}
 		st.checkout();
 
 		if(!Connect.addSaleTransaction(st, st.getBalanceId(), st.getDescription(), st.getPrice(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))
 			try {
 				accountBook.removeSaleTransaction(st.getBalanceId());
+				return false;
 			} catch (InvalidTransactionIdException e) {
 				e.printStackTrace();
 			}
-		recordBalanceUpdate(st.getMoney());
+		//recordBalanceUpdate(st.getMoney());
 		return true;
 	}
 
 
 	@Override
 	public boolean deleteSaleTransaction(Integer saleNumber) throws InvalidTransactionIdException, UnauthorizedException {
-		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")))
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
-		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
-		if (st == null) {
+		if(saleNumber == null || saleNumber <= 0)
 			throw new InvalidTransactionIdException();
+		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
+		if (st == null || st.getStatus() == SaleStatus.PAYED) {
+			return false;
 		}
+		if(!Connect.removeSaleTransaction(saleNumber)) {
+			return false;
+		}
+		accountBook.removeSaleTransaction(saleNumber);
 		//dovrei reinserire i prodotti acquistati
 		for(int i=0; i<st.getEntries().size(); i++) {
 			TicketEntryClass te=(TicketEntryClass)st.getEntries().get(i);
 			ProductType pt=te.getProductType();
 			try {
-				this.updateQuantity(pt.getId(),
-						-te.getAmount());
+				this.updateQuantity(pt.getId(), te.getAmount());
 			} catch (InvalidProductIdException e) {
 				e.printStackTrace();
 			}
 		}
-		accountBook.removeSaleTransaction(saleNumber);
-		if(!Connect.addSaleTransaction(st, st.getBalanceId(), st.getDescription(), st.getPrice(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))
-			try {
-				accountBook.removeSaleTransaction(st.getBalanceId());
-			} catch (InvalidTransactionIdException e) {
-				e.printStackTrace();
-			}
 		return true;
 	}
 
 	@Override
 	public SaleTransaction getSaleTransaction(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
-		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")))
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
 		if(transactionId==null || transactionId<0) throw new InvalidTransactionIdException();
 		SaleTransactionClass t=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
@@ -767,10 +795,12 @@ public class EZShop implements EZShopInterface {
 
 	@Override
 	public Integer startReturnTransaction(Integer saleNumber) throws /*InvalidTicketNumberException,*/InvalidTransactionIdException, UnauthorizedException {
-		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
+		if(saleNumber == null || saleNumber <= 0)
+			throw new InvalidTransactionIdException();
 		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
-		if(st==null || st.getStatus()!=SaleStatus.CLOSED || st.getStatus()!=SaleStatus.PAYED) throw new InvalidTransactionIdException();
+		if(st==null || (st.getStatus()!=SaleStatus.CLOSED && st.getStatus()!=SaleStatus.PAYED)) return -1;
 		ReturnTransaction rt=new ReturnTransactionClass(st, ReturnStatus.STARTED);
 
 		return accountBook.addReturnTransaction(rt);
@@ -778,16 +808,24 @@ public class EZShop implements EZShopInterface {
 
 	@Override
 	public boolean returnProduct(Integer returnId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
-		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager")) && !currentUser.getRole().equals("Administrator"))
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
+		if(returnId == null || returnId <= 0)
+			throw new InvalidTransactionIdException();
+		if(productCode == null || productCode.isEmpty() || !ProductTypeClass.validateBarCode(productCode))
+			throw new InvalidProductCodeException();
+		if(amount <= 0)
+			throw new InvalidQuantityException();
 		ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
-		if(rt==null) throw new InvalidTransactionIdException();
+		if(rt==null) return false;
 		SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
-		if(!st.getProductsEntries().containsKey(productCode)) throw new InvalidProductCodeException();
+		if(!st.getProductsEntries().containsKey(productCode)) return false;
 		int q=st.getProductsEntries().get(productCode).getAmount();
-		if(q<amount) throw new InvalidQuantityException();
-		int a=rt.addReturnProduct(this.getProductTypeByBarCode(productCode), amount);
-		if(a==-1) throw new InvalidQuantityException();
+		if(q<amount) return false;
+		ProductType pt = this.getProductTypeByBarCode(productCode);
+		if(pt == null) return false;
+		int a=rt.addReturnProduct(pt, amount);
+		if(a==-1) return false;
 		else return true;
 	}
 
@@ -795,25 +833,27 @@ public class EZShop implements EZShopInterface {
 	public boolean endReturnTransaction(Integer returnId, boolean commit) throws InvalidTransactionIdException, UnauthorizedException {
 		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("ShopManager")))
 			throw new UnauthorizedException();
+		if(returnId == null || returnId <= 0)
+			throw new InvalidTransactionIdException();
 		ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
 		if (rt == null) {
-			throw new InvalidTransactionIdException();
+			return false;
 		}
 		if(commit) {
 			SaleTransactionClass st=(SaleTransactionClass)rt.getSaleTransaction();
 			rt.getReturnedProduct().forEach((p,q)->{
 				try {
-					this.updateQuantity(p.getId(), -q);
+					this.updateQuantity(p.getId(), q);
 					st.deleteProduct(p, q);
 				} catch (InvalidProductIdException | UnauthorizedException e) {
 					e.printStackTrace();
 				}
 			});
-			if(!Connect.addReturnTransaction(rt, returnId, "RETURN ", rt.getMoney(), ReturnStatus.CLOSED, st.getBalanceId())) {
+			if(!Connect.addReturnTransaction(rt, returnId, "RETURN", rt.getMoney(), ReturnStatus.CLOSED, st.getBalanceId())) {
 				//rollback
 				rt.getReturnedProduct().forEach((p,q)->{
 					try {
-						this.updateQuantity(p.getId(), q);
+						this.updateQuantity(p.getId(), -q);
 						st.deleteProduct(p, -q);
 					} catch (InvalidProductIdException | UnauthorizedException e) {
 						e.printStackTrace();
@@ -833,14 +873,26 @@ public class EZShop implements EZShopInterface {
 	public boolean deleteReturnTransaction(Integer returnId) throws InvalidTransactionIdException, UnauthorizedException {
 		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") &&!currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
-		ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
-		if (rt == null || rt.getStatus()!=ReturnStatus.CLOSED.name()) {
+		if(returnId == null || returnId <= 0)
 			throw new InvalidTransactionIdException();
+		ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		if (rt == null || !rt.getStatus().equals(ReturnStatus.CLOSED.name())) {
+			return false;
+		}
+		if(!Connect.deleteReturnTransaction(rt)) {
+			return false;
 		}
 		SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
+		Map<String, TicketEntryClass> entries = st.getTicketEntries();
+		Map<ProductType, Integer> returnedProducts = rt.getReturnedProduct();
 		//put back the products into the transaction
 		//for each of the returned products, find the matching ticket entry of the ST and update the amount
-		for(int i=0; i<rt.getReturnedProduct().size(); i++) {
+		for(ProductType pt: returnedProducts.keySet()) {
+			TicketEntryClass te = entries.get(pt.getBarCode());
+			te.setAmount(te.getAmount() + returnedProducts.get(pt));
+			((ProductTypeClass)pt).updateQuantity(returnedProducts.get(pt));
+		}
+		/*for(int i=0; i<rt.getReturnedProduct().size(); i++) {
 			st.getEntries().forEach(e->{
 				if(rt.getReturnedProduct().containsKey(( (TicketEntryClass) e).getProductType())) {
 					e.setAmount(e.getAmount()+rt.getReturnedProduct().get(( (TicketEntryClass) e).getProductType()));
@@ -852,7 +904,7 @@ public class EZShop implements EZShopInterface {
 					}
 				}
 			});
-		}
+		}*/
 		accountBook.removeReturnTransaction(returnId);
 		return true;
 	}
@@ -894,7 +946,7 @@ public class EZShop implements EZShopInterface {
         //Update map and db(Balance)
         recordBalanceUpdate(saleAmount);
 
-		return 0;
+		return change;
 
 	}
 

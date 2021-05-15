@@ -26,6 +26,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
     }
 
     public ReturnTransactionClass(SaleTransaction saleT, ReturnStatus retstatus) {
+    	super(0.0, "DEBIT");
         this.saleTransaction = saleT;
         this.status = retstatus;
     }

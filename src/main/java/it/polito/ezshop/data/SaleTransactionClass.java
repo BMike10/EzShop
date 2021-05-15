@@ -15,7 +15,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 
 	public SaleTransactionClass(double price, String paymentType, Time time, SaleStatus status,  LoyaltyCard loyaltyCard,
 								Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries, double discountRate) {
-		super(price, "SALE");
+		super(price, "CREDIT");
 		this.setPaymentType(paymentType);
 		this.time = time;
 		this.status = status;
@@ -25,7 +25,8 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		this.discountRate = discountRate;
 	}
 	public SaleTransactionClass(Time time, SaleStatus saleStatus) {
-		this(0.0, "", time, saleStatus, null, -1, new HashMap<>(), 0.0);
+		//this(0.0, "", time, saleStatus, null, -1, new HashMap<>(), 0.0);
+		this(-1, "SALE", 0.0, LocalDate.now(), "CREDIT", "", time, saleStatus, null, new HashMap<>(), 0.0);
 	}
 
 	public SaleTransactionClass(Time time, String paymentType, SaleStatus status, LoyaltyCard loyaltyCard,
@@ -47,7 +48,14 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	//New constructor
 	public SaleTransactionClass(int transactionId, String description, double money, LocalDate date, String type, String paymentType, Time time,
 								SaleStatus status,  LoyaltyCard loyaltyCard, Map<String, TicketEntryClass> ticketEntries, double discountRate){
-		super();
+		super(transactionId, description, money, date, type);
+		this.setPaymentType(paymentType);
+		this.time = time;
+		this.status = status;
+		this.loyaltyCard = loyaltyCard;
+		//this.ticketNumber = ticketNumber;
+		this.ticketEntries = ticketEntries;
+		this.discountRate = discountRate;
 	}
 
 	private Time time;

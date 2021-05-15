@@ -34,7 +34,6 @@ public class Connect {
             while(result.next()) {
                 System.out.println(result.getString("username"));
             }
-            stmt.executeUpdate("delete from ProductTypes where id = 2 or id = 3");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         } /*finally {
@@ -479,7 +478,7 @@ public class Connect {
 
     //SALE TRANSACTION
 
-    public static Map<Integer, SaleTransaction> getSaleTransaction(Map<Integer, ProductType> products){
+    public static Map<Integer, SaleTransaction> getSaleTransaction(Map<Integer, ProductType> products, Map<String, LoyaltyCard> cards){
         HashMap<Integer, SaleTransaction> sales = new HashMap<>();
         //Map<Integer, ProductType> products = getProduct();
 
@@ -490,11 +489,13 @@ public class Connect {
                 int id = rs.getInt("id");
                 String description = rs.getString("description");
                 double amount = rs.getDouble("amount");
-                Date date = rs.getDate("date");
-                Time time = rs.getTime("time");
+                Date date = Date.valueOf(rs.getString("date"));
+                Time time = Time.valueOf(rs.getString("time"));
                 int status = rs.getInt("status");
-                //SaleTransactionClass s = new SaleTransactionClass(id, description, amount, date, time, status);
-                List<TicketEntry> entries = new ArrayList<>();
+                String paymentType = rs.getString("paymentType");
+                String cardId = rs.getString("cardId");
+                double discountRate = rs.getDouble("discountRate");
+                Map<String, TicketEntryClass> entries = new HashMap<>();
                 String sql2 = "select * from SoldProducts where id="+id;
                 ResultSet rs1 = stmt.executeQuery(sql2);
                 while(rs1.next()) {
@@ -503,9 +504,10 @@ public class Connect {
                     double discount = rs1.getDouble("discountRate");
                     ProductType pt = products.get(productId);
                     TicketEntryClass te = new TicketEntryClass(pt, qty, discount);
-                    entries.add(te);
+                    entries.put(pt.getBarCode(), te);
                 }
-
+                SaleTransactionClass s = new SaleTransactionClass(id, description, amount, date.toLocalDate(),  "CREDIT", paymentType, time, SaleStatus.values()[status], cards.get(cardId), entries, discountRate);
+                sales.put(id,  s);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -549,27 +551,29 @@ public class Connect {
 //    }
     public static boolean addSaleTransaction(SaleTransactionClass sale, int id, String description, double amount,
                                              String paymentType, double discountRate, LoyaltyCard lt) {
-        String sql = "INSERT INTO SaleTransaction(id, description, amount, date, time, paymentType, discountRate, status, cardId) "
+        String sql = "INSERT INTO SaleTransactions(id, description, amount, date, time, paymentType, discountRate, status, cardId, soldProducts) "
                 +"VALUES ("+id
-                +", "+description
-                +", "+amount
-                +"DATE('now'), "
-                +"TIME('now'), "   					//is it ok?
-                +", "+paymentType
+                +", '"+description
+                +"', "+amount
+                +", DATE('now')"
+                +", TIME('now')"   					//is it ok?
+                +", '"+paymentType+"'"
                 +", "+discountRate
                 +", "+SaleStatus.CLOSED.ordinal()
-                +", "+lt.getCardCode()+")";
+                +", "+(lt==null?"NULL":"'"+lt.getCardCode()+"'")
+                +", "+id+")";
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch (SQLException e) {
             e.printStackTrace();
+            System.out.println(sql);
             return false;
         }
         for(int i=0; i<sale.getEntries().size(); i++) {
             TicketEntryClass tec=(TicketEntryClass) sale.getEntries().get(i);
-            String sql2 = "INSERT INTO SoldProduct(id, productId, quantity, discountRate) "
+            String sql2 = "INSERT INTO SoldProducts(id, productId, quantity, discountRate) "
                     +"VALUES ("+sale.getBalanceId()
-                    +", "+tec.getBarCode()
+                    +", "+tec.getProductType().getId()
                     +", "+tec.getAmount()
                     +", "+tec.getDiscountRate()+")";
             try(Statement st = conn.createStatement()){
@@ -583,7 +587,7 @@ public class Connect {
     }
 
     public static boolean removeSaleTransaction(int id) {
-        String sql = "DELETE from SaleTransaction"
+        String sql = "DELETE from SaleTransactions"
                 + " WHERE id = "+id;
         try(Statement st = conn.createStatement()){
             st.execute(sql);
@@ -624,6 +628,7 @@ public class Connect {
                     returnedProducts.put(pt, qty);
                 }
                 ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "RETURN", returnedProducts, s, rstatus);
+                returns.put(id,  rt);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -666,9 +671,9 @@ public class Connect {
         Integer i=ret.getBalanceId();
         String sql = "INSERT INTO ReturnTransaction(id, description, amount, date, status, saleId) "
                 + "VALUES ("+id
-                +", "+description
+                +", '"+description+"'"
                 +", "+amount
-                + "DATE('now'), "
+                +",DATE('now'), "
                 + ReturnStatus.CLOSED.ordinal()+", "
                 + i +")";
         try(Statement st = conn.createStatement()){
@@ -691,5 +696,25 @@ public class Connect {
         });
 
         return true;
+    }
+    public static boolean deleteReturnTransaction(ReturnTransaction rt) {
+    	// delete transaction
+    	String sql = "delete from ReturnTransaction where id = "+rt.getReturnId();
+    	try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    	// delete returned products
+    	rt.getReturnedProduct().forEach((p, q)->{
+    		String sql2 = "delete from ReturnedProducts where id = "+rt.getReturnId() + " and productId = "+p.getId();
+    		try(Statement st = conn.createStatement()){
+                st.execute(sql2);
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+    	});
+    	return true;
     }
 }

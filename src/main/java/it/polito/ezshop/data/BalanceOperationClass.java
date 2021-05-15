@@ -21,7 +21,7 @@ public class BalanceOperationClass implements BalanceOperation {
     }
 
     public BalanceOperationClass(double money, String type) {
-        if(money==0)
+        if(money<0)
             throw new RuntimeException(new Exception());
         else
             this.money = money;
