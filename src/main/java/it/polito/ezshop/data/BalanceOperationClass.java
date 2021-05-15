@@ -88,7 +88,7 @@ public class BalanceOperationClass implements BalanceOperation {
 
     public void setDescription(String desc) throws Exception {
 
-        if (desc.length()>1000 || desc==null)
+        if (desc.length()>1000)
             throw new Exception();
         this.description = desc;
     }

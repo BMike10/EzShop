@@ -127,7 +127,7 @@ public class AccountBookClass implements AccountBook{
 
     @Override
     public void removeOrder(Integer orderTransactionId) throws InvalidTransactionIdException {
-        if(!this.orderMap.containsKey(orderTransactionId) || orderTransactionId==null || orderTransactionId<=0)
+        if(orderTransactionId==null || orderTransactionId<=0 || !this.orderMap.containsKey(orderTransactionId) )
             throw new InvalidTransactionIdException();
         this.saleTransactionMap.remove(orderTransactionId);
         this.balanceOperationMap.remove(orderTransactionId);
@@ -135,7 +135,7 @@ public class AccountBookClass implements AccountBook{
 
     @Override
     public SaleTransaction getSaleTransaction(Integer id) {
-        if(!this.saleTransactionMap.containsKey(id) || id==null || id<=0)
+        if(id==null || id<=0 || !this.saleTransactionMap.containsKey(id)  )
             throw new RuntimeException(new InvalidTransactionIdException());
 
         return this.saleTransactionMap.get(id);
