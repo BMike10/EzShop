@@ -978,30 +978,7 @@ public class EZShop implements EZShopInterface {
         if(userCash < saleAmount)
             return false;
 
-		// read file one line at a time
-		// replace line as you read the file and store updated lines in StringBuffer
-		// overwrite the file with the new lines
-		try {
-			// input the (modified) file content to the StringBuffer "input"
-			BufferedReader file = new BufferedReader(new FileReader("creditCard.txt"));
-			StringBuilder inputBuffer = new StringBuilder();
-			String line;
 
-			while ((line = file.readLine()) != null)  {
-				if(line.startsWith(creditCard))
-					line = creditCard+";"+(userCash-saleAmount); // replace the line here
-				inputBuffer.append(line).append('\n');
-			}
-			file.close();
-
-			// write the new string with the replaced line OVER the same file
-			FileOutputStream fileOut = new FileOutputStream("creditCard.txt");
-			fileOut.write(inputBuffer.toString().getBytes());
-			fileOut.close();
-
-		} catch (Exception e) {
-			System.out.println("Problem reading file.");
-		}
 /*
         //Payment completed -> Update map and db(STATUS)
         //Update Map
@@ -1017,6 +994,7 @@ public class EZShop implements EZShopInterface {
         //Update map and db(Balance)
         recordBalanceUpdate(saleAmount);
         */
+		updateCreditCardTxt(creditCard,userCash-saleAmount);
 		return true;
 
 	}
@@ -1054,7 +1032,6 @@ public class EZShop implements EZShopInterface {
         //recordBalanceUpdate(-(returnTransaction.getAmount()));
 
 
-
 		return 0;
     }
 
@@ -1070,7 +1047,11 @@ public class EZShop implements EZShopInterface {
         if(returnId == null || returnId <= 0)
             throw new InvalidTransactionIdException();
 
-		ReturnTransaction returnTransaction = accountBook.getReturnTransaction(returnId);
+        ReturnTransaction returnTransaction = accountBook.getReturnTransaction(returnId);
+
+        //Credit card is validate and registered in the system
+		if(!CreditCardsMap.containsKey(creditCard))
+			throw new InvalidCreditCardException();
 
 		//Check card validity(creditCard consist of 13 or 16 elements)
 		if(creditCard ==null || (creditCard.length()!=13 && creditCard.length()!=16)){
@@ -1080,20 +1061,20 @@ public class EZShop implements EZShopInterface {
 			checkCreditCardNumber(creditCard);
 		}
 
-		//Update Map with new credit -> is return amount only the return part on total saleAmount?
-		//newCredit = CreditCardsMap.get(creditCard) + returnTransaction.getAmount();
-		//CreditCardsMap.put(creditCard, newCredit);
-
-        String status= returnTransaction.getStatus();
-
+		String status= returnTransaction.getStatus();
         if (!status.equals("CLOSED"))
             //Return Transaction is not ended
             return -1;
 
-        //Return Transaction is ended-> Update map and db(STATUS)
-        //Update Map
-        returnTransaction.setStatus("PAYED");;
-        //Update DB
+		newCredit = CreditCardsMap.get(creditCard) + ((ReturnTransactionClass)returnTransaction).getMoney();
+        //Return Transaction is ended-> Update map and db
+		//Update Map
+		returnTransaction.setStatus("PAYED");
+		CreditCardsMap.put(creditCard, newCredit);
+		//Update Txt with new credit
+		updateCreditCardTxt(creditCard,newCredit);
+
+		//Update DB
 		String sql = "UPDATE ReturnTransaction SET status ="+ReturnStatus.PAYED.ordinal() +" WHERE id = "+returnTransaction.getReturnId();;
         try(Statement st = conn.createStatement()){
             st.execute(sql);
@@ -1103,7 +1084,7 @@ public class EZShop implements EZShopInterface {
         }
 
         //Update map and db(Balance)
-        //recordBalanceUpdate(-(returnTransaction.getAmount()));
+        recordBalanceUpdate(-(((ReturnTransactionClass) returnTransaction).getMoney()));
 
     	return 0;
     }
@@ -1242,6 +1223,33 @@ public class EZShop implements EZShopInterface {
 		} else {
 			//INVALID CREDIT CARD
 			throw new InvalidCreditCardException();
+		}
+	}
+
+	public void updateCreditCardTxt(String creditCard, double newSale){
+		// read file one line at a time
+		// replace line as you read the file and store updated lines in StringBuffer
+		// overwrite the file with the new lines
+		try {
+			// input the (modified) file content to the StringBuffer "input"
+			BufferedReader file = new BufferedReader(new FileReader("creditCard.txt"));
+			StringBuilder inputBuffer = new StringBuilder();
+			String line;
+
+			while ((line = file.readLine()) != null)  {
+				if(line.startsWith(creditCard))
+					line = creditCard+";"+newSale; // replace the line here
+				inputBuffer.append(line).append('\n');
+			}
+			file.close();
+
+			// write the new string with the replaced line OVER the same file
+			FileOutputStream fileOut = new FileOutputStream("creditCard.txt");
+			fileOut.write(inputBuffer.toString().getBytes());
+			fileOut.close();
+
+		} catch (Exception e) {
+			System.out.println("Problem reading file.");
 		}
 	}
 

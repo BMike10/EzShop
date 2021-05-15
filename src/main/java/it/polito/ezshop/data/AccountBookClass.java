@@ -68,7 +68,7 @@ public class AccountBookClass implements AccountBook{
             double CREDIT = this.balanceOperationMap.values().stream().
                     filter(balanceOperation -> balanceOperation.getType().equals("CREDIT")).mapToDouble(BalanceOperation::getMoney).sum();
             double DEBIT = this.balanceOperationMap.values().stream().
-                    filter(balanceOperation -> balanceOperation.getType().equals("DEBIT")).mapToDouble(BalanceOperation::getMoney).sum();
+                    filter(balanceOperation -> ((BalanceOperationClass)balanceOperation).getDescription().equals("ORDER")).mapToDouble(BalanceOperation::getMoney).sum();
             newBalance = CREDIT - DEBIT;
             this.balance = newBalance;
         }

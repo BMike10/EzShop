@@ -82,7 +82,16 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
         this.status = ReturnStatus.valueOf(status);
     }
 
-    public int addReturnProduct(ProductType product,int quantity){
+    @Override
+    public double getMoney() {
+        return super.getMoney();
+    }
+    @Override
+    public void setMoney(double money) {
+        super.setMoney(money);
+    }
+
+    public int addReturnProduct(ProductType product, int quantity){
         SaleTransactionClass st=(SaleTransactionClass)this.saleTransaction;
         int amount=st.getTicketEntries().get(product.getBarCode()).getAmount();
 
