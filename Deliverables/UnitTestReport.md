@@ -75,8 +75,10 @@ Version:
 
 
 
-## Class ProductTypeClass
 
+**Criteria for method validateBarCode:**
+
+## Class ProductTypeClass
 ### Method validateBarCode
 
 **Criteria for method validateBarCode:**
@@ -122,6 +124,7 @@ Version:
 
 ### Constructor
 **Criteria for method Constructor:**
+
 - Signature of id
 - Signature of description
 - Signature of productCode
@@ -680,7 +683,118 @@ Version:
 |       |       |       |       | T2b(closed50)  |   |
 | *     | yes |  yes   | Valid   | T3b("closed")         |   |
 
+## Class CustomerClass
+### Method CheckCardCode
+**Criteria for method  checkCardCode:**
 
+- Signature of String newCustomerCard
+- Length of newCustomerCard
+- Valid newCustomerCard
+
+**Predicates for method checkCardCode:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of String newCustomerCard | null |
+|             | valid |
+| Length of barcode | 10 |
+|             | > 10 && < 10 |
+| Valid newCustomerCard| yes|
+|               | no|
+
+**Boundaries for method checkCardCode**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Length of newCustomerCard| 0, 10,+inf   
+
+**Combination of predicates for method checkCardCode**
+
+| Signature of newCardCode | Length of newCardCode || Valid/Invalid | customerName of the test case | JUnit test case |
+| ----------- | ----------- | ----------- | ------------- | ---------------------------- | --------------- |
+|  null       |  *          |           |   invalid     |  T1(null) -> false           | testcheckCardCode    
+|  valid | 0|   | invalid  | T2("")->false     |  testcheckCardCode               |
+|  valid | >10 |   | invalid  | T4("abcde123456")->false  |testcheckCardCode                           | 
+|  valid | <10 |   | invalid  | T4("abcde1234")->false                             | testcheckCardCode               |
+|  valid | 10 |   | valid  | T5("abcde12345")->true <br> T5b("AN34d5vtA1")->true |<br>testcheckCardCode |
+### Constructor
+**Criteria for method Constructor:**
+- Signature of id
+- Signature of customerName
+- Signature of customerCard
+- Signature of points
+**Predicates for method Constructor:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of id| > 0|
+|   | <= 0|
+| Signature of customerName| valid|
+|   | null|
+| Signature of customerCard| valid |
+|   | invalid (null, empty or not valid)|
+| Signature of points| > 0|
+|   | <= 0|
+**Boundaries for method Constructor**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of id| -inf, 0, +inf|
+| Signature of points| -inf, 0, +inf|
+**Combination of predicates for method Constructor**
+
+ | Signature of id | Signatue of customerName| Signature of cardCode| Value of points|Valid/Invalid | customerName of the test case | JUnit test case |
+| ----------- | ---|---|------------ | ---------------------------- | --------------- | ------|
+| <= 0  | *      | *     |*| Invalid| T1(0,"customerName","abcde12345",0)->Exception| CustomerClassTest.testCustomerClassConstructor|
+| *| null | *     | *|Invalid| T2(1,"","abcde12345",0)->Exception| CustomerClassTest.testCustomerClassConstructor|
+| >0| Valid    | Valid  | Valid | Valid | T4(1,"customerName","abcde12345",0)|CustomerClassTest.testCustomerClassConstructor|
+
+### setCustomerId
+**Criteria for method setCustomerId:**
+- Signature of id
+
+**Predicates for method setCustomerId:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of id| null or <= 0|
+|   |   > 0|
+
+**Boundaries for method setCustomerId**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of id| null, -inf, 0, +inf|
+
+**Combination of predicates for method setProductId**
+
+| Signature of id| Valid/Invalid | customerName of the test case | JUnit test case |
+| ----------- | ------------- | ---------------------------- | --------------- |
+| null  or <= 0| Invalid | T1(null)->Exception <br> T1b(-1)->Exception| testSetCustomerId|
+| > 0| Valid | T2(50)| testSetCustomerId|
+
+### setCustomerName
+- Signature of customerName
+- Length of customerName
+
+**Predicates for method setCustomerName:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of customerName | null|
+|   | valid|
+| Length of customerName | 0 |
+| | > 0|
+**Boundaries for method setCustomerName**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Length of customerName | 0, +inf |
+
+**Combination of predicates for method setCustomerName**
+| Signature of customerName| Length of customerName| Valid/Invalid | customerName of the test case | JUnit test case |
+| ----------- | ---|------------- | ---------------------------- | --------------- |
+| null  |  -  | Invalid | T1(null) -> Exception | testSetcustomerName|
+| valid |  0  | Invalid | T2("")->Exception   |testSetcustomerName|
+| Valid | >0  | Valid   | T3("customerName")         |testSetcustomerName|
 # White Box Unit Tests
 
 ### Test cases definition
