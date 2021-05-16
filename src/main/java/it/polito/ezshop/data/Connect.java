@@ -497,14 +497,18 @@ public class Connect {
                 double discountRate = rs.getDouble("discountRate");
                 Map<String, TicketEntryClass> entries = new HashMap<>();
                 String sql2 = "select * from SoldProducts where id="+id;
-                ResultSet rs1 = stmt.executeQuery(sql2);
-                while(rs1.next()) {
-                    int productId = rs1.getInt("productId");
-                    int qty = rs1.getInt("quantity");
-                    double discount = rs1.getDouble("discountRate");
-                    ProductType pt = products.get(productId);
-                    TicketEntryClass te = new TicketEntryClass(pt, qty, discount);
-                    entries.put(pt.getBarCode(), te);
+                try (Statement stmt1 = conn.createStatement()){
+                	ResultSet rs1 = stmt1.executeQuery(sql2);
+                	while(rs1.next()) {
+                		int productId = rs1.getInt("productId");
+                		int qty = rs1.getInt("quantity");
+                		double discount = rs1.getDouble("discountRate");
+                		ProductType pt = products.get(productId);
+                		TicketEntryClass te = new TicketEntryClass(pt, qty, discount);
+                		entries.put(pt.getBarCode(), te);
+                	}
+                }catch(Exception e) {
+                	e.printStackTrace();
                 }
                 SaleTransactionClass s = new SaleTransactionClass(id, description, amount, date.toLocalDate(),  "CREDIT", paymentType, time, SaleStatus.values()[status], cards.get(cardId), entries, discountRate);
                 sales.put(id,  s);
@@ -591,6 +595,7 @@ public class Connect {
                 + " WHERE id = "+id;
         try(Statement st = conn.createStatement()){
             st.execute(sql);
+            st.executeUpdate("delete from SoldProducts where id = "+id);
         }catch(SQLException e) {
             e.printStackTrace();
             return false;
@@ -611,7 +616,7 @@ public class Connect {
                 int id = rs.getInt("id");
                 String description = rs.getString("description");
                 double amount = rs.getDouble("amount");
-                Date date = rs.getDate("date");
+                Date date = Date.valueOf(rs.getString("date"));
                 int status = rs.getInt("status");
                 int saleId = rs.getInt("saleId");
                 ReturnStatus rstatus = ReturnStatus.values()[status];
@@ -620,12 +625,16 @@ public class Connect {
                 //
                 Map<ProductType, Integer> returnedProducts = new HashMap<>();
                 String getReturnedProd = "select * from ReturnedProducts where id = "+id;
-                ResultSet rs1 = stmt.executeQuery(getReturnedProd);
-                while(rs1.next()) {
-                    int productId = rs1.getInt("productId");
-                    int qty = rs1.getInt("quantity");
-                    ProductType pt = products.get(productId);
-                    returnedProducts.put(pt, qty);
+                try(Statement stmt1 = conn.createStatement()){
+                	ResultSet rs1 = stmt1.executeQuery(getReturnedProd);
+                	while(rs1.next()) {
+                		int productId = rs1.getInt("productId");
+                		int qty = rs1.getInt("quantity");
+                		ProductType pt = products.get(productId);
+                		returnedProducts.put(pt, qty);
+                	}
+                }catch(SQLException e) {
+                	e.printStackTrace();
                 }
                 ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "DEBIT", returnedProducts, s, rstatus);
                 returns.put(id,  rt);
@@ -669,13 +678,14 @@ public class Connect {
     public static boolean addReturnTransaction(ReturnTransactionClass ret, int id, String description, double amount,
                                                ReturnStatus status, Integer saleId) {
         Integer i=ret.getBalanceId();
-        String sql = "INSERT INTO ReturnTransaction(id, description, amount, date, status, saleId) "
+        String sql = "INSERT INTO ReturnTransactions(id, description, amount, date, status, saleId, returnedProductsId) "
                 + "VALUES ("+id
                 +", '"+description+"'"
                 +", "+amount
                 +",DATE('now'), "
                 + ReturnStatus.CLOSED.ordinal()+", "
-                + i +")";
+                + i +","
+                + id+")";
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch (SQLException e) {
@@ -683,7 +693,7 @@ public class Connect {
             return false;
         }
         ret.getReturnedProduct().forEach((p,q)->{
-            String sql2 = "INSERT INTO ReturnedProduct(id, productId, quantity) "
+            String sql2 = "INSERT INTO ReturnedProducts(id, productId, quantity) "
                     + "VALUES ("+ret.getBalanceId()
                     +", "+p.getId()
                     +", "+q +")";
@@ -699,7 +709,7 @@ public class Connect {
     }
     public static boolean deleteReturnTransaction(ReturnTransaction rt) {
     	// delete transaction
-    	String sql = "delete from ReturnTransaction where id = "+rt.getReturnId();
+    	String sql = "delete from ReturnTransactions where id = "+rt.getReturnId();
     	try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch (SQLException e) {

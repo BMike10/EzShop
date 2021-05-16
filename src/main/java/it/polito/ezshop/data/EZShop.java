@@ -377,7 +377,9 @@ public class EZShop implements EZShopInterface {
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
         nextId = accountBook.addOrder((Order) o);
     	// update balance
-    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
+        double price = o.getPricePerUnit() * o.getQuantity();
+        double currentBalance = accountBook.getBalance();
+    	if(currentBalance - price < 0) {
     		// rollback
     		try {
 				accountBook.removeOrder(o.getOrderId());
@@ -385,6 +387,8 @@ public class EZShop implements EZShopInterface {
 				e.printStackTrace();
 			}
     		return -1;
+    	}else {
+    		accountBook.setBalance(currentBalance - price);
     	}
     	// update db
         if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
@@ -413,19 +417,22 @@ public class EZShop implements EZShopInterface {
     	
     	if(o.getStatus().equals(OrderStatus.PAYED.name()))
     		return false;
+    	// update balance
+        double price = o.getPricePerUnit() * o.getQuantity();
+        double currentBalance = accountBook.getBalance();
+    	if(currentBalance - price < 0) {
+    		return false;
+    	}else {
+    		accountBook.setBalance(currentBalance - price);
+    	}
     	o.setStatus("PAYED");
     	// save status on db
     	if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED)) {
 			// rollback
+    		accountBook.setBalance(currentBalance);
 			o.setStatus("ISSUED");
 			return false;
 		}
-    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
-    		// rollback
-    		Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.ISSUED);
-			o.setStatus("ISSUED");
-			return false;
-    	}
         return true;
     }
 
@@ -831,7 +838,7 @@ public class EZShop implements EZShopInterface {
 
 	@Override
 	public boolean endReturnTransaction(Integer returnId, boolean commit) throws InvalidTransactionIdException, UnauthorizedException {
-		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("ShopManager")))
+		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
 		if(returnId == null || returnId <= 0)
 			throw new InvalidTransactionIdException();
@@ -841,6 +848,7 @@ public class EZShop implements EZShopInterface {
 		}
 		if(commit) {
 			SaleTransactionClass st=(SaleTransactionClass)rt.getSaleTransaction();
+			rt.setStatus("CLOSED");
 			rt.getReturnedProduct().forEach((p,q)->{
 				try {
 					this.updateQuantity(p.getId(), q);
@@ -849,6 +857,7 @@ public class EZShop implements EZShopInterface {
 					e.printStackTrace();
 				}
 			});
+			st.checkout(); 		// compute the new total
 			if(!Connect.addReturnTransaction(rt, returnId, "RETURN", rt.getMoney(), ReturnStatus.CLOSED, st.getBalanceId())) {
 				//rollback
 				rt.getReturnedProduct().forEach((p,q)->{
@@ -861,6 +870,10 @@ public class EZShop implements EZShopInterface {
 				});
 				return false;
 			}
+			// update the sale on db
+			if(!Connect.removeSaleTransaction(st.getBalanceId()) || 
+					!Connect.addSaleTransaction(st, st.getBalanceId(), st.getDescription(), st.getMoney(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))
+				System.out.println("Error saving sale update on DB");
 			return true;
 		}
 		else {
@@ -892,6 +905,7 @@ public class EZShop implements EZShopInterface {
 			te.setAmount(te.getAmount() + returnedProducts.get(pt));
 			((ProductTypeClass)pt).updateQuantity(returnedProducts.get(pt));
 		}
+		st.checkout();
 		/*for(int i=0; i<rt.getReturnedProduct().size(); i++) {
 			st.getEntries().forEach(e->{
 				if(rt.getReturnedProduct().containsKey(( (TicketEntryClass) e).getProductType())) {
@@ -1018,7 +1032,7 @@ public class EZShop implements EZShopInterface {
 
         //Return Transaction is ended-> Update map and db(STATUS)
         //Update Map
-        returnTransaction.setStatus("PAYED");;
+        returnTransaction.setStatus("PAYED");
         //Update DB
         String sql = "UPDATE returnTransaction SET status = PAYED WHERE id = "+returnTransaction.getReturnId();
         try(Statement st = conn.createStatement()){
