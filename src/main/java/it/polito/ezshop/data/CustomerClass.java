@@ -13,8 +13,10 @@ public class CustomerClass implements Customer {
 	
 
 	public CustomerClass(int id, String customerName, String customerCard, Integer points) {
-		//if(	customerCard == null || customerCard.length() <= 10) throw new RuntimeException(new InvalidCustomerCardException());
-		//if(id <= 0) throw new RuntimeException(new InvalidCustomerIdException());
+		if(	customerCard == null || customerCard.length() != 10) throw new RuntimeException(new InvalidCustomerCardException());
+		if(id <= 0) throw new RuntimeException(new InvalidCustomerIdException());
+		if(	customerName == null || customerName.isEmpty()) throw new RuntimeException(new InvalidCustomerNameException());
+
 		this.id = id;
 		this.customerName = customerName;
 		this.customerCard = customerCard;

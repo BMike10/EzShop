@@ -21,20 +21,24 @@ public class UserClassTest {
 	@Test
 	public void testUserClassConstructor() {
 		//invalid id
-		assertThrows(InvalidUserIdException.class, ()->{
+		assertThrows(Exception.class, ()->{
 			UserClass u = new UserClass(0,"username","password",RoleEnum.Administrator);});
 		// invalid username
-		assertThrows(InvalidUsernameException.class, ()->{
+		assertThrows(Exception.class, ()->{
 			UserClass u = new UserClass(1,null,"password",RoleEnum.Administrator);});
 		// invalid password
-		assertThrows(InvalidPasswordException.class, ()->{
+		assertThrows(Exception.class, ()->{
 			UserClass u = new UserClass(1,"username",null,RoleEnum.Administrator);});
 		// invalid role
-		assertThrows(InvalidRoleException.class, ()->{
+		assertThrows(Exception.class, ()->{
 			UserClass u = new UserClass(1,"username","password",null);});
 		// valid
 				try {
 					UserClass u = new UserClass(1, "username", "password", RoleEnum.Administrator );					
+					assertEquals(new Integer(1), u.getId());
+					assertEquals("username", u.getUsername());
+					assertEquals("password", u.getPassword());
+					assertEquals("Administrator",u.getRole());
 				}catch(Exception e) {fail();}
 	
 	}

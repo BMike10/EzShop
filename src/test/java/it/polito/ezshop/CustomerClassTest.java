@@ -19,11 +19,15 @@ public class CustomerClassTest {
 				final CustomerClass c = new CustomerClass(0,"customerName","abcde12345",0);});
 			// invalid customerName
 			assertThrows(Exception.class, ()->{
-				final CustomerClass c = new CustomerClass(1,null,"abcde12345",0);});		
+				final CustomerClass c = new CustomerClass(1,"","abcde12345",0);});		
 			// valid
 					try {
 					final CustomerClass c = new CustomerClass(1, "customerName","abcde12345",0);					
-					}catch(Exception e) {
+					assertEquals(new Integer(1), c.getId());
+					assertEquals("customerName", c.getCustomerName());
+					assertEquals("abcde12345", c.getCustomerCard());
+					assertEquals(new Integer(0), c.getPoints());
+					}catch(Exception e) {				
 						fail();
 						}
 		
