@@ -4,7 +4,7 @@ public interface LoyaltyCard{
 	
 	 	Integer getPoints();
 
-	    void setPoints(Integer points);
+	    boolean setPoints(Integer points);
 
 	    String getCardCode();
 
