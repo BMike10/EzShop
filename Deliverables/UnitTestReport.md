@@ -74,7 +74,134 @@ Version:
 |||||||
 
 
+## Class UserClass
+### Constructor
+**Criteria for method Constructor:**
+- Signature of id
+- Signature of username
+- Signature of password
+- Signature of role
 
+**Predicates for method Constructor:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of id| > 0|
+|   | <= 0|
+| Signature of username| valid|
+|   | null|
+| Signature of password| valid |
+|   | invalid |
+| Signature of role| valid|
+|   | invalid|
+**Boundaries for method Constructor**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of id| -inf, 0, +inf|
+| Signature of role| Administrator, Cashier, ShopManager ??????|
+**Combination of predicates for method Constructor**
+
+ | Signature of id | Signatue of username| Signature of password | Value of role|Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ---|---|------------ | ---------------------------- | --------------- | ------|
+| <= 0  | *      | *     |*| Invalid| T1(0,"username","password",RoleEnum.Administrator)->Exception| UserClassTest.testUserClassConstructor|
+| *| null | *     | *|Invalid| T2(1,null,"password",RoleEnum.Administrator)->Exception| UserClassTest.testUserClassConstructor|
+| *| * | null    | *|Invalid| T2(1,"username",null,RoleEnum.Administrator)->Exception| UserClassTest.testUserClassConstructor|
+| *| * | *  | null|Invalid| T3(1,"username","password",null)->Exception| UserClassTest.testUserClassConstructor|
+| >0| Valid    | Valid  | Valid | Valid | T4(1,"username","password",RoleEnum.Administrator)|UserClassTest.testUserClassConstructor|
+
+### setUserId
+**Criteria for method setUserId:**
+- Signature of id
+
+**Predicates for method setUserId:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of id| null or <= 0|
+|   |   > 0|
+
+**Boundaries for method setUserId**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of id| null, -inf, 0, +inf|
+
+**Combination of predicates for method setProductId**
+
+| Signature of id| Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ------------- | ---------------------------- | --------------- |
+| null  or <= 0| Invalid | T1(null)->Exception <br> T1b(-1)->Exception| testSetUserId|
+| > 0| Valid | T2(50)| testSetUserId|
+
+### setUsername
+- Signature of username
+- Length of username
+
+**Predicates for method setUsername:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of username | null|
+|   | valid|
+| Length of username | 0 |
+| | > 0|
+
+**Boundaries for method setUsername**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Length of username | 0, +inf |
+
+**Combination of predicates for method setUsername**
+| Signature of username| Length of username| Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ---|------------- | ---------------------------- | --------------- |
+| null  |  -  | Invalid | T1(null) -> Exception | testSetcustomerName|
+| valid |  0  | Invalid | T2("")->Exception   |testSetcustomerName|
+| Valid | >0  | Valid   | T3("username")         |testSetcustomerName|
+
+### setPassword
+- Signature of password
+- Length of password
+
+**Predicates for method setPassword:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of password | null|
+|   | valid|
+| Length of password | 0 |
+| | > 0|
+
+**Boundaries for method setPassword**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Length of password | 0, +inf |
+
+**Combination of predicates for method setPassword**
+| Signature of password| Length of password| Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ---|------------- | ---------------------------- | --------------- |
+| null  |  -  | Invalid | T1(null) -> Exception | testSetPassword|
+| valid |  0  | Invalid | T2("")->Exception   |testSetPassword|
+| Valid | >0  | Valid   | T3("password")         |testSetPassword|
+
+### setRole
+- Signature of role
+
+**Predicates for method setRole:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of role | invalid|
+|   | valid|
+
+**Boundaries for method setRole**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Values of Role |  ??? posso mettere le costanti?|
+
+**Combination of predicates for method setRole**
+| Signature of role|Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ------|------------- | ---------------------------- | 
+| null  |   Invalid | T1(null) -> Exception | testSetRole|
+| Valid |  Valid   | T3("Administrator") <br>T3b("Cashier")<br>T3("ShopManager")      |testsetRole|
 
 **Criteria for method validateBarCode:**
 
@@ -329,7 +456,7 @@ Version:
 | Signature of productCode| null|
 | | valid|
 | Value of unitPrice | > 0.0|
-|       | <= 0.0|
+|       | <= 0.0| 
 | Value of quantity| > 0|
 | | <= 0|
 
