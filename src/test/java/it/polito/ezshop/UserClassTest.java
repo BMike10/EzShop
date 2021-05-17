@@ -6,12 +6,14 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+
 import it.polito.ezshop.data.RoleEnum;
 import it.polito.ezshop.data.UserClass;
 import it.polito.ezshop.exceptions.InvalidPasswordException;
 import it.polito.ezshop.exceptions.InvalidRoleException;
 import it.polito.ezshop.exceptions.InvalidUserIdException;
 import it.polito.ezshop.exceptions.InvalidUsernameException;
+import it.polito.ezshop.exceptions.UnauthorizedException;
 
 public class UserClassTest {
 	/* if(username==null || username.isEmpty()) throw new InvalidUsernameException();
@@ -105,7 +107,7 @@ public class UserClassTest {
 			assertEquals("Administrator", u.getRole());
 					// null
 					assertThrows(Exception.class, ()->{u.setRole(null);});
-					assertEquals("Administrator", u.getRole());
+					assertEquals("Administrator", u.getRoleEnum().toString());
 					// empty
 					assertThrows(Exception.class, ()->{u.setRole("");});
 					assertEquals("Administrator", u.getRole());
@@ -116,6 +118,47 @@ public class UserClassTest {
 						fail();
 					}
 		}
+		//WB testing
+		@Test 
+		public void testWhiteBox() throws InvalidUserIdException, InvalidUsernameException,InvalidPasswordException,UnauthorizedException
+		{final UserClass u = new UserClass(1, "username", "password", RoleEnum.Administrator );					
+			//setId
+		assertThrows(RuntimeException.class, () -> {u.setId(null);});
+		assertThrows(RuntimeException.class, () -> {u.setId(0);});
+		assertThrows(RuntimeException.class, () -> {u.setId(-1);});
+		try {
+			u.setId(2);
+			assertEquals(new Integer(2), u.getId());
+		} catch(Exception e) {
+			fail();
+		}
+			//setUsername
+			assertThrows(RuntimeException.class, () -> {u.setUsername(null);});
+			assertThrows(RuntimeException.class, () -> {u.setUsername("");});
+			try {
+				u.setUsername("username");
+				assertEquals("username", u.getUsername());
+			} catch(Exception e) {
+				fail();
+			}
+			//setPassword
+			assertThrows(RuntimeException.class, () -> {u.setPassword(null);});
+			assertThrows(RuntimeException.class, () -> {u.setPassword("");});
+			try {
+				u.setPassword("password");
+				assertEquals("password", u.getPassword());
+			} catch(Exception e) {
+				fail();
+			}
+			//setRole
+			assertThrows(RuntimeException.class, () -> {u.setRole(null);});
+			assertThrows(RuntimeException.class, () -> {u.setRole("Cashiero");});
+			try {
+				u.setRole("Cashier");
+				assertEquals("Cashier", u.getRoleEnum().toString());
+			} catch(Exception e) {
+				fail();
+			}
+		}
 		
-	
 }

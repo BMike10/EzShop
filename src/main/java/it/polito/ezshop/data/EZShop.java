@@ -502,12 +502,7 @@ public class EZShop implements EZShopInterface {
     	if(newCustomerName==null ||newCustomerName.isEmpty()) throw new InvalidCustomerNameException();
     	// ||newCustomerCard.isEmpty()||!CustomerClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
     	if(newCustomerCard==null) throw new InvalidCustomerCardException();
-    	if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException(); 
-        /*if(newCustomerCard == null)
-        {
-        //the card code related to the customer should not be affected from the update
-        	return false;
-        }*/	
+    	if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException(); 	
         CustomerClass c = (CustomerClass) customers.get(id);       
         String prevName= c.getCustomerName();
         String prevCardCode= c.getCustomerCard(); 
