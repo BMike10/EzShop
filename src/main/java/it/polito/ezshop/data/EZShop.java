@@ -452,11 +452,17 @@ public class EZShop implements EZShopInterface {
     	if (pos == null || pos.getAisleId()<0)
     		throw new InvalidLocationException();
     	// quantity update
-    	pt.updateQuantity(o.getQuantity());
+    	try {
+			updateQuantity(pt.getId(), o.getQuantity());
+		} catch (InvalidProductIdException e) {
+			e.printStackTrace();
+		}
     	// record on db
 		if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED)) {
 			// rollback
-			pt.updateQuantity(-o.getQuantity());
+			try {
+			updateQuantity(pt.getId(),-o.getQuantity());
+			}catch(Exception e) {e.printStackTrace();}
 			o.setStatus("PAYED");
 			return false;
 		}
@@ -464,7 +470,9 @@ public class EZShop implements EZShopInterface {
 			// rollback
 			// delete completed status from db
 			Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED);
-			pt.updateQuantity(-o.getQuantity());
+			try {
+			updateQuantity(pt.getId(), -o.getQuantity());
+			}catch(Exception e) {e.printStackTrace();}
 			o.setStatus("PAYED");
 			return false;
 		}
