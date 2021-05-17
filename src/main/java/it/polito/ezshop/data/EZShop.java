@@ -908,39 +908,37 @@ public class EZShop implements EZShopInterface {
 	}
 
     @Override
-    public double receiveCashPayment(Integer ticketNumber, double cash) throws InvalidTransactionIdException, InvalidPaymentException, UnauthorizedException {
+    public double receiveCashPayment(Integer transactionId, double cash) throws InvalidTransactionIdException, InvalidPaymentException, UnauthorizedException {
 
     	//LOGIN
-		if(currentUser==null || currentUser.getRole().equals("Cashier"))
+		if(currentUser==null)
 			throw new UnauthorizedException();
 
-        if(ticketNumber == null || ticketNumber <= 0)
+        if(transactionId == null || transactionId <= 0)
             throw new InvalidTransactionIdException();
 
         if(cash <= 0)
             throw new InvalidPaymentException();
 
-        SaleTransaction saleTransaction = accountBook.getSaleTransaction(ticketNumber);
+        SaleTransaction saleTransaction = accountBook.getSaleTransaction(transactionId);
+        if (saleTransaction==null)
+        	//Sale Transaction isn't in AccountBook
+        	return  -1;
+
         double saleAmount= ((SaleTransactionClass)saleTransaction).getMoney();
         double change = cash - saleAmount;
 
         if (change<0)
             //Cash is not enough
             return -1;
-/*
-        //Payment ok(Change<=0) -> Update map and db(STATUS)
-        //Update Map
-        //saleTransaction.setStatus("PAYED");;
-        //Update DB
-        //String sql = "UPDATE SaleTransaction SET status = PAYED WHERE id = "+saleTransaction.getId();
-        try(Statement st = conn.createStatement()){
-            st.execute(sql);
-        }catch (SQLException e) {
-            e.printStackTrace();
-            return -1;
-        }
 
- */
+        //Payment ok -> Update map and db(STATUS)
+        //Update Map
+        ((SaleTransactionClass) saleTransaction).setStatus(SaleStatus.valueOf("PAYED"));
+        //Update DB
+        if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED")))
+        	return -1;
+
         //Update map and db(Balance)
         recordBalanceUpdate(saleAmount);
 
@@ -950,17 +948,17 @@ public class EZShop implements EZShopInterface {
 
 
 	@Override
-    public boolean receiveCreditCardPayment(Integer ticketNumber, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
+    public boolean receiveCreditCardPayment(Integer transactionId, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
 
 		//LOGIN
-		if(currentUser==null || currentUser.getRole().equals("Cashier"))
+		if(currentUser==null)
 			throw new UnauthorizedException();
 
-        if(ticketNumber == null || ticketNumber <= 0)
+        if(transactionId == null || transactionId <= 0)
             throw new InvalidTransactionIdException();
 
         //Check card validity(creditCard consist of 13 or 16 elements)
-		if(creditCard ==null || (creditCard.length()!=13 && creditCard.length()!=16)){
+		if(creditCard ==null || creditCard.isEmpty() || (creditCard.length()!=13 && creditCard.length()!=16)){
 			throw new InvalidCreditCardException();
 		}else{
 			//Luhn Algorithm
@@ -970,44 +968,46 @@ public class EZShop implements EZShopInterface {
 		//Credit card is validate and registered in the system
 		if(!CreditCardsMap.containsKey(creditCard))
 			return false;
+
 		double userCash = CreditCardsMap.get(creditCard);
-		SaleTransaction sale = accountBook.getSaleTransaction(ticketNumber);
+
+		SaleTransaction sale = accountBook.getSaleTransaction(transactionId);
+		if (sale==null)
+			return false;
+
 		double saleAmount = sale.getPrice();
         if(userCash < saleAmount)
             return false;
 
-
-/*
         //Payment completed -> Update map and db(STATUS)
         //Update Map
-        sale.setStatus("CLOSED");;
+		((SaleTransactionClass)sale).setStatus(SaleStatus.valueOf("PAYED"));
         //Update DB
-        String sql = "UPDATE SaleTransaction SET status ="+SaleTransaction.CLOSED.ordinal() +" WHERE id = "+sale.getId();
-        try(Statement st = conn.createStatement()){
-            st.execute(sql);
-        }catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-        //Update map and db(Balance)
-        recordBalanceUpdate(saleAmount);
-        */
-		updateCreditCardTxt(creditCard,userCash-saleAmount);
-		return true;
+		if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED")))
+			return false;
 
+		//Update map and db(Balance)
+        recordBalanceUpdate(saleAmount);
+        //Update new CreditCardSale
+		updateCreditCardTxt(creditCard,userCash-saleAmount);
+
+		return true;
 	}
 
     @Override
     public double returnCashPayment(Integer returnId) throws InvalidTransactionIdException, UnauthorizedException {
 
 		//LOGIN
-		if(currentUser==null || currentUser.getRole().equals("Cashier"))
+		if(currentUser==null)
 			throw new UnauthorizedException();
 
         if(returnId == null || returnId <= 0)
             throw new InvalidTransactionIdException();
 
         ReturnTransaction returnTransaction =  accountBook.getReturnTransaction(returnId);
+        if (returnTransaction==null)
+        	return -1;
+
         String status= returnTransaction.getStatus();
 
         if (!status.equals("CLOSED"))
@@ -1018,20 +1018,11 @@ public class EZShop implements EZShopInterface {
         //Update Map
         returnTransaction.setStatus("PAYED");
         //Update DB
-		if(!Connect.updateReturnTransaction(returnTransaction.getReturnId(), ReturnStatus.PAYED)) {
+		if(!Connect.updateReturnTransaction(returnId, ReturnStatus.PAYED)) {
 			return -1;
 		}
-        /*String sql = "UPDATE returnTransaction SET status = PAYED WHERE id = "+returnTransaction.getReturnId();
-        try(Statement st = conn.createStatement()){
-            st.execute(sql);
-        }catch (SQLException e) {
-            e.printStackTrace();
-            return -1;
-        }*/
 
-        //Update map and db(Balance) -> where is amount return???
-        //recordBalanceUpdate(-(returnTransaction.getAmount()));
-
+        recordBalanceUpdate(-(((ReturnTransactionClass)returnTransaction).getMoney()));
 
 		return 0;
     }
@@ -1039,8 +1030,9 @@ public class EZShop implements EZShopInterface {
     @Override
     public double returnCreditCardPayment(Integer returnId, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
 
+		//CONTROLLARE
 		//LOGIN
-		if(currentUser==null || currentUser.getRole().equals("Cashier"))
+		if(currentUser==null)
 			throw new UnauthorizedException();
 
     	double newCredit = 0;
@@ -1050,28 +1042,33 @@ public class EZShop implements EZShopInterface {
 
         ReturnTransaction returnTransaction = accountBook.getReturnTransaction(returnId);
 
+        //ReturnTransaction does not exist
+        if(returnTransaction==null)
+        	return -1;
+
+		//Return Transaction is not ended
+		String status= returnTransaction.getStatus();
+		if (!status.equals("CLOSED"))
+			return -1;
+
         //Credit card is validate and registered in the system
 		if(!CreditCardsMap.containsKey(creditCard))
 			throw new InvalidCreditCardException();
 
 		//Check card validity(creditCard consist of 13 or 16 elements)
-		if(creditCard ==null || (creditCard.length()!=13 && creditCard.length()!=16)){
+		if(creditCard ==null || creditCard.isEmpty() || (creditCard.length()!=13 && creditCard.length()!=16)){
 			throw new InvalidCreditCardException();
 		}else{
 			//Luhn Algorithm
 			checkCreditCardNumber(creditCard);
 		}
 
-		String status= returnTransaction.getStatus();
-        if (!status.equals("CLOSED"))
-            //Return Transaction is not ended
-            return -1;
 
 		newCredit = CreditCardsMap.get(creditCard) + ((ReturnTransactionClass)returnTransaction).getMoney();
         //Return Transaction is ended-> Update map and db
 		//Update Map
 		returnTransaction.setStatus("PAYED");
-		CreditCardsMap.put(creditCard, newCredit);
+		CreditCardsMap.replace(creditCard, newCredit);
 		//Update Txt with new credit
 		updateCreditCardTxt(creditCard,newCredit);
 
@@ -1079,13 +1076,6 @@ public class EZShop implements EZShopInterface {
 		if(!Connect.updateReturnTransaction(returnTransaction.getReturnId(), ReturnStatus.PAYED)) {
 			return -1;
 		}
-		/*String sql = "UPDATE ReturnTransaction SET status ="+ReturnStatus.PAYED.ordinal() +" WHERE id = "+returnTransaction.getReturnId();;
-        try(Statement st = conn.createStatement()){
-            st.execute(sql);
-        }catch (SQLException e) {
-            e.printStackTrace();
-            return -1;
-        }*/
 
         //Update map and db(Balance)
         recordBalanceUpdate(-(((ReturnTransactionClass) returnTransaction).getMoney()));
@@ -1100,85 +1090,13 @@ public class EZShop implements EZShopInterface {
 		if(currentUser==null || currentUser.getRole().equals("Cashier"))
 			throw new UnauthorizedException();
 
-		//String newType;
 		double currentBalance = accountBook.getBalance();
 		double newBalance = currentBalance + toBeAdded;
 
 		//Negative new balance
 		if(newBalance < 0)
 			return false;
-/*
-		//Positive new Balance
-		if(toBeAdded < 0){
-			//DEBIT
-			newType = "DEBIT";
 
-                //Add to Map
-                OrderClass newOrderTransaction = new OrderClass();
-                accountBook.addOrderTransaction(newOrderTransaction);
-
-                 //Add order operation to DB - (Check that the CloseTransaction doesn't update DB too)
-                String sql = "INSERT INTO Order(id, description, amount, date, supplier, status, productId, unitPrice) "
-                    + "VALUES ("+newOrderTransaction.getBalanceId()
-                    +", NULL, "
-                    + toBeAdded +", "
-                    + "DATE('now'), "
-                    + "supplier ,"
-                    + "status ,"
-                    + "productId ,"
-                    + "unitPrice ,"
-                    + "quantity ";
-                try(Statement st = conn.createStatement()){
-                    st.execute(sql);
-                }catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-		}else{
-			//CREDIT
-			newType = "CREDIT";
-
-                //Add to Map (saleTransactionMap && BalanceOperationMap)
-                SaleTransactionClass newSaleTransaction = new SaleTransactionClass();
-                accountBook.addSaleTransaction(newSaleTransaction);
-
-                //Add sale transaction to DB -> are there information?
-                String sql = "INSERT INTO SaleTransaction(id, description, amount, date, type) "
-                    + "VALUES ("+newBalanceOperation.getBalanceId()
-                    +", NULL, "
-                    + toBeAdded +", "
-                    + "DATE('now'), "
-                    + "time ,"
-                    + "paymentType ,"
-                    + "discountRate ,"
-                    + "status ,"
-                    + "cardId , "
-                    + "soldProducts ,"
-                try(Statement st = conn.createStatement()){
-                    st.execute(sql);
-                }catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-
-
-//		BalanceOperationClass newBalanceOperation = new BalanceOperationClass(toBeAdded,newType);
-//		//DB update
-//		//Add balance operation to DB
-//		String sql = "INSERT INTO BalanceTransaction(id, description, amount, date, type) "
-//				+ "VALUES ("+newBalanceOperation.getBalanceId()
-//				+", NULL, "
-//				+ toBeAdded +", "
-//				+ "DATE('now'), "
-//				+ OrderStatus.ISSUED.ordinal()+", "
-//				+ newType+")";
-//
-//		try(Statement st = conn.createStatement()){
-//			st.execute(sql);
-//		}catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-*/
 		accountBook.setBalance(newBalance);
 		return true;
 	}

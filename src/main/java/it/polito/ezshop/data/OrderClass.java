@@ -107,4 +107,8 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 		super.setBalanceId(orderId);
 	}
 
+	@Override
+	public double getMoney() {
+		return super.getMoney();
+	}
 }

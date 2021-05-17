@@ -543,16 +543,7 @@ public class Connect {
 //        }
 //        return true;
 //    }
-//    public static boolean updateSaleTransactionStatus(int id, SaleStatus status) {
-//        String sql = "UPDATE SaleTransaction SET status = " + status.ordinal() + " WHERE id = " + id;
-//        try (Statement st = conn.createStatement()) {
-//            st.execute(sql);
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//        return true;
-//    }
+
     public static boolean addSaleTransaction(SaleTransactionClass sale, int id, String description, double amount,
                                              String paymentType, double discountRate, LoyaltyCard lt) {
         String sql = "INSERT INTO SaleTransactions(id, description, amount, date, time, paymentType, discountRate, status, cardId, soldProducts) "
@@ -597,6 +588,17 @@ public class Connect {
             st.execute(sql);
             st.executeUpdate("delete from SoldProducts where id = "+id);
         }catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean updateSaleTransactionStatus(int id, SaleStatus status) {
+        String sql = "UPDATE SaleTransaction SET status = " + status.ordinal() + " WHERE id = " + id;
+        try (Statement st = conn.createStatement()) {
+            st.execute(sql);
+        } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
@@ -675,6 +677,7 @@ public class Connect {
 //        }
 //        return true;
 //    }
+
     public static boolean addReturnTransaction(ReturnTransactionClass ret, int id, String description, double amount,
                                                ReturnStatus status, Integer saleId) {
         Integer i=ret.getBalanceId();
