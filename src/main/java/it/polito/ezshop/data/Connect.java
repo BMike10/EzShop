@@ -118,7 +118,8 @@ public class Connect {
                 + "returnedProductsId integer not null,"
                 + "FOREIGN KEY (returnedProductsId) references ReturnedProducts(id),"
                 + "FOREIGN KEY (saleId) references SaleTransactions(id))";
-
+        String balance = "CREATE TABLE IF NOT EXIST Balance("
+                + "balance NUMBER NOT NULL)";
 
         //CREDITCARDTABLE???//
 
@@ -132,7 +133,7 @@ public class Connect {
             stmt.executeUpdate(orders);
             stmt.executeUpdate(returnedProduct);
             stmt.executeUpdate(returnTransaction);
-
+            stmt.executeUpdate(balance);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -765,5 +766,16 @@ public class Connect {
     		return false;
     	}
     	return true;
+    }
+
+    public static boolean balanceUpdate(double newBalance) {
+        String sql = "UPDATE Balance SET balance =" + newBalance;
+        try (Statement st = conn.createStatement()) {
+            st.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }

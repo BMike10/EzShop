@@ -1092,6 +1092,7 @@ public class EZShop implements EZShopInterface {
 		if(newBalance < 0)
 			return false;
 
+		Connect.balanceUpdate(newBalance);
 		accountBook.setBalance(newBalance);
 		return true;
 	}
@@ -1103,16 +1104,16 @@ public class EZShop implements EZShopInterface {
 		if(currentUser==null || currentUser.getRole().equals("Cashier"))
 			throw new UnauthorizedException();
 
-		LocalDate newFrom = from,newTo = to;
+		LocalDate newFrom = from;
+		LocalDate newTo = to;
 
 		if(from!= null && to!= null){
-			if(from.isBefore(to)){
+			if(!from.isBefore(to)){
 				//Order Data Correction
 				newFrom = to;
 				newTo = from;
 			}
 		}
-
 		return accountBook.getBalanceOperationByDate(newFrom,newTo);
 	}
 

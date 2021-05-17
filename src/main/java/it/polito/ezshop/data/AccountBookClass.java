@@ -205,7 +205,7 @@ public class AccountBookClass implements AccountBook{
         }else {
             System.out.println("Ciao");
             bo = balanceOperationMap.values().stream().
-                    filter(t -> (t.getDate().isBefore(to))).filter(t -> (t.getDate().isAfter(from))).collect(Collectors.toList());
+                    filter(t -> t.getDate().isBefore(to) && t.getDate().isAfter(from)).collect(Collectors.toList());
         }
         return bo;
     }

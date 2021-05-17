@@ -79,7 +79,10 @@ public class BalanceOperationClass implements BalanceOperation {
 
     @Override
     public void setType(String type) {
-        this.type = type;
+        if(type.equalsIgnoreCase("CREDIT") || type.equalsIgnoreCase("DEBIT"))
+            this.type = type;
+        else
+            throw new RuntimeException(new Exception());
     }
 
     public String getDescription() {

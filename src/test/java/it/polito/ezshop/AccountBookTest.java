@@ -80,4 +80,12 @@ public class AccountBookTest {
 
     }
 
+    @Test
+    public void testWhiteBoxAccountBook(){
+
+        AccountBookClass ab = new AccountBookClass(-25);
+        assertEquals(new Double(0),ab.getBalance());
+
+    }
+
 }
