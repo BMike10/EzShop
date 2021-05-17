@@ -28,7 +28,6 @@ public class EZShop implements EZShopInterface {
 		attachedCards = Connect.getAttachedCard(cards, customers);
 		Map<Integer,SaleTransaction> sales = Connect.getSaleTransaction(products, cards);
 		accountBook = new AccountBookClass(sales, Connect.getOrder(products), Connect.getReturnTransaction(products, sales));
-
 		try {
 			File myObj = new File("creditCard.txt");
 			Scanner myReader = new Scanner(myObj);
@@ -1116,6 +1115,7 @@ public class EZShop implements EZShopInterface {
 		if(newBalance < 0)
 			return false;
 
+		Connect.balanceUpdate(newBalance);
 		accountBook.setBalance(newBalance);
 		return true;
 	}
@@ -1127,16 +1127,16 @@ public class EZShop implements EZShopInterface {
 		if(currentUser==null || currentUser.getRole().equals("Cashier"))
 			throw new UnauthorizedException();
 
-		LocalDate newFrom = from,newTo = to;
+		LocalDate newFrom = from;
+		LocalDate newTo = to;
 
 		if(from!= null && to!= null){
-			if(from.isBefore(to)){
+			if(!from.isBefore(to)){
 				//Order Data Correction
 				newFrom = to;
 				newTo = from;
 			}
 		}
-
 		return accountBook.getBalanceOperationByDate(newFrom,newTo);
 	}
 

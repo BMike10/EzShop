@@ -98,7 +98,6 @@ Version:
 | Criterion   | Boundary values |
 | ----------- | --------------- |
 | Signature of id| -inf, 0, +inf|
-| Signature of role| Administrator, Cashier, ShopManager ??????|
 **Combination of predicates for method Constructor**
 
  | Signature of id | Signatue of username| Signature of password | Value of role|Valid/Invalid | Description of the test case | JUnit test case |
@@ -184,6 +183,7 @@ Version:
 
 ### setRole
 - Signature of role
+- Validity of role string
 
 **Predicates for method setRole:**
 | Criterion   | Predicate     |
@@ -193,15 +193,12 @@ Version:
 
 **Boundaries for method setRole**:
 
-| Criterion   | Boundary values |
-| ----------- | --------------- |
-| Values of Role |  ??? posso mettere le costanti?|
-
 **Combination of predicates for method setRole**
-| Signature of role|Valid/Invalid | Description of the test case | JUnit test case |
-| ----------- | ------|------------- | ---------------------------- | 
-| null  |   Invalid | T1(null) -> Exception | testSetRole|
-| Valid |  Valid   | T3("Administrator") <br>T3b("Cashier")<br>T3("ShopManager")      |testsetRole|
+| Signature of role |Validity of role string|Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ------|------------- | ---------------------------- | -----|
+| null  | * | Invalid | T1(null) -> Exception | testSetRole|
+| Valid | null| Invalid   | T3("Administrator") <br>T3b("Cashier")<br>T3("ShopManager")      |testsetRole|
+| Valid | Valid | Valid   | T3("Administrator") <br>T3b("Cashier")<br>T3("ShopManager")      |testsetRole|
 
 **Criteria for method validateBarCode:**
 

@@ -24,13 +24,17 @@ public class Connect {
             createTables();
             System.out.println("Connection to SQLite has been established.");
             Statement stmt = conn.createStatement();
+            //It does not work! The fist time I manually added the balance
+            String insert2 = "INSERT INTO Balance(id, balance) values (1,0)";
             String insert = "INSERT INTO USER(id, username, password, role) values (2, \"admin2\", \"admin\", 0)";
             try {
                 stmt.execute(insert);
+                stmt.execute(insert2);
             }catch(Exception e) {}
             String query = "SELECT * FROM USER";
-            
             ResultSet result = stmt.executeQuery(query);
+            String query2 = "SELECT * FROM balance";
+            ResultSet result2 = stmt.executeQuery(query2);
             while(result.next()) {
                 System.out.println(result.getString("username"));
             }
@@ -118,7 +122,9 @@ public class Connect {
                 + "returnedProductsId integer not null,"
                 + "FOREIGN KEY (returnedProductsId) references ReturnedProducts(id),"
                 + "FOREIGN KEY (saleId) references SaleTransactions(id))";
-
+        String balance = "CREATE TABLE IF NOT EXISTS Balance("
+                + "id INTEGER NOT NULL PRIMARY KEY,"
+                + "balance NUMBER NOT NULL)";
 
         //CREDITCARDTABLE???//
 
@@ -132,7 +138,7 @@ public class Connect {
             stmt.executeUpdate(orders);
             stmt.executeUpdate(returnedProduct);
             stmt.executeUpdate(returnTransaction);
-
+            stmt.executeUpdate(balance);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -765,5 +771,33 @@ public class Connect {
     		return false;
     	}
     	return true;
+    }
+
+    //BALANCE
+
+
+    public static boolean balanceUpdate(double newBalance) {
+        String sql = "UPDATE Balance SET balance ="+newBalance +" WHERE id = 0 ";
+        try (Statement st = conn.createStatement()) {
+            st.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public static double getBalance(){
+        String sql = "select balance from Balance WHERE id=0";
+        double balance=0.0;
+        try (Statement stmt = conn.createStatement()) {
+            ResultSet rs = stmt.executeQuery(sql);
+            balance = rs.getDouble("balance");
+            System.out.println("Ciao");
+            System.out.println(balance);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return balance;
     }
 }

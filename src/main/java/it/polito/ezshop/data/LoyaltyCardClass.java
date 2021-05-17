@@ -7,10 +7,10 @@ public class LoyaltyCardClass implements LoyaltyCard {
 	private String cardCode;
 	
 	public LoyaltyCardClass(String cardCode, int points)
-	{
+	{		
+		if(	cardCode == null|| (cardCode.length() !=10 && cardCode.length()!=0)) throw new RuntimeException(new InvalidCustomerCardException());
 		this.points=points;
-		this.cardCode=cardCode;
-		
+		this.cardCode=cardCode;		
 	}
 		
 public String createCardCode(int i) 
