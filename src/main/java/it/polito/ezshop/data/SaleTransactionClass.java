@@ -151,7 +151,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		if (ticketEntries.containsKey(product.getBarCode())) {
 			TicketEntryClass t = ticketEntries.get(product.getBarCode());
 			t.setAmount(t.getAmount() - quantity);
-			if (t.getAmount() != 0) {
+			if (t.getAmount() > 0) {
 				ticketEntries.remove(t.getBarCode());
 				ticketEntries.put(product.getBarCode(), t);
 			} else {

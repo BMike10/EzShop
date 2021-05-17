@@ -1,15 +1,16 @@
 package it.polito.ezshop.data;
 
+import it.polito.ezshop.exceptions.InvalidCustomerCardException;
+
 public class LoyaltyCardClass implements LoyaltyCard {
 	private int points;
 	private String cardCode;
 	
 	public LoyaltyCardClass(String cardCode, int points)
-	{
-		super();
+	{		
+		if(	cardCode == null|| (cardCode.length() !=10 && cardCode.length()!=0)) throw new RuntimeException(new InvalidCustomerCardException());
 		this.points=points;
-		this.cardCode=cardCode;
-		
+		this.cardCode=cardCode;		
 	}
 		
 public String createCardCode(int i) 
@@ -44,8 +45,10 @@ public String createCardCode(int i)
 		return points;
 	}
 
-	public void setPoints(Integer points) {
+	public boolean setPoints(Integer points) {
+		if(points<0) return false;
 		this.points = points;
+		return true;
 	}
 
 	public String getCardCode() {

@@ -30,48 +30,37 @@ public class AccountBookClass implements AccountBook{
         this.saleTransactionMap.putAll(SalOp);
         this.orderMap.putAll(OrdOp);
         this.returnTransactionMap.putAll(RetOp);
-        //WILL IT WORK?!
+
         for (Map.Entry<Integer, Order> entry : orderMap.entrySet()) {
-            //-> SAFE CASTING
-            //if (entry instanceof BalanceOperation) {
-            //    balanceOperationMap.put(entry.getKey(),(BalanceOperation)entry.getValue());
-            //}
             balanceOperationMap.put(entry.getKey(), (BalanceOperation) entry.getValue());
         }
         for (Map.Entry<Integer, ReturnTransaction> entry : returnTransactionMap.entrySet()) {
-//            if (entry instanceof BalanceOperation) {
-//                balanceOperationMap.put(entry.getKey(),(BalanceOperation)entry);
-//            }
             balanceOperationMap.put(entry.getKey(), (BalanceOperation) entry.getValue());
-
         }
         for (Map.Entry<Integer, SaleTransaction> entry : saleTransactionMap.entrySet()) {
-//            if (entry instanceof BalanceOperation) {
-//                balanceOperationMap.put(entry.getKey(),(BalanceOperation)entry);
-//            }
             balanceOperationMap.put(entry.getKey(), (BalanceOperation) entry.getValue());
-
         }
-        //
 
-        //THIS DOES NOT WORK
-        //this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.orderMap);
-        //this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.returnTransactionMap);
-        //this.balanceOperationMap.putAll((Map<? extends Integer, ? extends BalanceOperation>) this.saleTransactionMap);
-        //
+        double CREDIT = this.saleTransactionMap.values().stream().
+                filter(saleTransaction -> ((SaleTransactionClass)saleTransaction).getStatus().toString().equals("PAYED")).
+                mapToDouble(SaleTransaction::getPrice).sum();
+        double DEBIT = this.orderMap.values().stream().
+                filter(order -> ((OrderClass)order).getStatus().equals("PAYED")).
+                mapToDouble(order -> ((OrderClass) order).getMoney()).sum();
+        this.balance = CREDIT -DEBIT;
 
-        // SET INITIAL BALANCE
-        if(!balanceOperationMap.isEmpty()){
-            double newBalance;
-            //IS BALANCE MONEY VALUE ALWAYS SET TO A CORRECT VALUE?
-            //It's works if the saleTransaction doesn't update after returnTransaction
-            double CREDIT = this.balanceOperationMap.values().stream().
-                    filter(balanceOperation -> balanceOperation.getType().equals("CREDIT")).mapToDouble(BalanceOperation::getMoney).sum();
-            double DEBIT = this.balanceOperationMap.values().stream().
-                    filter(balanceOperation -> ((BalanceOperationClass)balanceOperation).getDescription().equals("ORDER")).mapToDouble(BalanceOperation::getMoney).sum();
-            newBalance = CREDIT - DEBIT;
-            this.balance = newBalance;
-        }
+        // SET INITIAL BALANCE -> Non tengo conto lo stato delle transazioni
+//        if(!balanceOperationMap.isEmpty()){
+//            double newBalance;
+//            //IS BALANCE MONEY VALUE ALWAYS SET TO A CORRECT VALUE?
+//            //It's works if the saleTransaction doesn't update after returnTransaction
+//            double CREDIT = this.balanceOperationMap.values().stream().
+//                    filter(balanceOperation -> balanceOperation.getType().equals("CREDIT")).mapToDouble(BalanceOperation::getMoney).sum();
+//            double DEBIT = this.balanceOperationMap.values().stream().
+//                    filter(balanceOperation -> ((BalanceOperationClass)balanceOperation).getDescription().equals("ORDER")).mapToDouble(BalanceOperation::getMoney).sum();
+//            newBalance = CREDIT - DEBIT;
+//            this.balance = newBalance;
+
     }
 
     @Override
@@ -216,7 +205,7 @@ public class AccountBookClass implements AccountBook{
         }else {
             System.out.println("Ciao");
             bo = balanceOperationMap.values().stream().
-                    filter(t -> (t.getDate().isBefore(to))).filter(t -> (t.getDate().isAfter(from))).collect(Collectors.toList());
+                    filter(t -> t.getDate().isBefore(to) && t.getDate().isAfter(from)).collect(Collectors.toList());
         }
         return bo;
     }

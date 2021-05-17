@@ -13,8 +13,10 @@ public class CustomerClass implements Customer {
 	
 
 	public CustomerClass(int id, String customerName, String customerCard, Integer points) {
-		//if(	customerCard == null || customerCard.length() <= 10) throw new RuntimeException(new InvalidCustomerCardException());
-		//if(id <= 0) throw new RuntimeException(new InvalidCustomerIdException());
+		if(	customerCard == null|| (customerCard.length() !=10 && customerCard.length()!=0)) throw new RuntimeException(new InvalidCustomerCardException());
+		if(id <= 0) throw new RuntimeException(new InvalidCustomerIdException());
+		if(	customerName == null || customerName.isEmpty()) throw new RuntimeException(new InvalidCustomerNameException());
+
 		this.id = id;
 		this.customerName = customerName;
 		this.customerCard = customerCard;
@@ -54,8 +56,9 @@ public class CustomerClass implements Customer {
 
 	@Override
 	public void setCustomerCard(String customerCard) {
-		this.customerCard=customerCard;
-		
+	if(	customerCard == null|| (customerCard.length() !=10 && customerCard.length()!=0)) throw new RuntimeException(new InvalidCustomerCardException());
+
+	this.customerCard=customerCard;		
 	}
 
 	@Override
@@ -77,7 +80,7 @@ public class CustomerClass implements Customer {
 	}
 
 	@Override
-	public void setPoints(Integer points) {		
+	public void setPoints(Integer points) {	
 		this.points=points;
 		
 	}

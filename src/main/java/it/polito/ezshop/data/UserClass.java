@@ -13,7 +13,10 @@ public class UserClass implements User {
 	private RoleEnum role;
 
 	public UserClass(int id, String username, String password, RoleEnum role){
-		super();
+		 if(username==null || username.isEmpty()) throw new RuntimeException(new InvalidUsernameException());
+		 if(password==null || password.isEmpty()) throw new RuntimeException(new InvalidPasswordException());
+		 if(role==null )throw new RuntimeException(new InvalidRoleException());
+		 if(id <= 0) throw new RuntimeException(new InvalidUserIdException());
 		this.id=id;
 		this.username=username;
 		this.password=password;

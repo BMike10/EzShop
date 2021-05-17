@@ -9,6 +9,9 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import it.polito.ezshop.data.CustomerClass;
+import it.polito.ezshop.exceptions.InvalidCustomerCardException;
+import it.polito.ezshop.exceptions.InvalidCustomerIdException;
+import it.polito.ezshop.exceptions.InvalidCustomerNameException;
 
 public class CustomerClassTest {
 		
@@ -19,11 +22,15 @@ public class CustomerClassTest {
 				final CustomerClass c = new CustomerClass(0,"customerName","abcde12345",0);});
 			// invalid customerName
 			assertThrows(Exception.class, ()->{
-				final CustomerClass c = new CustomerClass(1,null,"abcde12345",0);});		
+				final CustomerClass c = new CustomerClass(1,"","abcde12345",0);});		
 			// valid
 					try {
 					final CustomerClass c = new CustomerClass(1, "customerName","abcde12345",0);					
-					}catch(Exception e) {
+					assertEquals(new Integer(1), c.getId());
+					assertEquals("customerName", c.getCustomerName());
+					assertEquals("abcde12345", c.getCustomerCard());
+					assertEquals(new Integer(0), c.getPoints());
+					}catch(Exception e) {				
 						fail();
 						}
 		
@@ -101,6 +108,40 @@ public class CustomerClassTest {
 			}catch(Exception e) {fail();}
 		}
 		
+		//WB testing
+		@Test 
+		public void testWhiteBox() throws InvalidCustomerCardException, InvalidCustomerNameException,InvalidCustomerIdException
+		{	final CustomerClass c = new CustomerClass(1,"customerName","abcde12345",0);					
+			//setId
+		assertThrows(RuntimeException.class, () -> {c.setId(null);});
+		assertThrows(RuntimeException.class, () -> {c.setId(0);});
+		try {
+			c.setId(2);
+			assertEquals(new Integer(2), c.getId());
+		} catch(Exception e) {
+			fail();
+		}
+			//setName
+			assertThrows(RuntimeException.class, () -> {c.setCustomerName(null);});
+			assertThrows(RuntimeException.class, () -> {c.setCustomerName("");});
+			try {
+				c.setCustomerName("username");
+				assertEquals("username", c.getCustomerName());
+			} catch(Exception e) {
+				fail();
+			}
+			
+			//setCard
+			assertThrows(RuntimeException.class, () -> {c.setCustomerCard(null);});
+			try {
+				c.setCustomerCard("abcde12345");
+				assertEquals("abcde12345", c.getCustomerCard());
+			} catch(Exception e) {
+				fail();
+			}
+			
+
+		}
 		
 		
 }

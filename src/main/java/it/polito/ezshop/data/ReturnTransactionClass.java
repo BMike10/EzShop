@@ -98,6 +98,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
         if(!this.returnedProduct.keySet().contains(product)) {
             if(amount<quantity) return -1;
             this.returnedProduct.put(product, quantity);
+            setMoney(getMoney()+product.getPricePerUnit()*quantity);
             //st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity);
             return 1;
         }
@@ -106,6 +107,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
             if(amount<quantity+q) return -1;
             this.returnedProduct.remove(product);
             this.returnedProduct.put(product, quantity+q);
+            setMoney(getMoney()+product.getPricePerUnit()*quantity);
             //st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity+q);
             return 1;
         }
