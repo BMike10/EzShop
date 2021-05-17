@@ -40,8 +40,8 @@ public class AccountBookClass implements AccountBook{
         for (Map.Entry<Integer, SaleTransaction> entry : saleTransactionMap.entrySet()) {
             balanceOperationMap.put(entry.getKey(), (BalanceOperation) entry.getValue());
         }
-
-        double CREDIT = this.saleTransactionMap.values().stream().
+        this.balance = Connect.getBalance();
+       /* double CREDIT = this.saleTransactionMap.values().stream().
                 filter(saleTransaction -> ((SaleTransactionClass)saleTransaction).getStatus().toString().equals("PAYED")).
                 mapToDouble(SaleTransaction::getPrice).sum();
         double DEBIT = this.orderMap.values().stream().
@@ -49,17 +49,18 @@ public class AccountBookClass implements AccountBook{
                 mapToDouble(order -> ((OrderClass) order).getMoney()).sum();
         this.balance = CREDIT -DEBIT;
 
-        // SET INITIAL BALANCE -> Non tengo conto lo stato delle transazioni
-//        if(!balanceOperationMap.isEmpty()){
-//            double newBalance;
-//            //IS BALANCE MONEY VALUE ALWAYS SET TO A CORRECT VALUE?
-//            //It's works if the saleTransaction doesn't update after returnTransaction
-//            double CREDIT = this.balanceOperationMap.values().stream().
-//                    filter(balanceOperation -> balanceOperation.getType().equals("CREDIT")).mapToDouble(BalanceOperation::getMoney).sum();
-//            double DEBIT = this.balanceOperationMap.values().stream().
-//                    filter(balanceOperation -> ((BalanceOperationClass)balanceOperation).getDescription().equals("ORDER")).mapToDouble(BalanceOperation::getMoney).sum();
-//            newBalance = CREDIT - DEBIT;
-//            this.balance = newBalance;
+        // SET INITIAL BALANCE
+        if(!balanceOperationMap.isEmpty()){
+            double newBalance;
+            //IS BALANCE MONEY VALUE ALWAYS SET TO A CORRECT VALUE?
+            //It's works if the saleTransaction doesn't update after returnTransaction
+            double CREDIT = this.balanceOperationMap.values().stream().
+                    filter(balanceOperation -> balanceOperation.getType().equals("CREDIT")).mapToDouble(BalanceOperation::getMoney).sum();
+            double DEBIT = this.balanceOperationMap.values().stream().
+                    filter(balanceOperation -> ((BalanceOperationClass)balanceOperation).getDescription().equals("ORDER")).mapToDouble(BalanceOperation::getMoney).sum();
+            newBalance = CREDIT - DEBIT;
+            this.balance = newBalance;
+            */
 
     }
 

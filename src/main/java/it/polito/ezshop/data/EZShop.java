@@ -28,7 +28,6 @@ public class EZShop implements EZShopInterface {
 		attachedCards = Connect.getAttachedCard(cards, customers);
 		Map<Integer,SaleTransaction> sales = Connect.getSaleTransaction(products, cards);
 		accountBook = new AccountBookClass(sales, Connect.getOrder(products), Connect.getReturnTransaction(products, sales));
-
 		try {
 			File myObj = new File("creditCard.txt");
 			Scanner myReader = new Scanner(myObj);
