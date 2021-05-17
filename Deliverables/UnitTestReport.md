@@ -950,7 +950,9 @@ Version:
 
 |Unit name | Loop rows | Number of iterations | JUnit test case |
 |---|---|---|---|
-|||||
+|ProductTypeClass| 7| 0 | Impossible|
+|ProductTypeClass| 7| 1 | Impossible|
+|ProductTypeClass| 7| 12| ProductTypeTest.testValidateBarCode|
 |||||
 ||||||
 
