@@ -131,14 +131,14 @@ public class CustomerClassTest {
 				fail();
 			}
 			
-			/*//setCard
+			//setCard
 			assertThrows(RuntimeException.class, () -> {c.setCustomerCard(null);});
 			try {
 				c.setCustomerCard("abcde12345");
 				assertEquals("abcde12345", c.getCustomerCard());
 			} catch(Exception e) {
 				fail();
-			}*/
+			}
 			
 
 		}

@@ -14,7 +14,7 @@ import it.polito.ezshop.data.LoyaltyCardClass;
 import it.polito.ezshop.exceptions.InvalidCustomerCardException;
 
 public class LoyaltyCardClassTest {
-/*	@Test
+	@Test
 	public void testLoyaltyCardClassConstructor() {
 		//invalid cardCode
 		assertThrows(Exception.class, ()->{
@@ -26,7 +26,7 @@ public class LoyaltyCardClassTest {
 					fail();
 					}
 	
-	}*/
+	}
 	  @Test
 	    public void testSetPoints(){
 	       LoyaltyCard card = new LoyaltyCardClass("A4FBH67NDT", 0);

@@ -38,7 +38,7 @@ public class AccountBookTest {
         //Check remove if id exist in Sale Transaction (IMPLICIT TESTING)
         Map<String,TicketEntryClass> tec = new HashMap<>();
         SaleTransactionClass sT = new SaleTransactionClass(1," String description", 20.0, LocalDate.now(), "CREDIT", "CASH", Time.valueOf(LocalTime.now()),
-                SaleStatus.valueOf("STARTED"),  new LoyaltyCardClass("gdsv",50), tec, 5.0);
+                SaleStatus.valueOf("STARTED"),  new LoyaltyCardClass("gdskj4679v",50), tec, 5.0);
         Integer id = aB.addSaleTransaction(sT);
         aB.removeSaleTransaction(id);
 
@@ -74,7 +74,7 @@ public class AccountBookTest {
         Map<String,TicketEntryClass> tec = new HashMap<>();
         //Check add saleTransaction (IMPLICIT TESTING)
         SaleTransactionClass sT = new SaleTransactionClass(1," String description", 20.0, LocalDate.now(), "CREDIT", "CASH", Time.valueOf(LocalTime.now()),
-                SaleStatus.valueOf("STARTED"),  new LoyaltyCardClass("gdsv",50), tec, 5.0);
+                SaleStatus.valueOf("STARTED"),  new LoyaltyCardClass("gdskj4679v",50), tec, 5.0);
         Integer id = aB.addSaleTransaction(sT);
         aB.getSaleTransaction(id);
 
