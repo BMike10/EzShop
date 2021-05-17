@@ -3,24 +3,20 @@ package it.polito.ezshop.data;
 import it.polito.ezshop.exceptions.*;
 
 import java.io.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.*;
 
 
 public class EZShop implements EZShopInterface {
-	private static Connection conn = null;
+	//private static Connection conn = null;
 	private Map<Integer, ProductType> products;
 	private Map<Integer, User> users;
 	private Map<Integer, Customer> customers;
     private Map<String, LoyaltyCard> cards;
     private Map<LoyaltyCard,Customer> attachedCards;
 	private User currentUser;
-	private final AccountBookClass accountBook;
+	private AccountBookClass accountBook;
 	private Map<String,Double> CreditCardsMap = new HashMap<>();
 	
 	public EZShop() {
@@ -55,25 +51,13 @@ public class EZShop implements EZShopInterface {
     @Override
     public void reset() {
     	try {
-    	if(conn == null) {
-    		final String url = "jdbc:sqlite:db/ezshop.db";
-            // create a connection to the database
-            conn = DriverManager.getConnection(url);
-            // drop all tables
-            String sqlDrop = "drop table ProductTypes;"
-            		+ "drop table SoldProducts;"
-            		+ "drop table SaleTransactions;"
-            		+ "drop table user;"
-            		+ "drop table customer;"
-            		+ "drop table loyaltyCard;"
-            		+ "drop table orders;"
-            		+ "drop table returnedProducts;"
-            		+ "drop table ReturnTransactions;";
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(sqlDrop);
-            System.out.println("All tables dropped");
-            conn.close();
-    	}
+    		Connect.deleteAll();
+            accountBook = new AccountBookClass(new HashMap<>(), new HashMap<>(), new HashMap<>());
+            products = new HashMap<>();
+            /*users = new HashMap<>();
+            cards = new HashMap<>();
+            customers = new HashMap<>();
+            attachedCards = new HashMap<>();*/
     	}catch(Exception e) {
     		e.printStackTrace();
     	}
@@ -1034,13 +1018,16 @@ public class EZShop implements EZShopInterface {
         //Update Map
         returnTransaction.setStatus("PAYED");
         //Update DB
-        String sql = "UPDATE returnTransaction SET status = PAYED WHERE id = "+returnTransaction.getReturnId();
+		if(!Connect.updateReturnTransaction(returnTransaction.getReturnId(), ReturnStatus.PAYED)) {
+			return -1;
+		}
+        /*String sql = "UPDATE returnTransaction SET status = PAYED WHERE id = "+returnTransaction.getReturnId();
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch (SQLException e) {
             e.printStackTrace();
             return -1;
-        }
+        }*/
 
         //Update map and db(Balance) -> where is amount return???
         //recordBalanceUpdate(-(returnTransaction.getAmount()));
@@ -1089,13 +1076,16 @@ public class EZShop implements EZShopInterface {
 		updateCreditCardTxt(creditCard,newCredit);
 
 		//Update DB
-		String sql = "UPDATE ReturnTransaction SET status ="+ReturnStatus.PAYED.ordinal() +" WHERE id = "+returnTransaction.getReturnId();;
+		if(!Connect.updateReturnTransaction(returnTransaction.getReturnId(), ReturnStatus.PAYED)) {
+			return -1;
+		}
+		/*String sql = "UPDATE ReturnTransaction SET status ="+ReturnStatus.PAYED.ordinal() +" WHERE id = "+returnTransaction.getReturnId();;
         try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch (SQLException e) {
             e.printStackTrace();
             return -1;
-        }
+        }*/
 
         //Update map and db(Balance)
         recordBalanceUpdate(-(((ReturnTransactionClass) returnTransaction).getMoney()));

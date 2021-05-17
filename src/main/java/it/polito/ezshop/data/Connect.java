@@ -707,6 +707,16 @@ public class Connect {
 
         return true;
     }
+    public static boolean updateReturnTransaction(int id, ReturnStatus status) {
+    	String sql = "UPDATE ReturnTransactions SET status ="+status.ordinal() +" WHERE id = "+id;
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
     public static boolean deleteReturnTransaction(ReturnTransaction rt) {
     	// delete transaction
     	String sql = "delete from ReturnTransactions where id = "+rt.getReturnId();
@@ -725,6 +735,32 @@ public class Connect {
                 e.printStackTrace();
             }
     	});
+    	return true;
+    }
+    public static boolean deleteAll() {
+    	try {
+    		if(conn == null) {
+    			final String url = "jdbc:sqlite:db/ezshop.db";
+    			// create a connection to the database
+    			conn = DriverManager.getConnection(url);
+    			// drop all tables
+    			String sqlDrop = "delete from ProductTypes;"
+            		+ "delete from SoldProducts;"
+            		+ "delete from SaleTransactions;"
+            		/*+ "delete from user;"
+            		+ "delete from customer;"
+            		+ "delete from loyaltyCard;"*/
+            		+ "delete from orders;"
+            		+ "delete from returnedProducts;"
+            		+ "delete from ReturnTransactions;";
+    			Statement stmt = conn.createStatement();
+    			stmt.executeUpdate(sqlDrop);
+    			System.out.println("All tables content deleted");
+    		}
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    		return false;
+    	}
     	return true;
     }
 }
