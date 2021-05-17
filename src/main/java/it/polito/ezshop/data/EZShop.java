@@ -646,8 +646,7 @@ public class EZShop implements EZShopInterface {
 		if(pt == null) return false;
 		try {
 			if(updateQuantity(pt.getId(), -amount)) {
-				st.addProduct(pt, amount);
-				return true;
+				return st.addProduct(pt, amount);				//CHANGED!
 			}
 		} catch (InvalidProductIdException e) {
 			e.printStackTrace();
