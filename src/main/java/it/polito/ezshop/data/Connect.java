@@ -595,7 +595,7 @@ public class Connect {
     }
 
     public static boolean updateSaleTransactionStatus(int id, SaleStatus status) {
-        String sql = "UPDATE SaleTransaction SET status = " + status.ordinal() + " WHERE id = " + id;
+        String sql = "UPDATE SaleTransactions SET status = " + status.ordinal() + " WHERE id = " + id;
         try (Statement st = conn.createStatement()) {
             st.execute(sql);
         } catch (SQLException e) {

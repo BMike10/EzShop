@@ -50,6 +50,7 @@ class EZShop{
     - products: Map<Integer, ProductType>
     - customers: Map<Integer, Customer>
     - loyaltyCards: Map<String, LoyaltyCard> 
+    - attachedCards: Map<LoyaltyCard, Customer>
     - creditCards: Map<String, Double>
     - book: AccountBook 
     - currentUser: User 
@@ -105,6 +106,7 @@ class EZShop{
     + getAllUsers()
     + getUser(int id)
     - checkCreditCardNumber(String number)
+    - updateCreditCardTxt(String num, double balance)
 }
 class User{
     - id: int 
@@ -171,8 +173,7 @@ class SaleTransaction {
     - time: Time 
     - paymentType: String 
     - discountRate: double 
-    - products: Map<ProductType, Integer> 
-    - discountProduct: Map<ProductType, Double> 
+    - ticketEntries: Map<String, TicketEntryClass> 
     - status: SaleStatus
     - card: LoyaltyCard 
     + addProduct(ProductType product, int quantity)
@@ -196,6 +197,7 @@ class LoyaltyCard {
     - points: int 
     - cardCode: String 
     + pointsUpdate(int)
+    + createCardCode(int)
 }
 
 class Customer {

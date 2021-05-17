@@ -35,7 +35,18 @@ public final class ProductTypeClass implements ProductType {
 		this.location = null;
 	}
 	
-    public static boolean validateBarCode(String barcode) {
+    public ProductTypeClass(ProductTypeClass oth) {
+		super();
+		this.description = oth.description;
+		this.notes = oth.notes;
+		this.quantity = oth.quantity;
+		this.location = oth.location;
+		this.barcode = oth.barcode;
+		this.id = oth.id;
+		this.unitPrice = oth.unitPrice;
+	}
+
+	public static boolean validateBarCode(String barcode) {
     	if(barcode == null)
     		return false;
     	// delete spaces

@@ -101,7 +101,11 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 
 	@Override
 	public List<TicketEntry> getEntries() {
-		return new ArrayList<TicketEntry>(this.ticketEntries.values());
+		List<TicketEntry> res = new ArrayList<TicketEntry>();
+		ticketEntries.forEach((s, te)->{
+			res.add(new TicketEntryClass(te.getProductType(), te.getAmount(), te.getDiscountRate()));
+		});
+		return res;
 	}
 
 	@Override
