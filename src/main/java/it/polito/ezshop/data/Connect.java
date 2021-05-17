@@ -5,10 +5,7 @@ import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
 
 import java.sql.*;
-import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Connect {
@@ -26,15 +23,11 @@ public class Connect {
             Statement stmt = conn.createStatement();
             //It does not work! The fist time I manually added the balance
             String insert2 = "INSERT INTO Balance(id, balance) values (1,0)";
-            String insert = "INSERT INTO USER(id, username, password, role) values (2, \"admin2\", \"admin\", 0)";
             try {
-                stmt.execute(insert);
                 stmt.execute(insert2);
-            }catch(Exception e) {}
+            }catch(Exception e) {e.printStackTrace();}
             String query = "SELECT * FROM USER";
             ResultSet result = stmt.executeQuery(query);
-            String query2 = "SELECT * FROM balance";
-            ResultSet result2 = stmt.executeQuery(query2);
             while(result.next()) {
                 System.out.println(result.getString("username"));
             }
@@ -777,7 +770,7 @@ public class Connect {
 
 
     public static boolean balanceUpdate(double newBalance) {
-        String sql = "UPDATE Balance SET balance ="+newBalance +" WHERE id = 0 ";
+        String sql = "UPDATE Balance SET balance ="+newBalance +" WHERE id = 1 ";
         try (Statement st = conn.createStatement()) {
             st.execute(sql);
         } catch (SQLException e) {
@@ -788,12 +781,12 @@ public class Connect {
     }
 
     public static double getBalance(){
-        String sql = "select balance from Balance WHERE id=0";
+        String sql = "select balance from Balance WHERE id=1";
         double balance=0.0;
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
+            rs.next();
             balance = rs.getDouble("balance");
-            System.out.println("Ciao");
             System.out.println(balance);
         } catch (SQLException e) {
             e.printStackTrace();
