@@ -35,7 +35,18 @@ public final class ProductTypeClass implements ProductType {
 		this.location = null;
 	}
 	
-    public static boolean validateBarCode(String barcode) {
+    public ProductTypeClass(ProductTypeClass oth) {
+		super();
+		this.description = oth.description;
+		this.notes = oth.notes;
+		this.quantity = oth.quantity;
+		this.location = oth.location;
+		this.barcode = oth.barcode;
+		this.id = oth.id;
+		this.unitPrice = oth.unitPrice;
+	}
+
+	public static boolean validateBarCode(String barcode) {
     	if(barcode == null)
     		return false;
     	// delete spaces
@@ -154,4 +165,22 @@ public final class ProductTypeClass implements ProductType {
 	public Position getPosition() {
 		return location;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof ProductTypeClass))
+			return false;
+		ProductTypeClass other = (ProductTypeClass) obj;
+		if (id != other.id)
+			return false;
+		if (barcode == null) {
+			if (other.barcode != null)
+				return false;
+		} else if (!barcode.equals(other.barcode))
+			return false;
+		return true;
+	}
+	
 }

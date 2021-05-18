@@ -47,6 +47,22 @@ public class LoyaltyCardClassTest {
 			assertEquals(new Integer(20), card.getPoints());
 		}
 		
+	  @Test
+	  public void testCreateCardCode(){
+		  int i=11;
+			assertEquals("", LoyaltyCardClass.createCardCode(i));
+			int i2=9;
+			assertEquals("", LoyaltyCardClass.createCardCode(i2));
+	  }
+	  
+	  @Test
+		public void testWhiteBox() {
+			final LoyaltyCardClass card = new LoyaltyCardClass("A4FBH67NDT", 0);
+			assertThrows(RuntimeException.class, () -> {card.setCardCode(null);});
+			assertThrows(RuntimeException.class, () -> {card.setCardCode("abc");});
+			assertThrows(RuntimeException.class, () -> {card.setCardCode("vgrbvrebretrwbvgtrw");});			
+	  
+	  }
 
 	
 	

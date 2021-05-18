@@ -102,7 +102,7 @@ Version:
 
  | Signature of id | Signatue of username| Signature of password | Value of role|Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ---|---|------------ | ---------------------------- | --------------- | ------|
-| <= 0  | *      | *     |*| Invalid| T1(0,"username","password",RoleEnum.Administrator)->Exception| UserClassTest.testUserClassConstructor|
+| <= 0  | *     | *     |*| Invalid| T1(0,"username","password",RoleEnum.Administrator)->Exception| UserClassTest.testUserClassConstructor|
 | *| null | *     | *|Invalid| T2(1,null,"password",RoleEnum.Administrator)->Exception| UserClassTest.testUserClassConstructor|
 | *| * | null    | *|Invalid| T2(1,"username",null,RoleEnum.Administrator)->Exception| UserClassTest.testUserClassConstructor|
 | *| * | *  | null|Invalid| T3(1,"username","password",null)->Exception| UserClassTest.testUserClassConstructor|
@@ -152,9 +152,9 @@ Version:
 **Combination of predicates for method setUsername**
 | Signature of username| Length of username| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ---|------------- | ---------------------------- | --------------- |
-| null  |  -  | Invalid | T1(null) -> Exception | testSetcustomerName|
-| valid |  0  | Invalid | T2("")->Exception   |testSetcustomerName|
-| Valid | >0  | Valid   | T3("username")         |testSetcustomerName|
+| null  |  -  | Invalid | T1(null) -> Exception | testUsername|
+| valid |  0  | Invalid | T2("")->Exception   |testSetUsername|
+| Valid | >0  | Valid   | T3("username")         |testSetUsername|
 
 ### setPassword
 - Signature of password
@@ -178,7 +178,7 @@ Version:
 | Signature of password| Length of password| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ---|------------- | ---------------------------- | --------------- |
 | null  |  -  | Invalid | T1(null) -> Exception | testSetPassword|
-| valid |  0  | Invalid | T2("")->Exception   |testSetPassword|
+| Valid |  0  | Invalid | T2("")->Exception   |testSetPassword|
 | Valid | >0  | Valid   | T3("password")         |testSetPassword|
 
 ### setRole
@@ -189,29 +189,23 @@ Version:
 | Criterion   | Predicate     |
 | ----------- | ------------- |
 | Signature of role | invalid|
-|   | valid|
-
-**Boundaries for method setRole**:
+|| valid|
+|Validity of role string| invalid|
+||valid|
 
 **Combination of predicates for method setRole**
 | Signature of role |Validity of role string|Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ------|------------- | ---------------------------- | -----|
 | null  | * | Invalid | T1(null) -> Exception | testSetRole|
-| Valid | null| Invalid   | T3("Administrator") <br>T3b("Cashier")<br>T3("ShopManager")      |testsetRole|
-| Valid | Valid | Valid   | T3("Administrator") <br>T3b("Cashier")<br>T3("ShopManager")      |testsetRole|
-
-**Criteria for method validateBarCode:**
+| Valid | Invalid | Invalid   | T2("Administrator")-> Exception <br>T2b("Cashier")-> Exception<br>T2c("ShopManager")->Exception    |testsetRole|
+| Valid | Valid | Valid   | T3("Administrator") <br>T3b("Cashier")<br>T3c("ShopManager")      |testsetRole|
 
 ## Class ProductTypeClass
 ### Method validateBarCode
 
-**Criteria for method validateBarCode:**
-	
-
+**Criteria for method validateBarCode:**	
 - Signature of String barcode
-
 - Length of barcode
-
 - Presence of not numeric characters in barcode
 - Valid barcode
 
@@ -253,6 +247,7 @@ Version:
 - Signature of description
 - Signature of productCode
 - Signature of unitPrice
+
 **Predicates for method Constructor:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
@@ -276,6 +271,7 @@ Version:
 
 | Signature of id | Signature of description | Signature of productCode |Signature of unitPrice|| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ----------- | ----------- |----| ------------- | ---------------------------- | --------------- |
+
 | <= 0 | *  |*  |*  | Invalid | T1(0, "null", "4006381333900", 1.0, null)->Exception | testProductTypeConstructor|
 | > 0   | null| *   | * | Invalid | T2(1, null, "4006381333900", 1.0, null)->Exception |testProductTypeConstructor|
 | > 0   | valid| invalid| * | Invalid | T3(1, "null", "40063813339", 1.0, null)->Exception|testProductTypeConstructor|
@@ -1035,19 +1031,22 @@ Version:
 
 **Combination of predicates for method checkCardCode**
 
-| Signature of newCardCode | Length of newCardCode || Valid/Invalid | customerName of the test case | JUnit test case |
+| Signature of newCardCode | Length of newCardCode || Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ----------- | ----------- | ------------- | ---------------------------- | --------------- |
 |  null       |  *          |           |   invalid     |  T1(null) -> false           | testcheckCardCode    
 |  valid | 0|   | invalid  | T2("")->false     |  testcheckCardCode               |
 |  valid | >10 |   | invalid  | T4("abcde123456")->false  |testcheckCardCode                           | 
 |  valid | <10 |   | invalid  | T4("abcde1234")->false                             | testcheckCardCode               |
 |  valid | 10 |   | valid  | T5("abcde12345")->true <br> T5b("AN34d5vtA1")->true |<br>testcheckCardCode |
+
+
 ### Constructor
 **Criteria for method Constructor:**
 - Signature of id
 - Signature of customerName
 - Signature of customerCard
 - Signature of points
+
 **Predicates for method Constructor:**
 
 | Criterion   | Predicate     |
@@ -1058,8 +1057,8 @@ Version:
 |   | null|
 | Signature of customerCard| valid |
 |   | invalid (null, empty or not valid)|
-| Signature of points| > 0|
-|   | <= 0|
+| Signature of points| >= 0|
+|   | < 0|
 **Boundaries for method Constructor**:
 
 | Criterion   | Boundary values |
@@ -1068,11 +1067,12 @@ Version:
 | Signature of points| -inf, 0, +inf|
 **Combination of predicates for method Constructor**
 
- | Signature of id | Signatue of customerName| Signature of cardCode| Value of points|Valid/Invalid | customerName of the test case | JUnit test case |
+ | Signature of id | Signatue of customerName| Signature of cardCode| Value of points|Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ---|---|------------ | ---------------------------- | --------------- | ------|
 | <= 0  | *      | *     |*| Invalid| T1(0,"customerName","abcde12345",0)->Exception| CustomerClassTest.testCustomerClassConstructor|
 | *| null | *     | *|Invalid| T2(1,"","abcde12345",0)->Exception| CustomerClassTest.testCustomerClassConstructor|
-| >0| Valid    | Valid  | Valid | Valid | T4(1,"customerName","abcde12345",0)|CustomerClassTest.testCustomerClassConstructor|
+| *| *  | null  | * | Invalid | T3(1,"customerName","null",0)->Exception|CustomerClassTest.testCustomerClassConstructor|
+| >0| Valid    | Valid  | Valid |>=0 | T4(1,"customerName","abcde12345",0)|CustomerClassTest.testCustomerClassConstructor|
 
 ### setCustomerId
 **Criteria for method setCustomerId:**
@@ -1092,7 +1092,7 @@ Version:
 
 **Combination of predicates for method setProductId**
 
-| Signature of id| Valid/Invalid | customerName of the test case | JUnit test case |
+| Signature of id| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ------------- | ---------------------------- | --------------- |
 | null  or <= 0| Invalid | T1(null)->Exception <br> T1b(-1)->Exception| testSetCustomerId|
 | > 0| Valid | T2(50)| testSetCustomerId|
@@ -1115,11 +1115,57 @@ Version:
 | Length of customerName | 0, +inf |
 
 **Combination of predicates for method setCustomerName**
-| Signature of customerName| Length of customerName| Valid/Invalid | customerName of the test case | JUnit test case |
+| Signature of customerName| Length of customerName| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ---|------------- | ---------------------------- | --------------- |
 | null  |  -  | Invalid | T1(null) -> Exception | testSetcustomerName|
 | valid |  0  | Invalid | T2("")->Exception   |testSetcustomerName|
 | Valid | >0  | Valid   | T3("customerName")         |testSetcustomerName|
+## Class LoyaltyCardClass
+### Method CreateCardCode
+- Signature of i
+
+**Predicates for method createCardCode:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of i|  = 10|
+|   |   !=10|
+
+**Boundaries for method createCardCode**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of id|   0, 10, +inf|
+
+**Combination of predicates for method createCardCode**
+
+| Signature of id| Valid/Invalid | Description of the test case:example of input and output | JUnit test case |
+| ----------- | ------------- | ---------------------------- | --------------- |
+| <10 or >10 | Invalid | T1(9;"")<br> T1b(11;"")| testCreateCardCode|
+| 10 | Valid | T2(10)| testCreateCardCode|
+
+### Method updatePoints
+**Criteria for method updatePoints:**
+- Points + toBeAdded
+
+**Predicates for method updatePoints:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Ponints + toBeAdded | >= 0|
+|   | < 0|
+
+**Boundaries for method updatePoints**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Points + toBeAdded | -inf, 0, +inf|
+
+**Combination of predicates for method updatePoints**
+
+| Quantity + toBeAdded| Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ------------- | ---------------------------- | --------------- |
+| < 0   | Invalid | new LoyaltyCardClass (); updatePoints(-1) | testupdatePoints|
+| >= 0  | Valid   | T2(3)->true <br> T2b(0)->true   |testupdatePoints|
+
 # White Box Unit Tests
 
 ### Test cases definition
@@ -1133,7 +1179,9 @@ Version:
 |--|--|
 |OrderClass| it.polito.ezshop.OrderClassTest.testWhiteBox|
 |ProductTypeClass|it.polito.ezshop.ProductTypeClassTest.testWhiteBox|
-||||
+|CustomerClass|it.polito.ezshop.CustomerClassTest.testWhiteBox|
+|UserClass|it.polito.ezshop.UserClassTest.testWhiteBox|
+|LoyaltyCardClass|it.polito.ezshop.LoyaltyCardClassTest.testWhiteBox||
 
 ### Code coverage report
 
@@ -1151,8 +1199,8 @@ Version:
 |ProductTypeClass| 7| 0 | Impossible|
 |ProductTypeClass| 7| 1 | Impossible|
 |ProductTypeClass| 7| 12| ProductTypeTest.testValidateBarCode|
-|||||
-||||||
+|CustomerClass|5|1|Impossible|
+|CustomerClass|5|10|CustomerClassTest.testCreateCardCode|
 
 
 
