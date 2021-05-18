@@ -220,7 +220,8 @@ public class EZShop implements EZShopInterface {
     	if(currentUser == null)
     		throw new UnauthorizedException();
     	
-    	List<ProductType> res = new ArrayList<>(products.values());
+    	List<ProductType> res = new ArrayList<>();
+    	products.values().forEach(p->{res.add(new ProductTypeClass((ProductTypeClass)p));});
         return res;
     }
 
@@ -233,7 +234,7 @@ public class EZShop implements EZShopInterface {
     	
     	for(ProductType pt: products.values()) {
     		if(pt.getBarCode().equals(barCode))
-    			return pt;
+    			return new ProductTypeClass((ProductTypeClass)pt);
     	}    	
         return null;
     }
@@ -248,7 +249,7 @@ public class EZShop implements EZShopInterface {
     		description="";
     	for(ProductType pt: products.values()) {
     		if(pt.getProductDescription().contains(description))
-    			res.add(pt);
+    			res.add(new ProductTypeClass((ProductTypeClass)pt));
     	}
         return res;
     }
@@ -447,22 +448,13 @@ public class EZShop implements EZShopInterface {
 			e.printStackTrace();
 		}
     	// record on db
-		if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED)) {
+		if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED) || !Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
 			// rollback
 			try {
 			updateQuantity(pt.getId(),-o.getQuantity());
 			}catch(Exception e) {e.printStackTrace();}
 			o.setStatus("PAYED");
-			return false;
-		}
-		if(!Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
-			// rollback
-			// delete completed status from db
 			Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED);
-			try {
-			updateQuantity(pt.getId(), -o.getQuantity());
-			}catch(Exception e) {e.printStackTrace();}
-			o.setStatus("PAYED");
 			return false;
 		}
         return true;

@@ -253,6 +253,7 @@ Version:
 - Signature of description
 - Signature of productCode
 - Signature of unitPrice
+
 **Predicates for method Constructor:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
@@ -274,7 +275,7 @@ Version:
 
 **Combination of predicates for method Constructor**
 
-| Signature of id | Signature of description | Signature of productCode |Signature of unitPrice|| Valid/Invalid | Description of the test case | JUnit test case |
+| Signature of id | Signature of description | Signature of productCode |Signature of unitPrice| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ----------- | ----------- |----| ------------- | ---------------------------- | --------------- |
 | <= 0 | *  |*  |*  | Invalid | T1(0, "null", "4006381333900", 1.0, null)->Exception | testProductTypeConstructor|
 | > 0   | null| *   | * | Invalid | T2(1, null, "4006381333900", 1.0, null)->Exception |testProductTypeConstructor|
