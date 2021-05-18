@@ -27,7 +27,7 @@ public class EZShop implements EZShopInterface {
 		customers = Connect.getCustomer(cards);
 		attachedCards = Connect.getAttachedCard(cards, customers);
 		Map<Integer,SaleTransaction> sales = Connect.getSaleTransaction(products, cards);
-		accountBook = new AccountBookClass(sales, Connect.getOrder(products), Connect.getReturnTransaction(products, sales));
+		accountBook = new AccountBookClass(sales, Connect.getOrder(products), Connect.getReturnTransaction(products, sales),Connect.getBalanceOperations());
 		try {
 			File myObj = new File("creditCard.txt");
 			Scanner myReader = new Scanner(myObj);
@@ -51,7 +51,7 @@ public class EZShop implements EZShopInterface {
     public void reset() {
     	try {
     		Connect.deleteAll();
-            accountBook = new AccountBookClass(new HashMap<>(), new HashMap<>(), new HashMap<>());
+            accountBook = new AccountBookClass(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
             products = new HashMap<>();
             /*users = new HashMap<>();
             cards = new HashMap<>();
@@ -369,6 +369,9 @@ public class EZShop implements EZShopInterface {
 			}
         	return -1;
         }
+
+        //MICHELE
+    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
     	// update db
         if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
 			try {
@@ -397,7 +400,9 @@ public class EZShop implements EZShopInterface {
     	if(o.getStatus().equals(OrderStatus.PAYED.name()))
     		return false;
     	// update balance
-    	recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity());
+    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
+    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity()))
+    		return false;
         
     	o.setStatus("PAYED");
     	// save status on db
@@ -862,7 +867,7 @@ public class EZShop implements EZShopInterface {
 				return false;
 			}
 			// update the sale on db
-			if(!Connect.removeSaleTransaction(st.getBalanceId()) || 
+			if(!Connect.removeSaleTransaction(st.getBalanceId()) || !Connect.updateBalanceOperation(st.getBalanceId(),st.getMoney()) ||
 					!Connect.addSaleTransaction(st, st.getBalanceId(), st.getDescription(), st.getMoney(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))
 				System.out.println("Error saving sale update on DB");
 			return true;
@@ -948,7 +953,8 @@ public class EZShop implements EZShopInterface {
         //Update DB
         if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED")))
         	return -1;
-
+        //MICHELE
+        accountBook.addBalanceOperation((BalanceOperation)saleTransaction);
         //Update map and db(Balance)
         recordBalanceUpdate(saleAmount);
 
@@ -997,6 +1003,7 @@ public class EZShop implements EZShopInterface {
 			return false;
 
 		//Update map and db(Balance)
+        accountBook.addBalanceOperation((BalanceOperation)sale);
         recordBalanceUpdate(saleAmount);
         //Update new CreditCardSale
 		updateCreditCardTxt(creditCard,userCash-saleAmount);

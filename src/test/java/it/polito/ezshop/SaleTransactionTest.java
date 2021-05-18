@@ -87,7 +87,7 @@ public class SaleTransactionTest {
 			assertEquals(new Time(System.currentTimeMillis()), stc.getTime());
 			assertEquals(SaleStatus.STARTED, stc.getStatus());
 			assertEquals("1234567890", stc.getLoyaltyCard().getCardCode());
-			assertEquals(new Integer(2), stc.getBalanceId());
+			assertEquals(2, stc.getBalanceId());
 			assertTrue(new HashMap<>().equals(stc.getProductsEntries()));
 			assertEquals(0.1, stc.getDiscountRate(), 0.0001);
 		} catch (Exception e) {
