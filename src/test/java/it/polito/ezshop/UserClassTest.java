@@ -38,8 +38,7 @@ public class UserClassTest {
 			UserClass u = new UserClass(1,"username","",RoleEnum.Administrator);});
 	
 		// invalid role
-		assertThrows(Exception.class, ()->{
-			UserClass u = new UserClass(1,"username","password",null);});
+		assertThrows(Exception.class, ()->{UserClass u = new UserClass(1,"username","password",null);});
 		// valid
 				try {
 					UserClass u = new UserClass(1, "username", "password", RoleEnum.Administrator );					
@@ -68,10 +67,8 @@ public class UserClassTest {
 					u.setId(2);
 				}catch(Exception e) {
 					fail();
-				}
-		
-		
-	}
+				}		
+			}
 	
 	@Test
 	public void testSetUsername() {

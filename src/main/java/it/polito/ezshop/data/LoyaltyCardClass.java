@@ -13,7 +13,7 @@ public class LoyaltyCardClass implements LoyaltyCard {
 		this.cardCode=cardCode;		
 	}
 		
-public String createCardCode(int i) 
+public static String createCardCode(int i) 
 	    { 
 	        String theAlphaNumericS;
 	        StringBuilder builder;
@@ -23,7 +23,10 @@ public String createCardCode(int i)
 
 	        //create the StringBuffer
 	        builder = new StringBuilder(i); 
-
+	    	
+	    	if(i!=10)
+	    	return "";
+	    	
 	        for (int m = 0; m < i; m++) { 
 
 	            // generate numeric
@@ -56,6 +59,7 @@ public String createCardCode(int i)
 	}
 
 	public void setCardCode(String cardCode) {
+		if(	cardCode == null|| (cardCode.length() !=10 && cardCode.length()!=0)) throw new RuntimeException(new InvalidCustomerCardException());
 		this.cardCode = cardCode;
 	}
 	

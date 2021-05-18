@@ -16,7 +16,6 @@ public class CustomerClass implements Customer {
 		if(	customerCard == null|| (customerCard.length() !=10 && customerCard.length()!=0)) throw new RuntimeException(new InvalidCustomerCardException());
 		if(id <= 0) throw new RuntimeException(new InvalidCustomerIdException());
 		if(	customerName == null || customerName.isEmpty()) throw new RuntimeException(new InvalidCustomerNameException());
-
 		this.id = id;
 		this.customerName = customerName;
 		this.customerCard = customerCard;
