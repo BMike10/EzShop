@@ -28,7 +28,6 @@ public class EZShop implements EZShopInterface {
 		attachedCards = Connect.getAttachedCard(cards, customers);
 		Map<Integer,SaleTransaction> sales = Connect.getSaleTransaction(products, cards);
 		accountBook = new AccountBookClass(sales, Connect.getOrder(products), Connect.getReturnTransaction(products, sales));
-
 		try {
 			File myObj = new File("creditCard.txt");
 			Scanner myReader = new Scanner(myObj);
@@ -221,7 +220,8 @@ public class EZShop implements EZShopInterface {
     	if(currentUser == null)
     		throw new UnauthorizedException();
     	
-    	List<ProductType> res = new ArrayList<>(products.values());
+    	List<ProductType> res = new ArrayList<>();
+    	products.values().forEach(p->{res.add(new ProductTypeClass((ProductTypeClass)p));});
         return res;
     }
 
@@ -234,7 +234,7 @@ public class EZShop implements EZShopInterface {
     	
     	for(ProductType pt: products.values()) {
     		if(pt.getBarCode().equals(barCode))
-    			return pt;
+    			return new ProductTypeClass((ProductTypeClass)pt);
     	}    	
         return null;
     }
@@ -249,7 +249,7 @@ public class EZShop implements EZShopInterface {
     		description="";
     	for(ProductType pt: products.values()) {
     		if(pt.getProductDescription().contains(description))
-    			res.add(pt);
+    			res.add(new ProductTypeClass((ProductTypeClass)pt));
     	}
         return res;
     }
@@ -361,19 +361,14 @@ public class EZShop implements EZShopInterface {
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
         nextId = accountBook.addOrder((Order) o);
     	// update balance
-        double price = o.getPricePerUnit() * o.getQuantity();
-        double currentBalance = accountBook.getBalance();
-    	if(currentBalance - price < 0) {
-    		// rollback
-    		try {
-				accountBook.removeOrder(o.getOrderId());
+        if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
+        	try {
+				accountBook.removeOrder(nextId);
 			} catch (InvalidTransactionIdException e) {
 				e.printStackTrace();
 			}
-    		return -1;
-    	}else {
-    		accountBook.setBalance(currentBalance - price);
-    	}
+        	return -1;
+        }
     	// update db
         if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
 			try {
@@ -402,18 +397,13 @@ public class EZShop implements EZShopInterface {
     	if(o.getStatus().equals(OrderStatus.PAYED.name()))
     		return false;
     	// update balance
-        double price = o.getPricePerUnit() * o.getQuantity();
-        double currentBalance = accountBook.getBalance();
-    	if(currentBalance - price < 0) {
-    		return false;
-    	}else {
-    		accountBook.setBalance(currentBalance - price);
-    	}
+    	recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity());
+        
     	o.setStatus("PAYED");
     	// save status on db
     	if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED)) {
 			// rollback
-    		accountBook.setBalance(currentBalance);
+        	recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
 			o.setStatus("ISSUED");
 			return false;
 		}
@@ -458,22 +448,13 @@ public class EZShop implements EZShopInterface {
 			e.printStackTrace();
 		}
     	// record on db
-		if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED)) {
+		if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED) || !Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
 			// rollback
 			try {
 			updateQuantity(pt.getId(),-o.getQuantity());
 			}catch(Exception e) {e.printStackTrace();}
 			o.setStatus("PAYED");
-			return false;
-		}
-		if(!Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
-			// rollback
-			// delete completed status from db
 			Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED);
-			try {
-			updateQuantity(pt.getId(), -o.getQuantity());
-			}catch(Exception e) {e.printStackTrace();}
-			o.setStatus("PAYED");
 			return false;
 		}
         return true;
@@ -626,8 +607,6 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		SaleTransaction st=new SaleTransactionClass(new Time(System.currentTimeMillis()), SaleStatus.STARTED);
 		int i=accountBook.addSaleTransaction(st);
-
-		//st.setTicketNumber(i);
 		return i;
 	}
 
@@ -637,8 +616,10 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if(transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
-			
-		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+
+		SaleTransactionClass st=null;
+		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		}catch(Exception e) {return false;}
 		if (st== null) {
 			return false;
 		}
@@ -647,7 +628,7 @@ public class EZShop implements EZShopInterface {
 		if(pt == null) return false;
 		try {
 			if(updateQuantity(pt.getId(), -amount)) {
-				st.addProduct(pt, amount);
+				st.addProduct((ProductType)new ProductTypeClass((ProductTypeClass)pt), amount);
 				return true;
 			}
 		} catch (InvalidProductIdException e) {
@@ -663,9 +644,11 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if(transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
-		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		SaleTransactionClass st=null;
+		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		}catch(Exception e) {return false;}
 		if (st== null) {
-			throw new InvalidTransactionIdException();
+			return false;
 		}
 		if(amount<=0) throw new InvalidQuantityException();
 		ProductType pt = getProductTypeByBarCode(productCode);
@@ -686,9 +669,11 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if(transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
-		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		SaleTransactionClass st=null;
+		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		}catch(Exception e) {return false;}
 		if (st== null || st.getStatus()!=SaleStatus.STARTED ) {
-			throw new InvalidTransactionIdException();
+			return false;
 		}
 		ProductType pt = getProductTypeByBarCode(productCode);
 		if(pt == null) throw new InvalidProductCodeException();
@@ -705,7 +690,9 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidTransactionIdException();
 		if(discountRate < 0.0 || discountRate >= 1.0)
 			throw new InvalidDiscountRateException();
-		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		SaleTransactionClass st=null;
+		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		}catch(Exception e) {return false;}
 		if (st == null) {
 			return false;
 		}
@@ -719,7 +706,9 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if(transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
-		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		SaleTransactionClass st=null;
+		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		}catch(Exception e) {return -1;}
 		if(st==null) throw new InvalidTransactionIdException();
 		return (int)st.getPrice()/10;
 	}
@@ -730,7 +719,9 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if(transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
-		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		SaleTransactionClass st=null;
+		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		}catch(Exception e) {return false;}
 		if (st == null || st.getStatus()==SaleStatus.CLOSED) {
 			return false;
 		}
@@ -754,7 +745,9 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if(saleNumber == null || saleNumber <= 0)
 			throw new InvalidTransactionIdException();
-		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
+		SaleTransactionClass st=null;
+		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
+		}catch(Exception e) {return false;}
 		if (st == null || st.getStatus() == SaleStatus.PAYED) {
 			return false;
 		}
@@ -780,8 +773,13 @@ public class EZShop implements EZShopInterface {
 		if(currentUser==null || (!currentUser.getRole().equals("Cashier") && !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
 		if(transactionId==null || transactionId<0) throw new InvalidTransactionIdException();
-		SaleTransactionClass t=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
-		if(!t.getStatus().equals(SaleStatus.CLOSED)) return null;
+		SaleTransactionClass t=null;
+		try {
+		t=(SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		}catch(Exception e) {
+			return null;
+		}
+		if(t.getStatus()!=SaleStatus.CLOSED && t.getStatus()!=SaleStatus.PAYED) return null;
 		return t;
 	}
 
@@ -791,7 +789,9 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if(saleNumber == null || saleNumber <= 0)
 			throw new InvalidTransactionIdException();
-		SaleTransactionClass st=(SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
+		SaleTransactionClass st=null;
+		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
+		}catch(Exception e) {return -1;}
 		if(st==null || (st.getStatus()!=SaleStatus.CLOSED && st.getStatus()!=SaleStatus.PAYED)) return -1;
 		ReturnTransaction rt=new ReturnTransactionClass(st, ReturnStatus.STARTED);
 
@@ -808,7 +808,10 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidProductCodeException();
 		if(amount <= 0)
 			throw new InvalidQuantityException();
-		ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		ReturnTransactionClass rt=null;
+		try{
+			rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		}catch(Exception e) {return false;}
 		if(rt==null) return false;
 		SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
 		if(!st.getProductsEntries().containsKey(productCode)) return false;
@@ -816,7 +819,7 @@ public class EZShop implements EZShopInterface {
 		if(q<amount) return false;
 		ProductType pt = this.getProductTypeByBarCode(productCode);
 		if(pt == null) return false;
-		int a=rt.addReturnProduct(pt, amount);
+		int a=rt.addReturnProduct(new ProductTypeClass((ProductTypeClass)pt), amount);
 		if(a==-1) return false;
 		else return true;
 	}
@@ -827,7 +830,10 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if(returnId == null || returnId <= 0)
 			throw new InvalidTransactionIdException();
-		ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		ReturnTransactionClass rt=null;
+		try{
+			rt = (ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		}catch(Exception e) {return false;}
 		if (rt == null) {
 			return false;
 		}
@@ -873,7 +879,10 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if(returnId == null || returnId <= 0)
 			throw new InvalidTransactionIdException();
-		ReturnTransactionClass rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		ReturnTransactionClass rt=null;
+		try{
+			rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		}catch(Exception e) {return false;}
 		if (rt == null || !rt.getStatus().equals(ReturnStatus.CLOSED.name())) {
 			return false;
 		}
@@ -1025,7 +1034,7 @@ public class EZShop implements EZShopInterface {
 
         recordBalanceUpdate(-(((ReturnTransactionClass)returnTransaction).getMoney()));
 
-		return 0;
+		return (((ReturnTransactionClass)returnTransaction).getMoney());
     }
 
     @Override
@@ -1081,7 +1090,7 @@ public class EZShop implements EZShopInterface {
         //Update map and db(Balance)
         recordBalanceUpdate(-(((ReturnTransactionClass) returnTransaction).getMoney()));
 
-    	return 0;
+    	return (((ReturnTransactionClass)returnTransaction).getMoney());
     }
 
     @Override

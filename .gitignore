@@ -67,3 +67,5 @@ data/*
 
 # vscode hidden folder
 .vscode
+# intellij
+.idea
