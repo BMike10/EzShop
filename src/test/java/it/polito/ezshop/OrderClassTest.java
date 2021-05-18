@@ -13,21 +13,21 @@ public class OrderClassTest {
 	@Test
 	public void testConstructor() {
 		// invalid productCode
-		assertThrows(Exception.class, ()->{final OrderClass o = new OrderClass(1, "ORDER", 10, LocalDate.now(), null, null, 1, 10, OrderStatus.ISSUED);});
+		assertThrows(Exception.class, ()->{final OrderClass o = new OrderClass(1,  LocalDate.now(), null, null, 1, 10, OrderStatus.ISSUED);});
 		// invalid unit price
-		assertThrows(Exception.class, ()->{final OrderClass o = new OrderClass(1, "ORDER", 10, LocalDate.now(), null, "4006381333931", -0.0, 10, OrderStatus.ISSUED);});
+		assertThrows(Exception.class, ()->{final OrderClass o = new OrderClass(1,  LocalDate.now(), null, "4006381333931", -0.0, 10, OrderStatus.ISSUED);});
 		// invalid quantity
-		assertThrows(Exception.class, ()->{final OrderClass o = new OrderClass(1, "ORDER", 10, LocalDate.now(), null, "4006381333931", 1, -10, OrderStatus.ISSUED);});
+		assertThrows(Exception.class, ()->{final OrderClass o = new OrderClass(1,  LocalDate.now(), null, "4006381333931", 1, -10, OrderStatus.ISSUED);});
 		// valid
 		try {
-			final OrderClass o = new OrderClass(1, "ORDER", 10, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED);
+			final OrderClass o = new OrderClass(1, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED);
 		}catch(Exception e) {
 			fail();
 		}
 	}
 	@Test
 	public void testSetOrderId() {
-		final OrderClass o = new OrderClass(1, "ORDER", 10, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED);
+		final OrderClass o = new OrderClass(1, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED);
 		assertEquals(new Integer(1), o.getOrderId());
 		// null
 		assertThrows(Exception.class, ()->{o.setOrderId(null);});
@@ -44,7 +44,7 @@ public class OrderClassTest {
 	}
 	@Test
 	public void testSetQuantity() {
-		final OrderClass o = new OrderClass(1, "ORDER", 10, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED);
+		final OrderClass o = new OrderClass(1, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED);
 		assertEquals(10, o.getQuantity());
 		// lower than 0
 		assertThrows(Exception.class, ()->{o.setQuantity(-1);});
@@ -61,7 +61,7 @@ public class OrderClassTest {
 	}
 	@Test
 	public void testSetPricePerUnit() {
-		final OrderClass o = new OrderClass(1, "ORDER", 10, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED);
+		final OrderClass o = new OrderClass(1,  LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED);
 		assertEquals(1, o.getPricePerUnit(), 1e-6);
 		// lower than 0
 		assertThrows(Exception.class, ()->{o.setPricePerUnit(-0.0);});
@@ -79,7 +79,7 @@ public class OrderClassTest {
 	}
 	@Test
 	public void testSetProductCode() {
-		final OrderClass o = new OrderClass(1, "ORDER", 10, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED);
+		final OrderClass o = new OrderClass(1,LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED);
 		assertEquals("4006381333931", o.getProductCode());
 		// null
 		assertThrows(Exception.class, ()->{o.setProductCode(null);});

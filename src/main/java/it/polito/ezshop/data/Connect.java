@@ -90,8 +90,8 @@ public class Connect {
                 + "FOREIGN KEY (cardId) references LoyaltyCard(number))";
         String orders = "CREATE TABLE IF NOT EXISTS Orders("
                 + "id INTEGER NOT NULL PRIMARY KEY,"
-                + "description text NOT NULL,"
-                + "amount number NOT NULL,"
+                //+ "description text NOT NULL,"
+                //+ "amount number NOT NULL,"
                 + "date date NOT NULL,"
                 + "supplier text,"
                 + "status integer not null,"
@@ -115,6 +115,13 @@ public class Connect {
                 + "returnedProductsId integer not null,"
                 + "FOREIGN KEY (returnedProductsId) references ReturnedProducts(id),"
                 + "FOREIGN KEY (saleId) references SaleTransactions(id))";
+        String balanceOperation = "CREATE TABLE IF NOT EXISTS BalanceOperations("
+                + "id INTEGER NOT NULL PRIMARY KEY,"
+                + "description text NOT NULL,"
+                + "amount number NOT NULL,"
+                + "date date NOT NULL,"
+                + "type text NOT NULL)";
+
         String balance = "CREATE TABLE IF NOT EXISTS Balance("
                 + "id INTEGER NOT NULL PRIMARY KEY,"
                 + "balance NUMBER NOT NULL)";
@@ -132,7 +139,7 @@ public class Connect {
             stmt.executeUpdate(returnedProduct);
             stmt.executeUpdate(returnTransaction);
             stmt.executeUpdate(balance);
-
+            stmt.executeUpdate(balanceOperation);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -423,8 +430,6 @@ public class Connect {
 
             while(rs.next()) {
                 int id = rs.getInt("id");
-                String description = rs.getString("description");
-                double amount = rs.getDouble("amount");
                 Date date = Date.valueOf(rs.getString("date"));
                 String supplier = rs.getString("supplier");
                 int status = rs.getInt("status");
@@ -433,7 +438,7 @@ public class Connect {
                 int quantity = rs.getInt("quantity");
                 OrderStatus oStatus = OrderStatus.values()[status];
                 String prodCode = products.get(productId).getBarCode();
-                OrderClass o = new OrderClass(id, description, amount, date.toLocalDate(), supplier, prodCode, unitPrice, quantity, oStatus);
+                OrderClass o = new OrderClass(id, date.toLocalDate(), supplier, prodCode, unitPrice, quantity, oStatus);
                 orders.put(id, (Order) o);
             }
         } catch (SQLException e) {
@@ -445,11 +450,11 @@ public class Connect {
     
     public static boolean addOrder(int nextId, double pricePerUnit, int quantity, OrderStatus status, int productId ) {
     	// insert into db
-    	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
+    	String sql = "INSERT INTO Orders(id, date, status, productId, unitPrice, quantity) "
         		+ "VALUES ("+nextId
-        		+", 'ORDER', "
-        		+ (pricePerUnit * quantity) +", "
-        		+ "DATE('now'), "
+        		//+", 'ORDER', "
+        		//+ (pricePerUnit * quantity) +", "
+        		+ ", DATE('now'), "
         		+ status.ordinal()+", "
         		+ productId+", "
         		+ pricePerUnit+", "
@@ -792,5 +797,71 @@ public class Connect {
             e.printStackTrace();
         }
         return balance;
+    }
+
+//	public static Map<? extends Integer, ? extends BalanceOperation> getBalanceOperations() {
+//
+//		return null;
+//	}
+
+    public static Map<Integer, BalanceOperation> getBalanceOperations(){
+        HashMap<Integer, BalanceOperation> balance = new HashMap<>();
+
+        try (Statement stmt = conn.createStatement()) {
+            String sql = "SELECT * FROM BalanceOperations";
+            ResultSet rs = stmt.executeQuery(sql);
+            while(rs.next()) {
+                int id = rs.getInt("id");
+                String description = rs.getString("description");
+                double amount = rs.getDouble("amount");
+                Date date = Date.valueOf(rs.getString("date"));
+                String type = rs.getString("type");
+                BalanceOperationClass b = new BalanceOperationClass(id, description, amount, date.toLocalDate(), type);
+                balance.put(id, b);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return balance;
+    }
+
+    public static boolean addBalanceOperation(BalanceOperationClass b) {
+        String sql = "INSERT INTO BalanceOperations(id, description, amount, date, type ) "
+                + "VALUES (" + b.getBalanceId()
+                + ", '" + b.getDescription() + "'"
+                + ", " + b.getMoney()
+                + ",DATE('now'), "
+                + b.getType() + ")";
+        try (Statement st = conn.createStatement()) {
+            st.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean removeBalanceOperation(int id){
+        // db update
+        String sql = "delete from BalanceOperations where id = "+id;
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean updateBalanceOperation(int id,double newAmount){
+        // db update
+        String sql = "UPDATE BalanceOperations SET amount = " + newAmount +"  where id = "+id;
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }
