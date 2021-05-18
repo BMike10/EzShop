@@ -25,7 +25,7 @@ public class ProductAPITest {
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.createProductType("apple", "400638133390", 10.0, null);});		
 		// login
-		ezshop.login("admin2", "admin");
+		ezshop.login("admin", "admin");
 		// description
 		// null
 		assertThrows(InvalidProductDescriptionException.class, ()->{ezshop.createProductType(null, "400638133390", 10.0, null);});
@@ -58,7 +58,7 @@ public class ProductAPITest {
 	public void testDeleteProductType() throws InvalidUsernameException, InvalidPasswordException, InvalidProductIdException, UnauthorizedException {
 		final EZShop ezshop = new EZShop();
 		// login
-		ezshop.login("admin2", "admin");
+		ezshop.login("admin", "admin");
 		int id[] = {-1};
 		try{
 			if((id[0]=ezshop.createProductType("apple", "400638133390", 10.0, "apple"))<=0)
@@ -71,7 +71,7 @@ public class ProductAPITest {
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.deleteProductType(id[0]);});	
 		// login
-		ezshop.login("admin2", "admin");
+		ezshop.login("admin", "admin");
 		// invalid id
 		assertThrows(InvalidProductIdException.class, ()->{ezshop.deleteProductType(0);});	
 		// valid
@@ -85,7 +85,7 @@ public class ProductAPITest {
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.getAllProductTypes();});	
 		// login
-		ezshop.login("admin2", "admin");
+		ezshop.login("admin", "admin");
 		// valid
 		int num = -1;
 		try {
@@ -127,7 +127,7 @@ public class ProductAPITest {
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.getProductTypeByBarCode("4006381333900");});	
 		// login
-		ezshop.login("admin2", "admin");
+		ezshop.login("admin", "admin");
 		// invalid barcode
 		// null
 		assertThrows(InvalidProductCodeException.class, ()->{ezshop.getProductTypeByBarCode(null);});	
@@ -157,7 +157,7 @@ public class ProductAPITest {
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.getProductTypesByDescription("banana");});	
 		// login
-		ezshop.login("admin2", "admin");
+		ezshop.login("admin", "admin");
 		try {
 			int id = ezshop.createProductType("apple", "400638133390", 10.0, "apple");
 			// list for comparison
@@ -188,7 +188,7 @@ public class ProductAPITest {
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.updateProduct(1, "banana", "4006381333900", 10.0, null);});	
 		// login
-		ezshop.login("admin2", "admin");
+		ezshop.login("admin", "admin");
 		// create test prod
 		final int id = ezshop.createProductType("apple", "400638133390", 10.0, "apple");
 		ProductType pt = ezshop.getProductTypeByBarCode("400638133390");
@@ -237,7 +237,7 @@ public class ProductAPITest {
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.updateQuantity(1, 10);});	
 		// login
-		ezshop.login("admin2", "admin");
+		ezshop.login("admin", "admin");
 		// create test products
 		final int id = ezshop.createProductType("apple", "400638133390", 10.0, "apple");
 		ProductType pt = ezshop.getProductTypeByBarCode("400638133390");
@@ -270,7 +270,7 @@ public class ProductAPITest {
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.updatePosition(1, "1-a-1");});	
 		// login
-		ezshop.login("admin2", "admin");
+		ezshop.login("admin", "admin");
 		// create test products
 		final int id = ezshop.createProductType("apple", "400638133390", 10.0, "apple");
 		ProductType pt = ezshop.getProductTypeByBarCode("400638133390");

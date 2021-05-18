@@ -19,7 +19,6 @@ import it.polito.ezshop.data.ProductTypeClass;
 import it.polito.ezshop.data.SaleStatus;
 import it.polito.ezshop.data.TicketEntryClass;
 import it.polito.ezshop.exceptions.InvalidCustomerCardException;
-import it.polito.ezshop.exceptions.InvalidDiscountRateException;
 import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
@@ -38,12 +37,12 @@ public class SaleTransactionTest {
 					new Time(System.currentTimeMillis()), SaleStatus.STARTED, null, 2, new HashMap<>(), 0.1);
 		});
 		// invalid discount rate (<0)
-		assertThrows(InvalidDiscountRateException.class, () -> {
+		assertThrows(Exception.class, () -> {
 			SaleTransactionClass stc = new SaleTransactionClass(10.0, "CASH", new Time(System.currentTimeMillis()),
 					SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), -1);
 		});
 		// invalid discount rate (>1)
-		assertThrows(InvalidDiscountRateException.class, () -> {
+		assertThrows(Exception.class, () -> {
 			SaleTransactionClass stc = new SaleTransactionClass(10.0, "CASH", new Time(System.currentTimeMillis()),
 					SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 2);
 		});
@@ -73,7 +72,7 @@ public class SaleTransactionTest {
 					SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, null, 0.1);
 		});
 		// invalid ticketNumber
-		assertThrows(InvalidTransactionIdException.class, () -> {
+		assertThrows(Exception.class, () -> {
 			SaleTransactionClass stc = new SaleTransactionClass(10.0, "CASH", new Time(System.currentTimeMillis()),
 					SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), -1, new HashMap<>(), 0.1);
 		});
@@ -119,13 +118,16 @@ public class SaleTransactionTest {
 
 	@Test
 	public void testTime() throws Exception {
-		SaleTransactionClass stc = new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),
+
+		Time t = new Time(System.currentTimeMillis());
+		SaleTransactionClass stc = new SaleTransactionClass(10.0, "CREDIT_CARD",t,
 				SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1);
 		assertThrows( Exception.class, () -> {
 			stc.setTime(null);
 		});
-		stc.setTime(new Time(System.currentTimeMillis()));
-		assertTrue()							//??????
+
+		stc.setTime(t);
+		assertEquals(t,stc.getTime());
 	}
 
 	@Test
@@ -147,7 +149,7 @@ public class SaleTransactionTest {
 	}
 
 	@Test
-	public void testDiscountRate() throws InvalidDiscountRateException {
+	public void testDiscountRate() throws Exception {
 		SaleTransactionClass stc;
 		try {
 			stc = new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),
@@ -156,11 +158,11 @@ public class SaleTransactionTest {
 			assertTrue(0.1 == stc.getDiscountRate());
 			// test setter
 			// invalid (<0)
-			assertThrows(InvalidDiscountRateException.class, () -> {
+			assertThrows(Exception.class, () -> {
 				stc.setDiscountRate(-1);
 			});
 			// invalid (>1)
-			assertThrows(InvalidDiscountRateException.class, () -> {
+			assertThrows(Exception.class, () -> {
 				stc.setDiscountRate(1.1);
 			});
 			// valid
@@ -181,11 +183,11 @@ public class SaleTransactionTest {
 			// test getter
 			assertTrue(tNumber == stc.getTicketNumber());
 			// invalid setter
-			assertThrows(InvalidTransactionIdException.class, () -> {
+			assertThrows(Exception.class, () -> {
 				stc.setTicketNumber(null);
 			});
 			// invalid setter
-			assertThrows(InvalidTransactionIdException.class, () -> {
+			assertThrows(Exception.class, () -> {
 				stc.setTicketNumber(-1);
 			});
 			// valid setter

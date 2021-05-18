@@ -123,8 +123,8 @@ public class AccountBookClass implements AccountBook {
 
         this.returnTransactionMap.remove(returnTransactionId);
 
-        this.balanceOperationMap.remove(returnTransactionId);
-        Connect.removeBalanceOperation(returnTransactionId);
+        //this.balanceOperationMap.remove(returnTransactionId);
+        //Connect.removeBalanceOperation(returnTransactionId);
 
     }
 
@@ -220,7 +220,6 @@ public class AccountBookClass implements AccountBook {
             //All Balance operation -> to==null(if it's not -> first if)
             bo = new ArrayList<>(balanceOperationMap.values());
         } else {
-            System.out.println("Ciao");
             bo = balanceOperationMap.values().stream().
                     filter(t -> t.getDate().isBefore(to) && t.getDate().isAfter(from)).collect(Collectors.toList());
         }

@@ -951,10 +951,11 @@ public class EZShop implements EZShopInterface {
         //Update Map
         ((SaleTransactionClass) saleTransaction).setStatus(SaleStatus.valueOf("PAYED"));
         //Update DB
-        if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED")))
+        if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED"),"CASH"))
         	return -1;
         //MICHELE
         accountBook.addBalanceOperation((BalanceOperation)saleTransaction);
+        ((SaleTransactionClass) saleTransaction).setPaymentType("CASH");
         //Update map and db(Balance)
         recordBalanceUpdate(saleAmount);
 
@@ -999,11 +1000,12 @@ public class EZShop implements EZShopInterface {
         //Update Map
 		((SaleTransactionClass)sale).setStatus(SaleStatus.valueOf("PAYED"));
         //Update DB
-		if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED")))
+		if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED"),"CREDIT_CARD"))
 			return false;
 
 		//Update map and db(Balance)
         accountBook.addBalanceOperation((BalanceOperation)sale);
+        ((SaleTransactionClass) sale).setPaymentType("CREDIT_CARD");
         recordBalanceUpdate(saleAmount);
         //Update new CreditCardSale
 		updateCreditCardTxt(creditCard,userCash-saleAmount);

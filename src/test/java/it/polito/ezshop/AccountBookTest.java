@@ -33,8 +33,8 @@ public class AccountBookTest {
     }
     @Test
     public void testRemoveSaleTransaction() throws InvalidTransactionIdException{
+        Connect.connect();
         AccountBook aB = new AccountBookClass(0);
-
         //Check remove if id exist in Sale Transaction (IMPLICIT TESTING)
         Map<String,TicketEntryClass> tec = new HashMap<>();
         SaleTransactionClass sT = new SaleTransactionClass(1," String description", 20.0, LocalDate.now(), "CREDIT", "CASH", Time.valueOf(LocalTime.now()),

@@ -585,19 +585,19 @@ Version:
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of price| >0      |
+| Signature of price| (> 0)      |
 | | <=0      |
 | Signature of payment type| null       |
 | | valid      |
-| Validity of payment type  |   CASH or CREDIT_CARD |
+| Validity of payment type  |   valid |
 |   |   invalid |
 | Validity of Time | valid |
 |                    |  No |
-| Validity of SaleStatus | STARTED or PAYED or CLOSED      |
-| | NULL or OtherValues      |
+| Validity of SaleStatus | valid      |
+| | invalid      |
 | Validity of loyaltyCard | valid|
 |               | null|
-| Signature of transactionId | >=0 |
+| Signature of transactionId | (>=0) |
 |             | <0 |
 | Validity of ticketEntries | valid |
 |   | null |
@@ -620,15 +620,15 @@ Version:
 |   invalid     |  <=0      |    *     | * | * | * | * | * | * | * | *  | * | * |   Invalid    |   T2(-1, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
 |   valid     |  10       |    null     | * | * | * | * | * | * | * | * | * | * |   Invalid    |   T3(10, null, new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  InvalidPaymentException      | SaleTransactionTest.testSaleTransactionConstructor  |
 |   valid    |  10       |    invalid     | "other" | * | * | * | * | * | * | * | * | * |   Invalid    |   T4(10, "other", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  InvalidPaymentException      | SaleTransactionTest.testSaleTransactionConstructor  |
-|   valid     |  10       |    valid     | "CASH" | null | * | * | * | * | * | * | * | * |   Invalid    |   T5(10, "CASH", null, SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
-|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | null | * | * | * | * | * | * |   Invalid    |   T6(10, "CASH", new Time(System.currentTimeMillis), null, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
-|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | SaleStatus.STARTED | null | * | * | * | * | * |   Invalid    |   T7(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, null, 10, new HashMap<>(), 0.1) ->  InvalidCustomerCardException      | SaleTransactionTest.testSaleTransactionConstructor  |
-|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | null | * | * | * |   Invalid    |   T8(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), null, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
-|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | invalid | -1 | * | * |   Invalid    |   T9(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), -1, new HashMap<>(), 0.1) ->  InvalidTransactionIdException      | SaleTransactionTest.testSaleTransactionConstructor  |
-|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | valid | 10 | null | * |   Invalid    |   T10(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, null, 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
-|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | valid | 10 | new HashMap<>() | null | * |   Invalid    |   T11(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), null) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
-|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | valid | 10 | new HashMap<>() | invalid | -1 |   Invalid    |   T12(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), -1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
-|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | valid | 10 | new HashMap<>() | valid | 0.1 |   Invalid    |   T13(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  new SaleTransactionClass succesfully generated      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | valid | null | * | * | * | * | * | * | * | * |   Invalid    |   T5(10, "CASH", null, SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | valid | valid | valid | null | * | * | * | * | * | * |   Invalid    |   T6(10, "CASH", new Time(System.currentTimeMillis), null, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | valid | valid | valid | valid | null | * | * | * | * | * |   Invalid    |   T7(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, null, 10, new HashMap<>(), 0.1) ->  InvalidCustomerCardException      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | valid | valid | valid | valid | valid | valid | null | * | * | * |   Invalid    |   T8(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), null, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | valid | valid | valid | valid | valid | valid | invalid | -1 | * | * |   Invalid    |   T9(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), -1, new HashMap<>(), 0.1) ->  InvalidTransactionIdException      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | valid | valid | valid | valid | valid | valid | valid | 10 | null | * |   Invalid    |   T10(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, null, 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | valid | valid | valid | valid | valid | valid | valid | 10 | valid | null | * |   Invalid    |   T11(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), null) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | valid | valid | valid | valid | valid | valid | valid | 10 | valid | invalid | -1 |   Invalid    |   T12(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), -1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | valid | valid | valid | valid | valid | valid | valid | 10 | valid | valid | 0.1 |   Invalid    |   T13(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  new SaleTransactionClass succesfully generated      | SaleTransactionTest.testSaleTransactionConstructor  |
 
 
 ### setTime
