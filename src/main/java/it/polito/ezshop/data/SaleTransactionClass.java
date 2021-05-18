@@ -18,7 +18,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 
 	public SaleTransactionClass(double price, String paymentType, Time time, SaleStatus status, LoyaltyCard loyaltyCard,
 			Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries, double discountRate) {
-		super(ticketNumber, "SALE", 0.0, LocalDate.now(), "CREDIT");
+		super(ticketNumber, "SALE", price, LocalDate.now(), "CREDIT");
 		if (!paymentType.equals("CASH") && !paymentType.equals("CREDIT_CARD"))
 			throw new RuntimeException(new InvalidPaymentException());					//OK?
 		if(loyaltyCard==null) 			throw new RuntimeException(new InvalidCustomerCardException());
