@@ -12,16 +12,17 @@ public final class OrderClass  implements Order {
 	private String productCode;
 	private double pricePerUnit;
 	private int quantity;
+	private LocalDate date;
 	private OrderStatus status;
 	
 	
 	public OrderClass(String productCode, double pricePerUnit, int quantity, OrderStatus status) {
-		this(-1, "ORDER", pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, status);
+		this(-1, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, status);
 	}
 	public OrderClass(String productCode, double pricePerUnit, int quantity) {
-		this(-1, "ORDER", pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, OrderStatus.ISSUED);
+		this(-1, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, OrderStatus.ISSUED);
 	}
-	public OrderClass(int id, String desc, double amount, LocalDate date, String supplier, String productCode, double pricePerUnit, int quantity, OrderStatus status) {
+	public OrderClass(int id, LocalDate date, String supplier, String productCode, double pricePerUnit, int quantity, OrderStatus status) {
 		//super(id, desc, amount, date, "DEBIT");
 		if(productCode == null || !ProductTypeClass.validateBarCode(productCode))
 			throw new RuntimeException(new InvalidProductCodeException());
@@ -33,6 +34,8 @@ public final class OrderClass  implements Order {
 		this.pricePerUnit = pricePerUnit;
 		this.quantity = quantity;
 		this.status = status;
+		this.date = date;
+		this.orderId = id;
 	}
 	@Override
 	public Integer getBalanceId() {

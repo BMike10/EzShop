@@ -90,8 +90,8 @@ public class Connect {
                 + "FOREIGN KEY (cardId) references LoyaltyCard(number))";
         String orders = "CREATE TABLE IF NOT EXISTS Orders("
                 + "id INTEGER NOT NULL PRIMARY KEY,"
-                + "description text NOT NULL,"
-                + "amount number NOT NULL,"
+                //+ "description text NOT NULL,"
+                //+ "amount number NOT NULL,"
                 + "date date NOT NULL,"
                 + "supplier text,"
                 + "status integer not null,"
@@ -430,8 +430,6 @@ public class Connect {
 
             while(rs.next()) {
                 int id = rs.getInt("id");
-                String description = rs.getString("description");
-                double amount = rs.getDouble("amount");
                 Date date = Date.valueOf(rs.getString("date"));
                 String supplier = rs.getString("supplier");
                 int status = rs.getInt("status");
@@ -440,7 +438,7 @@ public class Connect {
                 int quantity = rs.getInt("quantity");
                 OrderStatus oStatus = OrderStatus.values()[status];
                 String prodCode = products.get(productId).getBarCode();
-                OrderClass o = new OrderClass(id, description, amount, date.toLocalDate(), supplier, prodCode, unitPrice, quantity, oStatus);
+                OrderClass o = new OrderClass(id, date.toLocalDate(), supplier, prodCode, unitPrice, quantity, oStatus);
                 orders.put(id, (Order) o);
             }
         } catch (SQLException e) {
@@ -452,11 +450,11 @@ public class Connect {
     
     public static boolean addOrder(int nextId, double pricePerUnit, int quantity, OrderStatus status, int productId ) {
     	// insert into db
-    	String sql = "INSERT INTO Orders(id, description, amount, date, status, productId, unitPrice, quantity) "
+    	String sql = "INSERT INTO Orders(id, date, status, productId, unitPrice, quantity) "
         		+ "VALUES ("+nextId
-        		+", 'ORDER', "
-        		+ (pricePerUnit * quantity) +", "
-        		+ "DATE('now'), "
+        		//+", 'ORDER', "
+        		//+ (pricePerUnit * quantity) +", "
+        		+ ", DATE('now'), "
         		+ status.ordinal()+", "
         		+ productId+", "
         		+ pricePerUnit+", "
