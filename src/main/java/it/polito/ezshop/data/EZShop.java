@@ -401,7 +401,8 @@ public class EZShop implements EZShopInterface {
     		return false;
     	// update balance
     	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
-    	recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity());
+    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity()))
+    		return false;
         
     	o.setStatus("PAYED");
     	// save status on db
