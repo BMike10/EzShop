@@ -65,14 +65,15 @@ public class AccountBookClass implements AccountBook{
 
     }
 
-//    public boolean addBalanceOperation(BalanceOperation bo) {
-//    	if(balanceOperationMap.containsKey(bo.getBalanceId()))
-//    		return false;
-//    	balanceOperationMap.put(bo.getBalanceId(), bo);
-//    	// update balance
-//    	//balance += bo.getType().equals("CREDIT")?bo.getMoney():-bo.getMoney();
-//    	return true;
-//    }
+    public boolean addBalanceOperation(BalanceOperation bo) {
+    	if(balanceOperationMap.containsKey(bo.getBalanceId()))
+    		return false;
+    	balanceOperationMap.put(bo.getBalanceId(), bo);
+    	// update balance
+        Connect.addBalanceOperation((BalanceOperationClass) bo);
+        //balance += bo.getType().equals("CREDIT")?bo.getMoney():-bo.getMoney();
+    	return true;
+    }
 
     @Override
     public Integer addSaleTransaction(SaleTransaction saleTransaction) {
@@ -80,7 +81,6 @@ public class AccountBookClass implements AccountBook{
         Integer newId = newId();
         saleTransaction.setTicketNumber(newId);
         this.saleTransactionMap.put(newId, saleTransaction);
-        this.balanceOperationMap.put(newId,(BalanceOperation) saleTransaction);
         return newId;
     }
 
@@ -89,7 +89,6 @@ public class AccountBookClass implements AccountBook{
         Integer newId = newId();
         returnTransaction.setReturnId(newId);
         this.returnTransactionMap.put(newId, returnTransaction);
-        this.balanceOperationMap.put(newId, (BalanceOperation) returnTransaction);
         return newId;
 
     }
@@ -100,11 +99,6 @@ public class AccountBookClass implements AccountBook{
         order.setOrderId(newId);
         this.orderMap.put(newId, order);
 
-        //Order -> BalanceOperation
-        BalanceOperationClass bO = new BalanceOperationClass(newId,"ORDER",
-                ((OrderClass)order).getMoney(),LocalDate.now(),"DEBIT");
-        this.balanceOperationMap.put(newId, bO);
-        Connect.addBalanceOperation(bO);
         return newId;
     }
 

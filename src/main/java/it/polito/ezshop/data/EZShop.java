@@ -371,7 +371,7 @@ public class EZShop implements EZShopInterface {
         }
 
         //MICHELE
-    	//accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
+    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
     	// update db
         if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
 			try {
@@ -400,8 +400,7 @@ public class EZShop implements EZShopInterface {
     	if(o.getStatus().equals(OrderStatus.PAYED.name()))
     		return false;
     	// update balance
-		//MICHELE -> Now Balance Operations are created at addOrder time -> does the transaction need to be updated? No new informations on balance
-    	//accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
+    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
     	recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity());
         
     	o.setStatus("PAYED");
@@ -867,7 +866,7 @@ public class EZShop implements EZShopInterface {
 				return false;
 			}
 			// update the sale on db
-			if(!Connect.removeSaleTransaction(st.getBalanceId()) || 
+			if(!Connect.removeSaleTransaction(st.getBalanceId()) || !Connect.updateBalanceOperation(st.getBalanceId(),st.getMoney()) ||
 					!Connect.addSaleTransaction(st, st.getBalanceId(), st.getDescription(), st.getMoney(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))
 				System.out.println("Error saving sale update on DB");
 			return true;
@@ -954,9 +953,9 @@ public class EZShop implements EZShopInterface {
         if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED")))
         	return -1;
         //MICHELE
-        //accountBook.addBalanceOperation((BalanceOperation)saleTransaction);
+        accountBook.addBalanceOperation((BalanceOperation)saleTransaction);
         //Update map and db(Balance)
-        //recordBalanceUpdate(saleAmount);
+        recordBalanceUpdate(saleAmount);
 
 		return change;
 
@@ -1003,7 +1002,7 @@ public class EZShop implements EZShopInterface {
 			return false;
 
 		//Update map and db(Balance)
-        //accountBook.addBalanceOperation((BalanceOperation)sale);
+        accountBook.addBalanceOperation((BalanceOperation)sale);
         recordBalanceUpdate(saleAmount);
         //Update new CreditCardSale
 		updateCreditCardTxt(creditCard,userCash-saleAmount);
