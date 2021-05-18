@@ -567,6 +567,207 @@ Version:
 | valid | invalid| Invalid| T2("")->Exception   | OrderClassTest.testSetProductCode|
 | valid | valid | Valid   | T3("4006381333900") | OrderClassTest.testSetProductCode|
 
+## Class SaleTransactionClass
+### Constructor
+
+**Criteria for method Constructor:**
+
+- Signature of price
+- Signature of payment type
+- Validity of Time
+- Validity of SaleStatus
+- Validity of loyaltyCard
+- Signature of transactionId
+- Validity of ticketEntries
+- Signature of discount rate
+
+**Predicates for method Constructor:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of price| >0      |
+| | <=0      |
+| Signature of payment type| null       |
+| | valid      |
+| Validity of payment type  |   CASH or CREDIT_CARD |
+|   |   invalid |
+| Validity of Time | valid |
+|                    |  No |
+| Validity of SaleStatus | STARTED or PAYED or CLOSED      |
+| | NULL or OtherValues      |
+| Validity of loyaltyCard | valid|
+|               | null|
+| Signature of transactionId | >=0 |
+|             | <0 |
+| Validity of ticketEntries | valid |
+|   | null |
+| Signature of discount rate | >=0  && <=1|
+| | <0 or >1      |
+
+**Boundaries for method Constructor**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of transactionId  |    0, +inf       |
+| Signature of price  | 0, +inf  |
+| Signature of discount rate  | 0, 1  |
+
+**Combination of predicates for method Constructor**
+
+| Validity of price | Signature of price | Validity of payment type | Signature of payment type | Existence of Time object | Existence of SaleStatus |   Existence of FidelityCard object | Validity of transactionId  | Signature of transactionId | Validity of ticketEntries | Validity of discount rate | Signature of discount rate |  Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+| --------- | --------- | ------- |--------| ------ | -------- | ------- | -------- | -------- | ------- | ------- | ------- | ------- | ------ | ------ |
+|   null     |  *       |    *     | * | * | * | * | * | * | * | * | * | * |   Invalid    |   T1(null, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   invalid     |  <=0      |    *     | * | * | * | * | * | * | * | *  | * | * |   Invalid    |   T2(-1, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    null     | * | * | * | * | * | * | * | * | * | * |   Invalid    |   T3(10, null, new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  InvalidPaymentException      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid    |  10       |    invalid     | "other" | * | * | * | * | * | * | * | * | * |   Invalid    |   T4(10, "other", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  InvalidPaymentException      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | "CASH" | null | * | * | * | * | * | * | * | * |   Invalid    |   T5(10, "CASH", null, SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | null | * | * | * | * | * | * |   Invalid    |   T6(10, "CASH", new Time(System.currentTimeMillis), null, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | SaleStatus.STARTED | null | * | * | * | * | * |   Invalid    |   T7(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, null, 10, new HashMap<>(), 0.1) ->  InvalidCustomerCardException      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | null | * | * | * |   Invalid    |   T8(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), null, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | invalid | -1 | * | * |   Invalid    |   T9(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), -1, new HashMap<>(), 0.1) ->  InvalidTransactionIdException      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | valid | 10 | null | * |   Invalid    |   T10(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, null, 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | valid | 10 | new HashMap<>() | null | * |   Invalid    |   T11(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), null) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | valid | 10 | new HashMap<>() | invalid | -1 |   Invalid    |   T12(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), -1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
+|   valid     |  10       |    valid     | "CASH" | valid | new Time(System.currentTimeMillis) | valid | SaleStatus.STARTED | new LoyaltyCard("1234567890",1) | valid | 10 | new HashMap<>() | valid | 0.1 |   Invalid    |   T13(10, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  new SaleTransactionClass succesfully generated      | SaleTransactionTest.testSaleTransactionConstructor  |
+
+
+### setTime
+**Criteria for method setTime:**
+- Validity of time
+
+**Predicates for method setTime:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of time | null |
+|       | valid instance of Time.class |
+
+**Boundaries for method setTime**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| | |
+
+**Combination of predicates for method setTime**
+
+| Signature of time | Value of time |Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ---|------------ | ---------------------------- | --------------- |
+| null  | - | Invalid| T1(null)->Exception | SaleTransactionClassTest.testTime |
+| valid | new Time(System.currentTimeMillis) | Valid | T2(System.currentTimeMillis)-> correctly set the time of the Sale Transaction Class object| SaleTransactionClassTest.testTime |
+
+### setStatus
+**Criteria for method setStatus:**
+- Signature of status
+
+**Predicates for method setStatus:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of status | null|
+|       | valid instance of SaleStatus.class |
+
+**Boundaries for method setStatus**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| | |
+
+**Combination of predicates for method setStatus**
+
+| Signature of time | Value of time |Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ---|------------ | ---------------------------- | --------------- |
+| null  | - | Invalid| T1(null)->Exception | SaleTransactionClassTest.testStatus|
+| valid | SaleStatus.STARTED | Valid | T2(SaleStatus.STARTED)-> correctly set the status of the Sale Transaction Class object | SaleTransactionClassTest.testStatus |
+| valid | SaleStatus.PAYED | Valid | T2(SaleStatus.PAYED)-> correctly set the status of the Sale Transaction Class object | SaleTransactionClassTest.testStatus |
+| valid | SaleStatus.CLOSED | Valid | T2(SaleStatus.CLOSED)-> correctly set the status of the Sale Transaction Class object | SaleTransactionClassTest.testStatus |
+
+
+### setTicketNumber
+**Criteria for method setTicketNumber:**
+- Signature of ticketNumber
+- Validity of ticketNumber
+
+**Predicates for method setTicketNumber:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of ticket number | null |
+|       | valid  |
+| Validity of ticket number | <0 |
+|       | >0  |
+
+**Boundaries for method setTicketNumber**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of ticketNumber | 0, +inf |
+
+**Combination of predicates for method setTicketNumber**
+
+| Signature of ticketNumber | Value of ticketNumber |Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ---|------------ | ---------------------------- | --------------- |
+| null  | - | Invalid| T1(null)->InvalidTransactionIdException | SaleTransactionClassTest.testTicketNumber |
+| valid | <0 | invalid | T2(-1)->InvalidTransactionIdException | SaleTransactionClassTest.testTicketNumber |
+| valid  | >0  | T3(5)-> correctly set the ticketNumber of the Sale Transaction Class object | SaleTransactionClassTest.testTicketNumber |
+
+
+
+### setDiscountRate
+**Criteria for method setDiscountRate:**
+- Signature of discountRate
+
+**Predicates for method setDiscountRate:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of discountRate | <0 |
+|       | >1  |
+|       | 0<x<1 |
+
+**Boundaries for method setDiscountRate**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of discountRate | 0, 1 |
+
+**Combination of predicates for method setDiscountRate**
+
+| Value of discountRate |Valid/Invalid | Description of the test case | JUnit test case |
+| ---|------------ | ---------------------------- | --------------- |
+| <0  | Invalid| T1(-1)->InvalidDiscountRateException | SaleTransactionClassTest.testDiscountRate |
+| >1 | invalid | T2(1.2)->InvalidTransactionIdException | SaleTransactionClassTest.testDiscountRate |
+| 0<x<1 | T3(0.5)-> correctly set the discountRate of the Sale Transaction Class object | SaleTransactionClassTest.testDiscountRate |
+
+
+### setPaymentType
+**Criteria for method setPaymentType:**
+- Validity of paymentType
+- Signature of paymentType
+
+
+**Predicates for method setPaymentType:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Validity of paymentType | null |
+|                         | valid |
+| Signature of paymentType | invalid |
+|       | "CREDIT_CARD" |
+|       | "CASH" |
+
+**Boundaries for method setPaymentType**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of paymentType | "CASH", "CREDIT_CARD" |
+
+**Combination of predicates for method setPaymentType**
+
+| Validity of paymentType | Signature of paymentType | Valid/Invalid | Description of the test case | JUnit test case |
+| ---- | ------------ | ---------- | ---------------------------- | --------------- |
+| null | * | Invalid | T1(null)->InvalidPaymentException | SaleTransactionClassTest.testPaymentType |
+| valid | !="CASH" && !="CREDIT_CARD" | invalid | T2("other")->InvalidPaymentException | SaleTransactionClassTest.testPaymentType |
+| valid | "CASH" or "CREDIT_CARD" | T3("CASH")-> correctly set the paymentType of the Sale Transaction Class object | SaleTransactionClassTest.testPaymentType |
+
+
+
+
+
 
 ## Class AccountBookClass
 
