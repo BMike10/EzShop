@@ -25,12 +25,12 @@ public class AccountBookClass implements AccountBook{
 
     // Already existed Account Book
     @SuppressWarnings("unchecked")
-    public AccountBookClass(Map<Integer,SaleTransaction> SalOp, Map<Integer,Order> OrdOp, Map<Integer,ReturnTransaction> RetOp) {
+    public AccountBookClass(Map<Integer,SaleTransaction> SalOp, Map<Integer,Order> OrdOp, Map<Integer,ReturnTransaction> RetOp,Map<Integer,BalanceOperation> BalOp) {
 
         this.saleTransactionMap.putAll(SalOp);
         this.orderMap.putAll(OrdOp);
         this.returnTransactionMap.putAll(RetOp);
-
+        this.balanceOperationMap.putAll(BalOp);
         /*for (Map.Entry<Integer, Order> entry : orderMap.entrySet()) {
             balanceOperationMap.put(entry.getKey(), (BalanceOperation) entry.getValue());
         }
@@ -40,7 +40,7 @@ public class AccountBookClass implements AccountBook{
         for (Map.Entry<Integer, SaleTransaction> entry : saleTransactionMap.entrySet()) {
             balanceOperationMap.put(entry.getKey(), (BalanceOperation) entry.getValue());
         }*/
-        balanceOperationMap.putAll(Connect.getBalanceOperations());
+
         this.balance = Connect.getBalance();
        /* double CREDIT = this.saleTransactionMap.values().stream().
                 filter(saleTransaction -> ((SaleTransactionClass)saleTransaction).getStatus().toString().equals("PAYED")).
@@ -64,21 +64,23 @@ public class AccountBookClass implements AccountBook{
             */
 
     }
-    public boolean addBalanceOperation(BalanceOperation bo) {
-    	if(balanceOperationMap.containsKey(bo.getBalanceId()))
-    		return false;
-    	balanceOperationMap.put(bo.getBalanceId(), bo);
-    	// update balance
-    	//balance += bo.getType().equals("CREDIT")?bo.getMoney():-bo.getMoney();
-    	return true;
-    }
+
+//    public boolean addBalanceOperation(BalanceOperation bo) {
+//    	if(balanceOperationMap.containsKey(bo.getBalanceId()))
+//    		return false;
+//    	balanceOperationMap.put(bo.getBalanceId(), bo);
+//    	// update balance
+//    	//balance += bo.getType().equals("CREDIT")?bo.getMoney():-bo.getMoney();
+//    	return true;
+//    }
+
     @Override
     public Integer addSaleTransaction(SaleTransaction saleTransaction) {
         //Sale Transaction is complete but without id
         Integer newId = newId();
         saleTransaction.setTicketNumber(newId);
-        //this.balanceOperationMap.put(newId, (BalanceOperation) saleTransaction);
         this.saleTransactionMap.put(newId, saleTransaction);
+        this.balanceOperationMap.put(newId,(BalanceOperation) saleTransaction);
         return newId;
     }
 
@@ -86,8 +88,8 @@ public class AccountBookClass implements AccountBook{
     public Integer addReturnTransaction(ReturnTransaction returnTransaction) {
         Integer newId = newId();
         returnTransaction.setReturnId(newId);
-        //this.balanceOperationMap.put(newId, (BalanceOperation) returnTransaction);
         this.returnTransactionMap.put(newId, returnTransaction);
+        this.balanceOperationMap.put(newId, (BalanceOperation) returnTransaction);
         return newId;
 
     }
@@ -96,8 +98,13 @@ public class AccountBookClass implements AccountBook{
     public Integer addOrder(Order order){
         Integer newId = newId();
         order.setOrderId(newId);
-        //this.balanceOperationMap.put(newId, (BalanceOperation) order);
         this.orderMap.put(newId, order);
+
+        //Order -> BalanceOperation
+        BalanceOperationClass bO = new BalanceOperationClass(newId,"ORDER",
+                ((OrderClass)order).getMoney(),LocalDate.now(),"DEBIT");
+        this.balanceOperationMap.put(newId, bO);
+        Connect.addBalanceOperation(bO);
         return newId;
     }
 
@@ -111,7 +118,9 @@ public class AccountBookClass implements AccountBook{
             throw new InvalidTransactionIdException();
 
         this.saleTransactionMap.remove(saleTransactionId);
-        //this.balanceOperationMap.remove(saleTransactionId);
+
+        this.balanceOperationMap.remove(saleTransactionId);
+        Connect.removeBalanceOperation(saleTransactionId);
     }
 
     @Override
@@ -120,7 +129,10 @@ public class AccountBookClass implements AccountBook{
             throw new InvalidTransactionIdException();
 
         this.returnTransactionMap.remove(returnTransactionId);
-        //this.balanceOperationMap.remove(returnTransactionId);
+
+        this.balanceOperationMap.remove(returnTransactionId);
+        Connect.removeBalanceOperation(returnTransactionId);
+
     }
 
     @Override
@@ -128,7 +140,10 @@ public class AccountBookClass implements AccountBook{
         if(orderTransactionId==null || orderTransactionId<=0 || !this.orderMap.containsKey(orderTransactionId) )
             throw new InvalidTransactionIdException();
         this.saleTransactionMap.remove(orderTransactionId);
-        //this.balanceOperationMap.remove(orderTransactionId);
+
+        this.balanceOperationMap.remove(orderTransactionId);
+        Connect.removeBalanceOperation(orderTransactionId);
+
     }
 
     @Override

@@ -115,6 +115,13 @@ public class Connect {
                 + "returnedProductsId integer not null,"
                 + "FOREIGN KEY (returnedProductsId) references ReturnedProducts(id),"
                 + "FOREIGN KEY (saleId) references SaleTransactions(id))";
+        String balanceOperation = "CREATE TABLE IF NOT EXISTS BalanceOperations("
+                + "id INTEGER NOT NULL PRIMARY KEY,"
+                + "description text NOT NULL,"
+                + "amount number NOT NULL,"
+                + "date date NOT NULL,"
+                + "type text NOT NULL)";
+
         String balance = "CREATE TABLE IF NOT EXISTS Balance("
                 + "id INTEGER NOT NULL PRIMARY KEY,"
                 + "balance NUMBER NOT NULL)";
@@ -132,7 +139,7 @@ public class Connect {
             stmt.executeUpdate(returnedProduct);
             stmt.executeUpdate(returnTransaction);
             stmt.executeUpdate(balance);
-
+            stmt.executeUpdate(balanceOperation);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -794,8 +801,57 @@ public class Connect {
         return balance;
     }
 
-	public static Map<? extends Integer, ? extends BalanceOperation> getBalanceOperations() {
-		
-		return null;
-	}
+//	public static Map<? extends Integer, ? extends BalanceOperation> getBalanceOperations() {
+//
+//		return null;
+//	}
+
+    public static Map<Integer, BalanceOperation> getBalanceOperations(){
+        HashMap<Integer, BalanceOperation> balance = new HashMap<>();
+
+        try (Statement stmt = conn.createStatement()) {
+            String sql = "SELECT * FROM BalanceOperations";
+            ResultSet rs = stmt.executeQuery(sql);
+            while(rs.next()) {
+                int id = rs.getInt("id");
+                String description = rs.getString("description");
+                double amount = rs.getDouble("amount");
+                Date date = Date.valueOf(rs.getString("date"));
+                String type = rs.getString("type");
+                BalanceOperationClass b = new BalanceOperationClass(id, description, amount, date.toLocalDate(), type);
+                balance.put(id, b);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return balance;
+    }
+
+    public static boolean addBalanceOperation(BalanceOperationClass b) {
+        String sql = "INSERT INTO BalanceOperations(id, description, amount, date, type ) "
+                + "VALUES (" + b.getBalanceId()
+                + ", '" + b.getDescription() + "'"
+                + ", " + b.getMoney()
+                + ",DATE('now'), "
+                + b.getType() + ")";
+        try (Statement st = conn.createStatement()) {
+            st.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean removeBalanceOperation(int id){
+        // db update
+        String sql = "delete from BalanceOperations where id = "+id;
+        try(Statement st = conn.createStatement()){
+            st.execute(sql);
+        }catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }

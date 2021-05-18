@@ -1,9 +1,6 @@
 package it.polito.ezshop.data;
 
-import it.polito.ezshop.exceptions.InvalidOrderIdException;
-import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
-
 import java.time.LocalDate;
 
 public class BalanceOperationClass implements BalanceOperation {

@@ -27,7 +27,7 @@ public class EZShop implements EZShopInterface {
 		customers = Connect.getCustomer(cards);
 		attachedCards = Connect.getAttachedCard(cards, customers);
 		Map<Integer,SaleTransaction> sales = Connect.getSaleTransaction(products, cards);
-		accountBook = new AccountBookClass(sales, Connect.getOrder(products), Connect.getReturnTransaction(products, sales));
+		accountBook = new AccountBookClass(sales, Connect.getOrder(products), Connect.getReturnTransaction(products, sales),Connect.getBalanceOperations());
 		try {
 			File myObj = new File("creditCard.txt");
 			Scanner myReader = new Scanner(myObj);
@@ -51,7 +51,7 @@ public class EZShop implements EZShopInterface {
     public void reset() {
     	try {
     		Connect.deleteAll();
-            accountBook = new AccountBookClass(new HashMap<>(), new HashMap<>(), new HashMap<>());
+            accountBook = new AccountBookClass(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
             products = new HashMap<>();
             /*users = new HashMap<>();
             cards = new HashMap<>();
@@ -369,7 +369,9 @@ public class EZShop implements EZShopInterface {
 			}
         	return -1;
         }
-    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
+
+        //MICHELE
+    	//accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
     	// update db
         if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
 			try {
@@ -398,7 +400,8 @@ public class EZShop implements EZShopInterface {
     	if(o.getStatus().equals(OrderStatus.PAYED.name()))
     		return false;
     	// update balance
-    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
+		//MICHELE -> Now Balance Operations are created at addOrder time -> does the transaction need to be updated? No new informations on balance
+    	//accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
     	recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity());
         
     	o.setStatus("PAYED");
@@ -950,7 +953,8 @@ public class EZShop implements EZShopInterface {
         //Update DB
         if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED")))
         	return -1;
-        accountBook.addBalanceOperation((BalanceOperation)saleTransaction);
+        //MICHELE
+        //accountBook.addBalanceOperation((BalanceOperation)saleTransaction);
         //Update map and db(Balance)
         //recordBalanceUpdate(saleAmount);
 
@@ -999,7 +1003,7 @@ public class EZShop implements EZShopInterface {
 			return false;
 
 		//Update map and db(Balance)
-        accountBook.addBalanceOperation((BalanceOperation)sale);
+        //accountBook.addBalanceOperation((BalanceOperation)sale);
         recordBalanceUpdate(saleAmount);
         //Update new CreditCardSale
 		updateCreditCardTxt(creditCard,userCash-saleAmount);
