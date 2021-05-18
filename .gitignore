@@ -69,3 +69,4 @@ data/*
 .vscode
 # intellij
 .idea
+/ezshop.iml
