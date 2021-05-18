@@ -10,16 +10,24 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import it.polito.ezshop.exceptions.InvalidCustomerCardException;
+import it.polito.ezshop.exceptions.InvalidDiscountRateException;
 import it.polito.ezshop.exceptions.InvalidPaymentException;
+import it.polito.ezshop.exceptions.InvalidQuantityException;
+import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 
-import static java.util.stream.Collectors.*;
 
 public class SaleTransactionClass extends BalanceOperationClass implements SaleTransaction {
 
 	public SaleTransactionClass(double price, String paymentType, Time time, SaleStatus status, LoyaltyCard loyaltyCard,
-			Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries, double discountRate) {
-		super(ticketNumber, "SALE", 0.0, LocalDate.now(), "CREDIT");
-		if (!paymentType.equals("CASH") && !paymentType.equals("CREDIT_CARD"))
+			Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries, double discountRate) throws Exception {
+		super(ticketNumber, "SALE", price, LocalDate.now(), "CREDIT");
+		if(price<0) throw new RuntimeException(new Exception());									//OK?
+		if(time==null) throw new RuntimeException(new Exception());
+		if(status==null) throw new RuntimeException(new Exception());
+		if(ticketNumber<0) throw new RuntimeException(new InvalidTransactionIdException());
+		if(ticketEntries==null) throw new RuntimeException(new Exception());
+		if(discountRate<0 || discountRate>1) throw new InvalidDiscountRateException();
+		if ((!paymentType.equals("CASH") && !paymentType.equals("CREDIT_CARD")) || paymentType==null)
 			throw new RuntimeException(new InvalidPaymentException());					//OK?
 		if(loyaltyCard==null) 			throw new RuntimeException(new InvalidCustomerCardException());
 		this.setPaymentType(paymentType);
@@ -35,20 +43,19 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	}
 
 	public SaleTransactionClass(Time time, String paymentType, SaleStatus status, LoyaltyCard loyaltyCard,
-			Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries) {
+			Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries) throws Exception {
 		this(0.0, paymentType, time, status, loyaltyCard, ticketNumber, ticketEntries, 0.0);
 	}
 
 	public SaleTransactionClass(Time time, String paymentType, LoyaltyCard loyaltyCard, Integer ticketNumber,
-			Map<String, TicketEntryClass> ticketEntries) {
+			Map<String, TicketEntryClass> ticketEntries) throws Exception {
 		this(0.0, paymentType, time, SaleStatus.STARTED, loyaltyCard, ticketNumber, ticketEntries, 0.0);
 
 	}
 
-	public SaleTransactionClass(Time time, String paymentType, LoyaltyCard loyaltyCard, Integer ticketNumber) {
+	public SaleTransactionClass(Time time, String paymentType, LoyaltyCard loyaltyCard, Integer ticketNumber) throws Exception {
 		this(0.0, paymentType, time, SaleStatus.STARTED, loyaltyCard, ticketNumber, new HashMap<>(), 0.0);
 	}
-
 	// New constructor
 	public SaleTransactionClass(int transactionId, String description, double money, LocalDate date, String type,
 			String paymentType, Time time, SaleStatus status, LoyaltyCard loyaltyCard,
@@ -71,19 +78,21 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	private String paymentType = "";
 
 	public Time getTime() {
-
 		return time;
 	}
 
 	public void setTime(Time time) {
+		if(time==null) throw new RuntimeException(new Exception());
 		this.time = time;
 	}
 
 	public void setStatus(SaleStatus status) {
+		if(status==null) throw new RuntimeException(new Exception());
 		this.status = status;
 	}
 
 	public void setLoyaltyCard(LoyaltyCard l) {								//non testare
+		if(l==null) throw new RuntimeException(new InvalidCustomerCardException());
 		this.loyaltyCard = l;
 	}
 
@@ -102,6 +111,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 
 	@Override
 	public void setTicketNumber(Integer ticketNumber) {
+		if(ticketNumber<0 || ticketNumber==null) throw new RuntimeException(new InvalidTransactionIdException());
 		super.setBalanceId(ticketNumber);
 	}
 
@@ -112,6 +122,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 
 	@Override
 	public void setEntries(List<TicketEntry> entries) {						//non testare
+		if(entries==null) throw new RuntimeException(new Exception());
 		this.ticketEntries = new HashMap<>();
 		for (int i = 0; i < entries.size(); i++) {
 			this.ticketEntries.put(entries.get(i).getBarCode(), (TicketEntryClass) entries.get(i));
@@ -126,12 +137,14 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 
 	@Override
 	public void setDiscountRate(double discountRate) {
+		if(discountRate<0 || discountRate>1) throw new RuntimeException(new InvalidDiscountRateException());
 		this.discountRate = discountRate;
 	}
 	
 	//SHOULD RETURN BOOLEAN SO I CAN TEST IT!
 	public boolean addProduct(ProductType product, int quantity) {					//non testare
-		if(product==null) return false;									//CHANGED
+		if(product==null) return false;									//CHANGED --- this should also accept quantity <0 for return transaction?
+		if(quantity==0) return false;
 		if (ticketEntries.containsKey(product.getBarCode())) {
 			TicketEntryClass t = ticketEntries.get(product.getBarCode());
 			t.setAmount(t.getAmount() + quantity);
@@ -147,7 +160,8 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		return true;
 	}
 
-	public void deleteProduct(ProductType product, int quantity) {
+	public void deleteProduct(ProductType product, int quantity) {                  //non testare
+		if(quantity==0) throw new RuntimeException(new InvalidQuantityException());
 		if (ticketEntries.containsKey(product.getBarCode())) {
 			TicketEntryClass t = ticketEntries.get(product.getBarCode());
 			t.setAmount(t.getAmount() - quantity);
@@ -164,8 +178,13 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		return this.status;
 	}
 
-	public void checkout() {
+	public void checkout() {															//non testare
 		double a = 0.0;
+		if(ticketEntries.size()==0) {
+			this.setPrice(a);
+			this.status=SaleStatus.CLOSED;
+			return;
+		}
 		for (TicketEntryClass te : ticketEntries.values()) {
 			a += (te.getPricePerUnit() * te.getAmount()) * (1 - te.getDiscountRate());
 		}
@@ -174,7 +193,8 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		this.status = SaleStatus.CLOSED;
 	}
 
-	public void addProductDiscount(ProductType product, double discount) {
+	public void addProductDiscount(ProductType product, double discount) {				//non testare
+		if(discount==0);														 //-->???
 		if (ticketEntries.containsKey(product.getBarCode())) {
 			ticketEntries.get(product.getBarCode()).setDiscountRate(discount);
 		}
@@ -186,19 +206,21 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	}
 
 	@Override
-	public void setPrice(double price) {
+	public void setPrice(double price) {										
+		if(price<0) throw new RuntimeException(new Exception());
 		super.setMoney(price);
 	}
 
-	public Map<String, TicketEntryClass> getTicketEntries() {
+	public Map<String, TicketEntryClass> getTicketEntries() {					
 		return this.ticketEntries;
 	}
 
-	public String getPaymentType() {
+	public String getPaymentType() {											
 		return paymentType;
 	}
 
-	public void setPaymentType(String paymentType) {
+	public void setPaymentType(String paymentType) {							
+		if(paymentType!="CASH" && paymentType!="CREDIT_CARD") throw new RuntimeException(new InvalidPaymentException());
 		this.paymentType = paymentType;
 	}
 }
