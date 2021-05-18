@@ -7,8 +7,8 @@ import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
 
-public final class OrderClass extends BalanceOperationClass implements Order {
-	//private int orderId;
+public final class OrderClass  implements Order {
+	private int orderId;
 	private String productCode;
 	private double pricePerUnit;
 	private int quantity;
@@ -22,7 +22,7 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 		this(-1, "ORDER", pricePerUnit * quantity, LocalDate.now(), (String)null, productCode, pricePerUnit, quantity, OrderStatus.ISSUED);
 	}
 	public OrderClass(int id, String desc, double amount, LocalDate date, String supplier, String productCode, double pricePerUnit, int quantity, OrderStatus status) {
-		super(id, desc, amount, date, "DEBIT");
+		//super(id, desc, amount, date, "DEBIT");
 		if(productCode == null || !ProductTypeClass.validateBarCode(productCode))
 			throw new RuntimeException(new InvalidProductCodeException());
 		if(pricePerUnit <= 0)
@@ -36,7 +36,7 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 	}
 	@Override
 	public Integer getBalanceId() {
-		return super.getBalanceId();
+		return orderId;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 		if(pricePerUnit <= 0)
 			throw new RuntimeException(new InvalidPricePerUnitException());
 		this.pricePerUnit = pricePerUnit;
-		setMoney(quantity * pricePerUnit);
+		//setMoney(quantity * pricePerUnit);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 		if(quantity <= 0)
 			throw new RuntimeException(new InvalidQuantityException());
 		this.quantity = quantity;
-		setMoney(quantity * pricePerUnit);
+		//setMoney(quantity * pricePerUnit);
 	}
 
 	@Override
@@ -104,11 +104,10 @@ public final class OrderClass extends BalanceOperationClass implements Order {
 	public void setOrderId(Integer orderId) {
 		if(orderId == null || orderId <= 0)
 			throw new RuntimeException(new InvalidOrderIdException());
-		super.setBalanceId(orderId);
+		this.orderId = orderId;
 	}
 
-	@Override
 	public double getMoney() {
-		return super.getMoney();
+		return quantity * pricePerUnit;
 	}
 }

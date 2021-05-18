@@ -369,6 +369,7 @@ public class EZShop implements EZShopInterface {
 			}
         	return -1;
         }
+    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
     	// update db
         if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
 			try {
@@ -397,6 +398,7 @@ public class EZShop implements EZShopInterface {
     	if(o.getStatus().equals(OrderStatus.PAYED.name()))
     		return false;
     	// update balance
+    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
     	recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity());
         
     	o.setStatus("PAYED");
@@ -948,9 +950,9 @@ public class EZShop implements EZShopInterface {
         //Update DB
         if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED")))
         	return -1;
-
+        accountBook.addBalanceOperation((BalanceOperation)saleTransaction);
         //Update map and db(Balance)
-        recordBalanceUpdate(saleAmount);
+        //recordBalanceUpdate(saleAmount);
 
 		return change;
 
@@ -997,6 +999,7 @@ public class EZShop implements EZShopInterface {
 			return false;
 
 		//Update map and db(Balance)
+        accountBook.addBalanceOperation((BalanceOperation)sale);
         recordBalanceUpdate(saleAmount);
         //Update new CreditCardSale
 		updateCreditCardTxt(creditCard,userCash-saleAmount);

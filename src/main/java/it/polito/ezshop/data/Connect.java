@@ -793,4 +793,9 @@ public class Connect {
         }
         return balance;
     }
+
+	public static Map<? extends Integer, ? extends BalanceOperation> getBalanceOperations() {
+		
+		return null;
+	}
 }

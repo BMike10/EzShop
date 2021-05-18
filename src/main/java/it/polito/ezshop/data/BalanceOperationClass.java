@@ -41,7 +41,7 @@ public class BalanceOperationClass implements BalanceOperation {
     }
 
     @Override
-    public Integer getBalanceId() {
+    public int getBalanceId() {
         return this.id;
     }
 
