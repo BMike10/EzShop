@@ -919,6 +919,52 @@ Version:
 | null  |  -  | Invalid | T1(null) -> Exception | testSetcustomerName|
 | valid |  0  | Invalid | T2("")->Exception   |testSetcustomerName|
 | Valid | >0  | Valid   | T3("customerName")         |testSetcustomerName|
+## Class LoyaltyCardClass
+### Method CreateCardCode
+- Signature of i
+
+**Predicates for method createCardCode:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of i|  = 10|
+|   |   !=10|
+
+**Boundaries for method createCardCode**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of id|   0, 10, +inf|
+
+**Combination of predicates for method createCardCode**
+
+| Signature of id| Valid/Invalid | Description of the test case:example of input and output | JUnit test case |
+| ----------- | ------------- | ---------------------------- | --------------- |
+| <10 or >10 | Invalid | T1(9;"")<br> T1b(11;"")| testCreateCardCode|
+| 10 | Valid | T2(10)| testCreateCardCode|
+
+### Method updatePoints
+**Criteria for method updatePoints:**
+- Points + toBeAdded
+
+**Predicates for method updatePoints:**
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Ponints + toBeAdded | >= 0|
+|   | < 0|
+
+**Boundaries for method updatePoints**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Points + toBeAdded | -inf, 0, +inf|
+
+**Combination of predicates for method updatePoints**
+
+| Quantity + toBeAdded| Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- | ------------- | ---------------------------- | --------------- |
+| < 0   | Invalid | new LoyaltyCardClass (); updatePoints(-1) | testupdatePoints|
+| >= 0  | Valid   | T2(3)->true <br> T2b(0)->true   |testupdatePoints|
+
 # White Box Unit Tests
 
 ### Test cases definition
