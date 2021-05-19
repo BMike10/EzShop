@@ -904,7 +904,7 @@ public class EZShop implements EZShopInterface {
 			return false;
 		}
 		SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
-		Map<String, TicketEntryClass> entries = st.getTicketEntries();
+		Map<String, TicketEntryClass> entries = st.getProductsEntries();
 		Map<ProductType, Integer> returnedProducts = rt.getReturnedProduct();
 		//put back the products into the transaction
 		//for each of the returned products, find the matching ticket entry of the ST and update the amount
@@ -1209,8 +1209,5 @@ public class EZShop implements EZShopInterface {
 	public double computeBalance() throws UnauthorizedException {
 		//LOGIN
 		return accountBook.getBalance();
-	}
-	public void setCurrentUser(User u) {
-		currentUser = u;
 	}
 }
