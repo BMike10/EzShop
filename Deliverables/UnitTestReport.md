@@ -766,8 +766,45 @@ Version:
 
 
 
+##Class EZShop
 
+### Method CheckCreditCardNumber
 
+**Criteria for method CheckCreditCardNumber:**
+
+- Validity of CreditCard
+- Acceptable Credit Card
+- Existence of CreditCard in the system
+- Length of CreditCard
+
+**Predicates for method CheckCreditCardNumber:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Validity of CreditCard | valid |
+|             | null |
+| Acceptable Credit Card | true |
+|                        | false |
+| Existence of CreditCard in the system | true |
+|               | false |
+| Length of CreditCard | valid |
+|                                     |  invalid |
+
+**Boundaries for method CheckCreditCardNumber**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Length of CreditCard  |    -inf, 13, 16, +inf       |
+
+**Combination of predicates for method CheckCreditCardNumber**
+
+|   Validity of CreditCard | Acceptable Credit Card | Existence of CreditCard in the system | Length of CreditCard | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+| --------- | --------- | ------- |--------| ------ | -------- | ------- |
+|   null     |  *       |    *    |    *    | Invalid |   T1(null) ->  InvalidCreditCardException      |  |
+|   valid     |  false  |    *    |   *   |    Invalid    |    T2("1234567812345678") -> InvalidCreditCardException      |  |
+|   "     |  true      |   false  | *      | Invalid    |   No Credit Card "1234567812345679" in the system; T3("1234567812345679") ->  InvalidCreditCardException      |  |
+|   "     |  "       |  true   |   Invalid  | Invalid  | updateCreditCardTxt("49927398716",100)  ->  T4("49927398716")   ->  InvalidCreditCardException      |  |
+| "  |  "  |  "  |  Valid  |  Valid  |  updateCreditCardTxt("1234567812345678",100)  ->  T5("1234567812345678")| |
 
 ## Class AccountBookClass
 

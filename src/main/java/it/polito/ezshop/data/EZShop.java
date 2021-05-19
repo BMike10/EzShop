@@ -17,7 +17,7 @@ public class EZShop implements EZShopInterface {
     private Map<LoyaltyCard,Customer> attachedCards;
 	private User currentUser;
 	private AccountBookClass accountBook;
-	private Map<String,Double> CreditCardsMap = new HashMap<>();
+	public Map<String,Double> CreditCardsMap = new HashMap<>();
 	
 	public EZShop() {
 		Connect.connect();
@@ -983,17 +983,8 @@ public class EZShop implements EZShopInterface {
         if(transactionId == null || transactionId <= 0)
             throw new InvalidTransactionIdException();
 
-        //Check card validity(creditCard consist of 13 or 16 elements)
-		if(creditCard ==null || creditCard.isEmpty() || (creditCard.length()!=13 && creditCard.length()!=16)){
-			throw new InvalidCreditCardException();
-		}else{
-			//Luhn Algorithm
-			checkCreditCardNumber(creditCard);
-		}
-
-		//Credit card is validate and registered in the system
-		if(!CreditCardsMap.containsKey(creditCard))
-			return false;
+        //Luhn Algorithm
+		checkCreditCardNumber(creditCard);
 
 		double userCash = CreditCardsMap.get(creditCard);
 
@@ -1058,7 +1049,6 @@ public class EZShop implements EZShopInterface {
     @Override
     public double returnCreditCardPayment(Integer returnId, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
 
-		//CONTROLLARE
 		//LOGIN
 		if(currentUser==null)
 			throw new UnauthorizedException();
@@ -1079,17 +1069,10 @@ public class EZShop implements EZShopInterface {
 		if (!status.equals("CLOSED"))
 			return -1;
 
-        //Credit card is validate and registered in the system
-		if(!CreditCardsMap.containsKey(creditCard))
-			throw new InvalidCreditCardException();
 
-		//Check card validity(creditCard consist of 13 or 16 elements)
-		if(creditCard ==null || creditCard.isEmpty() || (creditCard.length()!=13 && creditCard.length()!=16)){
-			throw new InvalidCreditCardException();
-		}else{
-			//Luhn Algorithm
-			checkCreditCardNumber(creditCard);
-		}
+		//Check Credit Card + Luhn Algorithm
+		checkCreditCardNumber(creditCard);
+
 
 
 		newCredit = CreditCardsMap.get(creditCard) + ((ReturnTransactionClass)returnTransaction).getMoney();
@@ -1151,6 +1134,16 @@ public class EZShop implements EZShopInterface {
 	}
 
 	public void checkCreditCardNumber(String creditCard) throws InvalidCreditCardException {
+
+		//Check card validity(creditCard consist of 13 or 16 elements)
+		if(creditCard ==null || creditCard.isEmpty() || (creditCard.length()!=13 && creditCard.length()!=16))
+			throw new InvalidCreditCardException();
+
+		//Credit card is validate and registered in the system
+		if(!CreditCardsMap.containsKey(creditCard))
+			throw new InvalidCreditCardException();
+
+		//Luhn Algorithm
 		int[] ints = new int[creditCard.length()];
 		for (int i = 0; i < creditCard.length(); i++) {
 			ints[i] = Integer.parseInt(creditCard.substring(i, i + 1));
