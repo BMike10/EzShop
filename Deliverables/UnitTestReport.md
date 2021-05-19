@@ -152,9 +152,9 @@ Version:
 **Combination of predicates for method setUsername**
 | Signature of username| Length of username| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ---|------------- | ---------------------------- | --------------- |
-| null  |  -  | Invalid | T1(null) -> Exception | testUsername|
+| null  |  -  | Invalid | T1(null) -> Exception | testSetUsername|
 | valid |  0  | Invalid | T2("")->Exception   |testSetUsername|
-| Valid | >0  | Valid   | T3("username")         |testSetUsername|
+| Valid | > 0  | Valid   | T3("username")         |testSetUsername|
 
 ### setPassword
 - Signature of password
@@ -189,7 +189,7 @@ Version:
 | Criterion   | Predicate     |
 | ----------- | ------------- |
 | Signature of role | invalid|
-|| valid|
+|| Valid|
 |Validity of role string| invalid|
 ||valid|
 
@@ -197,7 +197,7 @@ Version:
 | Signature of role |Validity of role string|Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ------|------------- | ---------------------------- | -----|
 | null  | * | Invalid | T1(null) -> Exception | testSetRole|
-| Valid | Invalid | Invalid   | T2("Administrator")-> Exception <br>T2b("Cashier")-> Exception<br>T2c("ShopManager")->Exception    |testsetRole|
+| Valid | Invalid | Invalid   | T2("Administratoro")-> Exception <br>T2b("Cashiero")-> Exception<br>T2c("ShopManagero")->Exception    |testsetRole|
 | Valid | Valid | Valid   | T3("Administrator") <br>T3b("Cashier")<br>T3c("ShopManager")      |testsetRole|
 
 ## Class ProductTypeClass
@@ -1114,8 +1114,8 @@ Version:
 |             | valid |
 | Length of barcode | 10 |
 |             | > 10 && < 10 |
-| Valid newCustomerCard| yes|
-|               | no|
+| Valid newCustomerCard| valid|
+|               | invalid|
 
 **Boundaries for method checkCardCode**:
 
@@ -1166,7 +1166,7 @@ Version:
 | <= 0  | *      | *     |*| Invalid| T1(0,"customerName","abcde12345",0)->Exception| CustomerClassTest.testCustomerClassConstructor|
 | *| null | *     | *|Invalid| T2(1,"","abcde12345",0)->Exception| CustomerClassTest.testCustomerClassConstructor|
 | *| *  | null  | * | Invalid | T3(1,"customerName","null",0)->Exception|CustomerClassTest.testCustomerClassConstructor|
-| >0| Valid    | Valid  | Valid |>=0 | T4(1,"customerName","abcde12345",0)|CustomerClassTest.testCustomerClassConstructor|
+| >0| Valid    | Valid  | Valid |Valid | T4(1,"customerName","abcde12345",0)|CustomerClassTest.testCustomerClassConstructor|
 
 ### setCustomerId
 **Criteria for method setCustomerId:**
@@ -1212,8 +1212,9 @@ Version:
 | Signature of customerName| Length of customerName| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ---|------------- | ---------------------------- | --------------- |
 | null  |  -  | Invalid | T1(null) -> Exception | testSetcustomerName|
-| valid |  0  | Invalid | T2("")->Exception   |testSetcustomerName|
+| Valid |  0  | Invalid | T2("")->Exception   |testSetcustomerName|
 | Valid | >0  | Valid   | T3("customerName")         |testSetcustomerName|
+
 ## Class LoyaltyCardClass
 ### Method CreateCardCode
 - Signature of i
@@ -1228,11 +1229,11 @@ Version:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of id|   0, 10, +inf|
+| Signature of i|   0, 10, +inf|
 
 **Combination of predicates for method createCardCode**
 
-| Signature of id| Valid/Invalid | Description of the test case:example of input and output | JUnit test case |
+| Signature of i| Valid/Invalid | Description of the test case: example of input and output | JUnit test case |
 | ----------- | ------------- | ---------------------------- | --------------- |
 | <10 or >10 | Invalid | T1(9;"")<br> T1b(11;"")| testCreateCardCode|
 | 10 | Valid | T2(10)| testCreateCardCode|
@@ -1255,7 +1256,7 @@ Version:
 
 **Combination of predicates for method updatePoints**
 
-| Quantity + toBeAdded| Valid/Invalid | Description of the test case | JUnit test case |
+| Points + toBeAdded| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ------------- | ---------------------------- | --------------- |
 | < 0   | Invalid | new LoyaltyCardClass (); updatePoints(-1) | testupdatePoints|
 | >= 0  | Valid   | T2(3)->true <br> T2b(0)->true   |testupdatePoints|
