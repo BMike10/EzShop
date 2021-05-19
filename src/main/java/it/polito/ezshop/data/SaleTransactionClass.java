@@ -27,7 +27,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		if(ticketNumber<0) throw new RuntimeException(new InvalidTransactionIdException());
 		if(ticketEntries==null) throw new RuntimeException(new Exception());
 		if(discountRate<0 || discountRate>1) throw new InvalidDiscountRateException();
-		if ((!paymentType.equals("CASH") && !paymentType.equals("CREDIT_CARD")) || paymentType==null)
+		if ((!paymentType.equals("CASH") && !paymentType.equals("CREDIT_CARD")) && !paymentType.isEmpty()|| paymentType==null)
 			throw new RuntimeException(new InvalidPaymentException());					//OK?
 		if(loyaltyCard==null) 			throw new RuntimeException(new InvalidCustomerCardException());
 		this.setPaymentType(paymentType);
@@ -152,7 +152,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	//SHOULD RETURN BOOLEAN SO I CAN TEST IT!
 	public boolean addProduct(ProductType product, int quantity) {					//non testare
 		if(product==null) return false;									//CHANGED --- this should also accept quantity <0 for return transaction?
-		if(quantity==0) return false;
+		if(quantity<=0) return false;
 		if (ticketEntries.containsKey(product.getBarCode())) {
 			TicketEntryClass t = ticketEntries.get(product.getBarCode());
 			t.setAmount(t.getAmount() + quantity);
@@ -173,18 +173,20 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		return true;
 	}
 
-	public void deleteProduct(ProductType product, int quantity) {                  //non testare
+	public boolean deleteProduct(ProductType product, int quantity) {                  //non testare
 		if(quantity==0) throw new RuntimeException(new InvalidQuantityException());
 		if (ticketEntries.containsKey(product.getBarCode())) {
 			TicketEntryClass t = ticketEntries.get(product.getBarCode());
-			t.setAmount(t.getAmount() - quantity);
-			if (t.getAmount() > 0) {
+			int amount = t.getAmount();
+			if(amount - quantity < 0)
+				return false;
+			else if(amount == quantity)
 				ticketEntries.remove(t.getBarCode());
-				ticketEntries.put(product.getBarCode(), t);
-			} else {
-				ticketEntries.remove(t.getBarCode());
-			}
+			else
+				t.setAmount(t.getAmount() - quantity);
+			return true;
 		}
+		return false;
 	}
 
 	public SaleStatus getStatus() {
@@ -233,7 +235,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	}
 
 	public void setPaymentType(String paymentType) {							
-		if(paymentType!="CASH" && paymentType!="CREDIT_CARD") throw new RuntimeException(new InvalidPaymentException());
+		if(!paymentType.equals("CASH") && !paymentType.equals("CREDIT_CARD") && !paymentType.isEmpty()) throw new RuntimeException(new InvalidPaymentException(paymentType));
 		this.paymentType = paymentType;
 	}
 }

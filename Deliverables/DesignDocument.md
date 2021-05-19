@@ -141,6 +141,7 @@ class AccountBook {
     + getReturnTransaction(int id)
     + getOrder(int id)
     + updateBalance(double amount)
+    + updateBalanceOperation(int id, double newMoney)
     + getBalanceOperationByDate(LocalDate from,LocalDate to)
     + newId()
 }
@@ -197,6 +198,7 @@ class LoyaltyCard {
     - points: int 
     - cardCode: String 
     + pointsUpdate(int)
+    + createCardCode(int i) 
 }
 
 class Customer {
@@ -204,6 +206,7 @@ class Customer {
     - customerName: String 
     - card: LoyaltyCard 
     + checkCardCode(String newCustomerCard)
+    + updateCustomerPoints(int toBeAdded)
 }
 
 LoyaltyCard "0..1" - Customer

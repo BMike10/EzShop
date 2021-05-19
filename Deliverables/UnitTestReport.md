@@ -152,9 +152,9 @@ Version:
 **Combination of predicates for method setUsername**
 | Signature of username| Length of username| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ---|------------- | ---------------------------- | --------------- |
-| null  |  -  | Invalid | T1(null) -> Exception | testUsername|
+| null  |  -  | Invalid | T1(null) -> Exception | testSetUsername|
 | valid |  0  | Invalid | T2("")->Exception   |testSetUsername|
-| Valid | >0  | Valid   | T3("username")         |testSetUsername|
+| Valid | > 0  | Valid   | T3("username")         |testSetUsername|
 
 ### setPassword
 - Signature of password
@@ -189,7 +189,7 @@ Version:
 | Criterion   | Predicate     |
 | ----------- | ------------- |
 | Signature of role | invalid|
-|| valid|
+|| Valid|
 |Validity of role string| invalid|
 ||valid|
 
@@ -197,7 +197,7 @@ Version:
 | Signature of role |Validity of role string|Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ------|------------- | ---------------------------- | -----|
 | null  | * | Invalid | T1(null) -> Exception | testSetRole|
-| Valid | Invalid | Invalid   | T2("Administrator")-> Exception <br>T2b("Cashier")-> Exception<br>T2c("ShopManager")->Exception    |testsetRole|
+| Valid | Invalid | Invalid   | T2("Administratoro")-> Exception <br>T2b("Cashiero")-> Exception<br>T2c("ShopManagero")->Exception    |testsetRole|
 | Valid | Valid | Valid   | T3("Administrator") <br>T3b("Cashier")<br>T3c("ShopManager")      |testsetRole|
 
 ## Class ProductTypeClass
@@ -766,8 +766,45 @@ Version:
 
 
 
+##Class EZShop
 
+### Method CheckCreditCardNumber
 
+**Criteria for method CheckCreditCardNumber:**
+
+- Validity of CreditCard
+- Acceptable Credit Card
+- Existence of CreditCard in the system
+- Length of CreditCard
+
+**Predicates for method CheckCreditCardNumber:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Validity of CreditCard | valid |
+|             | null |
+| Acceptable Credit Card | true |
+|                        | false |
+| Existence of CreditCard in the system | true |
+|               | false |
+| Length of CreditCard | valid |
+|                                     |  invalid |
+
+**Boundaries for method CheckCreditCardNumber**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Length of CreditCard  |    -inf, 13, 16, +inf       |
+
+**Combination of predicates for method CheckCreditCardNumber**
+
+|   Validity of CreditCard | Acceptable Credit Card | Existence of CreditCard in the system | Length of CreditCard | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+| --------- | --------- | ------- |--------| ------ | -------- | ------- |
+|   null     |  *       |    *    |    *    | Invalid |   T1(null) ->  InvalidCreditCardException      |  |
+|   valid     |  false  |    *    |   *   |    Invalid    |    T2("1234567812345678") -> InvalidCreditCardException      |  |
+|   "     |  true      |   false  | *      | Invalid    |   No Credit Card "1234567812345679" in the system; T3("1234567812345679") ->  InvalidCreditCardException      |  |
+|   "     |  "       |  true   |   Invalid  | Invalid  | updateCreditCardTxt("49927398716",100)  ->  T4("49927398716")   ->  InvalidCreditCardException      |  |
+| "  |  "  |  "  |  Valid  |  Valid  |  updateCreditCardTxt("1234567812345678",100)  ->  T5("1234567812345678")| |
 
 ## Class AccountBookClass
 
@@ -776,17 +813,17 @@ Version:
 **Criteria for method removeSaleTransaction:**
 	
 
+- Value of returnTransactionId
 - Signature of returnTransactionId
-- Validity of returnTransactionId
 - Existence of SaleTransaction object
 
 **Predicates for method removeSaleTransaction:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of returnTransactionId | >=0 |
+| Value of returnTransactionId | >=0 |
 |             | <0 |
-| Validity of returnTransactionId| valid|
+| Signature of returnTransactionId| valid|
 |               | null|
 | Existence of SaleTransaction object | Yes |
 |                                     |  No |
@@ -796,12 +833,12 @@ Version:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of returnTransactionId  |    -1, 0, +1       |
+| Value of returnTransactionId  |    -1, 0, +1       |
 
 
  **Combination of predicates for method removeSaleTransaction**
 
-|   Validity of returnTransactionId | Signature of returnTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+|   Signature of returnTransactionId | Value of returnTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------- | ------- |--------| ------ | -------- |
 |   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  |
 |   valid     |  <0       |   *   |    Invalid    |    T2(-6) -> InvalidTransactionIdException      |  |
@@ -812,25 +849,25 @@ Version:
 
 **Criteria for method setBalance:**
 	
-- Signature of amount
+- Value of amount
 
 **Predicates for method setBalance:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of balance | >=0 |
+| Value of balance | >=0 |
 |             | <0 |
 
 **Boundaries for method setBalance**:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of balance |    -1, +1       |
+| Value of balance |    -1, +1       |
 
 
  **Combination of predicates for method setBalance**
 
- Signature of amount  | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+| Value of amount  | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------| --------| --------| 
 |  <0    | Invalid         |   T1(-500) ->  false     |   |
 |  (>=0)    | Valid         |   T1(500) ->  true     |   |
@@ -840,17 +877,17 @@ Version:
 **Criteria for method getSaleTransaction:**
 
 
+- Value of SaleTransactionId
 - Signature of SaleTransactionId
-- Validity of SaleTransactionId
 - Existence of SaleTransaction object
 
 **Predicates for method getSaleTransaction:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of returnTransactionId | >=0 |
+| Value of SaleTransactionId | >=0 |
 |             | <0 |
-| Validity of returnTransactionId| valid|
+| Signature of SaleTransactionId| valid|
 |               | null|
 | Existence of SaleTransaction object | Yes |
 |                                     |  No |
@@ -860,12 +897,12 @@ Version:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of SaleTransactionId  |    -5, 0, +5       |
+| Value of SaleTransactionId  |    -5, 0, +5       |
 
 
 **Combination of predicates for method getSaleTransaction**
 
-|   Validity of returnTransactionId | Signature of returnTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+|   Signature of SaleTransactionId | Value of SaleTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------- | ------- |--------| ------ | -------- |
 |   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  |
 |   valid     |  <0       |   *   |    Invalid    |    T2(-5) -> InvalidTransactionIdException      |  |
@@ -877,7 +914,7 @@ Version:
 
 ### BalanceOperationClass(double,String)
 **Criteria for method BalanceOperationClass:**
-- Signature of money
+- Value of money
 - Validity of type
 - Presence of numeric character in type
 
@@ -885,8 +922,8 @@ Version:
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of money | =0 |
-| | <0 || >0 |
+| Value of money | (>=0) |
+| | <0 |
 | Presence of numeric character| true |
 |       |   false|
 | Validity of type | true |
@@ -898,29 +935,29 @@ Version:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of money | 0, 1 |
+| Value of money | -1, 0, 1 |
 
 **Combination of predicates for method BalanceOperationClass**
 
 | Signature of money | Presence of numeric character| Validity of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | ----------- | ---| ---|------------- | -------- | ------- |
-| =0  |  *  | *  | Invalid | T1(-1)  |     |
-| <0 OR >0 |  yes  | ---| Invalid | T2(deb1t)   |   |
+| <0  |  *  | *  | Invalid | T1(-1)  |     |
+| (>=0) |  yes  | ---| Invalid | T2(deb1t)   |   |
 | " | no  | no | Invalid   | T3(ciao)         ||
 | " | "  | yes | Valid   | T4(credit)         ||
 
 
 ### setBalanceId
 **Criteria for method setBalanceId:**
+- Value of BalanceId
 - Signature of BalanceId
-- Validity of BalanceId
 
 **Predicates for method setBalanceId:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of BalanceId | <0 |
+| Value of BalanceId | <0 |
 | | >= 0|
-| Validity of BalanceId | null|
+| Signature of BalanceId | null|
 |   | valid|
 
 
@@ -932,7 +969,7 @@ Version:
 
 **Combination of predicates for method setBalanceId**
 
-| Signature of BalanceId | Validity of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| Value of BalanceId | Signature of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | ----------- | ---|------------- | -------- | ------- |
 | <0  |  *  | Invalid | T1(-1)  |     |
 | * |  null  | Invalid | T2(null)   |   |
@@ -940,14 +977,14 @@ Version:
 
 ### setDescription
 **Criteria for method setDescription:**
-- Validity of Description
+- Signature of Description
 - Length of string
 
 **Predicates for method setDescription:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Validity of Description | null |
+| Signature of Description | null |
 | | valid|
 | Length of string | <=1000 |
 |   | (>1000) |
@@ -962,7 +999,7 @@ Version:
 
 **Combination of predicates for method setDescription**
 
-| Validity of Description | Length of string | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| Signature of Description | Length of string | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | --- | ------ |------------- | -------- | ------- |
 | null  |  *  | Invalid | T1(null; error)  |     |
 | valid | (>1000)  | Invalid   | T2("cia90......";)   |   |
@@ -999,6 +1036,7 @@ Version:
 **Combination of predicates for method constructor**
 
 | Validity of ProductType | validity of amount | validity of discountRate | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+|-|-|-|-|-|-|
 | null | * | * | invalid | T1(null, 2, 0.3) -> Exception | TicketEntryTest.testTicketEntryConstructor |
 | new ProductType(1, "null", "4006381333900", 2.0, "notes")  | <=0 | * | invalid | T2(new ProductType((1, "null", "4006381333900", 2.0, "notes")), -1, 0.3) -> InvalidQuantityException | TicketEntryTest.testTicketEntryConstructor |
 | new ProductType(1, "null", "4006381333900", 2.0, "notes") | >0 | <0 | invalid | T3(new ProductType((1, "null", "4006381333900", 2.0, "notes")), 2, -1) -> InvalidDiscountRateException | TicketEntryTest.testTicketEntryConstructor |
@@ -1028,6 +1066,7 @@ Version:
 **Combination of predicates for method testSetAmount**
 
 | Validity of amount | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  |
+|--|--|-|-|
 | <=0 | invalid | T1(-1) -> InvalidQuantityException | TicketEntryClassTest.testSetAmount |
 | >0 | valid | T2(3) -> Correctly updated quantity of the ticket entry | TicketEntryClassTest.testSetAmount |
 
@@ -1064,7 +1103,7 @@ Version:
 
 ### setStatus
 **Criteria for method setStatus:**
-- Validity of status
+- Signature of status
 - Status allowed
 - String contains only characters
 
@@ -1072,7 +1111,7 @@ Version:
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Validity of type | null |
+| Signature of type | null |
 | | valid|
 | Type allowed | false |
 |   | true |
@@ -1089,7 +1128,7 @@ Version:
 
 **Combination of predicates for method setStatus**
 
-| Validity of type | Type allowed | String contains only character | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| Signature of type | Type allowed | String contains only character | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | ----------- | --- | ------ |------------- | -------- | ------- |
 | null  |  *  |  *  | Invalid | T1(null; error)  |     |
 | valid | no  |  *  | Valid   | T2("pa1ed"; no output)   |   |
@@ -1112,8 +1151,8 @@ Version:
 |             | valid |
 | Length of barcode | 10 |
 |             | > 10 && < 10 |
-| Valid newCustomerCard| yes|
-|               | no|
+| Valid newCustomerCard| valid|
+|               | invalid|
 
 **Boundaries for method checkCardCode**:
 
@@ -1164,7 +1203,7 @@ Version:
 | <= 0  | *      | *     |*| Invalid| T1(0,"customerName","abcde12345",0)->Exception| CustomerClassTest.testCustomerClassConstructor|
 | *| null | *     | *|Invalid| T2(1,"","abcde12345",0)->Exception| CustomerClassTest.testCustomerClassConstructor|
 | *| *  | null  | * | Invalid | T3(1,"customerName","null",0)->Exception|CustomerClassTest.testCustomerClassConstructor|
-| >0| Valid    | Valid  | Valid |>=0 | T4(1,"customerName","abcde12345",0)|CustomerClassTest.testCustomerClassConstructor|
+| >0| Valid    | Valid  | Valid |Valid | T4(1,"customerName","abcde12345",0)|CustomerClassTest.testCustomerClassConstructor|
 
 ### setCustomerId
 **Criteria for method setCustomerId:**
@@ -1210,8 +1249,9 @@ Version:
 | Signature of customerName| Length of customerName| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ---|------------- | ---------------------------- | --------------- |
 | null  |  -  | Invalid | T1(null) -> Exception | testSetcustomerName|
-| valid |  0  | Invalid | T2("")->Exception   |testSetcustomerName|
+| Valid |  0  | Invalid | T2("")->Exception   |testSetcustomerName|
 | Valid | >0  | Valid   | T3("customerName")         |testSetcustomerName|
+
 ## Class LoyaltyCardClass
 ### Method CreateCardCode
 - Signature of i
@@ -1226,11 +1266,11 @@ Version:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of id|   0, 10, +inf|
+| Signature of i|   0, 10, +inf|
 
 **Combination of predicates for method createCardCode**
 
-| Signature of id| Valid/Invalid | Description of the test case:example of input and output | JUnit test case |
+| Signature of i| Valid/Invalid | Description of the test case: example of input and output | JUnit test case |
 | ----------- | ------------- | ---------------------------- | --------------- |
 | <10 or >10 | Invalid | T1(9;"")<br> T1b(11;"")| testCreateCardCode|
 | 10 | Valid | T2(10)| testCreateCardCode|
@@ -1242,7 +1282,7 @@ Version:
 **Predicates for method updatePoints:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Ponints + toBeAdded | >= 0|
+| Points + toBeAdded | >= 0|
 |   | < 0|
 
 **Boundaries for method updatePoints**:
@@ -1253,7 +1293,7 @@ Version:
 
 **Combination of predicates for method updatePoints**
 
-| Quantity + toBeAdded| Valid/Invalid | Description of the test case | JUnit test case |
+| Points + toBeAdded| Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ------------- | ---------------------------- | --------------- |
 | < 0   | Invalid | new LoyaltyCardClass (); updatePoints(-1) | testupdatePoints|
 | >= 0  | Valid   | T2(3)->true <br> T2b(0)->true   |testupdatePoints|
