@@ -152,7 +152,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	//SHOULD RETURN BOOLEAN SO I CAN TEST IT!
 	public boolean addProduct(ProductType product, int quantity) {					//non testare
 		if(product==null) return false;									//CHANGED --- this should also accept quantity <0 for return transaction?
-		if(quantity==0) return false;
+		if(quantity<=0) return false;
 		if (ticketEntries.containsKey(product.getBarCode())) {
 			TicketEntryClass t = ticketEntries.get(product.getBarCode());
 			t.setAmount(t.getAmount() + quantity);

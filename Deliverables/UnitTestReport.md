@@ -999,6 +999,7 @@ Version:
 **Combination of predicates for method constructor**
 
 | Validity of ProductType | validity of amount | validity of discountRate | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+|-|-|-|-|-|-|
 | null | * | * | invalid | T1(null, 2, 0.3) -> Exception | TicketEntryTest.testTicketEntryConstructor |
 | new ProductType(1, "null", "4006381333900", 2.0, "notes")  | <=0 | * | invalid | T2(new ProductType((1, "null", "4006381333900", 2.0, "notes")), -1, 0.3) -> InvalidQuantityException | TicketEntryTest.testTicketEntryConstructor |
 | new ProductType(1, "null", "4006381333900", 2.0, "notes") | >0 | <0 | invalid | T3(new ProductType((1, "null", "4006381333900", 2.0, "notes")), 2, -1) -> InvalidDiscountRateException | TicketEntryTest.testTicketEntryConstructor |
@@ -1028,6 +1029,7 @@ Version:
 **Combination of predicates for method testSetAmount**
 
 | Validity of amount | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  |
+|--|--|-|-|
 | <=0 | invalid | T1(-1) -> InvalidQuantityException | TicketEntryClassTest.testSetAmount |
 | >0 | valid | T2(3) -> Correctly updated quantity of the ticket entry | TicketEntryClassTest.testSetAmount |
 
@@ -1242,7 +1244,7 @@ Version:
 **Predicates for method updatePoints:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Ponints + toBeAdded | >= 0|
+| Points + toBeAdded | >= 0|
 |   | < 0|
 
 **Boundaries for method updatePoints**:

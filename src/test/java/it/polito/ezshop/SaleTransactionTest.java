@@ -78,12 +78,13 @@ public class SaleTransactionTest {
 		});
 		// valid
 		try {
+			Time t = new Time(System.currentTimeMillis());
 			SaleTransactionClass stc = new SaleTransactionClass(10.0, "CREDIT_CARD",
-					new Time(System.currentTimeMillis()), SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2,
+					t, SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2,
 					new HashMap<>(), 0.1);
 			assertEquals(10.0, stc.getMoney(), 0.001);
 			assertEquals("CREDIT_CARD", stc.getPaymentType());
-			assertEquals(new Time(System.currentTimeMillis()), stc.getTime());
+			assertEquals(t, stc.getTime());
 			assertEquals(SaleStatus.STARTED, stc.getStatus());
 			assertEquals("1234567890", stc.getLoyaltyCard().getCardCode());
 			assertEquals(2, stc.getBalanceId());
@@ -104,13 +105,13 @@ public class SaleTransactionTest {
 		assertFalse(stc.addProduct(null, 3));
 		// try adding a product with <0 quantity
 		try {
-			assertFalse(stc.addProduct(new ProductTypeClass(3, "null", "1234567890000", 303.0, "notes"), -1));
+			assertFalse(stc.addProduct(new ProductTypeClass(3, "null", "400638133390", 303.0, "notes"), -1));
 		} catch (InvalidProductDescriptionException | InvalidProductCodeException | InvalidPricePerUnitException e) {
 			e.printStackTrace();
 		}
 		// valid
 		try {
-			assertTrue(stc.addProduct(new ProductTypeClass(3, "null", "1234567890000", 303.0, "notes"), 10));
+			assertTrue(stc.addProduct(new ProductTypeClass(3, "null", "400638133390", 303.0, "notes"), 10));
 		} catch (InvalidProductDescriptionException | InvalidProductCodeException | InvalidPricePerUnitException e) {
 			e.printStackTrace();
 		}
