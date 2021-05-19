@@ -1,11 +1,14 @@
 # Unit Testing Documentation
 
+
 Authors:
+Gambino Matteo, Valentini Valeria, Gigante Samuele, Basilico Michele
 
 Date:
+19/05/2021
 
 Version:
-
+1.0
 # Contents
 
 - [Black Box Unit Tests](#black-box-unit-tests)
@@ -25,55 +28,6 @@ Version:
     <JUnit test classes must be in src/test/java/it/polito/ezshop   You find here, and you can use,  class TestEzShops.java that is executed  
     to start tests
     >
-
- ### **Class *class_name* - method *name***
-
-
-
-**Criteria for method *name*:**
-	
-
- - 
- - 
-
-
-
-
-
-**Predicates for method *name*:**
-
-| Criteria | Predicate |
-| -------- | --------- |
-|          |           |
-|          |           |
-|          |           |
-|          |           |
-
-
-
-
-
-**Boundaries**:
-
-| Criteria | Boundary values |
-| -------- | --------------- |
-|          |                 |
-|          |                 |
-
-
-
-**Combination of predicates**:
-
-
-| Criteria 1 | Criteria 2 | ... | Valid / Invalid | Description of the test case | JUnit test case |
-|-------|-------|-------|-------|-------|-------|
-|||||||
-|||||||
-|||||||
-|||||||
-|||||||
-
-
 ## Class UserClass
 ### Constructor
 **Criteria for method Constructor:**
@@ -270,8 +224,7 @@ Version:
 **Combination of predicates for method Constructor**
 
 | Signature of id | Signature of description | Signature of productCode |Signature of unitPrice|| Valid/Invalid | Description of the test case | JUnit test case |
-| ----------- | ----------- | ----------- |----| ------------- | ---------------------------- | --------------- |
-
+| ----------- | ----------- |----| ------------- | ---------------------------- | --------------- |-|-|
 | <= 0 | *  |*  |*  | Invalid | T1(0, "null", "4006381333900", 1.0, null)->Exception | testProductTypeConstructor|
 | > 0   | null| *   | * | Invalid | T2(1, null, "4006381333900", 1.0, null)->Exception |testProductTypeConstructor|
 | > 0   | valid| invalid| * | Invalid | T3(1, "null", "40063813339", 1.0, null)->Exception|testProductTypeConstructor|
@@ -674,7 +627,7 @@ Version:
 **Combination of predicates for method setStatus**
 
 | Signature of status |Valid/Invalid | Description of the test case | JUnit test case |
-| ----------- | ---|------------ | ---------------------------- | --------------- |
+| ----------- | ------------ | ---------------------------- | --------------- |
 | null  | Invalid | T1(null)->Exception | SaleTransactionClassTest.testStatus|
 | valid |  Valid | T2(SaleStatus.STARTED)-> correctly set the status of the Sale Transaction Class object | SaleTransactionClassTest.testStatus |
 
@@ -763,7 +716,7 @@ Version:
 
 
 
-##Class EZShop
+## Class EZShop
 
 ### Method CheckCreditCardNumber
 
@@ -830,7 +783,7 @@ Boundaries for method removeSaleTransaction:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Value of returnTransactionId  |    -1, 0, +1       |
+| Value of returnTransactionId  |    -inf, 0, +inf       |
 
 
  Combination of predicates for method removeSaleTransaction
@@ -858,7 +811,7 @@ Predicates for method setBalance:
 Boundaries for method setBalance:
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Value of balance |    -1, +1       |
+| Value of balance |    -inf, +inf       |
 
 
  Combination of predicates for method setBalance
@@ -877,7 +830,7 @@ Criteria for method getSaleTransaction:
 - Signature of SaleTransactionId
 - Existence of SaleTransaction object
 
-Predicates for method getSaleTransaction:
+**Predicates for method getSaleTransaction:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
@@ -889,11 +842,11 @@ Predicates for method getSaleTransaction:
 |                                     |  No |
 
 
-Boundaries for method getSaleTransaction:
+**Boundaries for method getSaleTransaction:**
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Value of SaleTransactionId  |    -5, 0, +5       |
+| Value of SaleTransactionId  |    -inf, 0, +inf       |
 
 
 Combination of predicates for method getSaleTransaction
@@ -914,7 +867,7 @@ Criteria for method BalanceOperationClass:
 - Validity of type
 - Presence of numeric character in type
 
-Predicates for method BalanceOperationClass:
+**Predicates for method BalanceOperationClass:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
@@ -927,11 +880,11 @@ Predicates for method BalanceOperationClass:
 
 
 
-Boundaries for method BalanceOperationClass:
+**Boundaries for method BalanceOperationClass:**
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Value of money | -1, 0, 1 |
+| Value of money | -inf, 0, +inf |
 
 Combination of predicates for method BalanceOperationClass
 
@@ -948,7 +901,7 @@ Criteria for method setBalanceId:
 - Value of BalanceId
 - Signature of BalanceId
 
-Predicates for method setBalanceId:
+**Predicates for method setBalanceId:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
 | Value of BalanceId | <0 |
@@ -957,7 +910,7 @@ Predicates for method setBalanceId:
 |   | valid|
 
 
-Boundaries for method setBalanceId:
+**Boundaries for method setBalanceId:**
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
@@ -975,7 +928,7 @@ Criteria for method setDescription:
 - Signature of Description
 - Length of string
 
-Predicates for method setDescription:
+**Predicates for method setDescription:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
@@ -986,13 +939,13 @@ Predicates for method setDescription:
 
 
 
-Boundaries for method setDescription:
+**Boundaries for method setDescription:**
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
 
 
-Combination of predicates for method setDescription
+**Combination of predicates for method setDescription**
 
 | Signature of Description | Length of string | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | --- | ------ |------------- | -------- | ------- |
@@ -1031,6 +984,7 @@ Combination of predicates for method setDescription
 **Combination of predicates for method constructor**
 
 | Signature of ProductType | validity of amount | validity of discountRate | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+|-|-|-|-|-|-|
 | null | * | * | invalid | T1(null, 2, 0.3) -> Exception | TicketEntryTest.testTicketEntryConstructor |
 | valid  | <=0 | * | invalid | T2(new ProductType((1, "null", "4006381333900", 2.0, "notes")), -1, 0.3) -> InvalidQuantityException | TicketEntryTest.testTicketEntryConstructor |
 | valid | >0 | <0 or >1 | invalid | T3(new ProductType((1, "null", "4006381333900", 2.0, "notes")), 2, -1) -> InvalidDiscountRateException | TicketEntryTest.testTicketEntryConstructor |
@@ -1059,6 +1013,7 @@ Combination of predicates for method setDescription
 **Combination of predicates for method testSetAmount**
 
 | Validity of amount | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  |
+|--|-|-|-|
 | <=0 | invalid | T1(-1) -> InvalidQuantityException | TicketEntryClassTest.testSetAmount |
 | >0 | valid | T2(3) -> Correctly updated quantity of the ticket entry | TicketEntryClassTest.testSetAmount |
 
@@ -1085,6 +1040,7 @@ Combination of predicates for method setDescription
 **Combination of predicates for method testSetDiscountRate**
 
 | Validity of discountRate | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  |
+|--|-|-|-|
 | <0 or >1 | invalid | T1(-1) -> InvalidDiscountRateException | TicketEntryClassTest.testSetDiscountRate |
 | 0<1<x | valid | T2(0.2) -> Correctly updated discountRate of the ticket entry | TicketEntryClassTest.testSetDiscountRate |
 
@@ -1287,7 +1243,7 @@ int orderId, String description, double amount, LocalDate date, String type,Map<
 
 **Combination of predicates for method constructor**
 
-| value of orderId | signature of description | value of amount | signature of date | signature of type | value of type | signature of returnedProducts | signature of saleTransaction | signature of retstatus | Valid/Invalid | Description of the test case | JUnit test case |  12
+| value of orderId | signature of description | value of amount | signature of date | signature of type | value of type | signature of returnedProducts | signature of saleTransaction | signature of retstatus | Valid/Invalid | Description of the test case | JUnit test case | 
 | ----------- | ----------- | ----------- | ------------- | ---------------------------- | --------------- | ----------- | ---------- | ----------- | -------- | ----------- | --------- |
 | <=0 | *  | *  | *  | *  | *  | *  | *  | *  | invalid  | T1(-1, "description", 3.0, LocalDate.now(), "DEBIT",new HashMap<>(),(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),ReturnStatus.STARTED) -> Exception |   |
 | >0  | null   | *  | *  | *  | *  | *  | *  | *  | invalid  | T2(1, null, 3.0, LocalDate.now(), "DEBIT",new HashMap<>(),(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),ReturnStatus.STARTED) -> Exception  | ReturnTransactionTest.testReturnTransactionConstructor  |
@@ -1420,23 +1376,23 @@ int orderId, String description, double amount, LocalDate date, String type,Map<
 
 ## Class LoyaltyCardClass
 ### Method CreateCardCode
-- Signature of i
+- Value of i
 
 **Predicates for method createCardCode:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of i|  = 10|
+| Value of i|  = 10|
 |   |   !=10|
 
 **Boundaries for method createCardCode**:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of i|   0, 10, +inf|
+| Value of i|   0, 10, +inf|
 
 **Combination of predicates for method createCardCode**
 
-| Signature of i| Valid/Invalid | Description of the test case: example of input and output | JUnit test case |
+| Value of i| Valid/Invalid | Description of the test case: example of input and output | JUnit test case |
 | ----------- | ------------- | ---------------------------- | --------------- |
 | <10 or >10 | Invalid | T1(9;"")<br> T1b(11;"")| testCreateCardCode|
 | 10 | Valid | T2(10)| testCreateCardCode|
@@ -1485,7 +1441,7 @@ int orderId, String description, double amount, LocalDate date, String type,Map<
 
     <Add here the screenshot report of the statement and branch coverage obtained using
     the Eclemma tool. >
-
+<img src="img/coverage.png"/>
 
 ### Loop coverage analysis
 
