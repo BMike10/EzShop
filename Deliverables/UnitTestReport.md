@@ -813,17 +813,17 @@ Version:
 **Criteria for method removeSaleTransaction:**
 	
 
+- Value of returnTransactionId
 - Signature of returnTransactionId
-- Validity of returnTransactionId
 - Existence of SaleTransaction object
 
 **Predicates for method removeSaleTransaction:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of returnTransactionId | >=0 |
+| Value of returnTransactionId | >=0 |
 |             | <0 |
-| Validity of returnTransactionId| valid|
+| Signature of returnTransactionId| valid|
 |               | null|
 | Existence of SaleTransaction object | Yes |
 |                                     |  No |
@@ -833,12 +833,12 @@ Version:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of returnTransactionId  |    -1, 0, +1       |
+| Value of returnTransactionId  |    -1, 0, +1       |
 
 
  **Combination of predicates for method removeSaleTransaction**
 
-|   Validity of returnTransactionId | Signature of returnTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+|   Signature of returnTransactionId | Value of returnTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------- | ------- |--------| ------ | -------- |
 |   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  |
 |   valid     |  <0       |   *   |    Invalid    |    T2(-6) -> InvalidTransactionIdException      |  |
@@ -849,25 +849,25 @@ Version:
 
 **Criteria for method setBalance:**
 	
-- Signature of amount
+- Value of amount
 
 **Predicates for method setBalance:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of balance | >=0 |
+| Value of balance | >=0 |
 |             | <0 |
 
 **Boundaries for method setBalance**:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of balance |    -1, +1       |
+| Value of balance |    -1, +1       |
 
 
  **Combination of predicates for method setBalance**
 
- Signature of amount  | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+| Value of amount  | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------| --------| --------| 
 |  <0    | Invalid         |   T1(-500) ->  false     |   |
 |  (>=0)    | Valid         |   T1(500) ->  true     |   |
@@ -877,17 +877,17 @@ Version:
 **Criteria for method getSaleTransaction:**
 
 
+- Value of SaleTransactionId
 - Signature of SaleTransactionId
-- Validity of SaleTransactionId
 - Existence of SaleTransaction object
 
 **Predicates for method getSaleTransaction:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of returnTransactionId | >=0 |
+| Value of SaleTransactionId | >=0 |
 |             | <0 |
-| Validity of returnTransactionId| valid|
+| Signature of SaleTransactionId| valid|
 |               | null|
 | Existence of SaleTransaction object | Yes |
 |                                     |  No |
@@ -897,12 +897,12 @@ Version:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of SaleTransactionId  |    -5, 0, +5       |
+| Value of SaleTransactionId  |    -5, 0, +5       |
 
 
 **Combination of predicates for method getSaleTransaction**
 
-|   Validity of returnTransactionId | Signature of returnTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+|   Signature of SaleTransactionId | Value of SaleTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------- | ------- |--------| ------ | -------- |
 |   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  |
 |   valid     |  <0       |   *   |    Invalid    |    T2(-5) -> InvalidTransactionIdException      |  |
@@ -914,7 +914,7 @@ Version:
 
 ### BalanceOperationClass(double,String)
 **Criteria for method BalanceOperationClass:**
-- Signature of money
+- Value of money
 - Validity of type
 - Presence of numeric character in type
 
@@ -922,8 +922,8 @@ Version:
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of money | =0 |
-| | <0 || >0 |
+| Value of money | (>=0) |
+| | <0 |
 | Presence of numeric character| true |
 |       |   false|
 | Validity of type | true |
@@ -935,29 +935,29 @@ Version:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of money | 0, 1 |
+| Value of money | -1, 0, 1 |
 
 **Combination of predicates for method BalanceOperationClass**
 
 | Signature of money | Presence of numeric character| Validity of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | ----------- | ---| ---|------------- | -------- | ------- |
-| =0  |  *  | *  | Invalid | T1(-1)  |     |
-| <0 OR >0 |  yes  | ---| Invalid | T2(deb1t)   |   |
+| <0  |  *  | *  | Invalid | T1(-1)  |     |
+| (>=0) |  yes  | ---| Invalid | T2(deb1t)   |   |
 | " | no  | no | Invalid   | T3(ciao)         ||
 | " | "  | yes | Valid   | T4(credit)         ||
 
 
 ### setBalanceId
 **Criteria for method setBalanceId:**
+- Value of BalanceId
 - Signature of BalanceId
-- Validity of BalanceId
 
 **Predicates for method setBalanceId:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of BalanceId | <0 |
+| Value of BalanceId | <0 |
 | | >= 0|
-| Validity of BalanceId | null|
+| Signature of BalanceId | null|
 |   | valid|
 
 
@@ -969,7 +969,7 @@ Version:
 
 **Combination of predicates for method setBalanceId**
 
-| Signature of BalanceId | Validity of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| Value of BalanceId | Signature of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | ----------- | ---|------------- | -------- | ------- |
 | <0  |  *  | Invalid | T1(-1)  |     |
 | * |  null  | Invalid | T2(null)   |   |
@@ -977,14 +977,14 @@ Version:
 
 ### setDescription
 **Criteria for method setDescription:**
-- Validity of Description
+- Signature of Description
 - Length of string
 
 **Predicates for method setDescription:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Validity of Description | null |
+| Signature of Description | null |
 | | valid|
 | Length of string | <=1000 |
 |   | (>1000) |
@@ -999,7 +999,7 @@ Version:
 
 **Combination of predicates for method setDescription**
 
-| Validity of Description | Length of string | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| Signature of Description | Length of string | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | --- | ------ |------------- | -------- | ------- |
 | null  |  *  | Invalid | T1(null; error)  |     |
 | valid | (>1000)  | Invalid   | T2("cia90......";)   |   |
@@ -1103,7 +1103,7 @@ Version:
 
 ### setStatus
 **Criteria for method setStatus:**
-- Validity of status
+- Signature of status
 - Status allowed
 - String contains only characters
 
@@ -1111,7 +1111,7 @@ Version:
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Validity of type | null |
+| Signature of type | null |
 | | valid|
 | Type allowed | false |
 |   | true |
@@ -1128,7 +1128,7 @@ Version:
 
 **Combination of predicates for method setStatus**
 
-| Validity of type | Type allowed | String contains only character | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| Signature of type | Type allowed | String contains only character | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | ----------- | --- | ------ |------------- | -------- | ------- |
 | null  |  *  |  *  | Invalid | T1(null; error)  |     |
 | valid | no  |  *  | Valid   | T2("pa1ed"; no output)   |   |
