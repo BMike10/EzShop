@@ -196,5 +196,17 @@ public class ProductTypeTest {
 		Position p = new Position("3-c-3");
 		pt.setLocation(p);
 		assertEquals(p, pt.getPosition());
+		//equals
+		assertFalse(pt.equals(null));
+		assertFalse(pt.equals("4006381333900"));
+		assertFalse(pt.equals(new ProductTypeClass(1, "null", "4006381333900", 2.0, "notes")));
+		assertFalse(pt.equals(new ProductTypeClass(2, "null", "4006381333900", 2.0, "notes")));
+		assertTrue(pt.equals(pt));
+		// copy
+		try {
+		ProductTypeClass pt2 = new ProductTypeClass(pt);
+		assertTrue(pt.equals(pt2));
+		}catch(Exception e) {fail();}
+		
 	}
 }

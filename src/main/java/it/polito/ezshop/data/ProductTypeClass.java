@@ -175,10 +175,7 @@ public final class ProductTypeClass implements ProductType {
 		ProductTypeClass other = (ProductTypeClass) obj;
 		if (id != other.id)
 			return false;
-		if (barcode == null) {
-			if (other.barcode != null)
-				return false;
-		} else if (!barcode.equals(other.barcode))
+		 if (other.barcode == null || barcode == null || !barcode.equals(other.barcode))
 			return false;
 		return true;
 	}

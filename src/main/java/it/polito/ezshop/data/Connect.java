@@ -25,7 +25,7 @@ public class Connect {
             String insert2 = "INSERT INTO Balance(id, balance) values (1,0)";
             try {
                 stmt.execute(insert2);
-            }catch(Exception e) {e.printStackTrace();}
+            }catch(Exception e) {}
             String query = "SELECT * FROM USER";
             ResultSet result = stmt.executeQuery(query);
             while(result.next()) {
