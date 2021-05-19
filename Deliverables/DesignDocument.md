@@ -197,6 +197,7 @@ class LoyaltyCard {
     - points: int 
     - cardCode: String 
     + pointsUpdate(int)
+    + createCardCode(int i) 
 }
 
 class Customer {
@@ -204,6 +205,7 @@ class Customer {
     - customerName: String 
     - card: LoyaltyCard 
     + checkCardCode(String newCustomerCard)
+    + updateCustomerPoints(int toBeAdded)
 }
 
 LoyaltyCard "0..1" - Customer
