@@ -367,19 +367,20 @@ public class EZShop implements EZShopInterface {
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
         nextId = accountBook.addOrder((Order) o);
     	// update balance
-        if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
+        /*if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
         	try {
 				accountBook.removeOrder(nextId);
 			} catch (InvalidTransactionIdException e) {
 				e.printStackTrace();
 			}
         	return -1;
-        }
+        }*/
 
         //MICHELE
-    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
+    	;
     	// update db
-        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
+        if(!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT")) ||
+        		!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
 			try {
 				accountBook.removeOrder(o.getOrderId());
 				recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
@@ -406,9 +407,10 @@ public class EZShop implements EZShopInterface {
     	if(o.getStatus().equals(OrderStatus.PAYED.name()))
     		return false;
     	// update balance
-    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
-    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity()))
+    	if(!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT")))
     		return false;
+//    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity()))
+//    		return false;
         
     	o.setStatus("PAYED");
     	// save status on db
@@ -967,7 +969,7 @@ public class EZShop implements EZShopInterface {
         accountBook.addBalanceOperation((BalanceOperation)saleTransaction);
         ((SaleTransactionClass) saleTransaction).setPaymentType("CASH");
         //Update map and db(Balance)
-        recordBalanceUpdate(saleAmount);
+        //recordBalanceUpdate(saleAmount);
 
 		return change;
 
@@ -1007,7 +1009,7 @@ public class EZShop implements EZShopInterface {
 		//Update map and db(Balance)
         accountBook.addBalanceOperation((BalanceOperation)sale);
         ((SaleTransactionClass) sale).setPaymentType("CREDIT_CARD");
-        recordBalanceUpdate(saleAmount);
+        //recordBalanceUpdate(saleAmount);
         //Update new CreditCardSale
 		updateCreditCardTxt(creditCard,userCash-saleAmount);
 
@@ -1043,7 +1045,7 @@ public class EZShop implements EZShopInterface {
 		}
 		SaleTransaction st = returnTransaction.getSaleTransaction();
 		accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice());
-        recordBalanceUpdate(-(((ReturnTransactionClass)returnTransaction).getMoney()));
+        //recordBalanceUpdate(-(((ReturnTransactionClass)returnTransaction).getMoney()));
 
 		return (((ReturnTransactionClass)returnTransaction).getMoney());
     }
@@ -1093,7 +1095,7 @@ public class EZShop implements EZShopInterface {
 		SaleTransaction st = returnTransaction.getSaleTransaction();
 		accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice());
         //Update map and db(Balance)
-        recordBalanceUpdate(-(((ReturnTransactionClass) returnTransaction).getMoney()));
+        //recordBalanceUpdate(-(((ReturnTransactionClass) returnTransaction).getMoney()));
 
     	return (((ReturnTransactionClass)returnTransaction).getMoney());
     }
@@ -1111,9 +1113,10 @@ public class EZShop implements EZShopInterface {
 		//Negative new balance
 		if(newBalance < 0)
 			return false;
-
-		Connect.balanceUpdate(newBalance);
-		accountBook.setBalance(newBalance);
+		BalanceOperation b = new BalanceOperationClass(accountBook.newId(), "", Math.abs(toBeAdded), LocalDate.now(), toBeAdded>=0?"CREDIT":"DEBIT");
+		accountBook.addBalanceOperation(b);
+		//Connect.balanceUpdate(newBalance);
+		//accountBook.setBalance(newBalance);
 		return true;
 	}
 

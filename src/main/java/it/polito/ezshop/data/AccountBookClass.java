@@ -40,8 +40,10 @@ public class AccountBookClass implements AccountBook {
         for (Map.Entry<Integer, SaleTransaction> entry : saleTransactionMap.entrySet()) {
             balanceOperationMap.put(entry.getKey(), (BalanceOperation) entry.getValue());
         }*/
-
-        this.balance = Connect.getBalance();
+        //compute balance
+        this.balance = balanceOperationMap.values().stream().filter(b->b.getType().equals("CREDIT")).mapToDouble(b->b.getMoney()).sum();
+        this.balance -= balanceOperationMap.values().stream().filter(b->b.getType().equals("DEBIT")).mapToDouble(b->b.getMoney()).sum();
+        //this.balance = Connect.getBalance();
        /* double CREDIT = this.saleTransactionMap.values().stream().
                 filter(saleTransaction -> ((SaleTransactionClass)saleTransaction).getStatus().toString().equals("PAYED")).
                 mapToDouble(SaleTransaction::getPrice).sum();
@@ -66,18 +68,28 @@ public class AccountBookClass implements AccountBook {
     }
 
     public boolean addBalanceOperation(BalanceOperation bo) {
-        if (balanceOperationMap.containsKey(bo.getBalanceId()))
-            return false;
+    	if (balanceOperationMap.containsKey(bo.getBalanceId()))
+    		return false;
+    	double tmp = balance;
+    	balance += bo.getType().equals("CREDIT")?bo.getMoney():-bo.getMoney();
+    	if(balance < 0) {
+    		balance = tmp;
+    		return false;
+    	}
         balanceOperationMap.put(bo.getBalanceId(), bo);
         // update balance
         Connect.addBalanceOperation((BalanceOperationClass) bo);
-        //balance += bo.getType().equals("CREDIT")?bo.getMoney():-bo.getMoney();
         return true;
     }
     public boolean updateBalanceOperation(int id, double newMoney) {
         if (!balanceOperationMap.containsKey(id))
             return false;
         BalanceOperation b = balanceOperationMap.get(id);
+        double change = -b.getMoney() + newMoney;
+        if(balance + change < 0) {
+        	return false;
+        }
+        balance += change;
         b.setMoney(newMoney);
         //update db
         Connect.updateBalanceOperation(id, newMoney);
@@ -239,7 +251,7 @@ public class AccountBookClass implements AccountBook {
         int max = Math.max(orderMap.keySet().stream().max(Comparator.comparingInt(t -> t)).orElse(0),
                 returnTransactionMap.keySet().stream().max(Comparator.comparingInt(t -> t)).orElse(0));
         max = Math.max(max, saleTransactionMap.keySet().stream().max(Comparator.comparingInt(t -> t)).orElse(0));
-        return max+1;
+        return Math.max(max, balanceOperationMap.keySet().stream().max(Comparator.comparingInt(t -> t)).orElse(0)) + 1;
     }
 
 
