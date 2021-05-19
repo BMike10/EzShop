@@ -968,6 +968,100 @@ Version:
 | valid | (>1000)  | Invalid   | T2("cia90......";)   |   |
 | "    | <=1000 | Valid   | T3("Nuova transazione")         |   |
 
+
+## Class TicketEntryClass
+
+### Constructor
+**Criteria for method Constructor:**
+- Validity of ProductType
+- Signature of amount
+- Signature of discountRate
+
+**Predicates for method constructor:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Validity of ProductType | null |
+| | valid |
+| Signature of amount | <=0 |
+| | valid |
+| Signature of discountRate | >1 |
+| | <0 |
+| | 0<x<1 |
+
+**Boundaries for method constructor**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Signature of amount | 0, +inf |
+| Signature of discountRate | 0, 1 |
+
+**Combination of predicates for method constructor**
+
+| Validity of ProductType | validity of amount | validity of discountRate | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+|-|-|-|-|-|-|
+| null | * | * | invalid | T1(null, 2, 0.3) -> Exception | TicketEntryTest.testTicketEntryConstructor |
+| new ProductType(1, "null", "4006381333900", 2.0, "notes")  | <=0 | * | invalid | T2(new ProductType((1, "null", "4006381333900", 2.0, "notes")), -1, 0.3) -> InvalidQuantityException | TicketEntryTest.testTicketEntryConstructor |
+| new ProductType(1, "null", "4006381333900", 2.0, "notes") | >0 | <0 | invalid | T3(new ProductType((1, "null", "4006381333900", 2.0, "notes")), 2, -1) -> InvalidDiscountRateException | TicketEntryTest.testTicketEntryConstructor |
+| new ProductType(1, "null", "4006381333900", 2.0, "notes") | >0 | >1 | invalid | T4(new ProductType((1, "null", "4006381333900", 2.0, "notes")), 2, 1.2) -> InvalidDiscountRateException | TicketEntryTest.testTicketEntryConstructor |
+| new ProductType(1, "null", "4006381333900", 2.0, "notes") | >0 | 0<x<1 | valid | T5(new ProductType((1, "null", "4006381333900", 2.0, "notes")), 2, 0.5) -> correctly created a new TicketEntryClass object | TicketEntryTest.testTicketEntryConstructor |
+
+
+### testSetAmount
+
+**Criteria for method testSetAmount:**
+
+- Signature of amount
+
+**Predicates for method testSetAmount:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of amount | <=0 |
+|   | valid |
+
+**Boundaries for method testSetAmount**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of amount | 0, +inf |
+
+**Combination of predicates for method testSetAmount**
+
+| Validity of amount | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  |
+|--|--|-|-|
+| <=0 | invalid | T1(-1) -> InvalidQuantityException | TicketEntryClassTest.testSetAmount |
+| >0 | valid | T2(3) -> Correctly updated quantity of the ticket entry | TicketEntryClassTest.testSetAmount |
+
+
+### testSetDiscountRate
+
+**Criteria for method testSetDiscountRate:**
+
+- Signature of discountRate
+
+**Predicates for method testSetDiscountRate:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of discountRate | <0 |
+|   | >1 |
+|   | 0<x<1 |
+
+**Boundaries for method testSetDiscountRate**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of discountRate | 0, 1 |
+
+**Combination of predicates for method testSetDiscountRate**
+
+| Validity of amount | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  |
+| <0 | invalid | T1(-1) -> InvalidDiscountRateException | TicketEntryClassTest.testSetDiscountRate |
+| >1 | invalid | T2(1.3) -> InvalidDiscountRateException | TicketEntryClassTest.testSetDiscountRate |
+| 0<1<x | valid | T3(0.2) -> Correctly updated discountRate of the ticket entry | TicketEntryClassTest.testSetDiscountRate |
+
+
 ## Class ReturnTransactionClass
 
 ### setStatus
@@ -1039,7 +1133,7 @@ Version:
 |  valid | <10 |   | invalid  | T4("abcde1234")->false                             | testcheckCardCode               |
 |  valid | 10 |   | valid  | T5("abcde12345")->true <br> T5b("AN34d5vtA1")->true |<br>testcheckCardCode |
 
-
+## Class CustomerClass
 ### Constructor
 **Criteria for method Constructor:**
 - Signature of id
@@ -1151,7 +1245,7 @@ Version:
 **Predicates for method updatePoints:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Ponints + toBeAdded | >= 0|
+| Points + toBeAdded | >= 0|
 |   | < 0|
 
 **Boundaries for method updatePoints**:

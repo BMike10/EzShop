@@ -10,7 +10,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
     private final Map<ProductType,Integer> returnedProduct = new HashMap<>();
     private SaleTransaction saleTransaction;
     private ReturnStatus status;
-
+    /*//no reference
     public ReturnTransactionClass(double amount, String type, Map<ProductType,Integer> returned, SaleTransaction saleT, ReturnStatus retstatus) {
         super(amount, type);
         this.returnedProduct.putAll(returned);
@@ -21,7 +21,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-    }
+    }*/
 
     public ReturnTransactionClass(int orderId, String description, double amount, LocalDate date, String type,Map<ProductType,Integer> returned, SaleTransaction saleT, ReturnStatus retstatus) {
         super(orderId, description, amount, date, type);
@@ -93,7 +93,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 
     public int addReturnProduct(ProductType product, int quantity){
         SaleTransactionClass st=(SaleTransactionClass)this.saleTransaction;
-        int amount=st.getTicketEntries().get(product.getBarCode()).getAmount();
+        int amount=st.getProductsEntries().get(product.getBarCode()).getAmount();
 
         if(!this.returnedProduct.keySet().contains(product)) {
             if(amount<quantity) return -1;

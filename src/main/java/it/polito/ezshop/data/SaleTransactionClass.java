@@ -41,21 +41,21 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	public SaleTransactionClass(Time time, SaleStatus saleStatus) {
 		this(-1, "SALE", 0.0, LocalDate.now(), "CREDIT", "", time, saleStatus, null, new HashMap<>(), 0.0);
 	}
-
+	/*// no reference
 	public SaleTransactionClass(Time time, String paymentType, SaleStatus status, LoyaltyCard loyaltyCard,
 			Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries) throws Exception {
 		this(0.0, paymentType, time, status, loyaltyCard, ticketNumber, ticketEntries, 0.0);
 	}
-
+	// no reference
 	public SaleTransactionClass(Time time, String paymentType, LoyaltyCard loyaltyCard, Integer ticketNumber,
 			Map<String, TicketEntryClass> ticketEntries) throws Exception {
 		this(0.0, paymentType, time, SaleStatus.STARTED, loyaltyCard, ticketNumber, ticketEntries, 0.0);
 
 	}
-
+	// no reference
 	public SaleTransactionClass(Time time, String paymentType, LoyaltyCard loyaltyCard, Integer ticketNumber) throws Exception {
 		this(0.0, paymentType, time, SaleStatus.STARTED, loyaltyCard, ticketNumber, new HashMap<>(), 0.0);
-	}
+	}*/
 	// New constructor
 	public SaleTransactionClass(int transactionId, String description, double money, LocalDate date, String type,
 			String paymentType, Time time, SaleStatus status, LoyaltyCard loyaltyCard,
@@ -152,7 +152,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	//SHOULD RETURN BOOLEAN SO I CAN TEST IT!
 	public boolean addProduct(ProductType product, int quantity) {					//non testare
 		if(product==null) return false;									//CHANGED --- this should also accept quantity <0 for return transaction?
-		if(quantity==0) return false;
+		if(quantity<=0) return false;
 		if (ticketEntries.containsKey(product.getBarCode())) {
 			TicketEntryClass t = ticketEntries.get(product.getBarCode());
 			t.setAmount(t.getAmount() + quantity);
@@ -223,10 +223,10 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		if(price<0) throw new RuntimeException(new Exception());
 		super.setMoney(price);
 	}
-
+	/*// no references
 	public Map<String, TicketEntryClass> getTicketEntries() {					
 		return this.ticketEntries;
-	}
+	}*/
 
 	public String getPaymentType() {											
 		return paymentType;
