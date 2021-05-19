@@ -840,10 +840,10 @@ Version:
 
 |   Signature of returnTransactionId | Value of returnTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------- | ------- |--------| ------ | -------- |
-|   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  |
-|   valid     |  <0       |   *   |    Invalid    |    T2(-6) -> InvalidTransactionIdException      |  |
-|   "     |  (>=)0       |  no      | Invalid    |   removeSaleTransaction(100); removeSaleTransaction(100) ->  InvalidTransactionIdException      |  |
-|   "     |  "       |  yes   |   Valid    | removeSaleTransaction(100);  ->  SaleTransaction removed succesfully         |  |
+|   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  AccountBookTest.testInvalidRemoveSaleTransaction|
+|   valid     |  <0       |   *   |    Invalid    |    T2(-6) -> InvalidTransactionIdException      | AccountBookTest.testInvalidRemoveSaleTransaction |
+|   "     |  (>=)0       |  no      | Invalid    |   removeSaleTransaction(100); removeSaleTransaction(100) ->  InvalidTransactionIdException      | AccountBookTest.testInvalidRemoveSaleTransaction |
+|   "     |  "       |  yes   |   Valid    | removeSaleTransaction(100);  ->  SaleTransaction removed successfully         | AccountBookTest.testRemoveSaleTransaction |
 
 ### Method setBalance
 
@@ -869,8 +869,8 @@ Version:
 
 | Value of amount  | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------| --------| --------| 
-|  <0    | Invalid         |   T1(-500) ->  false     |   |
-|  (>=0)    | Valid         |   T1(500) ->  true     |   |
+|  <0    | Invalid         |   T1(-500) ->  false     | AccountBook.testSetBalance  |
+|  (>=0)    | Valid         |   T1(500) ->  true     |  AccountBook.testSetBalance |
 
 ### Method getSaleTransaction
 
@@ -904,10 +904,10 @@ Version:
 
 |   Signature of SaleTransactionId | Value of SaleTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------- | ------- |--------| ------ | -------- |
-|   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  |
-|   valid     |  <0       |   *   |    Invalid    |    T2(-5) -> InvalidTransactionIdException      |  |
-|   "     |  (>=)0       |  no      | Invalid    |   removeSaleTransaction(500); getSaleTransaction(500) ->  InvalidTransactionIdException      |  |
-|   "     |  "       |  yes   |   Valid    | addSaleTransaction(500); getSaleTransaction(500);  ->  SaleTransaction removed successfully         |  |
+|   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      | AccountBook.testInvalidGetSaleTransaction |
+|   valid     |  <0       |   *   |    Invalid    |    T2(-5) -> InvalidTransactionIdException      | AccountBook.testInvalidGetSaleTransaction |
+|   "     |  (>=)0       |  no      | Invalid    |   removeSaleTransaction(500); getSaleTransaction(500) ->  InvalidTransactionIdException      | AccountBook.testInvalidGetSaleTransaction |
+|   "     |  "       |  yes   |   Valid    | addSaleTransaction(500); getSaleTransaction(500);  ->  SaleTransaction removed successfully         | AccountBook.testGetSaleTransaction |
 
 
 ## Class BalanceOperation
@@ -941,10 +941,10 @@ Version:
 
 | Signature of money | Presence of numeric character| Validity of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | ----------- | ---| ---|------------- | -------- | ------- |
-| <0  |  *  | *  | Invalid | T1(-1)  |     |
-| (>=0) |  yes  | ---| Invalid | T2(deb1t)   |   |
-| " | no  | no | Invalid   | T3(ciao)         ||
-| " | "  | yes | Valid   | T4(credit)         ||
+| <0  |  *  | *  | Invalid | T1(-1)  |  AccountBook.testConstructor   |
+| (>=0) |  yes  | ---| Invalid | T2(deb1t)   |  AccountBook.testConstructor |
+| " | no  | no | Invalid   | T3(ciao)         |AccountBook.testConstructor|
+| " | "  | yes | Valid   | T4(credit)         |AccountBook.testConstructor|
 
 
 ### setBalanceId
@@ -971,9 +971,9 @@ Version:
 
 | Value of BalanceId | Signature of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | ----------- | ---|------------- | -------- | ------- |
-| <0  |  *  | Invalid | T1(-1)  |     |
-| * |  null  | Invalid | T2(null)   |   |
-| >0 | valid  | Valid   | T3(10)         ||
+| <0  |  *  | Invalid | T1(-1)  |    AccountBook.testInvalidSetBalanceId |
+| * |  null  | Invalid | T2(null)   |  AccountBook.testInvalidSetBalanceId |
+| >0 | valid  | Valid   | T3(10)         |AccountBook.testSetBalanceId|
 
 ### setDescription
 **Criteria for method setDescription:**
@@ -1001,9 +1001,9 @@ Version:
 
 | Signature of Description | Length of string | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | --- | ------ |------------- | -------- | ------- |
-| null  |  *  | Invalid | T1(null; error)  |     |
-| valid | (>1000)  | Invalid   | T2("cia90......";)   |   |
-| "    | <=1000 | Valid   | T3("Nuova transazione")         |   |
+| null  |  *  | Invalid | T1(null; error)  |    AccountBook.testInvalidSetDescription |
+| valid | (>1000)  | Invalid   | T2("cia90......";)   | AccountBook.testInvalidSetDescription  |
+| "    | <=1000 | Valid   | T3("Nuova transazione")         |  AccountBook.testSetDescription |
 
 
 ## Class TicketEntryClass
