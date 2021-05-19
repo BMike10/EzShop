@@ -21,11 +21,11 @@ public class Connect {
             createTables();
             System.out.println("Connection to SQLite has been established.");
             Statement stmt = conn.createStatement();
-            //It does not work! The fist time I manually added the balance
+            /*//It does not work! The fist time I manually added the balance
             String insert2 = "INSERT INTO Balance(id, balance) values (1,0)";
             try {
                 stmt.execute(insert2);
-            }catch(Exception e) {}
+            }catch(Exception e) {}*/
             String query = "SELECT * FROM USER";
             ResultSet result = stmt.executeQuery(query);
             while(result.next()) {
@@ -122,9 +122,9 @@ public class Connect {
                 + "date date NOT NULL,"
                 + "type text NOT NULL)";
 
-        String balance = "CREATE TABLE IF NOT EXISTS Balance("
+        /*String balance = "CREATE TABLE IF NOT EXISTS Balance("
                 + "id INTEGER NOT NULL PRIMARY KEY,"
-                + "balance NUMBER NOT NULL)";
+                + "balance NUMBER NOT NULL)";*/
 
         //CREDITCARDTABLE???//
 
@@ -138,7 +138,7 @@ public class Connect {
             stmt.executeUpdate(orders);
             stmt.executeUpdate(returnedProduct);
             stmt.executeUpdate(returnTransaction);
-            stmt.executeUpdate(balance);
+            //stmt.executeUpdate(balance);
             stmt.executeUpdate(balanceOperation);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -772,7 +772,7 @@ public class Connect {
     }
 
     //BALANCE
-
+/*
 
     public static boolean balanceUpdate(double newBalance) {
         String sql = "UPDATE Balance SET balance ="+newBalance +" WHERE id = 1 ";
@@ -798,7 +798,7 @@ public class Connect {
         }
         return balance;
     }
-
+*/
 //	public static Map<? extends Integer, ? extends BalanceOperation> getBalanceOperations() {
 //
 //		return null;
