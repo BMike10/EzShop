@@ -119,7 +119,11 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	public List<TicketEntry> getEntries() {
 		List<TicketEntry> res = new ArrayList<TicketEntry>();
 		ticketEntries.forEach((s, te)->{
-			res.add(new TicketEntryClass(te.getProductType(), te.getAmount(), te.getDiscountRate()));
+			try {
+				res.add(new TicketEntryClass(te.getProductType(), te.getAmount(), te.getDiscountRate()));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		});
 		return res;
 	}
@@ -155,8 +159,13 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 			ticketEntries.remove(product.getBarCode());
 			ticketEntries.put(product.getBarCode(), t);
 		} else {
-			TicketEntryClass t = new TicketEntryClass(product, quantity);
-			ticketEntries.put(product.getBarCode(), t);
+			TicketEntryClass t;
+			try {
+				t = new TicketEntryClass(product, quantity);
+				ticketEntries.put(product.getBarCode(), t);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		double a = this.getPrice();
 		a += product.getPricePerUnit() * quantity * (1 - this.discountRate);
