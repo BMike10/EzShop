@@ -99,6 +99,9 @@ public class OrderClassTest {
 	
 	@Test
 	public void testWhiteBox() {
+		try {
+		OrderClass o2 = new OrderClass("4006381333931", 1, 10, OrderStatus.PAYED);
+		}catch(Exception e) {fail();}
 		final OrderClass o = new OrderClass( "4006381333931", 1, 10);
 		try {
 			o.setBalanceId(2);

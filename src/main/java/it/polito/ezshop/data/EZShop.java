@@ -594,7 +594,7 @@ public class EZShop implements EZShopInterface {
     	  
     LoyaltyCardClass card= (LoyaltyCardClass) cards.get(customerCard);
     CustomerClass tmp = null;
-    if(card == null) throw new InvalidCustomerCardException();
+    if(card == null) return false;
 	boolean updated = card.updatePoints(pointsToBeAdded);
 	if(!updated)
 		return false;	
