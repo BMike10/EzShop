@@ -691,7 +691,7 @@ public class Connect {
                 +", "+amount
                 +",DATE('now'), "
                 + ReturnStatus.CLOSED.ordinal()+", "
-                + i +","
+                + saleId +","
                 + id+")";
         try(Statement st = conn.createStatement()){
             st.execute(sql);

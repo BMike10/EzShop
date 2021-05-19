@@ -108,7 +108,8 @@ public class ReturnTransactionTest {
 				(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),
 						SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),
 				ReturnStatus.STARTED);
-
+		ReturnTransactionClass rtc2 = new ReturnTransactionClass((SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),
+						SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1), ReturnStatus.CLOSED);
 	}
 
 	@Test

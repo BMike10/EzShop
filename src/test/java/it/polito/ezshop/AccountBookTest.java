@@ -81,11 +81,75 @@ public class AccountBookTest {
     }
 
     @Test
-    public void testWhiteBoxAccountBook(){
+    public void testWhiteBoxAccountBook() throws Exception{
 
         AccountBookClass ab = new AccountBookClass(-25);
         assertEquals(new Double(0),ab.getBalance());
 
+        // setSaleTransaction
+        Map<Integer, SaleTransaction > sales = new HashMap<>();
+        sales.put(1, new SaleTransactionClass(10.0, "CREDIT_CARD",
+					new Time(System.currentTimeMillis()), SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2,
+					new HashMap<>(), 0.1));
+        assertThrows(Exception.class, ()->{ab.setSaleTransactionMap(null);});
+        // valid
+        ab.setSaleTransactionMap(sales);
+        assertEquals(1, ab.getSaleTransactionMap().size());
+        
+
+        // setReturnTransaction
+        Map<Integer, ReturnTransaction > returns = new HashMap<>();
+        returns.put(1, new ReturnTransactionClass(1, "description", 3.0, LocalDate.now(), "DEBIT",
+				new HashMap<>(),
+				(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),
+						SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),
+				ReturnStatus.STARTED));
+        assertThrows(Exception.class, ()->{ab.setReturnTransactionMap(null);});
+        // valid
+        ab.setReturnTransactionMap(returns);
+        assertEquals(1, ab.getReturnTransactionMap().size());
+        
+        // setOrderClass
+        Map<Integer, Order> orders = new HashMap<>();
+        orders.put(1, new OrderClass(1, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED));
+
+        assertThrows(Exception.class, ()->{ab.setOrderMap(null);});
+        // valid
+        ab.setOrderMap(orders);
+        assertEquals(1, ab.getOrderMap().size());
+        
+        // addOrder
+        int id = ab.addOrder(new OrderClass(2, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED));
+        // get order
+        assertThrows(Exception.class, ()->{ab.getOrder(null);});
+        assertTrue(ab.getOrder(id)!=null);
+        // remove order
+        ab.removeOrder(id);
+        
+        // addSale
+        id = ab.addSaleTransaction(new SaleTransactionClass(10.0, "CREDIT_CARD",
+					new Time(System.currentTimeMillis()), SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2,
+					new HashMap<>(), 0.1));
+        // get sale
+        assertThrows(Exception.class, ()->{ab.getSaleTransaction(null);});
+        assertTrue(ab.getSaleTransaction(id)!=null);
+        // remove sale
+        ab.removeSaleTransaction(id);
+        
+        // add return
+        id = ab.addReturnTransaction(new ReturnTransactionClass(1, "description", 3.0, LocalDate.now(), "DEBIT",
+				new HashMap<>(),
+				(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),
+						SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),
+				ReturnStatus.STARTED));
+        //get return
+        assertThrows(Exception.class, ()->{ab.getReturnTransaction(null);});
+        assertTrue(ab.getReturnTransaction(id)!=null);        
+        // remove return
+        ab.removeReturnTransaction(id);
+        
+        // get balanceOperation
+        assertTrue(ab.getBalanceOperationMap()!=null);
     }
 
 }

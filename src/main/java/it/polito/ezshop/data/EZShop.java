@@ -207,9 +207,9 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean deleteProductType(Integer id) throws InvalidProductIdException, UnauthorizedException {
         if(currentUser==null || currentUser.getRole().equals("Cashier"))
-        	throw new UnauthorizedException();
+        	throw new UnauthorizedException(currentUser==null?"Null":currentUser.getRole());
     	if(id == null || id <= 0) 
-        	throw new InvalidProductIdException();
+        	throw new InvalidProductIdException(""+id);
     	if(!products.containsKey(id))
     		return false;
         ProductType tmp = products.remove(id);
@@ -236,7 +236,7 @@ public class EZShop implements EZShopInterface {
         if(currentUser==null || currentUser.getRole().equals("Cashier"))
         	throw new UnauthorizedException();
     	if(!ProductTypeClass.validateBarCode(barCode))
-    		throw new InvalidProductCodeException();
+    		throw new InvalidProductCodeException(barCode);
     	
     	for(ProductType pt: products.values()) {
     		if(pt.getBarCode().equals(barCode))
@@ -1011,7 +1011,7 @@ public class EZShop implements EZShopInterface {
         ((SaleTransactionClass) sale).setPaymentType("CREDIT_CARD");
         //recordBalanceUpdate(saleAmount);
         //Update new CreditCardSale
-		updateCreditCardTxt(creditCard,userCash-saleAmount);
+		//updateCreditCardTxt(creditCard,userCash-saleAmount);
 
 		return true;
 	}
@@ -1085,7 +1085,7 @@ public class EZShop implements EZShopInterface {
 		returnTransaction.setStatus("PAYED");
 		CreditCardsMap.replace(creditCard, newCredit);
 		//Update Txt with new credit
-		updateCreditCardTxt(creditCard,newCredit);
+		//updateCreditCardTxt(creditCard,newCredit);
 
 		//Update DB
 		if(!Connect.updateReturnTransaction(returnTransaction.getReturnId(), ReturnStatus.PAYED)) {
@@ -1177,7 +1177,7 @@ public class EZShop implements EZShopInterface {
 		}
 	}
 
-	public void updateCreditCardTxt(String creditCard, double newSale){
+	/*public void updateCreditCardTxt(String creditCard, double newSale){
 		// read file one line at a time
 		// replace line as you read the file and store updated lines in StringBuffer
 		// overwrite the file with the new lines
@@ -1203,7 +1203,7 @@ public class EZShop implements EZShopInterface {
 			System.out.println("Problem reading file.");
 		}
 	}
-
+*/
 
 	@Override
 	public double computeBalance() throws UnauthorizedException {

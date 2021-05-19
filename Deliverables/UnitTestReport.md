@@ -567,6 +567,7 @@ Version:
 | valid | invalid| Invalid| T2("")->Exception   | OrderClassTest.testSetProductCode|
 | valid | valid | Valid   | T3("4006381333900") | OrderClassTest.testSetProductCode|
 
+
 ## Class SaleTransactionClass
 ### Constructor
 
@@ -614,7 +615,7 @@ Version:
 
 **Combination of predicates for method Constructor**
 
-| Signature of price | Validity of price | Signature of payment type | Validity of payment type | Existence of Time object | Existence of SaleStatus |   Existence of FidelityCard object | Signature of transactionId  | Validity of transactionId | Signature of ticketEntries | Validity of discount rate |  Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  |  {{{{14 campi}}}}
+| Signature of price | Validity of price | Signature of payment type | Validity of payment type | Existence of Time object | Existence of SaleStatus |   Existence of FidelityCard object | Signature of transactionId  | Validity of transactionId | Signature of ticketEntries | Validity of discount rate |  Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  |
 | --------- | --------- | ------- |--------| ------ | -------- | ------- | -------- | -------- | ------- | ------- | ------- | ------- | ------ |
 |   null     |  *       |    *     | * | * | * | * | * | * | * | * | * |   Invalid    |   T1(null, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
 |   invalid     |  <=0      |    *     | * | * | * | * | * | * | * | * |   Invalid    |   T2(-1, "CASH", new Time(System.currentTimeMillis), SaleStatus.STARTED, new LoyaltyCard("1234567890", 1), 10, new HashMap<>(), 0.1) ->  Exception      | SaleTransactionTest.testSaleTransactionConstructor  |
@@ -633,7 +634,7 @@ Version:
 
 ### setTime
 **Criteria for method setTime:**
-- Validity of time
+- Signature of time
 
 **Predicates for method setTime:**
 | Criterion   | Predicate     |
@@ -649,10 +650,10 @@ Version:
 
 **Combination of predicates for method setTime**
 
-| Signature of time | Value of time |Valid/Invalid | Description of the test case | JUnit test case |
-| ----------- | ---|------------ | ---------------------------- | --------------- |
-| null  | - | Invalid| T1(null)->Exception | SaleTransactionClassTest.testTime |
-| valid | new Time(System.currentTimeMillis) | Valid | T2(System.currentTimeMillis)-> correctly set the time of the Sale Transaction Class object| SaleTransactionClassTest.testTime |
+| Signature of time |Valid/Invalid | Description of the test case | JUnit test case |
+| ----------- |------------ | ---------------------------- | --------------- |
+| null  | Invalid| T1(null)->Exception | SaleTransactionClassTest.testTime |
+| valid | Valid | T2(System.currentTimeMillis)-> correctly set the time of the Sale Transaction Class object| SaleTransactionClassTest.testTime |
 
 ### setStatus
 **Criteria for method setStatus:**
@@ -672,12 +673,10 @@ Version:
 
 **Combination of predicates for method setStatus**
 
-| Signature of time | Value of time |Valid/Invalid | Description of the test case | JUnit test case |
+| Signature of status |Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ---|------------ | ---------------------------- | --------------- |
-| null  | - | Invalid| T1(null)->Exception | SaleTransactionClassTest.testStatus|
-| valid | SaleStatus.STARTED | Valid | T2(SaleStatus.STARTED)-> correctly set the status of the Sale Transaction Class object | SaleTransactionClassTest.testStatus |
-| valid | SaleStatus.PAYED | Valid | T2(SaleStatus.PAYED)-> correctly set the status of the Sale Transaction Class object | SaleTransactionClassTest.testStatus |
-| valid | SaleStatus.CLOSED | Valid | T2(SaleStatus.CLOSED)-> correctly set the status of the Sale Transaction Class object | SaleTransactionClassTest.testStatus |
+| null  | Invalid | T1(null)->Exception | SaleTransactionClassTest.testStatus|
+| valid |  Valid | T2(SaleStatus.STARTED)-> correctly set the status of the Sale Transaction Class object | SaleTransactionClassTest.testStatus |
 
 
 ### setTicketNumber
@@ -690,48 +689,46 @@ Version:
 | ----------- | ------------- |
 | Signature of ticket number | null |
 |       | valid  |
-| Validity of ticket number | <0 |
+| Validity of ticket number | <=0 |
 |       | >0  |
 
 **Boundaries for method setTicketNumber**:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Value of ticketNumber | 0, +inf |
+| Value of ticketNumber | -inf, 0, +inf |
 
 **Combination of predicates for method setTicketNumber**
 
-| Signature of ticketNumber | Value of ticketNumber |Valid/Invalid | Description of the test case | JUnit test case |
+| Signature of ticketNumber | Value of ticketNumber | Valid/Invalid | Description of the test case | JUnit test case |
 | ----------- | ---|------------ | ---------------------------- | --------------- |
 | null  | - | Invalid| T1(null)->InvalidTransactionIdException | SaleTransactionClassTest.testTicketNumber |
-| valid | <0 | invalid | T2(-1)->InvalidTransactionIdException | SaleTransactionClassTest.testTicketNumber |
-| valid  | >0  | T3(5)-> correctly set the ticketNumber of the Sale Transaction Class object | SaleTransactionClassTest.testTicketNumber |
+| valid | <=0 | invalid | T2(-1)->InvalidTransactionIdException | SaleTransactionClassTest.testTicketNumber |
+| valid  | >0  | valid | T3(5)-> correctly set the ticketNumber of the Sale Transaction Class object | SaleTransactionClassTest.testTicketNumber |
 
 
 
 ### setDiscountRate
 **Criteria for method setDiscountRate:**
-- Signature of discountRate
+- Value of discountRate
 
 **Predicates for method setDiscountRate:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of discountRate | <0 |
-|       | >1  |
-|       | 0<x<1 |
+| Value of discountRate | <0 or >1 |
+|       | 0< x < 1 |
 
 **Boundaries for method setDiscountRate**:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Value of discountRate | 0, 1 |
+| Value of discountRate | -inf, 0, 1, +inf |
 
 **Combination of predicates for method setDiscountRate**
 
-| Value of discountRate |Valid/Invalid | Description of the test case | JUnit test case |
+| Value of discountRate | Valid/Invalid | Description of the test case | JUnit test case |
 | ---|------------ | ---------------------------- | --------------- |
-| <0  | Invalid| T1(-1)->InvalidDiscountRateException | SaleTransactionClassTest.testDiscountRate |
-| >1 | invalid | T2(1.2)->InvalidTransactionIdException | SaleTransactionClassTest.testDiscountRate |
+| <0 or >1  | Invalid| T1(-1)->InvalidDiscountRateException | SaleTransactionClassTest.testDiscountRate |
 | 0<x<1 | T3(0.5)-> correctly set the discountRate of the Sale Transaction Class object | SaleTransactionClassTest.testDiscountRate |
 
 
@@ -744,25 +741,25 @@ Version:
 **Predicates for method setPaymentType:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Validity of paymentType | null |
+| Signature of paymentType | null |
 |                         | valid |
-| Signature of paymentType | invalid |
-|       | "CREDIT_CARD" |
-|       | "CASH" |
+| Validity of paymentType | invalid |
+|       | valid |
 
 **Boundaries for method setPaymentType**:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Value of paymentType | "CASH", "CREDIT_CARD" |
+|  |  |
 
 **Combination of predicates for method setPaymentType**
 
-| Validity of paymentType | Signature of paymentType | Valid/Invalid | Description of the test case | JUnit test case |
+| Signature of paymentType | Value of paymentType | Valid/Invalid | Description of the test case | JUnit test case |
 | ---- | ------------ | ---------- | ---------------------------- | --------------- |
 | null | * | Invalid | T1(null)->InvalidPaymentException | SaleTransactionClassTest.testPaymentType |
-| valid | !="CASH" && !="CREDIT_CARD" | invalid | T2("other")->InvalidPaymentException | SaleTransactionClassTest.testPaymentType |
-| valid | "CASH" or "CREDIT_CARD" | T3("CASH")-> correctly set the paymentType of the Sale Transaction Class object | SaleTransactionClassTest.testPaymentType |
+| valid | invalid | invalid | T2("other")->InvalidPaymentException | SaleTransactionClassTest.testPaymentType |
+| valid | valid | T3("CASH")-> correctly set the paymentType of the Sale Transaction Class object | SaleTransactionClassTest.testPaymentType |
+
 
 
 
@@ -770,14 +767,14 @@ Version:
 
 ### Method CheckCreditCardNumber
 
-**Criteria for method CheckCreditCardNumber:**
+Criteria for method CheckCreditCardNumber:
 
 - Validity of CreditCard
 - Acceptable Credit Card
 - Existence of CreditCard in the system
 - Length of CreditCard
 
-**Predicates for method CheckCreditCardNumber:**
+Predicates for method CheckCreditCardNumber:
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
@@ -790,34 +787,34 @@ Version:
 | Length of CreditCard | valid |
 |                                     |  invalid |
 
-**Boundaries for method CheckCreditCardNumber**:
+Boundaries for method CheckCreditCardNumber:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
 | Length of CreditCard  |    -inf, 13, 16, +inf       |
 
-**Combination of predicates for method CheckCreditCardNumber**
+Combination of predicates for method CheckCreditCardNumber
 
 |   Validity of CreditCard | Acceptable Credit Card | Existence of CreditCard in the system | Length of CreditCard | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------- | ------- |--------| ------ | -------- | ------- |
-|   null     |  *       |    *    |    *    | Invalid |   T1(null) ->  InvalidCreditCardException      |  |
-|   valid     |  false  |    *    |   *   |    Invalid    |    T2("1234567812345678") -> InvalidCreditCardException      |  |
-|   "     |  true      |   false  | *      | Invalid    |   No Credit Card "1234567812345679" in the system; T3("1234567812345679") ->  InvalidCreditCardException      |  |
-|   "     |  "       |  true   |   Invalid  | Invalid  | updateCreditCardTxt("49927398716",100)  ->  T4("49927398716")   ->  InvalidCreditCardException      |  |
-| "  |  "  |  "  |  Valid  |  Valid  |  updateCreditCardTxt("1234567812345678",100)  ->  T5("1234567812345678")| |
+|   null     |  *       |    *    |    *    | Invalid |   T1(null) ->  InvalidCreditCardException      | CheckCreditCard.testCheckCreditCardNumber |
+|   valid     |  false  |    *    |   *   |    Invalid    |    T2("1234567812345678") -> InvalidCreditCardException      | CheckCreditCard.testCheckCreditCardNumber |
+|   "     |  true      |   false  | *      | Invalid    |   No Credit Card "1234567812345679" in the system; T3("1234567812345679") ->  InvalidCreditCardException      | CheckCreditCard.testCheckCreditCardNumber |
+|   "     |  "       |  true   |   Invalid  | Invalid  | updateCreditCardTxt("49927398716",100)  ->  T4("49927398716")   ->  InvalidCreditCardException      | CheckCreditCard.testCheckCreditCardNumber |
+| "  |  "  |  "  |  Valid  |  Valid  |  updateCreditCardTxt("1234567812345678",100)  ->  T5("1234567812345678")| CheckCreditCard.testCheckCreditCardNumber|
 
 ## Class AccountBookClass
 
 ### Method removeSaleTransaction
 
-**Criteria for method removeSaleTransaction:**
-	
+Criteria for method removeSaleTransaction:
+  
 
 - Value of returnTransactionId
 - Signature of returnTransactionId
 - Existence of SaleTransaction object
 
-**Predicates for method removeSaleTransaction:**
+Predicates for method removeSaleTransaction:
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
@@ -829,59 +826,58 @@ Version:
 |                                     |  No |
 
 
-**Boundaries for method removeSaleTransaction**:
+Boundaries for method removeSaleTransaction:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
 | Value of returnTransactionId  |    -1, 0, +1       |
 
 
- **Combination of predicates for method removeSaleTransaction**
+ Combination of predicates for method removeSaleTransaction
 
 |   Signature of returnTransactionId | Value of returnTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------- | ------- |--------| ------ | -------- |
-|   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  |
-|   valid     |  <0       |   *   |    Invalid    |    T2(-6) -> InvalidTransactionIdException      |  |
-|   "     |  (>=)0       |  no      | Invalid    |   removeSaleTransaction(100); removeSaleTransaction(100) ->  InvalidTransactionIdException      |  |
-|   "     |  "       |  yes   |   Valid    | removeSaleTransaction(100);  ->  SaleTransaction removed succesfully         |  |
+|   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  AccountBookTest.testInvalidRemoveSaleTransaction|
+|   valid     |  <0       |   *   |    Invalid    |    T2(-6) -> InvalidTransactionIdException      | AccountBookTest.testInvalidRemoveSaleTransaction |
+|   "     |  (>=)0       |  no      | Invalid    |   removeSaleTransaction(100); removeSaleTransaction(100) ->  InvalidTransactionIdException      | AccountBookTest.testInvalidRemoveSaleTransaction |
+|   "     |  "       |  yes   |   Valid    | removeSaleTransaction(100);  ->  SaleTransaction removed successfully         | AccountBookTest.testRemoveSaleTransaction |
 
 ### Method setBalance
 
-**Criteria for method setBalance:**
-	
+Criteria for method setBalance:
+  
 - Value of amount
 
-**Predicates for method setBalance:**
+Predicates for method setBalance:
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
 | Value of balance | >=0 |
 |             | <0 |
 
-**Boundaries for method setBalance**:
-
+Boundaries for method setBalance:
 | Criterion   | Boundary values |
 | ----------- | --------------- |
 | Value of balance |    -1, +1       |
 
 
- **Combination of predicates for method setBalance**
+ Combination of predicates for method setBalance
 
 | Value of amount  | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------| --------| --------| 
-|  <0    | Invalid         |   T1(-500) ->  false     |   |
-|  (>=0)    | Valid         |   T1(500) ->  true     |   |
+|  <0    | Invalid         |   T1(-500) ->  false     | AccountBook.testSetBalance  |
+|  (>=0)    | Valid         |   T1(500) ->  true     |  AccountBook.testSetBalance |
 
 ### Method getSaleTransaction
 
-**Criteria for method getSaleTransaction:**
+Criteria for method getSaleTransaction:
 
 
 - Value of SaleTransactionId
 - Signature of SaleTransactionId
 - Existence of SaleTransaction object
 
-**Predicates for method getSaleTransaction:**
+Predicates for method getSaleTransaction:
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
@@ -893,32 +889,32 @@ Version:
 |                                     |  No |
 
 
-**Boundaries for method getSaleTransaction**:
+Boundaries for method getSaleTransaction:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
 | Value of SaleTransactionId  |    -5, 0, +5       |
 
 
-**Combination of predicates for method getSaleTransaction**
+Combination of predicates for method getSaleTransaction
 
 |   Signature of SaleTransactionId | Value of SaleTransactionId | Existence of SaleTransaction object | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | --------- | --------- | ------- |--------| ------ | -------- |
-|   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      |  |
-|   valid     |  <0       |   *   |    Invalid    |    T2(-5) -> InvalidTransactionIdException      |  |
-|   "     |  (>=)0       |  no      | Invalid    |   removeSaleTransaction(500); getSaleTransaction(500) ->  InvalidTransactionIdException      |  |
-|   "     |  "       |  yes   |   Valid    | addSaleTransaction(500); getSaleTransaction(500);  ->  SaleTransaction removed successfully         |  |
+|   null     |  *       |    *    |    Invalid    |   T1(null) ->  InvalidTransactionIdException      | AccountBook.testInvalidGetSaleTransaction |
+|   valid     |  <0       |   *   |    Invalid    |    T2(-5) -> InvalidTransactionIdException      | AccountBook.testInvalidGetSaleTransaction |
+|   "     |  (>=)0       |  no      | Invalid    |   removeSaleTransaction(500); getSaleTransaction(500) ->  InvalidTransactionIdException      | AccountBook.testInvalidGetSaleTransaction |
+|   "     |  "       |  yes   |   Valid    | addSaleTransaction(500); getSaleTransaction(500);  ->  SaleTransaction removed successfully         | AccountBook.testGetSaleTransaction |
 
 
 ## Class BalanceOperation
 
 ### BalanceOperationClass(double,String)
-**Criteria for method BalanceOperationClass:**
+Criteria for method BalanceOperationClass:
 - Value of money
 - Validity of type
 - Presence of numeric character in type
 
-**Predicates for method BalanceOperationClass:**
+Predicates for method BalanceOperationClass:
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
@@ -931,28 +927,28 @@ Version:
 
 
 
-**Boundaries for method BalanceOperationClass**:
+Boundaries for method BalanceOperationClass:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
 | Value of money | -1, 0, 1 |
 
-**Combination of predicates for method BalanceOperationClass**
+Combination of predicates for method BalanceOperationClass
 
 | Signature of money | Presence of numeric character| Validity of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | ----------- | ---| ---|------------- | -------- | ------- |
-| <0  |  *  | *  | Invalid | T1(-1)  |     |
-| (>=0) |  yes  | ---| Invalid | T2(deb1t)   |   |
-| " | no  | no | Invalid   | T3(ciao)         ||
-| " | "  | yes | Valid   | T4(credit)         ||
+| <0  |  *  | *  | Invalid | T1(-1)  |  AccountBook.testConstructor   |
+| (>=0) |  yes  | ---| Invalid | T2(deb1t)   |  AccountBook.testConstructor |
+| " | no  | no | Invalid   | T3(ciao)         |AccountBook.testConstructor|
+| " | "  | yes | Valid   | T4(credit)         |AccountBook.testConstructor|
 
 
 ### setBalanceId
-**Criteria for method setBalanceId:**
+Criteria for method setBalanceId:
 - Value of BalanceId
 - Signature of BalanceId
 
-**Predicates for method setBalanceId:**
+Predicates for method setBalanceId:
 | Criterion   | Predicate     |
 | ----------- | ------------- |
 | Value of BalanceId | <0 |
@@ -961,26 +957,25 @@ Version:
 |   | valid|
 
 
-**Boundaries for method setBalanceId**:
+Boundaries for method setBalanceId:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
 |  |  |
 
-**Combination of predicates for method setBalanceId**
-
+Combination of predicates for method setBalanceId
 | Value of BalanceId | Signature of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | ----------- | ---|------------- | -------- | ------- |
-| <0  |  *  | Invalid | T1(-1)  |     |
-| * |  null  | Invalid | T2(null)   |   |
-| >0 | valid  | Valid   | T3(10)         ||
+| <0  |  *  | Invalid | T1(-1)  |    AccountBook.testInvalidSetBalanceId |
+| * |  null  | Invalid | T2(null)   |  AccountBook.testInvalidSetBalanceId |
+| >0 | valid  | Valid   | T3(10)         |AccountBook.testSetBalanceId|
 
 ### setDescription
-**Criteria for method setDescription:**
+Criteria for method setDescription:
 - Signature of Description
 - Length of string
 
-**Predicates for method setDescription:**
+Predicates for method setDescription:
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
@@ -991,82 +986,79 @@ Version:
 
 
 
-**Boundaries for method setDescription**:
+Boundaries for method setDescription:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
 
 
-**Combination of predicates for method setDescription**
+Combination of predicates for method setDescription
 
 | Signature of Description | Length of string | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | --- | ------ |------------- | -------- | ------- |
-| null  |  *  | Invalid | T1(null; error)  |     |
-| valid | (>1000)  | Invalid   | T2("cia90......";)   |   |
-| "    | <=1000 | Valid   | T3("Nuova transazione")         |   |
+| null  |  *  | Invalid | T1(null; error)  |    AccountBook.testInvalidSetDescription |
+| valid | (>1000)  | Invalid   | T2("cia90......";)   | AccountBook.testInvalidSetDescription  |
+| "    | <=1000 | Valid   | T3("Nuova transazione")         |  AccountBook.testSetDescription |
+
 
 
 ## Class TicketEntryClass
 
 ### Constructor
 **Criteria for method Constructor:**
-- Validity of ProductType
-- Signature of amount
-- Signature of discountRate
+- Signature of ProductType
+- Validity of amount
+- Validity of discountRate
 
 **Predicates for method constructor:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Validity of ProductType | null |
+| Signature of ProductType | null |
 | | valid |
-| Signature of amount | <=0 |
-| | valid |
-| Signature of discountRate | >1 |
-| | <0 |
+| Validity of amount | <=0 |
+| | >0 |
+| Validity of discountRate | >1 or <0 |
 | | 0<x<1 |
 
 **Boundaries for method constructor**:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Signature of amount | 0, +inf |
-| Signature of discountRate | 0, 1 |
+| Value of amount | -inf, 0, +inf |
+| Value of discountRate | -inf, 0, 1, +inf |
 
 **Combination of predicates for method constructor**
 
-| Validity of ProductType | validity of amount | validity of discountRate | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
-|-|-|-|-|-|-|
+| Signature of ProductType | validity of amount | validity of discountRate | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
 | null | * | * | invalid | T1(null, 2, 0.3) -> Exception | TicketEntryTest.testTicketEntryConstructor |
-| new ProductType(1, "null", "4006381333900", 2.0, "notes")  | <=0 | * | invalid | T2(new ProductType((1, "null", "4006381333900", 2.0, "notes")), -1, 0.3) -> InvalidQuantityException | TicketEntryTest.testTicketEntryConstructor |
-| new ProductType(1, "null", "4006381333900", 2.0, "notes") | >0 | <0 | invalid | T3(new ProductType((1, "null", "4006381333900", 2.0, "notes")), 2, -1) -> InvalidDiscountRateException | TicketEntryTest.testTicketEntryConstructor |
-| new ProductType(1, "null", "4006381333900", 2.0, "notes") | >0 | >1 | invalid | T4(new ProductType((1, "null", "4006381333900", 2.0, "notes")), 2, 1.2) -> InvalidDiscountRateException | TicketEntryTest.testTicketEntryConstructor |
-| new ProductType(1, "null", "4006381333900", 2.0, "notes") | >0 | 0<x<1 | valid | T5(new ProductType((1, "null", "4006381333900", 2.0, "notes")), 2, 0.5) -> correctly created a new TicketEntryClass object | TicketEntryTest.testTicketEntryConstructor |
+| valid  | <=0 | * | invalid | T2(new ProductType((1, "null", "4006381333900", 2.0, "notes")), -1, 0.3) -> InvalidQuantityException | TicketEntryTest.testTicketEntryConstructor |
+| valid | >0 | <0 or >1 | invalid | T3(new ProductType((1, "null", "4006381333900", 2.0, "notes")), 2, -1) -> InvalidDiscountRateException | TicketEntryTest.testTicketEntryConstructor |
+| valid | >0 | 0< x <1 | valid | T5(new ProductType((1, "null", "4006381333900", 2.0, "notes")), 2, 0.5) -> correctly created a new TicketEntryClass object | TicketEntryTest.testTicketEntryConstructor |
 
 
 ### testSetAmount
 
 **Criteria for method testSetAmount:**
 
-- Signature of amount
+- Validity of amount
 
 **Predicates for method testSetAmount:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of amount | <=0 |
-|   | valid |
+| Validity of amount | <=0 |
+|   | >0 |
 
 **Boundaries for method testSetAmount**:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Value of amount | 0, +inf |
+| Value of amount | -inf, 0, +inf |
 
 **Combination of predicates for method testSetAmount**
 
 | Validity of amount | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  |
-|--|--|-|-|
 | <=0 | invalid | T1(-1) -> InvalidQuantityException | TicketEntryClassTest.testSetAmount |
 | >0 | valid | T2(3) -> Correctly updated quantity of the ticket entry | TicketEntryClassTest.testSetAmount |
 
@@ -1075,33 +1067,33 @@ Version:
 
 **Criteria for method testSetDiscountRate:**
 
-- Signature of discountRate
+- Validity of discountRate
 
 **Predicates for method testSetDiscountRate:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of discountRate | <0 |
-|   | >1 |
-|   | 0<x<1 |
+| Validity of discountRate | <0 or >1 |
+|   | 0< x < 1 |
 
 **Boundaries for method testSetDiscountRate**:
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
-| Value of discountRate | 0, 1 |
+| Validity of discountRate | -inf, 0, 1, +inf |
 
 **Combination of predicates for method testSetDiscountRate**
 
-| Validity of amount | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  |
-| <0 | invalid | T1(-1) -> InvalidDiscountRateException | TicketEntryClassTest.testSetDiscountRate |
-| >1 | invalid | T2(1.3) -> InvalidDiscountRateException | TicketEntryClassTest.testSetDiscountRate |
-| 0<1<x | valid | T3(0.2) -> Correctly updated discountRate of the ticket entry | TicketEntryClassTest.testSetDiscountRate |
+| Validity of discountRate | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  |
+| <0 or >1 | invalid | T1(-1) -> InvalidDiscountRateException | TicketEntryClassTest.testSetDiscountRate |
+| 0<1<x | valid | T2(0.2) -> Correctly updated discountRate of the ticket entry | TicketEntryClassTest.testSetDiscountRate |
+
 
 
 ## Class ReturnTransactionClass
 
 ### setStatus
+
 **Criteria for method setStatus:**
 - Signature of status
 - Status allowed
@@ -1132,8 +1124,182 @@ Version:
 | ----------- | --- | ------ |------------- | -------- | ------- |
 | null  |  *  |  *  | Invalid | T1(null; error)  |     |
 | valid | no  |  *  | Valid   | T2("pa1ed"; no output)   |   |
-|       |       |       |       | T2b(closed50)  |   |
-| *     | yes |  yes   | Valid   | T3b("closed")         |   |
+
+
+### setMoney
+
+**Criteria for method setMoney:**
+- Value of money
+
+**Predicates for method setMoney:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Value of money | <0 |
+| | >=0 |
+
+
+**Boundaries for method setMoney**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of money | -inf, 0, +inf |
+
+**Combination of predicates for method setMoney**
+
+| Value of money | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| ----------- | ------------- | -------- | ------- |
+| <0  | Invalid | T1(-1) -> Exception  | ReturnTransactionTest.testSetMoney    |
+| >=0 | Valid | T2(50.0) -> correctly updated the money of the transaction   |  ReturnTransactionTest.testSetMoney     |
+
+
+### setSaleTransaction
+
+**Criteria for method setSaleTransaction:**
+- Signature of SaleTransaction
+
+**Predicates for method setSaleTransaction:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of SaleTransaction | null |
+| | valid |
+
+
+**Boundaries for method setSaleTransaction**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| | |
+
+**Combination of predicates for method setSaleTransaction**
+
+| Signature of SaleTransaction | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+| ----------- | ------------- | -------- | ------- |
+| null  | Invalid | T1(null) -> Exception  | ReturnTransactionTest.testSetSaleTransaction    |
+| valid | Valid | T2(new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1)) -> correctly updated the Sale Transaction   |  ReturnTransactionTest.testSetSaleTransaction     |
+
+
+### setReturnedProduct
+
+**Criteria for method setReturnedProduct:**
+- Signature of ReturnedProduct
+
+**Predicates for method setReturnedProduct:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of ReturnedProduct | null |
+| | valid |
+
+
+**Boundaries for method setReturnedProduct**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+|  |  |
+
+**Combination of predicates for method setReturnedProduct**
+
+| Signature of ReturnedProduct | Valid/Invalid | Description of the test case: example of input and output |  JUnit test case  | 
+| ----------- | ------------- | -------- | ------- |
+| null  | Invalid | T1(null) -> Exception  | ReturnTransactionTest.testSetReturnedProduct    |
+| valid | Valid | T2(new HashMap<>()) -> correctly updated ReturnedProduct   |  ReturnTransactionTest.testSetReturnedProduct     |
+
+
+### setReturnId
+
+**Criteria for method setReturnId:**
+- Value of returnId
+- Signature of returnId
+
+**Predicates for method setReturnId:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of returnId | null |
+|   | valid |
+| Value of returnId | <=0 |
+| | >0 |
+
+
+**Boundaries for method setReturnId**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of returnId | -inf, 0, +inf |
+
+**Combination of predicates for method setReturnId**
+
+| Signature of returnId | Value of returnId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| ----------- | ------------- | ----- | -------- | ------- |
+| null | * |  Invalid | T1(null) -> Exception  | ReturnTransactionTest.testSetReturnId    |
+| valid  | <=0  | Invalid | T2(-1) -> Exception  | ReturnTransactionTest.testSetReturnId    |
+| valid  | >0 | Valid | T3(5) -> correctly updated the returnId   |  ReturnTransactionTest.testSetReturnId     |
+
+
+int orderId, String description, double amount, LocalDate date, String type,Map<ProductType, Integer> returned, SaleTransaction saleT, ReturnStatus retstatus
+### Method constructor
+
+**Criteria for method constructor**
+
+- value of orderId
+- signature of description
+- value of amount
+- signature of date
+- signature of type
+- value of type
+- signature of returnedProducts
+- signature of saleTransaction
+- signature of retstatus
+
+**Predicates for method constructor:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| value of orderId | <=0 |
+|   | >0 |
+| signature of description | null |
+|   | valid |
+| value of amount | <=0 |
+|   | >0 |
+| signature of date | null |
+|   | valid |
+| signature of type | null |
+|   | valid |
+| value of type | invalid |
+|   | valid |
+| signature of returnedProducts | null |
+|   | valid |
+| signature of saleTransaction | null |
+|   | valid |
+| signature of retstatus | null |
+|   | valid |
+
+
+**Boundaries for method constructor**:
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| value of orderId | -inf, 0, +inf   |
+| value of amount | -inf, 0, +inf   |
+
+
+**Combination of predicates for method constructor**
+
+| value of orderId | signature of description | value of amount | signature of date | signature of type | value of type | signature of returnedProducts | signature of saleTransaction | signature of retstatus | Valid/Invalid | Description of the test case | JUnit test case |  12
+| ----------- | ----------- | ----------- | ------------- | ---------------------------- | --------------- | ----------- | ---------- | ----------- | -------- | ----------- | --------- |
+| <=0 | *  | *  | *  | *  | *  | *  | *  | *  | invalid  | T1(-1, "description", 3.0, LocalDate.now(), "DEBIT",new HashMap<>(),(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),ReturnStatus.STARTED) -> Exception |   |
+| >0  | null   | *  | *  | *  | *  | *  | *  | *  | invalid  | T2(1, null, 3.0, LocalDate.now(), "DEBIT",new HashMap<>(),(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),ReturnStatus.STARTED) -> Exception  | ReturnTransactionTest.testReturnTransactionConstructor  |
+| >0  | valid  | <=0 | *  | *  | *  | *  | *  | *  | invalid  | T3(1, "description", -1, LocalDate.now(), "DEBIT",new HashMap<>(),(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),ReturnStatus.STARTED) -> Exception  | ReturnTransactionTest.testReturnTransactionConstructor  |
+| >0  | valid  | >0  |  null | *  | *  | *  | *  | *  | invalid  | T4(1, "description", 3.0, null, "DEBIT",new HashMap<>(),(SaleTransaction) new SaleTransactionClas(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),ReturnStatus.STARTED) -> Exception  | ReturnTransactionTest.testReturnTransactionConstructor  |
+| >0  | valid  | >0  |  valid | null  | *  | *  | *  | *  | invalid  | T5(1, "description", 3.0, LocalDate.now(), null,new HashMap<>(),(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),ReturnStatus.STARTED) -> Exception  | ReturnTransactionTest.testReturnTransactionConstructor  |
+| >0  | valid  | >0  |  valid | valid  | invalid  | *  | *  | *  | invalid  | T6(1, "description", 3.0, LocalDate.now(), "DEBIT",null,(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),ReturnStatus.STARTED) -> Exception  | ReturnTransactionTest.testReturnTransactionConstructor  |
+| >0  | valid  | >0  |  valid | valid  | valid    | invalid | *  | *  | invalid  | T7(1, "description", 3.0, LocalDate.now(), "DEBIT",new HashMap<>(),null, 2, new HashMap<>(), 0.1),ReturnStatus.STARTED) -> Exception  | ReturnTransactionTest.testReturnTransactionConstructor  |
+| >0  | valid  | >0  |  valid | valid  | valid    |  valid  | invalid  | *  | invalid  | T8(1, "description", 3.0, LocalDate.now(), "DEBIT",new HashMap<>(),(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),ReturnStatus.STARTED) -> Exception  | ReturnTransactionTest.testReturnTransactionConstructor  |
+| >0  | valid  | >0  |  valid | valid  | valid    | valid   | valid  | valid  | valid  | T9() -> Exception | ReturnTransactionTest.testReturnTransactionConstructor   |
+
+
 
 ## Class CustomerClass
 ### Method CheckCardCode
@@ -1150,7 +1316,7 @@ Version:
 | Signature of String newCustomerCard | null |
 |             | valid |
 | Length of barcode | 10 |
-|             | > 10 && < 10 |
+|             | > 10 or < 10 |
 | Valid newCustomerCard| valid|
 |               | invalid|
 
@@ -1333,6 +1499,5 @@ Version:
 |ProductTypeClass| 7| 12| ProductTypeTest.testValidateBarCode|
 |CustomerClass|5|1|Impossible|
 |CustomerClass|5|10|CustomerClassTest.testCreateCardCode|
-
 
 

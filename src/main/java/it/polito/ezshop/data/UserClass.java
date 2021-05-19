@@ -13,10 +13,10 @@ public class UserClass implements User {
 	private RoleEnum role;
 
 	public UserClass(int id, String username, String password, RoleEnum role){
-		 if(username==null || username.isEmpty()) throw new RuntimeException(new InvalidUsernameException());
-		 if(password==null || password.isEmpty()) throw new RuntimeException(new InvalidPasswordException());
+		 if(username==null || username.isEmpty()) throw new RuntimeException(new InvalidUsernameException(username));
+		 if(password==null || password.isEmpty()) throw new RuntimeException(new InvalidPasswordException(password));
 		 if(role==null )throw new RuntimeException(new InvalidRoleException());
-		 if(id <= 0) throw new RuntimeException(new InvalidUserIdException());
+		 if(id <= 0) throw new RuntimeException(new InvalidUserIdException(""+id));
 		this.id=id;
 		this.username=username;
 		this.password=password;
@@ -65,7 +65,7 @@ public class UserClass implements User {
 
 	@Override
 	public void setRole(String role) {
-	   	 if(role==null || role.isEmpty()) throw new RuntimeException(new InvalidRoleException());
+	   	 if(role==null || role.isEmpty()) throw new RuntimeException(new InvalidRoleException(role));
 	   this.role=RoleEnum.valueOf(role);
 	}
 	public RoleEnum getRoleEnum () {
