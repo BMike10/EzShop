@@ -194,8 +194,8 @@ public class AccountBookClass implements AccountBook {
         return true;
     }
 
-    public Map<Integer, SaleTransaction> getSaleTransactionMap() {
-        return this.saleTransactionMap;
+    public Map<Integer, SaleTransaction> getSaleTransactionMap()
+    {return this.saleTransactionMap;
     }
 
     public Map<Integer, Order> getOrderMap() {
@@ -211,16 +211,22 @@ public class AccountBookClass implements AccountBook {
     }
 
     public void setSaleTransactionMap(Map<Integer, SaleTransaction> newSaleMap) {
+        if(newSaleMap==null)
+            throw new RuntimeException();
         this.saleTransactionMap.clear();
         this.saleTransactionMap.putAll(newSaleMap);
     }
 
     public void setOrderMap(Map<Integer, Order> newOrderMap) {
+        if(newOrderMap==null)
+            throw new RuntimeException();
         this.orderMap.clear();
         this.orderMap.putAll(newOrderMap);
     }
 
     public void setReturnTransactionMap(Map<Integer, ReturnTransaction> newReturnMap) {
+        if(newReturnMap==null)
+            throw new RuntimeException();
         this.returnTransactionMap.clear();
         this.returnTransactionMap.putAll(newReturnMap);
     }
