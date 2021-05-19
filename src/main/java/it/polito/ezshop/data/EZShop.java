@@ -367,7 +367,7 @@ public class EZShop implements EZShopInterface {
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
         nextId = accountBook.addOrder((Order) o);
     	// update balance
-        if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
+        if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
         	try {
 				accountBook.removeOrder(nextId);
 			} catch (InvalidTransactionIdException e) {
@@ -668,7 +668,8 @@ public class EZShop implements EZShopInterface {
 		ProductType pt = getProductTypeByBarCode(productCode);
 		if(pt == null) 
 			return false;
-		st.deleteProduct(pt, amount);
+		if(!st.deleteProduct(pt, amount))
+			return false;
 		try {
 			return updateQuantity(pt.getId(),amount);
 		} catch (InvalidProductIdException e) {
@@ -876,7 +877,7 @@ public class EZShop implements EZShopInterface {
 				return false;
 			}
 			// update the sale on db
-			if(!Connect.removeSaleTransaction(st.getBalanceId()) || !Connect.updateBalanceOperation(st.getBalanceId(),st.getMoney()) ||
+			if(!Connect.removeSaleTransaction(st.getBalanceId()) ||
 					!Connect.addSaleTransaction(st, st.getBalanceId(), st.getDescription(), st.getMoney(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))
 				System.out.println("Error saving sale update on DB");
 			return true;
@@ -1040,7 +1041,8 @@ public class EZShop implements EZShopInterface {
 		if(!Connect.updateReturnTransaction(returnId, ReturnStatus.PAYED)) {
 			return -1;
 		}
-
+		SaleTransaction st = returnTransaction.getSaleTransaction();
+		accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice());
         recordBalanceUpdate(-(((ReturnTransactionClass)returnTransaction).getMoney()));
 
 		return (((ReturnTransactionClass)returnTransaction).getMoney());
@@ -1088,6 +1090,8 @@ public class EZShop implements EZShopInterface {
 			return -1;
 		}
 
+		SaleTransaction st = returnTransaction.getSaleTransaction();
+		accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice());
         //Update map and db(Balance)
         recordBalanceUpdate(-(((ReturnTransactionClass) returnTransaction).getMoney()));
 
