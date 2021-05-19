@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import it.polito.ezshop.data.RoleEnum;
 import it.polito.ezshop.data.UserClass;
+import it.polito.ezshop.data.User;
 import it.polito.ezshop.exceptions.InvalidPasswordException;
 import it.polito.ezshop.exceptions.InvalidRoleException;
 import it.polito.ezshop.exceptions.InvalidUserIdException;
@@ -28,12 +29,16 @@ public class UserClassTest {
 		// invalid username
 		assertThrows(Exception.class, ()->{
 			UserClass u = new UserClass(1,null,"password",RoleEnum.Administrator);});
+		assertThrows(Exception.class, ()->{
+			UserClass u = new UserClass(1,"","password",RoleEnum.Administrator);});
 		// invalid password
 		assertThrows(Exception.class, ()->{
 			UserClass u = new UserClass(1,"username",null,RoleEnum.Administrator);});
-		// invalid role
 		assertThrows(Exception.class, ()->{
-			UserClass u = new UserClass(1,"username","password",null);});
+			UserClass u = new UserClass(1,"username","",RoleEnum.Administrator);});
+	
+		// invalid role
+		assertThrows(Exception.class, ()->{UserClass u = new UserClass(1,"username","password",null);});
 		// valid
 				try {
 					UserClass u = new UserClass(1, "username", "password", RoleEnum.Administrator );					
@@ -53,6 +58,8 @@ public class UserClassTest {
 				assertThrows(Exception.class, ()->{u.setId(null);});
 				assertEquals(new Integer(1), u.getId());
 				// invalid
+				assertThrows(Exception.class, ()->{u.setId(0);});
+				assertEquals(new Integer(1), u.getId());
 				assertThrows(Exception.class, ()->{u.setId(-1);});
 				assertEquals(new Integer(1), u.getId());
 				// valid
@@ -60,10 +67,8 @@ public class UserClassTest {
 					u.setId(2);
 				}catch(Exception e) {
 					fail();
-				}
-		
-		
-	}
+				}		
+			}
 	
 	@Test
 	public void testSetUsername() {
@@ -122,11 +127,10 @@ public class UserClassTest {
 		@Test 
 		public void testWhiteBox() throws InvalidUserIdException, InvalidUsernameException,InvalidPasswordException,UnauthorizedException
 		{final UserClass u = new UserClass(1, "username", "password", RoleEnum.Administrator );					
+		try {
 			//setId
 		assertThrows(RuntimeException.class, () -> {u.setId(null);});
 		assertThrows(RuntimeException.class, () -> {u.setId(0);});
-		assertThrows(RuntimeException.class, () -> {u.setId(-1);});
-		try {
 			u.setId(2);
 			assertEquals(new Integer(2), u.getId());
 		} catch(Exception e) {

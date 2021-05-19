@@ -25,7 +25,7 @@ public class Connect {
             String insert2 = "INSERT INTO Balance(id, balance) values (1,0)";
             try {
                 stmt.execute(insert2);
-            }catch(Exception e) {e.printStackTrace();}
+            }catch(Exception e) {}
             String query = "SELECT * FROM USER";
             ResultSet result = stmt.executeQuery(query);
             while(result.next()) {
@@ -598,8 +598,8 @@ public class Connect {
         return true;
     }
 
-    public static boolean updateSaleTransactionStatus(int id, SaleStatus status) {
-        String sql = "UPDATE SaleTransactions SET status = " + status.ordinal() + " WHERE id = " + id;
+    public static boolean updateSaleTransactionStatus(int id, SaleStatus status,String paymentType) {
+        String sql = "UPDATE SaleTransactions SET status = " + status.ordinal() +" ,paymentType = '"+ paymentType + "' WHERE id = " + id;
         try (Statement st = conn.createStatement()) {
             st.execute(sql);
         } catch (SQLException e) {
@@ -830,8 +830,8 @@ public class Connect {
                 + "VALUES (" + b.getBalanceId()
                 + ", '" + b.getDescription() + "'"
                 + ", " + b.getMoney()
-                + ",DATE('now'), "
-                + b.getType() + ")";
+                + ",DATE('now'), '"
+                + b.getType() + "')";
         try (Statement st = conn.createStatement()) {
             st.execute(sql);
         } catch (SQLException e) {

@@ -66,7 +66,8 @@ public class EZShop implements EZShopInterface {
     	 if(username==null || username.isEmpty()) throw new InvalidUsernameException();
     	 if(password==null || password.isEmpty()) throw new InvalidPasswordException();
     	 if(role==null || role.isEmpty() ) throw new InvalidRoleException();
-     	int id = users.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
+    	 if(users.values().stream().anyMatch(u->u.getUsername().equals(username))) return -1;
+     	 int id = users.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
          User user = new UserClass(id, username, password, RoleEnum.valueOf(role));  
          users.put(id,user);
          if(!Connect.addUsers(id, username, password,role)) {
@@ -112,7 +113,12 @@ public class EZShop implements EZShopInterface {
     public boolean updateUserRights(Integer id, String role) throws InvalidUserIdException, InvalidRoleException, UnauthorizedException {      
     	if(currentUser==null || !currentUser.getRole().equals("Administrator")) throw new UnauthorizedException(); 
     	if(id==null || id <= 0) throw new InvalidUserIdException();
-       	if(role==null || role.isEmpty()) throw new InvalidRoleException();       	
+       	if(role==null || role.isEmpty()) throw new InvalidRoleException();  
+       	try {
+       		RoleEnum.valueOf(role);
+       	}catch(Exception e) {
+       		throw new InvalidRoleException();
+       	}
        	UserClass user = (UserClass) users.get(id);
         	if(user == null || user.getId() == null)
         		//user doesn't exist
@@ -361,19 +367,20 @@ public class EZShop implements EZShopInterface {
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
         nextId = accountBook.addOrder((Order) o);
     	// update balance
-        if(!recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity())) {
+        /*if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
         	try {
 				accountBook.removeOrder(nextId);
 			} catch (InvalidTransactionIdException e) {
 				e.printStackTrace();
 			}
         	return -1;
-        }
+        }*/
 
         //MICHELE
-    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
+    	;
     	// update db
-        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
+        if(!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT")) ||
+        		!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
 			try {
 				accountBook.removeOrder(o.getOrderId());
 				recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
@@ -400,9 +407,10 @@ public class EZShop implements EZShopInterface {
     	if(o.getStatus().equals(OrderStatus.PAYED.name()))
     		return false;
     	// update balance
-    	accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"));
-    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity()))
+    	if(!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT")))
     		return false;
+//    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity()))
+//    		return false;
         
     	o.setStatus("PAYED");
     	// save status on db
@@ -477,7 +485,7 @@ public class EZShop implements EZShopInterface {
     public Integer defineCustomer(String customerName) throws InvalidCustomerNameException, UnauthorizedException {
     	 if(customerName==null ||customerName.isEmpty()) throw new InvalidCustomerNameException();
          if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();        
-         if(customers.values().stream().map(e->e.getCustomerName()).anyMatch(e->e==customerName)) return -1;
+         if(customers.values().stream().map(e->e.getCustomerName()).anyMatch(e->e.equals(customerName))) return -1;
 
          int id = customers.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
           Customer c = new CustomerClass(id, customerName,"",0);
@@ -551,7 +559,10 @@ public class EZShop implements EZShopInterface {
     	  if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
           //String of 10 digits      
         LoyaltyCardClass newCard = new LoyaltyCardClass("",0);
-        String number = newCard.createCardCode(10);
+        String number = "";
+        do {
+        	number = LoyaltyCardClass.createCardCode(10);
+        }while(cards.containsKey(number));
         newCard.setCardCode(number);
         cards.put(number,newCard);  
         
@@ -585,7 +596,7 @@ public class EZShop implements EZShopInterface {
     	  
     LoyaltyCardClass card= (LoyaltyCardClass) cards.get(customerCard);
     CustomerClass tmp = null;
-    if(card == null) throw new InvalidCustomerCardException();
+    if(card == null) return false;
 	boolean updated = card.updatePoints(pointsToBeAdded);
 	if(!updated)
 		return false;	
@@ -659,7 +670,8 @@ public class EZShop implements EZShopInterface {
 		ProductType pt = getProductTypeByBarCode(productCode);
 		if(pt == null) 
 			return false;
-		st.deleteProduct(pt, amount);
+		if(!st.deleteProduct(pt, amount))
+			return false;
 		try {
 			return updateQuantity(pt.getId(),amount);
 		} catch (InvalidProductIdException e) {
@@ -867,7 +879,7 @@ public class EZShop implements EZShopInterface {
 				return false;
 			}
 			// update the sale on db
-			if(!Connect.removeSaleTransaction(st.getBalanceId()) || !Connect.updateBalanceOperation(st.getBalanceId(),st.getMoney()) ||
+			if(!Connect.removeSaleTransaction(st.getBalanceId()) ||
 					!Connect.addSaleTransaction(st, st.getBalanceId(), st.getDescription(), st.getMoney(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))
 				System.out.println("Error saving sale update on DB");
 			return true;
@@ -895,7 +907,7 @@ public class EZShop implements EZShopInterface {
 			return false;
 		}
 		SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
-		Map<String, TicketEntryClass> entries = st.getTicketEntries();
+		Map<String, TicketEntryClass> entries = st.getProductsEntries();
 		Map<ProductType, Integer> returnedProducts = rt.getReturnedProduct();
 		//put back the products into the transaction
 		//for each of the returned products, find the matching ticket entry of the ST and update the amount
@@ -951,12 +963,13 @@ public class EZShop implements EZShopInterface {
         //Update Map
         ((SaleTransactionClass) saleTransaction).setStatus(SaleStatus.valueOf("PAYED"));
         //Update DB
-        if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED")))
+        if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED"),"CASH"))
         	return -1;
         //MICHELE
         accountBook.addBalanceOperation((BalanceOperation)saleTransaction);
+        ((SaleTransactionClass) saleTransaction).setPaymentType("CASH");
         //Update map and db(Balance)
-        recordBalanceUpdate(saleAmount);
+        //recordBalanceUpdate(saleAmount);
 
 		return change;
 
@@ -999,12 +1012,13 @@ public class EZShop implements EZShopInterface {
         //Update Map
 		((SaleTransactionClass)sale).setStatus(SaleStatus.valueOf("PAYED"));
         //Update DB
-		if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED")))
+		if(!Connect.updateSaleTransactionStatus(transactionId,SaleStatus.valueOf("PAYED"),"CREDIT_CARD"))
 			return false;
 
 		//Update map and db(Balance)
         accountBook.addBalanceOperation((BalanceOperation)sale);
-        recordBalanceUpdate(saleAmount);
+        ((SaleTransactionClass) sale).setPaymentType("CREDIT_CARD");
+        //recordBalanceUpdate(saleAmount);
         //Update new CreditCardSale
 		updateCreditCardTxt(creditCard,userCash-saleAmount);
 
@@ -1038,8 +1052,9 @@ public class EZShop implements EZShopInterface {
 		if(!Connect.updateReturnTransaction(returnId, ReturnStatus.PAYED)) {
 			return -1;
 		}
-
-        recordBalanceUpdate(-(((ReturnTransactionClass)returnTransaction).getMoney()));
+		SaleTransaction st = returnTransaction.getSaleTransaction();
+		accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice());
+        //recordBalanceUpdate(-(((ReturnTransactionClass)returnTransaction).getMoney()));
 
 		return (((ReturnTransactionClass)returnTransaction).getMoney());
     }
@@ -1094,8 +1109,10 @@ public class EZShop implements EZShopInterface {
 			return -1;
 		}
 
+		SaleTransaction st = returnTransaction.getSaleTransaction();
+		accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice());
         //Update map and db(Balance)
-        recordBalanceUpdate(-(((ReturnTransactionClass) returnTransaction).getMoney()));
+        //recordBalanceUpdate(-(((ReturnTransactionClass) returnTransaction).getMoney()));
 
     	return (((ReturnTransactionClass)returnTransaction).getMoney());
     }
@@ -1113,9 +1130,10 @@ public class EZShop implements EZShopInterface {
 		//Negative new balance
 		if(newBalance < 0)
 			return false;
-
-		Connect.balanceUpdate(newBalance);
-		accountBook.setBalance(newBalance);
+		BalanceOperation b = new BalanceOperationClass(accountBook.newId(), "", Math.abs(toBeAdded), LocalDate.now(), toBeAdded>=0?"CREDIT":"DEBIT");
+		accountBook.addBalanceOperation(b);
+		//Connect.balanceUpdate(newBalance);
+		//accountBook.setBalance(newBalance);
 		return true;
 	}
 
@@ -1199,5 +1217,4 @@ public class EZShop implements EZShopInterface {
 		//LOGIN
 		return accountBook.getBalance();
 	}
-
 }

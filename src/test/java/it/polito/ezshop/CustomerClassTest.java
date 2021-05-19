@@ -9,6 +9,8 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import it.polito.ezshop.data.CustomerClass;
+import it.polito.ezshop.data.LoyaltyCard;
+import it.polito.ezshop.data.LoyaltyCardClass;
 import it.polito.ezshop.exceptions.InvalidCustomerCardException;
 import it.polito.ezshop.exceptions.InvalidCustomerIdException;
 import it.polito.ezshop.exceptions.InvalidCustomerNameException;
@@ -23,6 +25,12 @@ public class CustomerClassTest {
 			// invalid customerName
 			assertThrows(Exception.class, ()->{
 				final CustomerClass c = new CustomerClass(1,"","abcde12345",0);});		
+			
+			assertThrows(Exception.class, ()->{
+				final CustomerClass c = new CustomerClass(1,"customerName","abcde12345678",0);});		
+			assertThrows(Exception.class, ()->{
+				final CustomerClass c = new CustomerClass(1,"customerName","abcde",0);});		
+			
 			// valid
 					try {
 					final CustomerClass c = new CustomerClass(1, "customerName","abcde12345",0);					
@@ -30,6 +38,7 @@ public class CustomerClassTest {
 					assertEquals("customerName", c.getCustomerName());
 					assertEquals("abcde12345", c.getCustomerCard());
 					assertEquals(new Integer(0), c.getPoints());
+					
 					}catch(Exception e) {				
 						fail();
 						}
@@ -71,6 +80,28 @@ public class CustomerClassTest {
 						fail();
 					}
 		}
+		
+		@Test 
+		public void testSetPoints(){
+			CustomerClass c = new CustomerClass(1,"customerName","abcde12345",0);			
+			c.setPoints(10);
+			assertEquals(new Integer(10), c.getPoints());
+			
+		}
+		  @Test
+			public void testUpdateCustomerPoints() throws InvalidCustomerCardException {
+				CustomerClass c = new CustomerClass(1,"customerName","abcde12345",0);			
+				// initial points should be 0
+				assertEquals(new Integer(0), c.getPoints());
+				// try update with negative
+				c.updateCustomerPoints(-1);
+				assertEquals(new Integer(0), c.getPoints());
+				c.updateCustomerPoints(10);
+				c.updateCustomerPoints(10);
+				assertEquals(new Integer(20), c.getPoints());
+			}
+		
+		
 		@Test
 		public void testSetCustomerCard() {
 			//valid 10 digits
@@ -84,29 +115,7 @@ public class CustomerClassTest {
 			assertFalse(CustomerClass.checkCardCode(code9));
 		}
 		
-		@Test
-		public void testCustomerId() {
-			CustomerClass c =null;
-			try {
-				c = new CustomerClass(1, "alice","abcde12345", 0);
-			} catch (Exception e1) {fail();}
-			// negative 
-			try {
-				c.setId(-1);
-				fail();
-			}catch(Exception e) {}
-			// null
-			try {
-				c.setId(null);
-				fail();
-			}catch(Exception e) {}
-			
-			// valid
-			try {
-				c.setId(1231);
-				assertEquals(new Integer(1231), c.getId());
-			}catch(Exception e) {fail();}
-		}
+
 		
 		//WB testing
 		@Test 
@@ -133,6 +142,7 @@ public class CustomerClassTest {
 			
 			//setCard
 			assertThrows(RuntimeException.class, () -> {c.setCustomerCard(null);});
+			assertThrows(RuntimeException.class, () -> {c.setCustomerCard("abcde12345678");});
 			try {
 				c.setCustomerCard("abcde12345");
 				assertEquals("abcde12345", c.getCustomerCard());
