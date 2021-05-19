@@ -1435,7 +1435,9 @@ int orderId, String description, double amount, LocalDate date, String type,Map<
 |ProductTypeClass|it.polito.ezshop.ProductTypeClassTest.testWhiteBox|
 |CustomerClass|it.polito.ezshop.CustomerClassTest.testWhiteBox|
 |UserClass|it.polito.ezshop.UserClassTest.testWhiteBox|
-|LoyaltyCardClass|it.polito.ezshop.LoyaltyCardClassTest.testWhiteBox||
+|LoyaltyCardClass|it.polito.ezshop.LoyaltyCardClassTest.testWhiteBox|
+|AccountBook|it.polito.ezshop.AccountBookTest.testWhiteBoxAccountBook|
+|BalanceOperation|it.polito.ezshop.BalanceOperationTest.testWhiteBoxBalanceOperation|
 
 ### Code coverage report
 
