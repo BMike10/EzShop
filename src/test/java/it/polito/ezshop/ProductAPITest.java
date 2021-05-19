@@ -4,9 +4,13 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.ProductType;
+import it.polito.ezshop.data.RoleEnum;
+import it.polito.ezshop.data.User;
 import it.polito.ezshop.exceptions.InvalidLocationException;
 import it.polito.ezshop.exceptions.InvalidPasswordException;
 import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
@@ -14,18 +18,51 @@ import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
 import it.polito.ezshop.exceptions.InvalidProductIdException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
+import it.polito.ezshop.exceptions.InvalidRoleException;
+import it.polito.ezshop.exceptions.InvalidUserIdException;
 import it.polito.ezshop.exceptions.InvalidUsernameException;
 import it.polito.ezshop.exceptions.UnauthorizedException;
 
 public class ProductAPITest {
-
+	private final EZShop ezshop = new EZShop();
+	private String username = "testUserProductApiEZShop";
+	private String password = "password";
+	private int createdUserId = -1;
+	
+	@Before
+	public void init() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException, InvalidProductCodeException, UnauthorizedException, InvalidProductIdException {
+		User u = null;
+		if((u=ezshop.login(username, password))==null) {
+			createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
+		}else if(u.getRole().equals(RoleEnum.Cashier.name())) {
+			username+="123456789101112";
+			createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
+		}
+		// delete test products
+		ezshop.login(username, password);
+		ProductType pt = null;
+		if((pt = ezshop.getProductTypeByBarCode("400638133390"))!=null){
+			ezshop.deleteProductType(pt.getId());
+		}
+		if((pt = ezshop.getProductTypeByBarCode("4006381333931"))!=null){
+			ezshop.deleteProductType(pt.getId());
+		}
+		ezshop.logout();
+	}
+	@After
+	public void after() throws InvalidUsernameException, InvalidPasswordException, InvalidUserIdException, UnauthorizedException {
+		if(createdUserId > 0) {
+			ezshop.login(username, password);
+			ezshop.deleteUser(createdUserId);
+		}
+	}
 	@Test
-	public void testCreateProductType() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException {
-		final EZShop ezshop = new EZShop();
+	public void testCreateProductType() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException, InvalidRoleException, InvalidUserIdException {
+		// final EZShop ezshop = new EZShop();
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.createProductType("apple", "400638133390", 10.0, null);});		
 		// login
-		ezshop.login("admin", "admin");
+		ezshop.login(username, password);
 		// description
 		// null
 		assertThrows(InvalidProductDescriptionException.class, ()->{ezshop.createProductType(null, "400638133390", 10.0, null);});
@@ -56,9 +93,9 @@ public class ProductAPITest {
 	
 	@Test
 	public void testDeleteProductType() throws InvalidUsernameException, InvalidPasswordException, InvalidProductIdException, UnauthorizedException {
-		final EZShop ezshop = new EZShop();
+		// final EZShop ezshop = new EZShop();
 		// login
-		ezshop.login("admin", "admin");
+		ezshop.login(username, password);
 		int id[] = {-1};
 		try{
 			if((id[0]=ezshop.createProductType("apple", "400638133390", 10.0, "apple"))<=0)
@@ -71,7 +108,7 @@ public class ProductAPITest {
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.deleteProductType(id[0]);});	
 		// login
-		ezshop.login("admin", "admin");
+		ezshop.login(username, password);
 		// invalid id
 		assertThrows(InvalidProductIdException.class, ()->{ezshop.deleteProductType(0);});	
 		// valid
@@ -81,11 +118,11 @@ public class ProductAPITest {
 	}
 	@Test
 	public void testGetAllProductTypes() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException {
-		final EZShop ezshop = new EZShop();
+		// final EZShop ezshop = new EZShop();
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.getAllProductTypes();});	
 		// login
-		ezshop.login("admin", "admin");
+		ezshop.login(username, password);
 		// valid
 		int num = -1;
 		try {
@@ -123,11 +160,11 @@ public class ProductAPITest {
 	}
 	@Test
 	public void testGetProductTypeByBarCode() throws InvalidUsernameException, InvalidPasswordException, InvalidProductCodeException, UnauthorizedException, InvalidProductIdException {
-		final EZShop ezshop = new EZShop();
+		// final EZShop ezshop = new EZShop();
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.getProductTypeByBarCode("4006381333900");});	
 		// login
-		ezshop.login("admin", "admin");
+		ezshop.login(username, password);
 		// invalid barcode
 		// null
 		assertThrows(InvalidProductCodeException.class, ()->{ezshop.getProductTypeByBarCode(null);});	
@@ -153,11 +190,11 @@ public class ProductAPITest {
 	}
 	@Test
 	public void testGetProductTypesByDescription() throws InvalidUsernameException, InvalidPasswordException {
-		final EZShop ezshop = new EZShop();
+		// final EZShop ezshop = new EZShop();
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.getProductTypesByDescription("banana");});	
 		// login
-		ezshop.login("admin", "admin");
+		ezshop.login(username, password);
 		try {
 			int id = ezshop.createProductType("apple", "400638133390", 10.0, "apple");
 			// list for comparison
@@ -184,11 +221,11 @@ public class ProductAPITest {
 	}
 	@Test
 	public void testUpdateProduct() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException, InvalidLocationException {
-		final EZShop ezshop = new EZShop();
+		// final EZShop ezshop = new EZShop();
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.updateProduct(1, "banana", "4006381333900", 10.0, null);});	
 		// login
-		ezshop.login("admin", "admin");
+		ezshop.login(username, password);
 		// create test prod
 		final int id = ezshop.createProductType("apple", "400638133390", 10.0, "apple");
 		ProductType pt = ezshop.getProductTypeByBarCode("400638133390");
@@ -211,7 +248,15 @@ public class ProductAPITest {
 		//invalid
 		assertThrows(InvalidProductCodeException.class, ()->{ezshop.updateProduct(id, "apple", "400638133399", 10.0, "apple");});	
 		//already present
+		boolean created = false;
+		int id2 = -1;
+		if(ezshop.getProductTypeByBarCode("4006381333900") == null) {
+			id2 = ezshop.createProductType("test", "4006381333900", 1.0, "");
+			created = true;
+		}
 		assertFalse(ezshop.updateProduct(id, "apple", "4006381333900", 10.0, "apple"));	
+		if(created)
+			ezshop.deleteProductType(id2);
 		// invalid price
 		assertThrows(InvalidPricePerUnitException.class, ()->{ezshop.updateProduct(id, "apple", "400638133390", 0.0, "apple");});	
 		// valid
@@ -233,11 +278,11 @@ public class ProductAPITest {
 	
 	@Test
 	public void testUpdateQuantity() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException, InvalidLocationException {
-		final EZShop ezshop = new EZShop();
+		// final EZShop ezshop = new EZShop();
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.updateQuantity(1, 10);});	
 		// login
-		ezshop.login("admin", "admin");
+		ezshop.login(username, password);
 		// create test products
 		final int id = ezshop.createProductType("apple", "400638133390", 10.0, "apple");
 		ProductType pt = ezshop.getProductTypeByBarCode("400638133390");
@@ -266,11 +311,11 @@ public class ProductAPITest {
 	
 	@Test
 	public void testUpdateLocation() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException, InvalidLocationException {
-		final EZShop ezshop = new EZShop();
+		// final EZShop ezshop = new EZShop();
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.updatePosition(1, "1-a-1");});	
 		// login
-		ezshop.login("admin", "admin");
+		ezshop.login(username, password);
 		// create test products
 		final int id = ezshop.createProductType("apple", "400638133390", 10.0, "apple");
 		ProductType pt = ezshop.getProductTypeByBarCode("400638133390");

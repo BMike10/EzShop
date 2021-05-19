@@ -66,7 +66,8 @@ public class EZShop implements EZShopInterface {
     	 if(username==null || username.isEmpty()) throw new InvalidUsernameException();
     	 if(password==null || password.isEmpty()) throw new InvalidPasswordException();
     	 if(role==null || role.isEmpty() ) throw new InvalidRoleException();
-     	int id = users.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
+    	 if(users.values().stream().anyMatch(u->u.getUsername().equals(username))) return -1;
+     	 int id = users.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
          User user = new UserClass(id, username, password, RoleEnum.valueOf(role));  
          users.put(id,user);
          if(!Connect.addUsers(id, username, password,role)) {
@@ -1201,5 +1202,7 @@ public class EZShop implements EZShopInterface {
 		//LOGIN
 		return accountBook.getBalance();
 	}
-
+	public void setCurrentUser(User u) {
+		currentUser = u;
+	}
 }
