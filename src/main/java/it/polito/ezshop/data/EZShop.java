@@ -113,7 +113,12 @@ public class EZShop implements EZShopInterface {
     public boolean updateUserRights(Integer id, String role) throws InvalidUserIdException, InvalidRoleException, UnauthorizedException {      
     	if(currentUser==null || !currentUser.getRole().equals("Administrator")) throw new UnauthorizedException(); 
     	if(id==null || id <= 0) throw new InvalidUserIdException();
-       	if(role==null || role.isEmpty()) throw new InvalidRoleException();       	
+       	if(role==null || role.isEmpty()) throw new InvalidRoleException();  
+       	try {
+       		RoleEnum.valueOf(role);
+       	}catch(Exception e) {
+       		throw new InvalidRoleException();
+       	}
        	UserClass user = (UserClass) users.get(id);
         	if(user == null || user.getId() == null)
         		//user doesn't exist
@@ -478,7 +483,7 @@ public class EZShop implements EZShopInterface {
     public Integer defineCustomer(String customerName) throws InvalidCustomerNameException, UnauthorizedException {
     	 if(customerName==null ||customerName.isEmpty()) throw new InvalidCustomerNameException();
          if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();        
-         if(customers.values().stream().map(e->e.getCustomerName()).anyMatch(e->e==customerName)) return -1;
+         if(customers.values().stream().map(e->e.getCustomerName()).anyMatch(e->e.equals(customerName))) return -1;
 
          int id = customers.keySet().stream().max(Comparator.comparingInt(t->t)).orElse(0) + 1;
           Customer c = new CustomerClass(id, customerName,"",0);
@@ -552,7 +557,10 @@ public class EZShop implements EZShopInterface {
     	  if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
           //String of 10 digits      
         LoyaltyCardClass newCard = new LoyaltyCardClass("",0);
-        String number = newCard.createCardCode(10);
+        String number = "";
+        do {
+        	number = LoyaltyCardClass.createCardCode(10);
+        }while(cards.containsKey(number));
         newCard.setCardCode(number);
         cards.put(number,newCard);  
         
