@@ -1,21 +1,27 @@
 package it.polito.ezshop.data;
 
+import it.polito.ezshop.exceptions.InvalidDiscountRateException;
+import it.polito.ezshop.exceptions.InvalidQuantityException;
+
 public class TicketEntryClass implements TicketEntry {
 
 	private ProductType productType;
 	private int amount;
 	private double discountRate;
 
-	public TicketEntryClass(ProductType p, int amount, double discRate) {
+	public TicketEntryClass(ProductType p, int amount, double discRate) throws Exception {
+		if(p==null) throw new Exception();
+		if(amount<0) throw new InvalidQuantityException();
+		if(discRate<0 || discRate>1) throw new InvalidDiscountRateException();
 		this.productType=p;
 		this.discountRate=discRate;
 		this.amount=amount;
 	}
-	public TicketEntryClass(ProductType p, int amount) {
-		this.productType=p;
-		this.discountRate=0.0;
-		this.amount=amount;
+	
+	public TicketEntryClass(ProductType p, int amount) throws Exception {
+		this(p, amount, 0.0);
 	}
+	
 	public ProductType getProductType() {
 		return this.productType;
 	}
@@ -46,6 +52,7 @@ public class TicketEntryClass implements TicketEntry {
 
 	@Override
 	public void setAmount(int amount) {
+		if(amount<=0) throw new RuntimeException(new InvalidQuantityException());
 		this.amount=amount;
 	}
 
@@ -66,6 +73,7 @@ public class TicketEntryClass implements TicketEntry {
 
 	@Override
 	public void setDiscountRate(double discountRate) {
+		if(discountRate<0 || discountRate>1) throw new RuntimeException(new InvalidDiscountRateException());
 		this.discountRate=discountRate;
 	}
 

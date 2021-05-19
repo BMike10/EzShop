@@ -61,7 +61,19 @@ public class LoyaltyCardClassTest {
 			assertThrows(RuntimeException.class, () -> {card.setCardCode(null);});
 			assertThrows(RuntimeException.class, () -> {card.setCardCode("abc");});
 			assertThrows(RuntimeException.class, () -> {card.setCardCode("vgrbvrebretrwbvgtrw");});			
-	  
+			
+			int i=11;
+			assertEquals("", LoyaltyCardClass.createCardCode(i));
+			int i2=9;
+			assertEquals("", LoyaltyCardClass.createCardCode(i2));
+			
+			int i3=10;
+			String str = LoyaltyCardClass.createCardCode(i3);		
+			LoyaltyCardClass c =new LoyaltyCardClass(str, 0);
+			c.setCardCode(str);
+			assertEquals(str,c.getCardCode() );
+
+	 
 	  }
 
 	
