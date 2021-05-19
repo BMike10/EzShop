@@ -206,8 +206,8 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		this.status = SaleStatus.CLOSED;
 	}
 
-	public void addProductDiscount(ProductType product, double discount) {				//non testare
-		if(discount==0);														 //-->???
+	public void addProductDiscount(ProductType product, double discount) {				
+		if(discount<0 || discount>1) throw new RuntimeException();
 		if (ticketEntries.containsKey(product.getBarCode())) {
 			ticketEntries.get(product.getBarCode()).setDiscountRate(discount);
 		}
