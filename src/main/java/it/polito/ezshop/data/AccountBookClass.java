@@ -74,7 +74,15 @@ public class AccountBookClass implements AccountBook {
         //balance += bo.getType().equals("CREDIT")?bo.getMoney():-bo.getMoney();
         return true;
     }
-
+    public boolean updateBalanceOperation(int id, double newMoney) {
+        if (!balanceOperationMap.containsKey(id))
+            return false;
+        BalanceOperation b = balanceOperationMap.get(id);
+        b.setMoney(newMoney);
+        //update db
+        Connect.updateBalanceOperation(id, newMoney);
+        return true;
+    }
     @Override
     public Integer addSaleTransaction(SaleTransaction saleTransaction) {
         //Sale Transaction is complete but without id

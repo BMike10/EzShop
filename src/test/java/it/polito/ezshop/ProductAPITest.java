@@ -229,7 +229,7 @@ public class ProductAPITest {
 		// create test prod
 		final int id = ezshop.createProductType("apple", "400638133390", 10.0, "apple");
 		ProductType pt = ezshop.getProductTypeByBarCode("400638133390");
-		ezshop.updatePosition(id, "1-a-1");
+		ezshop.updatePosition(id, "1-test-1");
 		ezshop.updateQuantity(id, 10);
 		// invalid id
 		assertThrows(InvalidProductIdException.class, ()->{ezshop.updateProduct(0, "apple", "400638133390", 10.0, "apple");});	
@@ -269,7 +269,7 @@ public class ProductAPITest {
 			assertEquals(20.0, pt.getPricePerUnit(), 1e-6);
 			assertEquals("apple2", pt.getNote());
 			assertEquals(new Integer(10), pt.getQuantity());
-			assertEquals("1-a-1", pt.getLocation());
+			assertEquals("1-test-1", pt.getLocation());
 			// clean
 			ezshop.deleteProductType(id);
 		}catch(Exception e) {fail();}
@@ -292,9 +292,9 @@ public class ProductAPITest {
 		// invalid location
 		assertFalse(ezshop.updateQuantity(id, 1));
 		// set position
-		ezshop.updatePosition(id, "1-a-1");
+		ezshop.updatePosition(id, "1-test-1");
 		pt = ezshop.getProductTypeByBarCode("400638133390");
-		assertEquals("1-a-1", pt.getLocation());
+		assertEquals("1-test-1", pt.getLocation());
 		// invalid quantity
 		assertFalse(ezshop.updateQuantity(id, -11));
 		// valid
@@ -313,7 +313,7 @@ public class ProductAPITest {
 	public void testUpdateLocation() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException, InvalidLocationException {
 		// final EZShop ezshop = new EZShop();
 		// before login
-		assertThrows(UnauthorizedException.class, ()->{ezshop.updatePosition(1, "1-a-1");});	
+		assertThrows(UnauthorizedException.class, ()->{ezshop.updatePosition(1, "1-test-1");});	
 		// login
 		ezshop.login(username, password);
 		// create test products
@@ -325,32 +325,32 @@ public class ProductAPITest {
 		ProductType pt2 = ezshop.getProductTypeByBarCode("4006381333931");
 		pt.setQuantity(10);
 		// invalid id
-		assertThrows(InvalidProductIdException.class, ()->{ezshop.updatePosition(0, "1-a-1");});	// invalid
-		assertFalse(ezshop.updatePosition(Integer.MAX_VALUE, "1-a-1"));	// not present
+		assertThrows(InvalidProductIdException.class, ()->{ezshop.updatePosition(0, "1-atest-1");});	// invalid
+		assertFalse(ezshop.updatePosition(Integer.MAX_VALUE, "1-atest-1"));	// not present
 		// invalid location
 		assertThrows(InvalidLocationException.class, ()->{ezshop.updatePosition(id, "1-1");});
 		pt = ezshop.getProductTypeByBarCode("400638133390");
 		assertEquals(startPos, pt.getLocation());
 		// already present
-		ezshop.updatePosition(id2, "2-b-2");
+		ezshop.updatePosition(id2, "2-btest-2");
 		pt2 = ezshop.getProductTypeByBarCode("4006381333931");
-		assertEquals("2-b-2", pt2.getLocation());
-		assertFalse(ezshop.updatePosition(id, "2-b-2"));
+		assertEquals("2-btest-2", pt2.getLocation());
+		assertFalse(ezshop.updatePosition(id, "2-btest-2"));
 		pt = ezshop.getProductTypeByBarCode("400638133390");
 		assertEquals(startPos, pt.getLocation());		
 		// valid
 		try {
-			ezshop.updatePosition(id, "3-c-3");
+			ezshop.updatePosition(id, "3-ctest-3");
 			pt = ezshop.getProductTypeByBarCode("400638133390");
-			assertEquals("3-c-3", pt.getLocation());
+			assertEquals("3-ctest-3", pt.getLocation());
 			// reset with null
 			ezshop.updatePosition(id, null);
 			pt = ezshop.getProductTypeByBarCode("400638133390");
 			assertEquals("", pt.getLocation());
 			// reset with empty
-			ezshop.updatePosition(id, "3-c-3");
+			ezshop.updatePosition(id, "3-ctest-3");
 			pt = ezshop.getProductTypeByBarCode("400638133390");
-			assertEquals("3-c-3", pt.getLocation());
+			assertEquals("3-ctest-3", pt.getLocation());
 			ezshop.updatePosition(id, "");
 			pt = ezshop.getProductTypeByBarCode("400638133390");
 			assertEquals("", pt.getLocation());

@@ -599,7 +599,7 @@ public class Connect {
     }
 
     public static boolean updateSaleTransactionStatus(int id, SaleStatus status,String paymentType) {
-        String sql = "UPDATE SaleTransactions SET status = " + status.ordinal() +" ,paymentType = "+ paymentType + " WHERE id = " + id;
+        String sql = "UPDATE SaleTransactions SET status = " + status.ordinal() +" ,paymentType = '"+ paymentType + "' WHERE id = " + id;
         try (Statement st = conn.createStatement()) {
             st.execute(sql);
         } catch (SQLException e) {
@@ -830,8 +830,8 @@ public class Connect {
                 + "VALUES (" + b.getBalanceId()
                 + ", '" + b.getDescription() + "'"
                 + ", " + b.getMoney()
-                + ",DATE('now'), "
-                + b.getType() + ")";
+                + ",DATE('now'), '"
+                + b.getType() + "')";
         try (Statement st = conn.createStatement()) {
             st.execute(sql);
         } catch (SQLException e) {
