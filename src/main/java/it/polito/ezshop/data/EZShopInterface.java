@@ -323,7 +323,7 @@ public interface EZShopInterface {
      * @throws InvalidOrderIdException if the order id is less than or equal to 0 or if it is null.
      * @throws UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
      */
-    public boolean payOrder(Integer orderId) throws InvalidOrderIdException, UnauthorizedException, InvalidTransactionIdException;
+    public boolean payOrder(Integer orderId) throws InvalidOrderIdException, UnauthorizedException;
 
     /**
      * This method records the arrival of an order with given <orderId>. This method changes the quantity of available product.
@@ -812,7 +812,7 @@ public interface EZShopInterface {
      *          false if toBeAdded + currentBalance < 0.
      * @throws UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
      */
-    public boolean recordBalanceUpdate(double toBeAdded) throws UnauthorizedException, InvalidTransactionIdException;
+    public boolean recordBalanceUpdate(double toBeAdded) throws UnauthorizedException;
 
     /**
      * This method returns a list of all the balance operations (CREDIT,DEBIT,ORDER,SALE,RETURN) performed between two

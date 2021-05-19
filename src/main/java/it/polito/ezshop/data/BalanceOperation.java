@@ -1,15 +1,12 @@
 package it.polito.ezshop.data;
 
-import it.polito.ezshop.exceptions.InvalidTransactionIdException;
-
 import java.time.LocalDate;
 
 public interface BalanceOperation {
 
-    //Can be changed interface? -> Order and SaleTransaction require Integer(Not Int)
     int getBalanceId();
 
-    void setBalanceId(Integer balanceId);
+    void setBalanceId(int balanceId);
 
     LocalDate getDate();
 
@@ -23,4 +20,3 @@ public interface BalanceOperation {
 
     void setType(String type);
 }
-

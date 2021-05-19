@@ -9,7 +9,6 @@ Date:
 Version:
 1.0
 
-
 # Contents
 
 - [High level design](#package-diagram)
@@ -22,7 +21,6 @@ Version:
 The design must satisfy the Official Requirements document, notably functional and non functional requirements
 
 # High level design 
-
 
 pattern used:
 - MVC
@@ -272,15 +270,7 @@ TicketEntry -- ProductType
 TicketEntry -- SaleTransaction
 @enduml
 ```
-
-
-
-
-
-
-
 # Verification traceability matrix
-
 
 | Class| FR1 |FR3 |FR4 |FR5 |FR6 |FR7 |FR8 |
 |--|--|--|--|--|--|--|--|
@@ -295,10 +285,6 @@ TicketEntry -- SaleTransaction
 |Customer               | | | |X| | | |
 |LoyaltyCard            | | | |X| | | |
 |Position               | | |X| | | | |
-
-
-
-
 
 
 # Verification sequence diagrams 
