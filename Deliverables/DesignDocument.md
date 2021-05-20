@@ -46,6 +46,7 @@ GUI -- EZShop
 class EZShop{
     - users: Map<Integer, User>
     - products: Map<Integer, ProductType>
+    - attachedCard: Map<LoyaltyCard, Customer>
     - customers: Map<Integer, Customer>
     - loyaltyCards: Map<String, LoyaltyCard> 
     - creditCards: Map<String, Double>
@@ -103,6 +104,7 @@ class EZShop{
     + getAllUsers()
     + getUser(int id)
     - checkCreditCardNumber(String number)
+    - updateCreditCardTxt(String creditCard,double sale)
 }
 class User{
     - id: int 
@@ -123,7 +125,7 @@ class AccountBook {
     - saleTransactions: Map<Integer, SaleTransaction> 
     - returns: Map<Integer, ReturnTransaction> 
     - orders: Map<Integer, Order> 
-    - otherTransactions: List<BalanceOperation>
+    - otherTransactions: Map<Integer,BalanceOperation>
     - balance: double
     '  methods
     + addSaleTransaction(SaleTransaction SaleTransaction)
@@ -132,11 +134,14 @@ class AccountBook {
     + removeSaleTransaction(SaleTransaction SaleTransaction)
     + removeReturnTransaction(ReturnTransaction return)
     + removeOrder(Order order)
-    + addTransaction(BalanceOperation bo)
+    + addBalanceOperation(BalanceOperation bo)
     + getSaleTransaction(int id)
     + getReturnTransaction(int id)
     + getOrder(int id)
     + updateBalance(double amount)
+    + updateBalanceOperation(int id, double newMoney)
+    + getBalanceOperationByDate(LocalDate from,LocalDate to)
+    + newId()
 }
 AccountBook - EZShop
 class BalanceOperation {
@@ -146,7 +151,7 @@ class BalanceOperation {
  - date: LocalDate
 }
 AccountBook -- "*" BalanceOperation
-Order --|> BalanceOperation
+Order -- AccountBook
 SaleTransaction --|> BalanceOperation
 
 
@@ -169,8 +174,7 @@ class SaleTransaction {
     - time: Time 
     - paymentType: String 
     - discountRate: double 
-    - products: Map<ProductType, Integer> 
-    - discountProduct: Map<ProductType, Double> 
+    - ticketEntrys: Map<String, TicketEntry> 
     - status: SaleStatus
     - card: LoyaltyCard 
     + addProduct(ProductType product, int quantity)
@@ -186,20 +190,21 @@ enum SaleStatus{
     + STARTED
 }
 SaleStatus -- SaleTransaction 
-SaleTransaction - "*" ProductType
-
 
 class LoyaltyCard {
     ' - ID: int 
     - points: int 
     - cardCode: String 
     + pointsUpdate(int)
+    + createCardCode(int i) 
 }
 
 class Customer {
     - id: int
     - customerName: String 
     - card: LoyaltyCard 
+    + checkCardCode(String newCustomerCard)
+    + updateCustomerPoints(int toBeAdded)
 }
 
 LoyaltyCard "0..1" - Customer
@@ -243,6 +248,7 @@ class ReturnTransaction {
   + addReturnProduct(ProductType product, int quantity)
 
 }
+
 enum ReturnStatus{
     + STARTED
     + CLOSED
@@ -252,6 +258,16 @@ ReturnTransaction --|> BalanceOperation
 ReturnTransaction "*" - SaleTransaction
 ReturnTransaction "*" - ProductType
 
+
+class TicketEntry {
+  - product: ProductType
+  - amount: int
+  - discountRate: double
+ 
+}
+
+TicketEntry -- ProductType
+TicketEntry -- SaleTransaction
 @enduml
 ```
 # Verification traceability matrix

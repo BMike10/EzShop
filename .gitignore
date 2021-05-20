@@ -67,3 +67,6 @@ data/*
 
 # vscode hidden folder
 .vscode
+# intellij
+.idea
+/ezshop.iml
