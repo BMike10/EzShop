@@ -899,15 +899,12 @@ Combination of predicates for method BalanceOperationClass
 ### setBalanceId
 Criteria for method setBalanceId:
 - Value of BalanceId
-- Signature of BalanceId
 
 **Predicates for method setBalanceId:**
 | Criterion   | Predicate     |
 | ----------- | ------------- |
 | Value of BalanceId | <0 |
 | | >= 0|
-| Signature of BalanceId | null|
-|   | valid|
 
 
 **Boundaries for method setBalanceId:**
@@ -916,12 +913,11 @@ Criteria for method setBalanceId:
 | ----------- | --------------- |
 |  |  |
 
-Combination of predicates for method setBalanceId
-| Value of BalanceId | Signature of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
-| ----------- | ---|------------- | -------- | ------- |
-| <0  |  *  | Invalid | T1(-1)  |    AccountBook.testInvalidSetBalanceId |
-| * |  null  | Invalid | T2(null)   |  AccountBook.testInvalidSetBalanceId |
-| >0 | valid  | Valid   | T3(10)         |AccountBook.testSetBalanceId|
+**Combination of predicates for method setBalanceId**
+| Value of BalanceId | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| ----------- | ------------- | -------- | ------- |
+| <0  |  Invalid | T1(-1)  |    AccountBook.testInvalidSetBalanceId |
+| >=0 |  Valid   | T3(10)         |AccountBook.testSetBalanceId|
 
 ### setDescription
 Criteria for method setDescription:

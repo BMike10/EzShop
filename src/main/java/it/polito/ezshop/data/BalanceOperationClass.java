@@ -43,8 +43,8 @@ public class BalanceOperationClass implements BalanceOperation {
     }
 
     @Override
-    public void setBalanceId(Integer balanceId)  {
-        if(balanceId<=0 || balanceId==null)
+    public void setBalanceId(int balanceId)  {
+        if(balanceId<=0 )
             throw new RuntimeException(new InvalidTransactionIdException());
         this.id = balanceId;
     }

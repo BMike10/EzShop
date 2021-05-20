@@ -1,7 +1,6 @@
 package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
-
 import java.io.*;
 import java.sql.Time;
 import java.time.LocalDate;
@@ -586,7 +585,6 @@ public class EZShop implements EZShopInterface {
     	 customer.setCustomerCard(customerCard);
 
     	 return true;
-    	
     }
 
     @Override
@@ -1052,7 +1050,6 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public double returnCreditCardPayment(Integer returnId, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
-
 		//LOGIN
 		if(currentUser==null)
 			throw new UnauthorizedException();
