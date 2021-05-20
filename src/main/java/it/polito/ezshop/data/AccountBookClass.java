@@ -131,7 +131,7 @@ public class AccountBookClass implements AccountBook {
             throw new InvalidTransactionIdException();
 
         this.saleTransactionMap.remove(saleTransactionId);
-
+        Connect.removeSaleTransaction(saleTransactionId);
         this.balanceOperationMap.remove(saleTransactionId);
         Connect.removeBalanceOperation(saleTransactionId);
     }
@@ -142,7 +142,7 @@ public class AccountBookClass implements AccountBook {
             throw new InvalidTransactionIdException();
 
         this.returnTransactionMap.remove(returnTransactionId);
-
+        Connect.deleteReturnTransaction(returnTransactionId);
         //this.balanceOperationMap.remove(returnTransactionId);
         //Connect.removeBalanceOperation(returnTransactionId);
 
@@ -152,8 +152,8 @@ public class AccountBookClass implements AccountBook {
     public void removeOrder(Integer orderTransactionId) throws InvalidTransactionIdException {
         if (orderTransactionId == null || orderTransactionId <= 0 || !this.orderMap.containsKey(orderTransactionId))
             throw new InvalidTransactionIdException();
-        this.saleTransactionMap.remove(orderTransactionId);
-
+        this.orderMap.remove(orderTransactionId);
+        Connect.removeOrder(orderTransactionId);
         this.balanceOperationMap.remove(orderTransactionId);
         Connect.removeBalanceOperation(orderTransactionId);
 

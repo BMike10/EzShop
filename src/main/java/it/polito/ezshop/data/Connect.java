@@ -477,7 +477,14 @@ public class Connect {
     	}
     	return true;
     }
-
+    public static void removeOrder(int id) {
+    	String sql = "DELETE FROM Orders WHERE id = "+id;
+    	try(Statement st = conn.createStatement()){
+    		st.execute(sql);
+    	}catch (SQLException e) {
+			e.printStackTrace();
+    	}
+    }
     //SALE TRANSACTION
 
     //SALE TRANSACTION
@@ -724,9 +731,9 @@ public class Connect {
         }
         return true;
     }
-    public static boolean deleteReturnTransaction(ReturnTransaction rt) {
+    public static boolean deleteReturnTransaction(int id) {
     	// delete transaction
-    	String sql = "delete from ReturnTransactions where id = "+rt.getReturnId();
+    	String sql = "delete from ReturnTransactions where id = "+id;
     	try(Statement st = conn.createStatement()){
             st.execute(sql);
         }catch (SQLException e) {
@@ -734,14 +741,12 @@ public class Connect {
             return false;
         }
     	// delete returned products
-    	rt.getReturnedProduct().forEach((p, q)->{
-    		String sql2 = "delete from ReturnedProducts where id = "+rt.getReturnId() + " and productId = "+p.getId();
-    		try(Statement st = conn.createStatement()){
-                st.execute(sql2);
-            }catch (SQLException e) {
-                e.printStackTrace();
-            }
-    	});
+    	String sql2 = "delete from ReturnedProducts where id = "+id;
+		try(Statement st = conn.createStatement()){
+            st.execute(sql2);
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
     	return true;
     }
     public static boolean deleteAll() {

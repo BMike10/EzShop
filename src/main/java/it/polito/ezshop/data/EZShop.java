@@ -382,7 +382,7 @@ public class EZShop implements EZShopInterface {
         		!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
 			try {
 				accountBook.removeOrder(o.getOrderId());
-				recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
+				//recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
 			} catch (InvalidTransactionIdException e1) {
 				e1.printStackTrace();
 			}
@@ -405,9 +405,6 @@ public class EZShop implements EZShopInterface {
     	
     	if(o.getStatus().equals(OrderStatus.PAYED.name()))
     		return false;
-    	// update balance
-    	if(!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT")))
-    		return false;
 //    	if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity()))
 //    		return false;
         
@@ -415,10 +412,13 @@ public class EZShop implements EZShopInterface {
     	// save status on db
     	if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED)) {
 			// rollback
-        	recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
+        	//recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
 			o.setStatus("ISSUED");
 			return false;
 		}
+    	// update balance
+    	if(!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT")))
+    		return false;
         return true;
     }
 
@@ -901,7 +901,7 @@ public class EZShop implements EZShopInterface {
 		if (rt == null || !rt.getStatus().equals(ReturnStatus.CLOSED.name())) {
 			return false;
 		}
-		if(!Connect.deleteReturnTransaction(rt)) {
+		if(!Connect.deleteReturnTransaction(rt.getReturnId())) {
 			return false;
 		}
 		SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
@@ -1206,5 +1206,8 @@ public class EZShop implements EZShopInterface {
 	public double computeBalance() throws UnauthorizedException {
 		//LOGIN
 		return accountBook.getBalance();
+	}
+	public AccountBookClass getAccountBook() {
+		return accountBook;
 	}
 }
