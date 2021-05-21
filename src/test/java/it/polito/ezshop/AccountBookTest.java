@@ -7,8 +7,7 @@ import org.junit.Test;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -36,9 +35,7 @@ public class AccountBookTest {
         Connect.connect();
         AccountBook aB = new AccountBookClass(0);
         //Check remove if id exist in Sale Transaction (IMPLICIT TESTING)
-        Map<String,TicketEntryClass> tec = new HashMap<>();
-        SaleTransactionClass sT = new SaleTransactionClass(1," String description", 20.0, LocalDate.now(), "CREDIT", "CASH", Time.valueOf(LocalTime.now()),
-                SaleStatus.valueOf("STARTED"),  new LoyaltyCardClass("gdskj4679v",50), tec, 5.0);
+        SaleTransactionClass sT = new SaleTransactionClass(Time.valueOf(LocalTime.now()),SaleStatus.valueOf("STARTED"));
         Integer id = aB.addSaleTransaction(sT);
         aB.removeSaleTransaction(id);
 
@@ -73,7 +70,7 @@ public class AccountBookTest {
         AccountBook aB = new AccountBookClass(0);
         Map<String,TicketEntryClass> tec = new HashMap<>();
         //Check add saleTransaction (IMPLICIT TESTING)
-        SaleTransactionClass sT = new SaleTransactionClass(1," String description", 20.0, LocalDate.now(), "CREDIT", "CASH", Time.valueOf(LocalTime.now()),
+        SaleTransactionClass sT = new SaleTransactionClass(-1," String description", 20.0, LocalDate.now(), "CREDIT", "CASH", Time.valueOf(LocalTime.now()),
                 SaleStatus.valueOf("STARTED"),  new LoyaltyCardClass("gdskj4679v",50), tec, 5.0);
         Integer id = aB.addSaleTransaction(sT);
         aB.getSaleTransaction(id);
@@ -119,17 +116,12 @@ public class AccountBookTest {
         assertEquals(1, ab.getOrderMap().size());
         
         // addOrder
-        int id = ab.addOrder(new OrderClass(2, LocalDate.now(), null, "4006381333931", 1, 10, OrderStatus.ISSUED));
-        // get order
-        assertThrows(Exception.class, ()->{ab.getOrder(null);});
-        assertTrue(ab.getOrder(id)!=null);
+        int id = ab.addOrder(new OrderClass( "4006381333931", 1, 10, OrderStatus.ISSUED));
         // remove order
         ab.removeOrder(id);
         
         // addSale
-        id = ab.addSaleTransaction(new SaleTransactionClass(10.0, "CREDIT_CARD",
-					new Time(System.currentTimeMillis()), SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2,
-					new HashMap<>(), 0.1));
+        id = ab.addSaleTransaction(new SaleTransactionClass(Time.valueOf(LocalTime.now()),SaleStatus.STARTED));
         // get sale
         assertThrows(Exception.class, ()->{ab.getSaleTransaction(null);});
         assertTrue(ab.getSaleTransaction(id)!=null);
@@ -137,11 +129,7 @@ public class AccountBookTest {
         ab.removeSaleTransaction(id);
         
         // add return
-        id = ab.addReturnTransaction(new ReturnTransactionClass(1, "description", 3.0, LocalDate.now(), "DEBIT",
-				new HashMap<>(),
-				(SaleTransaction) new SaleTransactionClass(10.0, "CREDIT_CARD", new Time(System.currentTimeMillis()),
-						SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1),
-				ReturnStatus.STARTED));
+        id = ab.addReturnTransaction(new ReturnTransactionClass( new SaleTransactionClass( new Time(System.currentTimeMillis()), SaleStatus.STARTED),ReturnStatus.STARTED));
         //get return
         assertThrows(Exception.class, ()->{ab.getReturnTransaction(null);});
         assertTrue(ab.getReturnTransaction(id)!=null);        
@@ -151,5 +139,165 @@ public class AccountBookTest {
         // get balanceOperation
         assertTrue(ab.getBalanceOperationMap()!=null);
     }
+
+    //Approach adopted: Button up
+    //Step1(Unit Test): class AccountBookClass -> AccountBookClass(), removeSaleTransaction(), removeReturnTransaction(), removeOrder(),
+    //                            getSaleTransaction(), getReturnTransaction(), getOrder(), getBalance(), setBalance(),
+    //                            getSaleTransactionMap(), getReturnTransactionMap(), getOrderMap(),
+    //                            setSaleTransactionMap(), setReturnTransactionMap(), setOrderMap(), newId()
+    // step 2: class AccountBookClass+BalanceOperationClass -> addBalanceOperation(),updateBalanceOperation(), getBalanceOperationByDate()
+    // step 3: class A+B+C, etc)>
+    //<Some steps may  correspond to unit testing (ex step1 in ex above), presented in other document UnitTestReport.md>
+    //<One step will  correspond to API testing>
+
+
+    //Approach adopted: Button up
+    //Step1(Unit Test): class BalanceOperationClass -> BalanceOperationClass(), getBalanceId(), setBalanceId(), getDate(), setDate()
+    //                                                 getMoney(), setMoney(), getType(),setType(), getDescription(), setDescription()
+    // step 2: class BalanceOperationClass + AccountBookClass -> addBalanceOperation(),updateBalanceOperation(), getBalanceOperationByDate()
+    //                                                           getBalanceOperation()
+    // step 3: class BalanceOperationClass + AccountBookClass + OrderClass -> addOrder(),getOrder()
+    // step 4: class BalanceOperationClass + AccountBookClass + OrderClass + SaleTransactionClass -> addSaleTransaction(),getSaleTransaction()
+    // step 5: class BalanceOperationClass + AccountBookClass + OrderClass + SaleTransactionClass + ReturnTransactionClass
+    // -> addReturnTransaction(),getReturnTransaction()
+    @Test
+    public void testAccountBookIntegrationTest(){
+        SaleTransaction sT = new SaleTransactionClass(Time.valueOf(LocalTime.now()),SaleStatus.STARTED);
+        BalanceOperation bO = new BalanceOperationClass(50,"CREDIT");
+        final Order oT = new OrderClass("400638133390",10,5);
+        ReturnTransaction rT = new ReturnTransactionClass(sT,ReturnStatus.STARTED);
+        Map<Integer,SaleTransaction> sTMap = new HashMap<>();
+        Map<Integer,BalanceOperation> bOMap = new HashMap<>();
+        Map<Integer,Order> oTMap = new HashMap<>();
+        Map<Integer,ReturnTransaction> rTMap = new HashMap<>();
+
+        //AddBalanceOperation
+        //BalanceOperationMap contains bO
+        bO.setBalanceId(1);
+        bOMap.put(1,bO);
+        AccountBookClass aB = new AccountBookClass(sTMap,oTMap,rTMap,bOMap);
+        assertFalse(aB.addBalanceOperation(bO));
+
+        //Invalid Balance
+        BalanceOperation bO2 = new BalanceOperationClass(2,"ORDER",100,LocalDate.now(),"DEBIT");
+        assertFalse(aB.addBalanceOperation(bO2));
+
+        BalanceOperation bO3 = new BalanceOperationClass(3,"SALE",50,LocalDate.now(),"CREDIT");
+        assertTrue(aB.addBalanceOperation(bO3));
+
+
+        //UpdateBalanceOperation
+        //Invalid Key
+        assertFalse(aB.updateBalanceOperation(5,50));
+
+        //Invalid newMoney
+        bOMap.put(3,bO3);
+        aB.setBalanceOperationMap(bOMap);
+        aB.setBalance(5.0);
+        assertFalse(aB.updateBalanceOperation(3,10));
+
+        //Valid
+        aB.setBalance(20);
+        assertTrue(aB.updateBalanceOperation(3,40));
+
+        //getBalanceOperation()
+        assertThrows(Exception.class, ()->{aB.getBalanceOperation(null);});
+        assertNotNull(aB.getBalanceOperation(3));
+        assertThrows(Exception.class, ()->{aB.getBalanceOperation(-5);});
+
+        //getBalanceOperationByDate
+        //None Balance Operation
+        List<BalanceOperation> list = new ArrayList<>();
+        Map<Integer,BalanceOperation> map = new HashMap<>();
+        aB.setBalanceOperationMap(map);
+        assertEquals(list,aB.getBalanceOperationByDate(null,null));
+
+        BalanceOperation bo4 = new BalanceOperationClass(1,"SALE",20,LocalDate.now(),"CREDIT");
+        BalanceOperation bo5 = new BalanceOperationClass(2,"SALE",20,LocalDate.now().plusDays(2),"CREDIT");
+        BalanceOperation bo6 = new BalanceOperationClass(3,"SALE",20,LocalDate.now().minusDays(2),"CREDIT");
+        aB.addBalanceOperation(bo4);
+        aB.addBalanceOperation(bo5);
+        aB.addBalanceOperation(bo6);
+        list.add(bo4);
+        list.add(bo5);
+        list.add(bo6);
+
+        //All balance operation up to LocalDateTo
+        assertEquals(list,aB.getBalanceOperationByDate(null,LocalDate.now().plusDays(3)));
+        //All balance operation starting LocalDateFrom
+        assertEquals(list,aB.getBalanceOperationByDate(LocalDate.now().minusDays(3),null));
+        //All balance operation starting LocalDateFrom and up to LocalDateTo
+        assertEquals(list,aB.getBalanceOperationByDate(LocalDate.now().minusDays(3),LocalDate.now().plusDays(3)));
+        //All balance operation
+        assertEquals(list,aB.getBalanceOperationByDate(null,null));
+
+
+        //addOrder
+        //InvalidOrder
+        oT.setOrderId(1);
+        assertThrows(Exception.class, () -> {
+            aB.addOrder(oT);
+        });
+        Order oT2 = null;
+        assertThrows(Exception.class, () -> {
+            aB.addOrder(oT2);
+        });
+        //Valid Order
+        Order oT3 = new OrderClass("400638133390",10,5);
+        Integer orderId = aB.addOrder(oT3);
+        assertEquals(orderId,oT3.getOrderId());
+
+
+        //getOrder
+        assertThrows(Exception.class, ()->{aB.getOrder(null);});
+        assertNotNull(aB.getOrder(orderId));
+        assertThrows(Exception.class, ()->{aB.getOrder(-5);});
+
+
+        //addSaleTransaction
+        //Invalid Sale - Id is already set or Sale is null
+        sT.setTicketNumber(1);
+        assertThrows(Exception.class, () -> {
+            aB.addSaleTransaction(sT);
+        });
+        SaleTransaction sT2 = null;
+        assertThrows(Exception.class, () -> {
+            aB.addSaleTransaction(sT2);
+        });
+        //Valid Sale
+        SaleTransaction sT3 = new SaleTransactionClass(Time.valueOf(LocalTime.now()),SaleStatus.STARTED);
+        Integer saleId = aB.addSaleTransaction(sT3);
+        assertEquals(saleId,sT3.getTicketNumber());
+
+
+        //getSaleTransaction
+        assertThrows(Exception.class, ()->{aB.getSaleTransaction(null);});
+        assertNotNull(aB.getSaleTransaction(saleId));
+        assertThrows(Exception.class, ()->{aB.getSaleTransaction(-5);});
+
+
+        //addReturnTransaction
+        //Invalid Return - Id is already set or Return is null
+        rT.setReturnId(1);
+        assertThrows(Exception.class, () -> {
+            aB.addReturnTransaction(rT);
+        });
+        ReturnTransaction rT2 = null;
+        assertThrows(Exception.class, () -> {
+            aB.addReturnTransaction(rT2);
+        });
+        //Valid Return
+        ReturnTransaction rT3 = new ReturnTransactionClass(new SaleTransactionClass(Time.valueOf(LocalTime.now()),SaleStatus.STARTED),
+                ReturnStatus.STARTED);
+        Integer returnId = aB.addReturnTransaction(rT3);
+        assertEquals(returnId,rT3.getReturnId());
+
+
+        //getReturnTransaction
+        assertThrows(Exception.class, ()->{aB.getReturnTransaction(null);});
+        assertNotNull(aB.getReturnTransaction(returnId));
+        assertThrows(Exception.class, ()->{aB.getReturnTransaction(-5);});
+    }
+
 
 }
