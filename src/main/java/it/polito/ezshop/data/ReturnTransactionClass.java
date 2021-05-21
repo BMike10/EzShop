@@ -138,7 +138,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 			this.returnedProduct.put(product, quantity);
 			setMoney(getMoney() + product.getPricePerUnit() * quantity
 					* (1 - st.getProductsEntries().get(product.getBarCode()).getDiscountRate()));
-			// st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity);
+			st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity);
 			return 1;
 		} else { // if it's not the first return transaction for that product
 			int q = this.returnedProduct.get(product);
@@ -148,7 +148,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 			this.returnedProduct.put(product, quantity + q);
 			setMoney(getMoney() + product.getPricePerUnit() * quantity
 					* (1 - st.getProductsEntries().get(product.getBarCode()).getDiscountRate()));
-			// st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity+q);
+			st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity+q);
 			return 1;
 		}
 	}
