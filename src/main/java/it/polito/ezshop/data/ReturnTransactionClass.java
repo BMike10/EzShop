@@ -47,7 +47,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 	}
 
 	public ReturnTransactionClass(SaleTransaction saleT, ReturnStatus retstatus) {
-		super(0.0, "DEBIT");
+		super(-1, "RETURN", 0.0, LocalDate.now(), "DEBIT");
 		if (saleT == null)
 			throw new RuntimeException(new Exception());
 		this.saleTransaction = saleT;
