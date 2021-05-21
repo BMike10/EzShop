@@ -384,7 +384,6 @@ public class EZShop implements EZShopInterface {
 				accountBook.removeOrder(o.getOrderId());
 				//recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
 			} catch (InvalidTransactionIdException e1) {
-				e1.printStackTrace();
 			}
 			return -1;
 		}
@@ -404,8 +403,8 @@ public class EZShop implements EZShopInterface {
     	}catch(Exception e) {
     		return false;
     	}
-    	if(o == null)
-    		return false;
+//    	if(o == null)
+//    		return false;
     	
     	if(o.getStatus().equals(OrderStatus.PAYED.name()))
     		return false;
@@ -413,16 +412,14 @@ public class EZShop implements EZShopInterface {
 //    		return false;
         
     	o.setStatus("PAYED");
-    	// save status on db
-    	if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED)) {
+    	// save status on db && update balance
+    	if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED) ||
+    			!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT"))) {
 			// rollback
         	//recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
 			o.setStatus("ISSUED");
 			return false;
 		}
-    	// update balance
-    	if(!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(orderId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT")))
-    		return false;
         return true;
     }
 
@@ -435,10 +432,10 @@ public class EZShop implements EZShopInterface {
     	
     	OrderClass o = null;
     	try {
-    	o = (OrderClass)accountBook.getOrder(orderId);
+    		o = (OrderClass)accountBook.getOrder(orderId);
     	}catch(Exception e) {return false;}
-    	if(o == null)
-    		return false;
+//    	if(o == null)
+//    		return false;
     	if(o.getOrderStatus() == OrderStatus.ISSUED || o.getOrderStatus() == OrderStatus.COMPLETED)
     		return false;
     	
@@ -450,8 +447,8 @@ public class EZShop implements EZShopInterface {
 		} catch (InvalidProductCodeException e) {
 			return false;
 		}
-    	if(pt == null)
-    		return false;
+//    	if(pt == null)
+//    		return false;
     	// position check
     	Position pos = pt.getPosition();
     	if (pos == null || pos.getAisleId()<0)
@@ -459,18 +456,17 @@ public class EZShop implements EZShopInterface {
     	// quantity update
     	try {
 			updateQuantity(pt.getId(), o.getQuantity());
-		} catch (InvalidProductIdException e) {
-			e.printStackTrace();
-		}
+		} catch (InvalidProductIdException e) {return false;}
     	o.setStatus("COMPLETED");
     	// record on db
-		if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED) || !Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
+		if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED) ||
+				!Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
 			// rollback
 			try {
-			updateQuantity(pt.getId(),-o.getQuantity());
-			}catch(Exception e) {e.printStackTrace();}
-			o.setStatus("PAYED");
-			Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED);
+				updateQuantity(pt.getId(),-o.getQuantity());
+				o.setStatus("PAYED");
+				Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED);
+			}catch(Exception e) {return false;}
 			return false;
 		}
         return true;
