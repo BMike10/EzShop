@@ -11,6 +11,8 @@ import it.polito.ezshop.data.OrderStatus;
 import it.polito.ezshop.data.ProductType;
 import it.polito.ezshop.data.RoleEnum;
 import it.polito.ezshop.data.User;
+import it.polito.ezshop.exceptions.InvalidLocationException;
+import it.polito.ezshop.exceptions.InvalidOrderIdException;
 import it.polito.ezshop.exceptions.InvalidPasswordException;
 import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
@@ -92,6 +94,9 @@ public class OrderAPITest {
 			if(createdCashier > 0)
 				ezshop.deleteUser(createdCashier);
 		}
+		if(id > 0) {
+			ezshop.getAccountBook().removeOrder(id);
+		}
 	}
 	@Test
 	public void testIssueOrder() throws Exception {
@@ -161,15 +166,114 @@ public class OrderAPITest {
 		id = -1;
 	}
 	@Test
-	public void testPayOrder() {
-		
+	public void testPayOrder() throws Exception{
+		// before login
+		assertThrows(UnauthorizedException.class, ()->{ezshop.payOrder(1);});
+		// login cashier
+		ezshop.login(usernameC, password);
+		// cashier not auth
+		assertThrows(UnauthorizedException.class, ()->{ezshop.payOrder(1);});
+		// login Admin
+		ezshop.logout();
+		ezshop.login(username, password);
+		// init balance
+		double balance = ezshop.computeBalance();
+		if(balance <= 0.0) {
+			ezshop.recordBalanceUpdate(10.0);
+			balance = 10.0;
+		}
+		//invlaid order id
+		assertThrows(InvalidOrderIdException.class, ()->{ezshop.payOrder(null);});
+		assertThrows(InvalidOrderIdException.class, ()->{ezshop.payOrder(0);});
+		// order not existing
+		assertFalse(ezshop.payOrder(Integer.MAX_VALUE));
+		// inset an order PAYED
+		id = ezshop.payOrderFor("400638133390", 1, balance / 5);
+		// pay an order already payed
+		assertFalse(ezshop.payOrder(id));
+		// delete order
+		ezshop.getAccountBook().removeOrder(id);
+		id = -1;
+		// insert issued only order
+		id = ezshop.issueOrder("400638133390", 1, balance/10);
+		// valid
+		assertTrue(ezshop.payOrder(id));
+		// check balance
+		assertTrue(ezshop.getAllOrders().stream().anyMatch(o->o.getBalanceId()==id && o.getStatus().equals(OrderStatus.PAYED.name())));
+		assertEquals(ezshop.computeBalance(), balance - balance / 5 - balance / 10, 1e-3);
+		// remove order
+		ezshop.getAccountBook().removeOrder(id);
+		id = -1;
 	}
 	@Test
-	public void testRecordOrderArrival() {
+	public void testRecordOrderArrival() throws Exception{
+		// before login
+		assertThrows(UnauthorizedException.class, ()->{ezshop.recordOrderArrival(1);});
+		// login cashier
+		ezshop.login(usernameC, password);
+		// cashier not auth
+		assertThrows(UnauthorizedException.class, ()->{ezshop.recordOrderArrival(1);});
+		// login Admin
+		ezshop.logout();
+		ezshop.login(username, password);
+		// init balance
+		double balance = ezshop.computeBalance();
+		if(balance <= 0.0) {
+			ezshop.recordBalanceUpdate(10.0);
+			balance = 10.0;
+		}
+		//invlaid order id
+		assertThrows(InvalidOrderIdException.class, ()->{ezshop.recordOrderArrival(null);});
+		assertThrows(InvalidOrderIdException.class, ()->{ezshop.recordOrderArrival(0);});
+		// order not existing
+		assertFalse(ezshop.recordOrderArrival(Integer.MAX_VALUE));
+		// issue order ISSUED
+		id = ezshop.issueOrder("400638133390", 1, balance/10);
+		assertFalse(ezshop.recordOrderArrival(id));
 		
+		// check for location
+		ProductType pt = ezshop.getProductTypeByBarCode("400638133390");
+		if(pt.getLocation()!=null && !pt.getLocation().equals(""))
+			ezshop.updatePosition(pt.getId(), null);
+		// pay order
+		assertTrue(ezshop.payOrder(id));
+		// invalid location
+		assertThrows(InvalidLocationException.class, ()->ezshop.recordOrderArrival(id));
+		// update location
+		assertTrue(ezshop.updatePosition(pt.getId(), "123456-testtest-12345"));
+		// get quantity
+		int qty = ezshop.getProductTypeByBarCode("400638133390").getQuantity();
+		// valid
+		assertTrue(ezshop.recordOrderArrival(id));
+		// check for quantity update
+		assertEquals(Integer.valueOf(qty + 1), ezshop.getProductTypeByBarCode("400638133390").getQuantity());
+		assertTrue(ezshop.getAllOrders().stream().anyMatch(o->o.getBalanceId()==id && o.getStatus().equals(OrderStatus.COMPLETED.name())));
+		// already completed order
+		assertFalse(ezshop.recordOrderArrival(id));
+		// clean
+		ezshop.getAccountBook().removeOrder(id);
+		id = -1;		
 	}
 	@Test
-	public void testGetAllOrders() {
-		
+	public void testGetAllOrders() throws Exception {
+		// before login
+		assertThrows(UnauthorizedException.class, ()->{ezshop.getAllOrders();});
+		// login cashier
+		ezshop.login(usernameC, password);
+		// cashier not auth
+		assertThrows(UnauthorizedException.class, ()->{ezshop.getAllOrders();});
+		// login Admin
+		ezshop.logout();
+		ezshop.login(username, password);
+		// implicit testing
+		int num = ezshop.getAllOrders().size();
+		// add a order
+		id = ezshop.issueOrder("400638133390", 1, 0.10);
+		assertTrue(num + 1 == ezshop.getAllOrders().size());
+		// remove order
+		ezshop.getAccountBook().removeOrder(id);
+		id = -1;		
+		// check if really removed
+		assertTrue(num == ezshop.getAllOrders().size());				
 	}
 }

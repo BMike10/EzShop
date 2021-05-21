@@ -399,9 +399,13 @@ public class EZShop implements EZShopInterface {
     		throw new InvalidOrderIdException();
     	
     	Order o = null;
+    	try {
     	o = accountBook.getOrder(orderId);
+    	}catch(Exception e) {
+    		return false;
+    	}
     	if(o == null)
-    		throw new InvalidOrderIdException();
+    		return false;
     	
     	if(o.getStatus().equals(OrderStatus.PAYED.name()))
     		return false;
@@ -430,13 +434,13 @@ public class EZShop implements EZShopInterface {
     		throw new InvalidOrderIdException();
     	
     	OrderClass o = null;
+    	try {
     	o = (OrderClass)accountBook.getOrder(orderId);
+    	}catch(Exception e) {return false;}
     	if(o == null)
-    		throw new InvalidOrderIdException();
-    	if(o.getOrderStatus() == OrderStatus.ISSUED)
     		return false;
-    	if(o.getOrderStatus() == OrderStatus.COMPLETED)
-    		return true;
+    	if(o.getOrderStatus() == OrderStatus.ISSUED || o.getOrderStatus() == OrderStatus.COMPLETED)
+    		return false;
     	
     	String productCode = o.getProductCode();
     	// find product
@@ -444,7 +448,6 @@ public class EZShop implements EZShopInterface {
     	try {
 			 pt = (ProductTypeClass)getProductTypeByBarCode(productCode);
 		} catch (InvalidProductCodeException e) {
-			e.printStackTrace();
 			return false;
 		}
     	if(pt == null)
@@ -459,6 +462,7 @@ public class EZShop implements EZShopInterface {
 		} catch (InvalidProductIdException e) {
 			e.printStackTrace();
 		}
+    	o.setStatus("COMPLETED");
     	// record on db
 		if(!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED) || !Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
 			// rollback
