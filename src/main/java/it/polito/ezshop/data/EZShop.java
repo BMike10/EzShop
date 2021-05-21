@@ -945,10 +945,14 @@ public class EZShop implements EZShopInterface {
         if(cash <= 0)
             throw new InvalidPaymentException();
 
-        SaleTransaction saleTransaction = accountBook.getSaleTransaction(transactionId);
-        if (saleTransaction==null)
-        	//Sale Transaction isn't in AccountBook
-        	return  -1;
+		SaleTransaction saleTransaction = null;
+        try {
+			saleTransaction = accountBook.getSaleTransaction(transactionId);
+		}catch (Exception e){
+			//Sale Transaction isn't in AccountBook
+			return  -1;
+		}
+
 
         double saleAmount= ((SaleTransactionClass)saleTransaction).getMoney();
         double change = cash - saleAmount;
@@ -989,9 +993,13 @@ public class EZShop implements EZShopInterface {
 
 		double userCash = CreditCardsMap.get(creditCard);
 
-		SaleTransaction sale = accountBook.getSaleTransaction(transactionId);
-		if (sale==null)
-			return false;
+		SaleTransaction sale = null;
+		try {
+			sale = accountBook.getSaleTransaction(transactionId);
+		}catch (Exception e){
+			//Sale Transaction isn't in AccountBook
+			return  false;
+		}
 
 		double saleAmount = sale.getPrice();
         if(userCash < saleAmount)
@@ -1024,9 +1032,14 @@ public class EZShop implements EZShopInterface {
         if(returnId == null || returnId <= 0)
             throw new InvalidTransactionIdException();
 
-        ReturnTransaction returnTransaction =  accountBook.getReturnTransaction(returnId);
-        if (returnTransaction==null)
-        	return -1;
+
+		ReturnTransaction returnTransaction = null;
+		try {
+			returnTransaction = accountBook.getReturnTransaction(returnId);
+		}catch (Exception e){
+			//Return Transaction isn't in AccountBook
+			return  -1;
+		}
 
         String status= returnTransaction.getStatus();
 
@@ -1059,11 +1072,13 @@ public class EZShop implements EZShopInterface {
         if(returnId == null || returnId <= 0)
             throw new InvalidTransactionIdException();
 
-        ReturnTransaction returnTransaction = accountBook.getReturnTransaction(returnId);
-
-        //ReturnTransaction does not exist
-        if(returnTransaction==null)
-        	return -1;
+		ReturnTransaction returnTransaction = null;
+		try {
+			returnTransaction = accountBook.getReturnTransaction(returnId);
+		}catch (Exception e){
+			//Return Transaction isn't in AccountBook
+			return  -1;
+		}
 
 		//Return Transaction is not ended
 		String status= returnTransaction.getStatus();

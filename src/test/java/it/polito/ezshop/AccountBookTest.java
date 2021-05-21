@@ -141,17 +141,6 @@ public class AccountBookTest {
     }
 
     //Approach adopted: Button up
-    //Step1(Unit Test): class AccountBookClass -> AccountBookClass(), removeSaleTransaction(), removeReturnTransaction(), removeOrder(),
-    //                            getSaleTransaction(), getReturnTransaction(), getOrder(), getBalance(), setBalance(),
-    //                            getSaleTransactionMap(), getReturnTransactionMap(), getOrderMap(),
-    //                            setSaleTransactionMap(), setReturnTransactionMap(), setOrderMap(), newId()
-    // step 2: class AccountBookClass+BalanceOperationClass -> addBalanceOperation(),updateBalanceOperation(), getBalanceOperationByDate()
-    // step 3: class A+B+C, etc)>
-    //<Some steps may  correspond to unit testing (ex step1 in ex above), presented in other document UnitTestReport.md>
-    //<One step will  correspond to API testing>
-
-
-    //Approach adopted: Button up
     //Step1(Unit Test): class BalanceOperationClass -> BalanceOperationClass(), getBalanceId(), setBalanceId(), getDate(), setDate()
     //                                                 getMoney(), setMoney(), getType(),setType(), getDescription(), setDescription()
     // step 2: class BalanceOperationClass + AccountBookClass -> addBalanceOperation(),updateBalanceOperation(), getBalanceOperationByDate()
@@ -160,6 +149,7 @@ public class AccountBookTest {
     // step 4: class BalanceOperationClass + AccountBookClass + OrderClass + SaleTransactionClass -> addSaleTransaction(),getSaleTransaction()
     // step 5: class BalanceOperationClass + AccountBookClass + OrderClass + SaleTransactionClass + ReturnTransactionClass
     // -> addReturnTransaction(),getReturnTransaction()
+
     @Test
     public void testAccountBookIntegrationTest(){
         SaleTransaction sT = new SaleTransactionClass(Time.valueOf(LocalTime.now()),SaleStatus.STARTED);
