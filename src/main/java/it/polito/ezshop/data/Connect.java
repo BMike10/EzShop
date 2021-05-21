@@ -755,20 +755,28 @@ public class Connect {
     			final String url = "jdbc:sqlite:db/ezshop.db";
     			// create a connection to the database
     			conn = DriverManager.getConnection(url);
-    			// drop all tables
-    			String sqlDrop = "delete from ProductTypes;"
-            		+ "delete from SoldProducts;"
-            		+ "delete from SaleTransactions;"
-            		/*+ "delete from user;"
-            		+ "delete from customer;"
-            		+ "delete from loyaltyCard;"*/
-            		+ "delete from orders;"
-            		+ "delete from returnedProducts;"
-            		+ "delete from ReturnTransactions;";
-    			Statement stmt = conn.createStatement();
-    			stmt.executeUpdate(sqlDrop);
-    			System.out.println("All tables content deleted");
+    			
     		}
+    		// drop all tables
+			Statement stmt = conn.createStatement();
+			String sqlDrop = "delete from ProductTypes";
+			stmt.executeUpdate(sqlDrop);
+			sqlDrop = "delete from SoldProducts";
+			stmt.executeUpdate(sqlDrop);
+			sqlDrop ="delete from SaleTransactions";
+			stmt.executeUpdate(sqlDrop);
+        		/*+ "delete from user;"
+        		+ "delete from customer;"
+        		+ "delete from loyaltyCard;"*/
+			sqlDrop ="delete from orders";
+			stmt.executeUpdate(sqlDrop);
+			sqlDrop ="delete from returnedProducts";
+			stmt.executeUpdate(sqlDrop);
+			sqlDrop ="delete from ReturnTransactions";
+			stmt.executeUpdate(sqlDrop);
+			sqlDrop ="delete from BalanceOperations";
+			stmt.executeUpdate(sqlDrop);
+			System.out.println("All tables content deleted");
     	}catch(Exception e) {
     		e.printStackTrace();
     		return false;
