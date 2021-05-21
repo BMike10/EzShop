@@ -21,12 +21,6 @@ public class CustomerClass implements Customer {
 		this.customerCard = customerCard;
 		this.points = points;
 	}
-
-
-	public static boolean checkCardCode(String newCustomerCard) {
-		if(newCustomerCard.length()!=10) return false;
-		return true;
-	}
 	
 	public int updateCustomerPoints(int toBeAdded) {
 		if(toBeAdded <=0) return 0;

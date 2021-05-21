@@ -97,7 +97,8 @@ public class AccountBookClass implements AccountBook {
     }
     @Override
     public Integer addSaleTransaction(SaleTransaction saleTransaction) {
-        //Sale Transaction is complete but without id
+        if(saleTransaction==null || (saleTransaction.getTicketNumber()!=-1 && saleTransaction.getTicketNumber()!=null))
+            throw new RuntimeException();
         Integer newId = newId();
         saleTransaction.setTicketNumber(newId);
         this.saleTransactionMap.put(newId, saleTransaction);
@@ -106,6 +107,8 @@ public class AccountBookClass implements AccountBook {
 
     @Override
     public Integer addReturnTransaction(ReturnTransaction returnTransaction) {
+        if(returnTransaction==null || (returnTransaction.getReturnId()!=-1 && returnTransaction.getReturnId()!=null))
+            throw new RuntimeException();
         Integer newId = newId();
         returnTransaction.setReturnId(newId);
         this.returnTransactionMap.put(newId, returnTransaction);
@@ -115,6 +118,8 @@ public class AccountBookClass implements AccountBook {
 
     @Override
     public Integer addOrder(Order order) {
+        if(order==null || (order.getOrderId()!=-1 && order.getOrderId()!=null))
+            throw new RuntimeException();
         Integer newId = newId();
         order.setOrderId(newId);
         this.orderMap.put(newId, order);
@@ -182,6 +187,12 @@ public class AccountBookClass implements AccountBook {
         return this.orderMap.get(id);
     }
 
+    public BalanceOperation getBalanceOperation(Integer id) {
+        if (!this.balanceOperationMap.containsKey(id) || id == null || id <= 0)
+            throw new RuntimeException(new InvalidTransactionIdException());
+        return this.balanceOperationMap.get(id);
+    }
+
     @Override
     public Double getBalance() {
         return this.balance;
@@ -231,9 +242,19 @@ public class AccountBookClass implements AccountBook {
         this.returnTransactionMap.putAll(newReturnMap);
     }
 
+    public void setBalanceOperationMap(Map<Integer, BalanceOperation> newBalanceMap) {
+        if(newBalanceMap==null)
+            throw new RuntimeException();
+        this.balanceOperationMap.clear();
+        this.balanceOperationMap.putAll(newBalanceMap);
+    }
+
 
     public List<BalanceOperation> getBalanceOperationByDate(LocalDate from, LocalDate to) {
-        List<BalanceOperation> bo;
+        List<BalanceOperation> bo = new ArrayList<>();
+        if (this.balanceOperationMap.isEmpty())
+            return bo;
+
         if (from == null && to != null) {
             //All Balance operation from start to LocalDateTo
             bo = balanceOperationMap.values().stream().

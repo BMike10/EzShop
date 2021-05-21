@@ -576,7 +576,7 @@ public class EZShop implements EZShopInterface {
     public boolean attachCardToCustomer(String customerCard, Integer customerId) throws InvalidCustomerIdException, InvalidCustomerCardException, UnauthorizedException {      	 
     	if(currentUser == null || currentUser.getRole().isEmpty())throw new UnauthorizedException();
     	 if(customerId == null || customerId <= 0) throw new InvalidCustomerIdException();
-    	 if(customerCard == null || customerCard.isEmpty()||!CustomerClass.checkCardCode(customerCard))throw new InvalidCustomerCardException();   	
+    	 if(customerCard == null || customerCard.isEmpty()||!LoyaltyCardClass.checkCardCode(customerCard))throw new InvalidCustomerCardException();   	
     	 LoyaltyCard card = cards.get(customerCard);
     	 Customer customer = customers.get(customerId);  	 
     	 if(customer.getId() == null || !attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e.equals(customerCard)))  return false;   	 
@@ -590,7 +590,7 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean modifyPointsOnCard(String customerCard, int pointsToBeAdded) throws InvalidCustomerCardException, UnauthorizedException {
     	  if(currentUser == null ||currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-    	  if(customerCard == null || customerCard.isEmpty()||!CustomerClass.checkCardCode(customerCard)) throw new InvalidCustomerCardException();
+    	  if(customerCard == null || customerCard.isEmpty()||!LoyaltyCardClass.checkCardCode(customerCard)) throw new InvalidCustomerCardException();
     	  
     LoyaltyCardClass card= (LoyaltyCardClass) cards.get(customerCard);
     CustomerClass tmp = null;

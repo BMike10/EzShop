@@ -99,24 +99,7 @@ public class CustomerClassTest {
 				c.updateCustomerPoints(10);
 				c.updateCustomerPoints(10);
 				assertEquals(new Integer(20), c.getPoints());
-			}
-		
-		
-		@Test
-		public void testSetCustomerCard() {
-			//valid 10 digits
-			String code10 = "abcde12345";
-			assertTrue(CustomerClass.checkCardCode(code10));
-			//invalid 11 
-			String code11 = "abcde123456";
-			assertFalse(CustomerClass.checkCardCode(code11));
-			//invalid 9 
-			String code9 = "abcde1234";
-			assertFalse(CustomerClass.checkCardCode(code9));
-		}
-		
-
-		
+		  }		
 		//WB testing
 		@Test 
 		public void testWhiteBox() throws InvalidCustomerCardException, InvalidCustomerNameException,InvalidCustomerIdException
