@@ -136,6 +136,48 @@ SaleTransaction --> ProductType
 |  1     |  ... |  
 |  2     |  ... |
 
+## Scenario UC1-4
+
+| Scenario |  Delete product type |
+| ------------- |:-------------:| 
+|  Precondition     | Product type X exists |
+|         | ShopManager S exists and is logged in|
+|  Post condition     |  Product type X not exists |
+| Step#        | Description  |
+|  1     |  S select X's record |  
+|  2     |  S deletes X |
+|  3     |  X is deleted from the system|
+
+## Scenario UC1-5
+
+| Scenario |  List all product types |
+| ------------- |:-------------:| 
+|  Precondition     | ShopManager S exists and is logged in |
+|  Post condition     | List of all product types is displayed |
+| Step#        | Description  |
+|  1     |  S asks for product list |  
+|  2     |  system displays the product list |
+## Scenario UC1-6
+
+| Scenario |  Get Product type by barcode |
+| ------------- |:-------------:| 
+|  Precondition     | ShopManager S exists and is logged in |
+|         | Product type X exists|
+|  Post condition     | X information are shown |
+| Step#        | Description  |
+|  1     |  S enters X barcode |  
+|  2     |  system searches for X |
+|  3     |  System displays X information|
+## Scenario UC1-7
+
+| Scenario |  Get product types by description |
+| ------------- |:-------------:| 
+|  Precondition     | ShopManager S exists and is logged in |
+|  Post condition     | List of products that matches entered description is shown  |
+| Step#        | Description  |
+|  1     |  S fills description |  
+|  2     |  System searches for product that matches description |
+|  3     |  System displays list of retrieved products|
 ## Scenario UC3-4
 
 | Scenario |  Issue & Pay order |
@@ -154,6 +196,16 @@ SaleTransaction --> ProductType
 |  4     | O's state is set to PAYED|
 |  5     | O is inserted into the system|
 
+## Scenario UC3-5
+
+| Scenario |  List all orders |
+| ------------- |:-------------:| 
+|  Precondition     | ShopManager S exists and is logged in |
+|  Post condition     | Order list is shown |
+| Step#        | Description  |
+|  1     |  S asks for order list |  
+|  2     |  the system displays Order list |
+
 # Coverage of Scenarios and FR
 
 
@@ -167,11 +219,16 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 | ----------- | ------------------------------- | ----------- | 
 |  1-1         | FR3.1   | it.polito.ezshop.ProductAPITest.testCreateProductType|
 |  1-2         | FR4.2   | it.polito.ezshop.ProductAPITest.testUpdateLocation|
-|  1-3         | FR3.1        | it.polito.ezshop.ProductAPITest.testUpdateProduct|          
-|    3-1       | FR4.3   | it.polito.ezshop.OrderAPITest.testIssueOrder |
-|    3-2       | FR4.4   | it.polito.ezshop.OrderAPITest.testPayOrderFor |
-|    3-3       | FR4.6   | it.polito.ezshop.OrderAPITest.testRecordOrderArrival |
-|    3-4       | FR4.5 | it.polito.ezshop.OrderAPITest.testPayOrder|
+|  1-3         | FR3.1   | it.polito.ezshop.ProductAPITest.testUpdateProduct|          
+|  1-4         | FR3.2   | it.polito.ezshop.ProductAPITest.testDeleteProductType|
+|  1-5         | FR3.3   | it.polito.ezshop.ProductAPITest.testGetAllProductTypes|
+|  1-6         | FR3.4   | it.polito.ezshop.ProductAPITest.testGetProductTypeByBarcode |
+|  1-7         | FR3.4   | it.polito.ezshop.ProductAPITest.testGetProductTypeByDescription|
+|  3-1         | FR4.3   | it.polito.ezshop.OrderAPITest.testIssueOrder |
+|  3-4         | FR4.4   | it.polito.ezshop.OrderAPITest.testPayOrderFor |
+|  3-3         | FR4.6   | it.polito.ezshop.OrderAPITest.testRecordOrderArrival |
+|  3-2         | FR4.5 | it.polito.ezshop.OrderAPITest.testPayOrder|
+|  3-5         | FR4.6 | it.polito.ezshop.OrderAPITest.testGetAllOrders|
 |  ..          | FRy                             |             |             
 | ...          |                                 |             |             
 | ...          |                                 |             |             
