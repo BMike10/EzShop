@@ -136,7 +136,23 @@ SaleTransaction --> ProductType
 |  1     |  ... |  
 |  2     |  ... |
 
+## Scenario UC3-4
 
+| Scenario |  Issue & Pay order |
+| ------------- |:-------------:| 
+|  Precondition     | ShopManager S exists and is logged in |
+|         | Product type X exists|
+|         | Order O not exists |
+|         | Balance >= Order.units * Order.pricePerUnit |
+|  Post condition     |  Order O is in PAYED state |
+|         | Balance -= Order.units * Order.pricePerUnit|
+|         | X.units not changed|
+| Step#        | Description  |
+|  1     |  S creates Order O|  
+|  2     |  S fills quantity of product to  be ordered and the price per unit|
+|  3     | S register payment done for O|
+|  4     | O's state is set to PAYED|
+|  5     | O is inserted into the system|
 
 # Coverage of Scenarios and FR
 
@@ -149,12 +165,13 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 
 | Scenario ID | Functional Requirements covered | JUnit  Test(s) | 
 | ----------- | ------------------------------- | ----------- | 
-|  1-1         | FR3.1   | it.polito.ezshop.ProductAPITest|
-|  1-2         |         | it.polito.ezshop.ProductAPITest|
-|  1-3         |         | it.polito.ezshop.ProductAPITest|          
-|    3-1       | FR4.3   | it.polito.ezshop.OrderAPITest |
-|    3-2       | FR4.4   | it.polito.ezshop.OrderAPITest |
-|    3-3       | FR4.6   | it.polito.ezshop.OrderAPITest |
+|  1-1         | FR3.1   | it.polito.ezshop.ProductAPITest.testCreateProductType|
+|  1-2         | FR4.2   | it.polito.ezshop.ProductAPITest.testUpdateLocation|
+|  1-3         | FR3.1        | it.polito.ezshop.ProductAPITest.testUpdateProduct|          
+|    3-1       | FR4.3   | it.polito.ezshop.OrderAPITest.testIssueOrder |
+|    3-2       | FR4.4   | it.polito.ezshop.OrderAPITest.testPayOrderFor |
+|    3-3       | FR4.6   | it.polito.ezshop.OrderAPITest.testRecordOrderArrival |
+|    3-4       | FR4.5 | it.polito.ezshop.OrderAPITest.testPayOrder|
 |  ..          | FRy                             |             |             
 | ...          |                                 |             |             
 | ...          |                                 |             |             
