@@ -24,7 +24,47 @@ Version:
 # Dependency graph 
 
      <report the here the dependency graph of the classes in EzShop, using plantuml>
-     
+```plantuml
+@startuml
+class EZShop{}
+class User{}
+class SaleTransaction {}
+class LoyaltyCard {}
+class Customer {}
+class AccountBook {}
+class BalanceOperation {}
+class ProductType{}
+class Position {}
+class Order {}
+class ReturnTransaction {}
+class TicketEntry {}
+EZShop --> User
+EZShop --> SaleTransaction
+EZShop --> ReturnTransaction
+EZShop --> ProductType
+EZShop --> AccountBook 
+EZShop --> LoyaltyCard 
+EZShop --> Customer 
+EZShop --> Order
+EZShop --> BalanceOperation
+
+ProductType --> Position
+
+SaleTransaction --> TicketEntry
+TicketEntry --> ProductType 
+
+AccountBook --> SaleTransaction
+ReturnTransaction <-AccountBook 
+AccountBook -> BalanceOperation
+AccountBook --> Order
+
+ReturnTransaction --> ProductType
+
+SaleTransaction --> LoyaltyCard
+
+SaleTransaction --> ProductType
+@enduml
+```
 # Integration approach
 
     <Write here the integration sequence you adopted, in general terms (top down, bottom up, mixed) and as sequence
@@ -32,6 +72,7 @@ Version:
     <Some steps may  correspond to unit testing (ex step1 in ex above), presented in other document UnitTestReport.md>
     <One step will  correspond to API testing>
     
+## Bottom Up
 
 
 #  Tests
@@ -42,22 +83,39 @@ Version:
 ## Step 1
 | Classes  | JUnit test cases |
 |--|--|
-|||
+| Position | it.polito.ezshop.PositionTest|
+| LoyaltyCard| it.polito.ezshop.LoyaltyCardClassTest|
+| BalanceOperation| it.polito.ezshop.BalanceOperationTest|
+| User | it.polito.ezshop.UserClassTest|
+| Customer| it.polito.ezshop.CustomerClassTest|
+| Order | it.polito.ezshop.OrderClassTest|
 
 
 ## Step 2
 | Classes  | JUnit test cases |
 |--|--|
-|||
+| ProductType| it.polito.ezshop.ProductTypeTest|
 
+## Step 3
+| Classes  | JUnit test cases |
+|--|--|
+| ReturnTransaction | it.polito.ezshop.ReturnTransactionTest|
+| TicketEntry | it.polito.ezshop.TicketEntryTest|
 
-## Step n 
+## Step 4
+| Classes  | JUnit test cases |
+|--|--|
+| SaleTransaction | it.polito.ezshop.SaleTransactionTest|
 
-   
+## Step 5
+| Classes  | JUnit test cases |
+|--|--|
+| AccountBook| it.polito.ezshop.AccountBookTest|
+## Step 6  
 
 | Classes  | JUnit test cases |
 |--|--|
-|||
+|EZShop| it.polito.ezshop.ProductAPITest <br> it.polito.ezshop.OrderAPITest |
 
 
 

@@ -33,7 +33,19 @@ public class LoyaltyCardClassTest {
 	        assertTrue(card.setPoints(10));
 	        assertFalse(card.setPoints(-10));
 	    }
-	  
+
+		@Test
+		public void testSetCustomerCard() {
+			//valid 10 digits
+			String code10 = "abcde12345";
+			assertTrue(LoyaltyCardClass.checkCardCode(code10));
+			//invalid 11 
+			String code11 = "abcde123456";
+			assertFalse(LoyaltyCardClass.checkCardCode(code11));
+			//invalid 9 
+			String code9 = "abcde1234";
+			assertFalse(LoyaltyCardClass.checkCardCode(code9));
+		}
 	  @Test
 		public void testUpdatePoints() throws InvalidCustomerCardException {
 			LoyaltyCardClass card = new LoyaltyCardClass("A4FBH67NDT", 0);		

@@ -41,7 +41,11 @@ public static String createCardCode(int i)
 	    } 
 
 	
-
+	public static boolean checkCardCode(String newCustomerCard) {
+		if(newCustomerCard.length()!=10) return false;
+		return true;
+	}
+	
 	public Integer getPoints() {
 		return points;
 	}
