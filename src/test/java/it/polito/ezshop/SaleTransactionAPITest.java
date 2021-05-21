@@ -64,13 +64,13 @@ public class SaleTransactionAPITest {
 
 		// create test products changing some digits and updating their quantity
 		ezshop.login(username, password);
-		if ((pt = ezshop.getProductTypeByBarCode("403638133390")) == null) {
-			newProdId = ezshop.createProductType("testSaleTransactionProduct", "403638133390", 3.5, null);
+		if ((pt = ezshop.getProductTypeByBarCode("400638133390")) == null) {
+			newProdId = ezshop.createProductType("testSaleTransactionProduct", "400638133390", 3.5, null);
 		}
 		ezshop.updateQuantity(newProdId, 5);
 
-		if ((pt = ezshop.getProductTypeByBarCode("503638133390")) == null) {
-			newProdId = ezshop.createProductType("testSaleTransactionProduct", "503638133390", 7.0, null);
+		if ((pt = ezshop.getProductTypeByBarCode("4006381333900")) == null) {
+			newProdId = ezshop.createProductType("testSaleTransactionProduct", "4006381333900", 7.0, null);
 		}
 		ezshop.updateQuantity(newProdId, 10);
 
@@ -125,7 +125,7 @@ public class SaleTransactionAPITest {
 	public void testAddProductToSale() throws Exception {
 		// before login
 		assertThrows(UnauthorizedException.class, () -> {
-			ezshop.addProductToSale(1, "403638133390", 2);
+			ezshop.addProductToSale(1, "400638133390", 2);
 		});
 		// login Admin
 		ezshop.login(username, password);
@@ -133,11 +133,11 @@ public class SaleTransactionAPITest {
 		id = ezshop.startSaleTransaction();
 		// null transactionId
 		assertThrows(InvalidTransactionIdException.class, () -> {
-			ezshop.addProductToSale(null, "403638133390", 2);
+			ezshop.addProductToSale(null, "400638133390", 2);
 		});
 		// invalid transactionId
 		assertThrows(InvalidTransactionIdException.class, () -> {
-			ezshop.addProductToSale(-2, "403638133390", 2);
+			ezshop.addProductToSale(-2, "400638133390", 2);
 		});
 		// null productCode
 		assertThrows(InvalidTransactionIdException.class, () -> {
@@ -149,16 +149,16 @@ public class SaleTransactionAPITest {
 		});
 		// invalid quantity
 		assertThrows(InvalidTransactionIdException.class, () -> {
-			ezshop.addProductToSale(id, "403638133390", -2);
+			ezshop.addProductToSale(id, "400638133390", -2);
 		});
 
-		int q = ezshop.getProductTypeByBarCode("403638133390").getQuantity();
+		int q = ezshop.getProductTypeByBarCode("400638133390").getQuantity();
 		// valid
-		assertTrue(ezshop.addProductToSale(id, "403638133390", 2));
+		assertTrue(ezshop.addProductToSale(id, "400638133390", 2));
 		// test correctly updated quantity
-		assertTrue(q == ezshop.getProductTypeByBarCode("403638133390").getQuantity() + 2);
+		assertTrue(q == ezshop.getProductTypeByBarCode("400638133390").getQuantity() + 2);
 
-		ezshop.deleteProductFromSale(id, "403638133390", 2);
+		ezshop.deleteProductFromSale(id, "400638133390", 2);
 		ezshop.logout();
 
 	}
@@ -167,22 +167,22 @@ public class SaleTransactionAPITest {
 	public void testDeleteProductFromSale() throws Exception {
 		// before login
 		assertThrows(UnauthorizedException.class, () -> {
-			ezshop.deleteProductFromSale(1, "403638133390", 2);
+			ezshop.deleteProductFromSale(1, "400638133390", 2);
 		});
 		// login Admin
 		ezshop.login(username, password);
 		// create new transaction
 		id = ezshop.startSaleTransaction();
 		// add product to the new sale transaction
-		ezshop.addProductToSale(id, "403638133390", 2);
+		ezshop.addProductToSale(id, "400638133390", 2);
 
 		// null transactionId
 		assertThrows(InvalidTransactionIdException.class, () -> {
-			ezshop.deleteProductFromSale(null, "403638133390", 2);
+			ezshop.deleteProductFromSale(null, "400638133390", 2);
 		});
 		// invalid transactionId
 		assertThrows(InvalidTransactionIdException.class, () -> {
-			ezshop.deleteProductFromSale(-2, "403638133390", 2);
+			ezshop.deleteProductFromSale(-2, "400638133390", 2);
 		});
 		// null productCode
 		assertThrows(InvalidTransactionIdException.class, () -> {
@@ -194,16 +194,16 @@ public class SaleTransactionAPITest {
 		});
 		// invalid quantity
 		assertThrows(InvalidTransactionIdException.class, () -> {
-			ezshop.deleteProductFromSale(id, "403638133390", -2);
+			ezshop.deleteProductFromSale(id, "400638133390", -2);
 		});
 
-		int q = ezshop.getProductTypeByBarCode("403638133390").getQuantity();
+		int q = ezshop.getProductTypeByBarCode("400638133390").getQuantity();
 		// valid
-		assertTrue(ezshop.addProductToSale(id, "403638133390", 2));
+		assertTrue(ezshop.addProductToSale(id, "400638133390", 2));
 		// test correctly updated quantity
-		assertTrue(q == ezshop.getProductTypeByBarCode("403638133390").getQuantity() + 2);
+		assertTrue(q == ezshop.getProductTypeByBarCode("400638133390").getQuantity() + 2);
 
-		ezshop.deleteProductFromSale(id, "403638133390", 2);
+		ezshop.deleteProductFromSale(id, "400638133390", 2);
 		ezshop.logout();
 	}
 
@@ -237,21 +237,21 @@ public class SaleTransactionAPITest {
 	public void testApplyDiscountRateToProduct() throws Exception {
 		// before login
 		assertThrows(UnauthorizedException.class, () -> {
-			ezshop.applyDiscountRateToProduct(1, "403638133390", 0.2);
+			ezshop.applyDiscountRateToProduct(1, "400638133390", 0.2);
 		});
 		// login Admin
 		ezshop.login(username, password);
 		// create new transaction
 		id = ezshop.startSaleTransaction();
 		// add product to the new sale transaction
-		ezshop.addProductToSale(id, "403638133390", 2);
+		ezshop.addProductToSale(id, "400638133390", 2);
 		// null transactionId
 		assertThrows(InvalidTransactionIdException.class, () -> {
-			ezshop.applyDiscountRateToProduct(null, "403638133390", 0.2);
+			ezshop.applyDiscountRateToProduct(null, "400638133390", 0.2);
 		});
 		// invalid transactionId
 		assertThrows(InvalidTransactionIdException.class, () -> {
-			ezshop.applyDiscountRateToProduct(-1, "403638133390", 0.2);
+			ezshop.applyDiscountRateToProduct(-1, "400638133390", 0.2);
 		});
 		// null productCode
 		assertThrows(InvalidTransactionIdException.class, () -> {
@@ -263,27 +263,27 @@ public class SaleTransactionAPITest {
 		});
 		// invalid discountRate
 		assertThrows(InvalidDiscountRateException.class, () -> {
-			ezshop.applyDiscountRateToProduct(id, "403638133390", -0.3);
+			ezshop.applyDiscountRateToProduct(id, "400638133390", -0.3);
 		});
 		// invalid discountRate
 		assertThrows(InvalidDiscountRateException.class, () -> {
-			ezshop.applyDiscountRateToProduct(id, "403638133390", 1.3);
+			ezshop.applyDiscountRateToProduct(id, "400638133390", 1.3);
 		});
 
 		// valid
-		ezshop.applyDiscountRateToProduct(id, "403638133390", 0.2);
+		ezshop.applyDiscountRateToProduct(id, "400638133390", 0.2);
 		// check if product discount is updated
 		List<TicketEntry> tec = ezshop.getSaleTransaction(id).getEntries();
 		double disc = 0.0;
 		for (TicketEntry t : tec) {
-			if (t.getBarCode() == "403638133390") {
+			if (t.getBarCode() == "400638133390") {
 				disc = t.getDiscountRate();
 				break;
 			}
 		}
 		assertEquals(disc, 0.2, 0.0001);
 
-		ezshop.deleteProductFromSale(id, "403638133390", 2);
+		ezshop.deleteProductFromSale(id, "400638133390", 2);
 		ezshop.logout();
 	}
 
@@ -298,7 +298,7 @@ public class SaleTransactionAPITest {
 		// create new transaction
 		id = ezshop.startSaleTransaction();
 		// add product to the new sale transaction
-		ezshop.addProductToSale(id, "403638133390", 2);
+		ezshop.addProductToSale(id, "400638133390", 2);
 		// null transactionId
 		assertThrows(InvalidTransactionIdException.class, () -> {
 			ezshop.applyDiscountRateToSale(null, 0.2);
@@ -321,7 +321,7 @@ public class SaleTransactionAPITest {
 		// check if discount for the sale is updated
 		assertEquals(ezshop.getAccountBook().getSaleTransaction(id).getDiscountRate(), 0.2, 0.0001);
 
-		ezshop.deleteProductFromSale(id, "403638133390", 2);
+		ezshop.deleteProductFromSale(id, "400638133390", 2);
 		ezshop.logout();
 	}
 	
@@ -336,7 +336,7 @@ public class SaleTransactionAPITest {
 		// create new transaction
 		id = ezshop.startSaleTransaction();
 		// add product to the new sale transaction
-		ezshop.addProductToSale(id, "403638133390", 2);
+		ezshop.addProductToSale(id, "400638133390", 2);
 
 		// null transactionId
 		assertThrows(InvalidTransactionIdException.class, () -> {
@@ -351,12 +351,12 @@ public class SaleTransactionAPITest {
 		int p=ezshop.computePointsForSale(id);
 		assertEquals(p, ezshop.getSaleTransaction(id).getPrice()%10, 0.0001);
 		
-		ezshop.deleteProductFromSale(id, "403638133390", 2);
+		ezshop.deleteProductFromSale(id, "400638133390", 2);
 		ezshop.logout();
 	}
 
 	@Test
-	public void testEndSaleTransaction() throws Exception() {
+	public void testEndSaleTransaction() throws Exception {
 		// before login
 		assertThrows(UnauthorizedException.class, () -> {
 		ezshop.endSaleTransaction(1);
@@ -366,7 +366,7 @@ public class SaleTransactionAPITest {
 		// create new transaction
 		id = ezshop.startSaleTransaction();
 		// add product to the new sale transaction
-		ezshop.addProductToSale(id, "403638133390", 2);
+		ezshop.addProductToSale(id, "400638133390", 2);
 
 		// null transactionId
 		assertThrows(InvalidTransactionIdException.class, () -> {
@@ -380,13 +380,13 @@ public class SaleTransactionAPITest {
 		//valid
 		assertTrue(ezshop.endSaleTransaction(id));
 		
-		ezshop.getAccountBook().removeSaleTransaction(st.getBalanceId());
+		ezshop.getAccountBook().removeSaleTransaction(id);
 		Connect.removeSaleTransaction(id);
 		ezshop.logout();
 	}
 
 	@Test
-	public void testDeleteSaleTransaction() throws Exception() {
+	public void testDeleteSaleTransaction() throws Exception {
 		// before login
 				assertThrows(UnauthorizedException.class, () -> {
 				ezshop.endSaleTransaction(1);
@@ -396,7 +396,7 @@ public class SaleTransactionAPITest {
 				// create new transaction
 				id = ezshop.startSaleTransaction();
 				// add product to the new sale transaction
-				ezshop.addProductToSale(id, "403638133390", 2);
+				ezshop.addProductToSale(id, "400638133390", 2);
 				ezshop.endSaleTransaction(id);
 				
 				// null transactionId
