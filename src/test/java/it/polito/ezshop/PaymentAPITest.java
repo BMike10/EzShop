@@ -27,15 +27,7 @@ public class PaymentAPITest {
             username+="123456789101112";
             createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
         }
-        // delete test products
-        ezshop.login(username, password);
-        ProductType pt = null;
-        if((pt = ezshop.getProductTypeByBarCode("400638133390"))!=null){
-            ezshop.deleteProductType(pt.getId());
-        }
-        if((pt = ezshop.getProductTypeByBarCode("4006381333931"))!=null){
-            ezshop.deleteProductType(pt.getId());
-        }
+
         ezshop.logout();
     }
     @After
