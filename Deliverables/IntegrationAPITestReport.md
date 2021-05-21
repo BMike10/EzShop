@@ -91,12 +91,17 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 
 | Scenario ID | Functional Requirements covered | JUnit  Test(s) | 
 | ----------- | ------------------------------- | ----------- | 
-|  ..         | FRx                             |             |             
-|  ..         | FRy                             |             |             
-| ...         |                                 |             |             
-| ...         |                                 |             |             
-| ...         |                                 |             |             
-| ...         |                                 |             |             
+|  1-1         | FR3.1   | it.polito.ezshop.ProductAPITest|
+|  1-2         |         | it.polito.ezshop.ProductAPITest|
+|  1-3         |         | it.polito.ezshop.ProductAPITest|          
+|    3-1       | FR4.3   | it.polito.ezshop.OrderAPITest |
+|    3-2       | FR4.4   | it.polito.ezshop.OrderAPITest |
+|    3-3       | FR4.6   | it.polito.ezshop.OrderAPITest |
+|  ..          | FRy                             |             |             
+| ...          |                                 |             |             
+| ...          |                                 |             |             
+| ...          |                                 |             |             
+| ...          |                                 |             |             
 
 
 
@@ -110,6 +115,9 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 
 | Non Functional Requirement | Test name |
 | -------------------------- | --------- |
-|                            |           |
+|           NFR2             | ??? |
+|           NFR4             |  it.polito.ezshop.ProductTypeTest.testValidateBarCode         |
+|           NFR5             |  it.polito.ezshop.CheckCreditCardTest.testCheckCreditCardNumber|
+|           NFR6             | Domain | The customer's card should be a string of 10 digits. | FR5 |
 
 
