@@ -78,7 +78,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteUser(Integer id) throws InvalidUserIdException, UnauthorizedException {   	
-    	if(id<=0 ||id==null) throw new InvalidUserIdException();
+    	if(id==null||id<=0) throw new InvalidUserIdException();
         if(currentUser==null || !currentUser.getRole().equals("Administrator")) throw new UnauthorizedException();       
     	if(!users.containsKey(id)) return false;
         User u = users.remove(id);
@@ -98,7 +98,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public User getUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
-    	if(id<=0 ||id==null) throw new InvalidUserIdException();
+    	if(id==null||id<=0) throw new InvalidUserIdException();
     	if(currentUser==null || !currentUser.getRole().equals("Administrator")) throw new UnauthorizedException(); 
     	for(User user: users.values()) {
     		if(user.getId().equals(id))
@@ -529,7 +529,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
-    	if(id<=0 ||id==null) throw new InvalidCustomerIdException();
+    	if(id==null || id<=0) throw new InvalidCustomerIdException();
         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
     	if(!customers.containsKey(id)) return false;
         Customer c = customers.remove(id);
@@ -542,7 +542,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Customer getCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
-    	if(id<=0 ||id==null) throw new InvalidCustomerIdException();
+    	if(id==null||id<=0) throw new InvalidCustomerIdException();
         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
         Customer c = customers.get(id);
     	return c;

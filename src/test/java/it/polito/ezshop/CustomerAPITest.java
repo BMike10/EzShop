@@ -95,7 +95,8 @@ public void testDeleteCustomer() throws InvalidUsernameException, InvalidPasswor
 	// now logged
 	ezshop.login(username, password);
 	// invalid id
-	assertThrows(InvalidCustomerIdException.class, ()->{ezshop.deleteCustomer(0);});	
+	assertThrows(InvalidCustomerIdException.class, ()->{ezshop.deleteCustomer(0);});
+	assertThrows(InvalidCustomerIdException.class, ()->{ezshop.deleteCustomer(null);});	
 	// valid
 	assertEquals(true, ezshop.deleteCustomer(id[0]));	
 	// double remove

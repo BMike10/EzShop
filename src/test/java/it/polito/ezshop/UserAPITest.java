@@ -98,6 +98,8 @@ public class UserAPITest{
 	//	assertThrows(InvalidUserIdException.class, ()->{ezshop.deleteUser(null);});		
 	// invalid id
 	assertThrows(InvalidUserIdException.class, ()->{ezshop.deleteUser(0);});
+	assertThrows(InvalidUserIdException.class, ()->{ezshop.deleteUser(null);});	
+
 	// valid
 	assertEquals(true, ezshop.deleteUser(id[0]));	
 	// elimino lo stesso user
