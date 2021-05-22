@@ -29,8 +29,10 @@ public class BalanceAPITest {
         if((u=ezshop.login(username, password))==null) {
             createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
         }else if(u.getRole().equals(RoleEnum.Cashier.name())) {
-            username+="123456789101112";
+        	do {
+            username+="123";
             createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
+        	}while(createdUserId<0);
         }
         ezshop.logout();
     }

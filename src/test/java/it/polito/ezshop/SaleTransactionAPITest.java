@@ -41,8 +41,10 @@ public class SaleTransactionAPITest {
 		if ((u = ezshop.login(username, password)) == null) {
 			createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
 		} else if (u.getRole().equals(RoleEnum.Cashier.name())) {
-			username += "123456789101112";
+			do {
+			username += "1234";
 			createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
+			}while(createdUserId<0);
 		}
 
 		while (true) {
@@ -67,12 +69,12 @@ public class SaleTransactionAPITest {
 		if ((pt = ezshop.getProductTypeByBarCode("400638133390")) == null) {
 			newProdId = ezshop.createProductType("testSaleTransactionProduct", "400638133390", 3.5, null);
 		}
-		ezshop.updateQuantity(newProdId, 5);
+		ezshop.updateQuantity(newProdId>0?newProdId:pt.getId(), 5);
 
 		if ((pt = ezshop.getProductTypeByBarCode("4006381333900")) == null) {
 			newProdId = ezshop.createProductType("testSaleTransactionProduct", "4006381333900", 7.0, null);
 		}
-		ezshop.updateQuantity(newProdId, 10);
+		ezshop.updateQuantity(newProdId>0?newProdId:pt.getId(), 10);
 
 		ezshop.logout();
 	}
