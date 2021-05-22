@@ -52,7 +52,7 @@ public class TicketEntryClass implements TicketEntry {
 
 	@Override
 	public void setAmount(int amount) {
-		if(amount<=0) throw new RuntimeException(new InvalidQuantityException());
+		if(amount<0) throw new RuntimeException(new InvalidQuantityException());
 		this.amount=amount;
 	}
 

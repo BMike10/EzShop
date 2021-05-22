@@ -632,14 +632,15 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidTransactionIdException();
 		if(productCode==null || productCode=="")
 			throw new InvalidProductCodeException();
-
+		if(amount<=0) throw new InvalidQuantityException();
+		
 		SaleTransactionClass st=null;
 		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		}catch(Exception e) {return false;}
 		if (st==null) {
 			return false;
 		}
-		if(amount<=0) throw new InvalidQuantityException();
+		
 		ProductType pt = getProductTypeByBarCode(productCode);
 		if(pt == null) return false;
 		try {
