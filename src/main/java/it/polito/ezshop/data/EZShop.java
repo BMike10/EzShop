@@ -80,7 +80,8 @@ public class EZShop implements EZShopInterface {
     public boolean deleteUser(Integer id) throws InvalidUserIdException, UnauthorizedException {   	
     	if(id<=0 ||id==null) throw new InvalidUserIdException();
         if(currentUser==null || !currentUser.getRole().equals("Administrator")) throw new UnauthorizedException();       
-    	User u = users.remove(id);
+    	if(!users.containsKey(id)) return false;
+        User u = users.remove(id);
     	if(!Connect.deleteUser(id)) {
         	users.put(id, u);
         	return false;
@@ -530,7 +531,8 @@ public class EZShop implements EZShopInterface {
     public boolean deleteCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
     	if(id<=0 ||id==null) throw new InvalidCustomerIdException();
         if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-    	Customer c = customers.remove(id);
+    	if(!customers.containsKey(id)) return false;
+        Customer c = customers.remove(id);
 		if(!Connect.removeCustomer(id)) {
         	customers.put(id,c);
         	return false;
