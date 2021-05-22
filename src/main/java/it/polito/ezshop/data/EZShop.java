@@ -733,7 +733,7 @@ public class EZShop implements EZShopInterface {
 		SaleTransactionClass st=null;
 		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		}catch(Exception e) {return -1;}
-		if(st==null) throw new InvalidTransactionIdException();
+		if(st==null) return -1;
 		return (int)st.getPrice()/10;
 	}
 
