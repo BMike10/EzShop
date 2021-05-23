@@ -18,10 +18,10 @@ public class LoyaltyCardClassTest {
 	public void testLoyaltyCardClassConstructor() {
 		//invalid cardCode
 		assertThrows(Exception.class, ()->{
-			final LoyaltyCardClass card = new LoyaltyCardClass("A4FBH67NDTSYNH", 0);});		
+			final LoyaltyCardClass card = new LoyaltyCardClass("4789327489172", 0);});		
 				try {
-				final LoyaltyCardClass card = new LoyaltyCardClass("A4FBH67NDT", 0);					
-				assertEquals("A4FBH67NDT", card.getCardCode());		
+				final LoyaltyCardClass card = new LoyaltyCardClass("0123456789", 0);					
+				assertEquals("0123456789", card.getCardCode());		
 				}catch(Exception e) {				
 					fail();
 					}
@@ -29,7 +29,7 @@ public class LoyaltyCardClassTest {
 	}
 	  @Test
 	    public void testSetPoints(){
-	       LoyaltyCard card = new LoyaltyCardClass("A4FBH67NDT", 0);
+	       LoyaltyCard card = new LoyaltyCardClass("0123456789", 0);
 	        assertTrue(card.setPoints(10));
 	        assertFalse(card.setPoints(-10));
 	    }
@@ -37,18 +37,18 @@ public class LoyaltyCardClassTest {
 		@Test
 		public void testSetCustomerCard() {
 			//valid 10 digits
-			String code10 = "abcde12345";
+			String code10 = "0123456789";
 			assertTrue(LoyaltyCardClass.checkCardCode(code10));
 			//invalid 11 
-			String code11 = "abcde123456";
+			String code11 = "01234567896";
 			assertFalse(LoyaltyCardClass.checkCardCode(code11));
 			//invalid 9 
-			String code9 = "abcde1234";
+			String code9 = "012345678";
 			assertFalse(LoyaltyCardClass.checkCardCode(code9));
 		}
 	  @Test
 		public void testUpdatePoints() throws InvalidCustomerCardException {
-			LoyaltyCardClass card = new LoyaltyCardClass("A4FBH67NDT", 0);		
+			LoyaltyCardClass card = new LoyaltyCardClass("0123456789", 0);		
 			// initial points should be 0
 			assertEquals(new Integer(0), card.getPoints());
 			// try update with negative
@@ -69,10 +69,10 @@ public class LoyaltyCardClassTest {
 	  
 	  @Test
 		public void testWhiteBox() {
-			final LoyaltyCardClass card = new LoyaltyCardClass("A4FBH67NDT", 0);
+			final LoyaltyCardClass card = new LoyaltyCardClass("0123456789", 0);
 			assertThrows(RuntimeException.class, () -> {card.setCardCode(null);});
-			assertThrows(RuntimeException.class, () -> {card.setCardCode("abc");});
-			assertThrows(RuntimeException.class, () -> {card.setCardCode("vgrbvrebretrwbvgtrw");});			
+			assertThrows(RuntimeException.class, () -> {card.setCardCode("12");});
+			assertThrows(RuntimeException.class, () -> {card.setCardCode("1897386461946109");});			
 			
 			int i=11;
 			assertEquals("", LoyaltyCardClass.createCardCode(i));

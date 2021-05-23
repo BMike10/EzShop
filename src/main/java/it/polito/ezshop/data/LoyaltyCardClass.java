@@ -18,8 +18,7 @@ public static String createCardCode(int i)
 	        String theAlphaNumericS;
 	        StringBuilder builder;
 	        
-	        theAlphaNumericS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	                                    + "0123456789"; 
+	        theAlphaNumericS = "0123456789"; 
 	        //create the StringBuffer
 	        builder = new StringBuilder(i); 
 	    	

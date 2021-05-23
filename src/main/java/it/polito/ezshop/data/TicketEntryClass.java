@@ -9,6 +9,7 @@ public class TicketEntryClass implements TicketEntry {
 	private int amount;
 	private double discountRate;
 
+	
 	public TicketEntryClass(ProductType p, int amount, double discRate) throws Exception {
 		if(p==null) throw new Exception();
 		if(amount<0) throw new InvalidQuantityException();

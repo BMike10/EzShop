@@ -273,6 +273,7 @@ public class SaleTransactionAPITest {
 			ezshop.applyDiscountRateToProduct(id, "4006381333900", 1.3);
 		});
 
+		
 		// valid
 		ezshop.applyDiscountRateToProduct(id, "4006381333900", 0.2);
 		// check if product discount is updated

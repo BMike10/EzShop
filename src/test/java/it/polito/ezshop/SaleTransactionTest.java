@@ -222,6 +222,7 @@ public class SaleTransactionTest {
 		}
 	}
 
+	
 	@Test
 	public void testSetAndGetEntries() throws Exception {
 		SaleTransactionClass stc = new SaleTransactionClass(new Time(System.currentTimeMillis()), SaleStatus.STARTED);
