@@ -131,26 +131,13 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 			throw new RuntimeException(new InvalidQuantityException());
 		SaleTransactionClass st = (SaleTransactionClass) this.saleTransaction;
 		int amount = st.getProductsEntries().get(product.getBarCode()).getAmount();
-
-		if (!this.returnedProduct.keySet().contains(product)) {
-			if (amount < quantity)
-				return -1;
-			this.returnedProduct.put(product, quantity);
-			setMoney(getMoney() + product.getPricePerUnit() * quantity
-					* (1 - st.getProductsEntries().get(product.getBarCode()).getDiscountRate()));
-			st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity);
-			return 1;
-		} else { // if it's not the first return transaction for that product
-			int q = this.returnedProduct.get(product);
-			if (amount < quantity + q)
-				return -1;
-			this.returnedProduct.remove(product);
-			this.returnedProduct.put(product, quantity + q);
-			setMoney(getMoney() + product.getPricePerUnit() * quantity
-					* (1 - st.getProductsEntries().get(product.getBarCode()).getDiscountRate()));
-			st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity+q);
-			return 1;
-		}
+		if (amount < quantity)
+			return -1;
+		this.returnedProduct.put(product, quantity);
+		setMoney(getMoney() + product.getPricePerUnit() * quantity
+				* (1 - st.getProductsEntries().get(product.getBarCode()).getDiscountRate()));
+		st.deleteProduct(product, quantity);
+		return 1;
 	}
 
 }
