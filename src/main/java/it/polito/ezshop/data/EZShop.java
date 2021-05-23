@@ -579,14 +579,14 @@ public class EZShop implements EZShopInterface {
     	if(currentUser == null || currentUser.getRole().isEmpty())throw new UnauthorizedException();
     	 if(customerId == null || customerId <= 0) throw new InvalidCustomerIdException();
     	 if(customerCard == null || customerCard.isEmpty()||!LoyaltyCardClass.checkCardCode(customerCard))throw new InvalidCustomerCardException();   	
-    	 LoyaltyCard card = cards.get(customerCard);
+    	 LoyaltyCard card = cards.get(customerCard); 	 
     	 Customer customer = customers.get(customerId);  	 
-    	 if(customer.getId() == null || !attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e.equals(customerCard)))  return false;   	 
-    	
+    	 if(customer.getId() == null || attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e.equals(customerCard)))
+    		 return false;  
+    	 else {
     	 attachedCards.put(card,customer); 
     	 customer.setCustomerCard(customerCard);
-
-    	 return true;
+    	 return true;}
     }
 
     @Override
@@ -607,7 +607,6 @@ public class EZShop implements EZShopInterface {
 	 		   c.setPoints(tot);
 	 	   }
 	 	  } 
-	
 	if(!Connect.updateLoyaltyCard(customerCard, card.getPoints())) {
     	card.updatePoints(-pointsToBeAdded);
     	if(tmp!= null)
