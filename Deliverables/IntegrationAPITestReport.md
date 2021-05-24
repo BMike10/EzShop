@@ -205,6 +205,74 @@ SaleTransaction --> ProductType
 | Step#        | Description  |
 |  1     |  S asks for order list |  
 |  2     |  the system displays Order list |
+## Scenario UC4-2
+
+| Scenario |  See all customers|
+| ------------- |:-------------:| 
+|  Precondition     | Cashier C exists and is logged in |
+|  Post condition     | List of all customers is displayed |
+| Step#        | Description  |
+|  1     |  C asks for customers' list |  
+|  2     |  system displays the customers' list |
+
+## Scenario UC4-3
+
+| Scenario | Remove a customer|
+| ------------- |:-------------:| 
+|  Precondition     |Customer is registered in the system |
+|         | Cashier C exists and is logged in|
+|  Post condition     |  Customer profile is deleted from the system |
+| Step#        | Description  |
+|  1     |  C select customer's profile |  
+|  2     |  C deletes customer's profile|
+|  3     |  customer's profile is deleted from the system|
+
+## Scenario UC4-4
+
+| Scenario |  Search a customer |
+| ------------- |:-------------:| 
+|  Precondition     | ShopManager S exists and is logged in |
+|         | Customer is registered in the system|
+|  Post condition     | Customer information are shown |
+| Step#        | Description  |
+|  1     |  S enters Customers's name |  
+|  2     |  System searches for the Customer's profile |
+|  3     |  System displays Customer's information|
+
+## Scenario UC4-5
+| Scenario |  Update a fidelity card |
+| ------------- |:-------------:| 
+|  Precondition     | Cashier C     exists and is logged in |
+|         | Customer is registered in the system|
+|        |Customer has a fidelity card code |
+|  Post condition     | Customer's fidelity card is updated  |
+| Step#        | Description  |
+|  1     |  C enters Customers's name |  
+|  2     |  System searches for the Customer's profile |
+|  3     |  System displays Customer's information|
+|  4     |  C updates Customer's fidelity card |
+|  5     |  System saves the changes |
+
+## Scenario UC5-2
+
+| Scenario | Remove a user|
+| ------------- |:-------------:| 
+|  Precondition     |User is registered in the system |
+|         | Administrator A exists and is logged in|
+|  Post condition     |  User profile is deleted from the system |
+| Step#        | Description  |
+|  1     |  A select user's profile |  
+|  2     |  A deletes user's profile|
+|  3     |  user's profile is deleted from the system|
+## Scenario UC4-2
+
+| Scenario |  View all users|
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A exists and is logged in |
+|  Post condition     | List of all users is displayed |
+| Step#        | Description  |
+|  1     |  A asks for users' list |  
+|  2     |  system displays the users' list |
 
 # Coverage of Scenarios and FR
 
@@ -229,6 +297,18 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |  3-3         | FR4.6   | it.polito.ezshop.OrderAPITest.testRecordOrderArrival |
 |  3-2         | FR4.5 | it.polito.ezshop.OrderAPITest.testPayOrder|
 |  3-5         | FR4.6 | it.polito.ezshop.OrderAPITest.testGetAllOrders|
+|  -          |FR4.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |    
+|  -          |FR4.2  |  it.polito.ezshop.CustomerAPITest.testGetAllCustomers   |             |   
+|  -          |FR4.3  |  it.polito.ezshop.CustomerAPITest.testDeleteCustomer    |             |    
+|  -          |FR4.4  |  it.polito.ezshop.CustomerAPITest.testGetCustomer       |             |   
+|  -          |FR4.5  |  it.polito.ezshop.CustomerAPITest.testModifyCustomer    |             |   
+|  -          |FR4.6  |  it.polito.ezshop.CustomerAPITest.testModifyCustomer    |             |   
+|  -          |FR4.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |  
+|  -          |FR5.1  |  it.polito.ezshop.UserAPITest.testCreateUser            |             |   
+|  -          |FR5.2  |  it.polito.ezshop.UserAPITest.testDeleteUser            |             |    
+|  -          |FR5.3  |  it.polito.ezshop.UserAPITest.testGetAllUsers           |             |   
+|  -          |FR5.4  |  it.polito.ezshop.UserAPITest.testUpdateUserRights      |             | 
+|  -          |FR5.5  |  it.polito.ezshop.UserAPITest.testUpdateUserRights   
 |  ..          | FRy                             |             |             
 | ...          |                                 |             |             
 | ...          |                                 |             |             
