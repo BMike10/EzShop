@@ -7,6 +7,8 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import it.polito.ezshop.data.Connect;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.ProductType;
 import it.polito.ezshop.data.RoleEnum;
@@ -17,9 +19,6 @@ import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
 import it.polito.ezshop.exceptions.InvalidProductIdException;
-import it.polito.ezshop.exceptions.InvalidQuantityException;
-import it.polito.ezshop.exceptions.InvalidRoleException;
-import it.polito.ezshop.exceptions.InvalidUserIdException;
 import it.polito.ezshop.exceptions.InvalidUsernameException;
 import it.polito.ezshop.exceptions.UnauthorizedException;
 
@@ -30,7 +29,7 @@ public class ProductAPITest {
 	private int createdUserId = -1;
 	
 	@Before
-	public void init() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException, InvalidProductCodeException, UnauthorizedException, InvalidProductIdException {
+	public void init() throws Exception {
 		User u = null;
 		if((u=ezshop.login(username, password))==null) {
 			createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
@@ -52,14 +51,14 @@ public class ProductAPITest {
 		ezshop.logout();
 	}
 	@After
-	public void after() throws InvalidUsernameException, InvalidPasswordException, InvalidUserIdException, UnauthorizedException {
+	public void after() throws Exception {
 		if(createdUserId > 0) {
 			ezshop.login(username, password);
 			ezshop.deleteUser(createdUserId);
 		}
 	}
 	@Test
-	public void testCreateProductType() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException, InvalidRoleException, InvalidUserIdException {
+	public void testCreateProductType() throws Exception{
 		// final EZShop ezshop = new EZShop();
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.createProductType("apple", "400638133390", 10.0, null);});		
@@ -78,6 +77,10 @@ public class ProductAPITest {
 		// unitPrice
 		// invalid
 		assertThrows(InvalidPricePerUnitException.class, ()->{ezshop.createProductType("apple", "400638133390", -10.0, null);});
+		// db error
+		Connect.closeConnection();
+		assertEquals(Integer.valueOf(-1), ezshop.createProductType("apple", "400638133390", 10.0, "apple"));
+		Connect.openConnection();
 		// valid
 		int id =-1;
 		try{
@@ -94,7 +97,7 @@ public class ProductAPITest {
 	}
 	
 	@Test
-	public void testDeleteProductType() throws InvalidUsernameException, InvalidPasswordException, InvalidProductIdException, UnauthorizedException {
+	public void testDeleteProductType() throws Exception {
 		// final EZShop ezshop = new EZShop();
 		// login
 		ezshop.login(username, password);
@@ -112,7 +115,10 @@ public class ProductAPITest {
 		// login
 		ezshop.login(username, password);
 		// invalid id
-		assertThrows(InvalidProductIdException.class, ()->{ezshop.deleteProductType(0);});	
+		assertThrows(InvalidProductIdException.class, ()->{ezshop.deleteProductType(0);});	// db error
+		Connect.closeConnection();
+		assertFalse(ezshop.deleteProductType(id[0]));
+		Connect.openConnection();
 		// valid
 		assertEquals(true, ezshop.deleteProductType(id[0]));	
 		// double remove
@@ -222,7 +228,7 @@ public class ProductAPITest {
 		}catch(Exception e) {fail();}
 	}
 	@Test
-	public void testUpdateProduct() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException, InvalidLocationException {
+	public void testUpdateProduct() throws Exception {
 		// final EZShop ezshop = new EZShop();
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.updateProduct(1, "banana", "4006381333900", 10.0, null);});	
@@ -261,6 +267,10 @@ public class ProductAPITest {
 			ezshop.deleteProductType(id2);
 		// invalid price
 		assertThrows(InvalidPricePerUnitException.class, ()->{ezshop.updateProduct(id, "apple", "400638133390", 0.0, "apple");});	
+		// db error
+		Connect.closeConnection();
+		assertFalse( ezshop.updateProduct(id, "apple2", "400638133390", 20.0, "apple2"));
+		Connect.openConnection();
 		// valid
 		try {
 			if(!ezshop.updateProduct(id, "apple2", "400638133390", 20.0, "apple2"))
@@ -279,7 +289,7 @@ public class ProductAPITest {
 	}
 	
 	@Test
-	public void testUpdateQuantity() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException, InvalidLocationException {
+	public void testUpdateQuantity() throws Exception {
 		// final EZShop ezshop = new EZShop();
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.updateQuantity(1, 10);});	
@@ -298,7 +308,11 @@ public class ProductAPITest {
 		pt = ezshop.getProductTypeByBarCode("400638133390");
 		assertEquals("1-test-1", pt.getLocation());
 		// invalid quantity
-		assertFalse(ezshop.updateQuantity(id, -11));
+		assertFalse(ezshop.updateQuantity(id, -11));	
+		// db error
+		Connect.closeConnection();
+		assertFalse( ezshop.updateQuantity(id, 10));
+		Connect.openConnection();
 		// valid
 		assertTrue(ezshop.updateQuantity(id, 10));
 		pt = ezshop.getProductTypeByBarCode("400638133390");
@@ -312,7 +326,7 @@ public class ProductAPITest {
 	}
 	
 	@Test
-	public void testUpdateLocation() throws InvalidUsernameException, InvalidPasswordException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException, InvalidProductIdException, InvalidLocationException {
+	public void testUpdateLocation() throws Exception {
 		// final EZShop ezshop = new EZShop();
 		// before login
 		assertThrows(UnauthorizedException.class, ()->{ezshop.updatePosition(1, "1-test-1");});	
@@ -340,6 +354,10 @@ public class ProductAPITest {
 		assertFalse(ezshop.updatePosition(id, "2-btest-2"));
 		pt = ezshop.getProductTypeByBarCode("400638133390");
 		assertEquals(startPos, pt.getLocation());		
+		// db error
+		Connect.closeConnection();
+		assertFalse( ezshop.updatePosition(id, "3-ctest-3"));
+		Connect.openConnection();
 		// valid
 		try {
 			ezshop.updatePosition(id, "3-ctest-3");

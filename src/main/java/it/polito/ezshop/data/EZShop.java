@@ -366,21 +366,9 @@ public class EZShop implements EZShopInterface {
     	int nextId=-1;
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
         nextId = accountBook.addOrder((Order) o);
-    	// update balance
-        /*if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
-        	try {
-				accountBook.removeOrder(nextId);
-			} catch (InvalidTransactionIdException e) {
-				e.printStackTrace();
-			}
-        	return -1;
-        }*/
-
-        //MICHELE
-    	;
     	// update db
-        if(!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT")) ||
-        		!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
+        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId()) ||
+        		!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT")) ) {
 			try {
 				accountBook.removeOrder(o.getOrderId());
 				//recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
@@ -920,7 +908,7 @@ public class EZShop implements EZShopInterface {
 		try{
 			rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
 		}catch(Exception e) {return false;}
-		if (rt == null || !rt.getStatus().equals(ReturnStatus.CLOSED.name())) {
+		if (rt == null || rt.getStatus().equals(ReturnStatus.STARTED.name())) {
 			return false;
 		}
 		if(!Connect.deleteReturnTransaction(rt.getReturnId())) {
