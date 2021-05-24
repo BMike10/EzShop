@@ -2,6 +2,9 @@ package it.polito.ezshop.responseTime;
 
 import static org.junit.Assert.assertTrue;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -238,9 +241,9 @@ public class ResponseTimeTest {
 			int pid = ezshop.createProductType(barcode, barcode, 1.0, null);
 			barcodes.add(barcode);
 			ezshop.updatePosition(pid, barcode.substring(0,5)+"-"+barcode.substring(5, 10)+"-"+barcode.substring(10));
-			ezshop.updateQuantity(pid, 500);
+			ezshop.updateQuantity(pid, 1500);
 			int sid = ezshop.startSaleTransaction();
-			ezshop.addProductToSale(sid, barcode, 400);
+			ezshop.addProductToSale(sid, barcode, 1000);
 			ezshop.endSaleTransaction(sid);
 			sales.add(sid);
 		}
@@ -317,7 +320,7 @@ public class ResponseTimeTest {
 	private String getUsername() {
 		StringBuffer name=new StringBuffer("");
 		String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-		int length = 63;
+		int length = letters.length();
 		Random r = new Random();
 		for(int i=0;i<10;i++) {
 			name.append(letters.charAt(r.nextInt(length)));
@@ -403,6 +406,7 @@ public class ResponseTimeTest {
 				t=System.currentTimeMillis();
 				cid=ezshop.defineCustomer(cName);
 				define+=System.currentTimeMillis()-t;
+				nDefine++;
 			}while(cid<0);
 			cids.add(cid);
 			// mofify
@@ -433,9 +437,29 @@ public class ResponseTimeTest {
 			cards.add(card);
 		}
 		// delete 
-		
+		for(int i=0;i<N;i++) {
+			t=System.currentTimeMillis();
+			ezshop.deleteCustomer(cids.get(i));
+			delete+=System.currentTimeMillis()-t;
+		}
 		// clean db
-		
+		final String url = "jdbc:sqlite:db/ezshop.db";
+        // create a connection to the database
+        Connection conn = DriverManager.getConnection(url);
+        Statement stmt = conn.createStatement();
+        final String sql = "delete from LoyaltyCard where number='";
+        for(String card:cards) {
+        	stmt.executeUpdate(sql+card+"'");
+        }
+        conn.close();
 		// checks
+        assertTrue(500>=define/nDefine);
+        assertTrue(500>=modify/N);
+        assertTrue(500>=get/N);
+        assertTrue(500>=getAll/N);
+        assertTrue(500>=createCard/N);
+        assertTrue(500>=attach/N);
+        assertTrue(500>=modifyPoints/N);
+        assertTrue(500>=delete/N);
 	}
 }
