@@ -247,7 +247,7 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 
 | Non Functional Requirement | Test name |
 | -------------------------- | --------- |
-|           NFR2             | ??? |
+|           NFR2             | it.polito.ezshop.responseTime.ResponseTimeTest |
 |           NFR4             |  it.polito.ezshop.ProductTypeTest.testValidateBarCode         |
 |           NFR5             |  it.polito.ezshop.CheckCreditCardTest.testCheckCreditCardNumber|
 |           NFR6             | Domain | The customer's card should be a string of 10 digits. | FR5 |
