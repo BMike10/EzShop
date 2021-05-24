@@ -205,9 +205,9 @@ SaleTransaction --> ProductType
 | Step#        | Description  |
 |  1     |  S asks for order list |  
 |  2     |  the system displays Order list |
-## Scenario UC4-2
+## Scenario UC4-5
 
-| Scenario |  See all customers|
+| Scenario |  List all customers|
 | ------------- |:-------------:| 
 |  Precondition     | Cashier C exists and is logged in |
 |  Post condition     | List of all customers is displayed |
@@ -215,9 +215,9 @@ SaleTransaction --> ProductType
 |  1     |  C asks for customers' list |  
 |  2     |  system displays the customers' list |
 
-## Scenario UC4-3
+## Scenario UC4-6
 
-| Scenario | Remove a customer|
+| Scenario | Delete a customer|
 | ------------- |:-------------:| 
 |  Precondition     |Customer is registered in the system |
 |         | Cashier C exists and is logged in|
@@ -227,7 +227,7 @@ SaleTransaction --> ProductType
 |  2     |  C deletes customer's profile|
 |  3     |  customer's profile is deleted from the system|
 
-## Scenario UC4-4
+## Scenario UC4-7
 
 | Scenario |  Search a customer |
 | ------------- |:-------------:| 
@@ -239,32 +239,45 @@ SaleTransaction --> ProductType
 |  2     |  System searches for the Customer's profile |
 |  3     |  System displays Customer's information|
 
-## Scenario UC4-5
-| Scenario |  Update a fidelity card |
+## Scenario UC4-8
+| Scenario |  Modify points on card |
 | ------------- |:-------------:| 
 |  Precondition     | Cashier C     exists and is logged in |
 |         | Customer is registered in the system|
-|        |Customer has a fidelity card code |
+|        |Customer has a fidelity card code attached |
 |  Post condition     | Customer's fidelity card is updated  |
 | Step#        | Description  |
 |  1     |  C enters Customers's name |  
 |  2     |  System searches for the Customer's profile |
 |  3     |  System displays Customer's information|
-|  4     |  C updates Customer's fidelity card |
+|  4     |  C updates Customer's points |
 |  5     |  System saves the changes |
+## Scenario UC4-9
 
-## Scenario UC5-2
-
-| Scenario | Remove a user|
+| Scenario |  Create a Card |
 | ------------- |:-------------:| 
-|  Precondition     |User is registered in the system |
-|         | Administrator A exists and is logged in|
-|  Post condition     |  User profile is deleted from the system |
+|  Precondition     | ShopManager S exists and is logged in |
+|         |Card is not defined in the system|
+|  Post condition     |A new card is defined|
 | Step#        | Description  |
-|  1     |  A select user's profile |  
-|  2     |  A deletes user's profile|
-|  3     |  user's profile is deleted from the system|
-## Scenario UC4-2
+|  1     |  S enters Customers's name |  
+|  2     |  System searches for the Customer's profile |
+|  3     |  System displays Customer's information|
+| 4      |  S generates a new card code|
+| 5 | System attaches card to selected Customer| 
+
+## Scenario UC2-4
+| Scenario |  Search a User |
+| ------------- |:-------------:| 
+|  Precondition     | ShopManager S exists and is logged in |
+|         | User is registered in the system|
+|  Post condition     | User's information are shown |
+| Step#        | Description  |
+|  1     |  S enters User's name |  
+|  2     |  System searches for the Users's profile |
+|  3     |  System displays Users's information|
+
+## Scenario UC2-5
 
 | Scenario |  View all users|
 | ------------- |:-------------:| 
@@ -384,6 +397,7 @@ SaleTransaction --> ProductType
 
 
 
+
 # Coverage of Scenarios and FR
 
 
@@ -394,7 +408,12 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 
 
 | Scenario ID | Functional Requirements covered | JUnit  Test(s) | 
-| ----------- | ------------------------------- | ----------- | 
+| ----------- | ------------------------------- | ----------- |
+|  2-1          |FR1.1  |  it.polito.ezshop.UserAPITest.testCreateUser            |             |   
+|  2-2          |FR1.2  |  it.polito.ezshop.UserAPITest.testDeleteUser            |             |    
+|  2-5          |FR1.3  |  it.polito.ezshop.UserAPITest.testGetAllUsers           |             |   
+|  2-4          |FR1.4  |  it.polito.ezshop.UserAPITest.testGetUser     |             | 
+|  2-3          |FR1.5  |  it.polito.ezshop.UserAPITest.testUpdateUserRights  
 |  1-1         | FR3.1   | it.polito.ezshop.ProductAPITest.testCreateProductType|
 |  1-2         | FR4.2   | it.polito.ezshop.ProductAPITest.testUpdateLocation|
 |  1-3         | FR3.1   | it.polito.ezshop.ProductAPITest.testUpdateProduct|          
@@ -407,18 +426,13 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |  3-3         | FR4.6   | it.polito.ezshop.OrderAPITest.testRecordOrderArrival |
 |  3-2         | FR4.5 | it.polito.ezshop.OrderAPITest.testPayOrder|
 |  3-5         | FR4.6 | it.polito.ezshop.OrderAPITest.testGetAllOrders|
-|  -          |FR4.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |    
-|  -          |FR4.2  |  it.polito.ezshop.CustomerAPITest.testGetAllCustomers   |             |   
-|  -          |FR4.3  |  it.polito.ezshop.CustomerAPITest.testDeleteCustomer    |             |    
-|  -          |FR4.4  |  it.polito.ezshop.CustomerAPITest.testGetCustomer       |             |   
-|  -          |FR4.5  |  it.polito.ezshop.CustomerAPITest.testModifyCustomer    |             |   
-|  -          |FR4.6  |  it.polito.ezshop.CustomerAPITest.testModifyCustomer    |             |   
-|  -          |FR4.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |  
-|  -          |FR5.1  |  it.polito.ezshop.UserAPITest.testCreateUser            |             |   
-|  -          |FR5.2  |  it.polito.ezshop.UserAPITest.testDeleteUser            |             |    
-|  -          |FR5.3  |  it.polito.ezshop.UserAPITest.testGetAllUsers           |             |   
-|  -          |FR5.4  |  it.polito.ezshop.UserAPITest.testUpdateUserRights      |             | 
-|  -          |FR5.5  |  it.polito.ezshop.UserAPITest.testUpdateUserRights   |      |
+|  4-1         |FR5.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |      
+|  4-6          |FR5.2  |  it.polito.ezshop.CustomerAPITest.testDeleteCustomer    |             |    
+|  4-4          |FR5.3  |  it.polito.ezshop.CustomerAPITest.testGetCustomer       |             |  
+|  4-5         |FR5.4 |  it.polito.ezshop.CustomerAPITest.testGetAllCustomers   |             |  
+|  4-9         |FR5.5  |  it.polito.ezshop.LoyaltyCardAPITest.testCreateCard    |             |   
+|  4-2          |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testAttachCardToCustomer    |             |   
+|  4-8         |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testModifyPointsOnCard   |             |    |  -          |FR4.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |
 |  7-1        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
 |  7-2        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment           |             |
 |  7-3        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
@@ -433,6 +447,13 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |  9-2        |FR8.1 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
 |  9-3        |FR8.2 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
 |  9-4        |FR8.4 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
+|  4-1         |FR5.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |      
+|  4-6          |FR5.2  |  it.polito.ezshop.CustomerAPITest.testDeleteCustomer    |             |    
+|  4-4          |FR5.3  |  it.polito.ezshop.CustomerAPITest.testGetCustomer       |             |  
+|  4-5         |FR5.4 |  it.polito.ezshop.CustomerAPITest.testGetAllCustomers   |             |  
+|  4-9         |FR5.5  |  it.polito.ezshop.LoyaltyCardAPITest.testCreateCard    |             |   
+|  4-2          |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testAttachCardToCustomer    |             |   
+|  4-8         |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testModifyPointsOnCard   |             |    
 |  ..          | FRy                             |             |             
 | ...          |                                 |             |             
 | ...          |                                 |             |             
