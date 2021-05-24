@@ -793,7 +793,7 @@ public class EZShop implements EZShopInterface {
 		}catch(Exception e) {
 			return null;
 		}
-		if(t.getStatus()!=SaleStatus.CLOSED) return null;
+		if(t.getStatus()==SaleStatus.STARTED) return null;
 		return t;
 	}
 
@@ -806,7 +806,7 @@ public class EZShop implements EZShopInterface {
 		SaleTransactionClass st=null;
 		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
 		}catch(Exception e) {return -1;}
-		if(st==null || (st.getStatus()!=SaleStatus.CLOSED && st.getStatus()!=SaleStatus.PAYED)) return -1;
+		if(st==null || (st.getStatus()==SaleStatus.STARTED)) return -1;
 		ReturnTransaction rt=new ReturnTransactionClass(st, ReturnStatus.STARTED);
 
 		return accountBook.addReturnTransaction(rt);
