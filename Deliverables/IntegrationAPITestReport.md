@@ -432,7 +432,7 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |  4-5         |FR5.4 |  it.polito.ezshop.CustomerAPITest.testGetAllCustomers   |             |  
 |  4-9         |FR5.5  |  it.polito.ezshop.LoyaltyCardAPITest.testCreateCard    |             |   
 |  4-2          |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testAttachCardToCustomer    |             |   
-|  4-8         |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testModifyPointsOnCard   |             |    |  -          |FR4.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |
+|  4-8         |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testModifyPointsOnCard   |             |    |            |FR4.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |
 |  7-1        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
 |  7-2        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment           |             |
 |  7-3        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
@@ -446,14 +446,7 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |  9-1        |FR8.3 |  it.polito.ezshop.BalanceAPITest.testGetCreditsAndDebits             |                |
 |  9-2        |FR8.1 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
 |  9-3        |FR8.2 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
-|  9-4        |FR8.4 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
-|  4-1         |FR5.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |      
-|  4-6          |FR5.2  |  it.polito.ezshop.CustomerAPITest.testDeleteCustomer    |             |    
-|  4-4          |FR5.3  |  it.polito.ezshop.CustomerAPITest.testGetCustomer       |             |  
-|  4-5         |FR5.4 |  it.polito.ezshop.CustomerAPITest.testGetAllCustomers   |             |  
-|  4-9         |FR5.5  |  it.polito.ezshop.LoyaltyCardAPITest.testCreateCard    |             |   
-|  4-2          |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testAttachCardToCustomer    |             |   
-|  4-8         |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testModifyPointsOnCard   |             |    
+|  9-4        |FR8.4 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                | 
 |  ..          | FRy                             |             |             
 | ...          |                                 |             |             
 | ...          |                                 |             |             
