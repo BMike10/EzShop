@@ -55,7 +55,7 @@ public class TicketEntryTest {
 			});
 			//invalid
 			assertThrows(Exception.class, ()->{
-				tec.setAmount(0);
+				tec.setAmount(0);	// la ticket entry può avere amount = 0?
 			});
 			//valid
 			tec.setAmount(1);
