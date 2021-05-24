@@ -274,6 +274,116 @@ SaleTransaction --> ProductType
 |  1     |  A asks for users' list |  
 |  2     |  system displays the users' list |
 
+
+## Scenario UC7-5
+| Scenario |  Manage payment with a card not registered in the system|
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A,Cashier C or ShopManager SM exists and is logged in |
+|                   |  Credit card C not registered in the system   |
+|  Post condition     | C.Balance does not change |
+| Step#        | Description  |
+|  1     |  Read C.number |  
+|  2     |  Validate C.number with Luhn algorithm   |
+|  3     |  C.number is valid, check on the system if credit card is registered   |
+|  4     |  C.number is not yet registered in the system, issue warning |
+|   5   |   Exit with error|
+
+## Scenario UC7-6
+| Scenario |  Manage cash payment with not enough money|
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A,Cashier C or ShopManager SM exists and is logged in |
+|                   | C.Balance < Price   |
+|  Post condition     | C.Balance does not change |
+| Step#        | Description  |
+|  1     |  Compute cash quantity |  
+|  2     |  Collect banknotes and coin   |
+|  3     |  Cash is not enough   |
+|  4     |  Sale is stopped, issue warning |
+|  5     |   Exit with error|
+
+
+## Scenario UC8-3
+| Scenario |  Return transaction of product type X not completed, cash|
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A or ShopManager SM exists and is logged in |
+|                   | Product Type X exists   |
+|                   | Ticket transaction T exists and has at least N units of X |
+|                   | Transaction T was paid cash |
+|                   | Transaction T is not finished |
+|  Post condition     | C.Balance does not change |
+|                   | The quantity of the product available in the shop does not change |
+|                   | No money is returned to the customer with cash|
+| Step#        | Description  |
+|  1    |  C inserts T.transactionId |
+|  2    |  Return transaction starts |  
+|  3    |  C reads bar code of X |
+|  4    |  X cannot be brought back|
+|  5    |  C stops the return transaction and closes it  |
+|  6    |  Exit with error |
+
+## Scenario UC8-4
+| Scenario |  Return transaction of product type X not completed, credit card|
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A or ShopManager SM exists and is logged in |
+|                   | Product Type X exists   |
+|                   | Ticket transaction T exists and has at least N units of X |
+|                   | Transaction T was paid with credit card |
+|                   | Transaction T is not finished |
+|  Post condition     | C.Balance does not change |
+|                   | The quantity of the product available in the shop does not change |
+|                   | No money is returned to the customer on the credit card|
+| Step#        | Description  |
+|  1    |  C inserts T.transactionId |
+|  2    |  Return transaction starts |  
+|  3    |  C reads bar code of X |
+|  4    |  X cannot be brought back |
+|  5    |  C stops the return transaction and closes it  |
+|  6    |  Exit with error |
+
+
+## Scenario UC9-2
+| Scenario |  Record debit  |
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A or ShopManager SM exists and is logged in |
+|                   | The transaction T exists and has ended  |
+|                   | T is an order transaction |
+|  Post condition     | C.Balance is updated |
+|                   | Transaction T is set as "DEBIT" |
+| Step#        | Description  |
+|  1    |  SM inserts T.transactionId |
+|  2    |  SM checks if T is a DEBIT or CREDIT |  
+|  3    |  SM set the transaction as "DEBIT" |
+|  4    |  New balance update is requested to the system |
+|  5    |  Balance is updated |
+
+## Scenario UC9-3
+| Scenario |  Record credit  |
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A or ShopManager SM exists and is logged in |
+|                   | The transaction T exists and has ended  |
+|                   | T is a sale transaction |
+|  Post condition     | C.Balance is updated |
+|                   | Transaction T is set as "CREDIT" |
+| Step#        | Description  |
+|  1    |  SM inserts T.transactionId |
+|  2    |  SM checks if T is a DEBIT or CREDIT |  
+|  3    |  SM set the transaction as "CREDIT" |
+|  4    |  New balance update is requested to the system |
+|  5    |  Balance is updated |
+
+## Scenario UC9-4
+| Scenario |  Compute balance |
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A or ShopManager SM exists and is logged in |
+|  Post condition     | C.Balance= OldBalance + NewAmount |
+|                   | Balance>=0 |
+| Step#        | Description  |
+|  1    |  New amount is entered into the system |
+|  2    |  New balance is generated |  
+|  3    |  Balance is updated |
+
+
+
 # Coverage of Scenarios and FR
 
 
@@ -308,7 +418,21 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |  -          |FR5.2  |  it.polito.ezshop.UserAPITest.testDeleteUser            |             |    
 |  -          |FR5.3  |  it.polito.ezshop.UserAPITest.testGetAllUsers           |             |   
 |  -          |FR5.4  |  it.polito.ezshop.UserAPITest.testUpdateUserRights      |             | 
-|  -          |FR5.5  |  it.polito.ezshop.UserAPITest.testUpdateUserRights   
+|  -          |FR5.5  |  it.polito.ezshop.UserAPITest.testUpdateUserRights   |      |
+|  7-1        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
+|  7-2        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment           |             |
+|  7-3        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
+|  7-4        |FR7.1  |  it.polito.ezshop.PaymentAPITest.testReceiveCashPayment           |             |
+|  7-5        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
+|  7-6        |FR7.1  |  it.polito.ezshop.PaymentAPITest.testReceiveCashPayment           |             | 
+|  8-1        |FR6.14  |  it.polito.ezshop            |             |   
+|  8-2        |FR6.14  |  it.polito.ezshop           |           | 
+|  8-3        |FR7.3  |  it.polito.ezshop.PaymentAPITest.testReturnCashPayment            |             |   
+|  8-4        |FR7.4  |  it.polito.ezshop.PaymentAPITest.testReturnCreditCardPayment            |           | 
+|  9-1        |FR8.3 |  it.polito.ezshop.BalanceAPITest.testGetCreditsAndDebits             |                |
+|  9-2        |FR8.1 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
+|  9-3        |FR8.2 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
+|  9-4        |FR8.4 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
 |  ..          | FRy                             |             |             
 | ...          |                                 |             |             
 | ...          |                                 |             |             
