@@ -21,14 +21,14 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	public SaleTransactionClass(double price, String paymentType, Time time, SaleStatus status, LoyaltyCard loyaltyCard,
 			Integer ticketNumber, Map<String, TicketEntryClass> ticketEntries, double discountRate) throws Exception {
 		super(ticketNumber, "SALE", price, LocalDate.now(), "CREDIT");
-		if(price<0) throw new RuntimeException(new Exception());									//OK?
+		if(price<0) throw new RuntimeException(new Exception());									
 		if(time==null) throw new RuntimeException(new Exception());
 		if(status==null) throw new RuntimeException(new Exception());
 		if(ticketNumber<0) throw new RuntimeException(new InvalidTransactionIdException());
 		if(ticketEntries==null) throw new RuntimeException(new Exception());
 		if(discountRate<0 || discountRate>1) throw new InvalidDiscountRateException();
 		if ((!paymentType.equals("CASH") && !paymentType.equals("CREDIT_CARD")) && !paymentType.isEmpty()|| paymentType==null)
-			throw new RuntimeException(new InvalidPaymentException());					//OK?
+			throw new RuntimeException(new InvalidPaymentException());					
 		if(loyaltyCard==null) 			throw new RuntimeException(new InvalidCustomerCardException());
 		this.setPaymentType(paymentType);
 		this.time = time;
@@ -91,16 +91,16 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		this.status = status;
 	}
 
-	public void setLoyaltyCard(LoyaltyCard l) {								//non testare
+	public void setLoyaltyCard(LoyaltyCard l) {								
 		if(l==null) throw new RuntimeException(new InvalidCustomerCardException());
 		this.loyaltyCard = l;
 	}
 
-	public LoyaltyCard getLoyaltyCard() {									//non testare
+	public LoyaltyCard getLoyaltyCard() {									
 		return this.loyaltyCard;
 	}
 
-	public Map<String, TicketEntryClass> getProductsEntries() {				//non testare
+	public Map<String, TicketEntryClass> getProductsEntries() {				
 		return this.ticketEntries;
 	}
 
@@ -129,7 +129,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	}
 
 	@Override
-	public void setEntries(List<TicketEntry> entries) {						//non testare
+	public void setEntries(List<TicketEntry> entries) {						 
 		if(entries==null) throw new RuntimeException(new Exception());
 		this.ticketEntries = new HashMap<>();
 		for (int i = 0; i < entries.size(); i++) {
@@ -149,9 +149,8 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		this.discountRate = discountRate;
 	}
 	
-	//SHOULD RETURN BOOLEAN SO I CAN TEST IT!
-	public boolean addProduct(ProductType product, int quantity) {					//non testare
-		if(product==null) return false;									//CHANGED --- this should also accept quantity <0 for return transaction?
+	public boolean addProduct(ProductType product, int quantity) {					 
+		if(product==null) return false;									
 		if(quantity<=0) return false;
 		if (ticketEntries.containsKey(product.getBarCode())) {
 			TicketEntryClass t = ticketEntries.get(product.getBarCode());
@@ -173,17 +172,21 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		return true;
 	}
 
-	public boolean deleteProduct(ProductType product, int quantity) {                  //non testare
-		if(quantity==0) throw new RuntimeException(new InvalidQuantityException());
+	public boolean deleteProduct(ProductType product, int quantity) {                   
+		if(quantity<=0) throw new RuntimeException(new InvalidQuantityException());
 		if (ticketEntries.containsKey(product.getBarCode())) {
 			TicketEntryClass t = ticketEntries.get(product.getBarCode());
 			int amount = t.getAmount();
 			if(amount - quantity < 0)
 				return false;
-			else if(amount == quantity)
+			else if(amount == quantity) {
 				ticketEntries.remove(t.getBarCode());
-			else
-				t.setAmount(t.getAmount() - quantity);
+			}
+			t.setAmount(t.getAmount() - quantity);
+			double discountOnProduct=t.getDiscountRate();
+			double a=this.getMoney();
+			a-=product.getPricePerUnit()*quantity*(1-discountOnProduct);
+			this.setMoney(a);
 			return true;
 		}
 		return false;
@@ -193,7 +196,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		return this.status;
 	}
 
-	public void checkout() {															//non testare
+	public void checkout() {															 
 		double a = 0.0;
 		if(ticketEntries.size()==0) {
 			this.setPrice(a);

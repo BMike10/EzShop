@@ -579,14 +579,14 @@ public class EZShop implements EZShopInterface {
     	if(currentUser == null || currentUser.getRole().isEmpty())throw new UnauthorizedException();
     	 if(customerId == null || customerId <= 0) throw new InvalidCustomerIdException();
     	 if(customerCard == null || customerCard.isEmpty()||!LoyaltyCardClass.checkCardCode(customerCard))throw new InvalidCustomerCardException();   	
-    	 LoyaltyCard card = cards.get(customerCard);
+    	 LoyaltyCard card = cards.get(customerCard); 	 
     	 Customer customer = customers.get(customerId);  	 
-    	 if(customer.getId() == null || !attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e.equals(customerCard)))  return false;   	 
-    	
+    	 if(customer.getId() == null || attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e.equals(customerCard)))
+    		 return false;  
+    	 else {
     	 attachedCards.put(card,customer); 
     	 customer.setCustomerCard(customerCard);
-
-    	 return true;
+    	 return true;}
     }
 
     @Override
@@ -607,7 +607,6 @@ public class EZShop implements EZShopInterface {
 	 		   c.setPoints(tot);
 	 	   }
 	 	  } 
-	
 	if(!Connect.updateLoyaltyCard(customerCard, card.getPoints())) {
     	card.updatePoints(-pointsToBeAdded);
     	if(tmp!= null)
@@ -634,14 +633,15 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidTransactionIdException();
 		if(productCode==null || productCode=="")
 			throw new InvalidProductCodeException();
-
+		if(amount<=0) throw new InvalidQuantityException();
+		
 		SaleTransactionClass st=null;
 		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		}catch(Exception e) {return false;}
 		if (st==null) {
 			return false;
 		}
-		if(amount<=0) throw new InvalidQuantityException();
+		
 		ProductType pt = getProductTypeByBarCode(productCode);
 		if(pt == null) return false;
 		try {
