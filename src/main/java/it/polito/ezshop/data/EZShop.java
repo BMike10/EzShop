@@ -841,13 +841,14 @@ public class EZShop implements EZShopInterface {
 		if(rt==null) return false;
 		SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
 
-		try {
+		if(!st.getProductsEntries().containsKey(productCode)) return false;
+		// NON DOVREBBE FARLO (VEDI SPECIFICHE
+		/*try {
 			this.updateQuantity(this.getProductTypeByBarCode(productCode).getId(), amount);
 		} catch (InvalidProductIdException | UnauthorizedException | InvalidProductCodeException e) {
 			throw new RuntimeException();
-		}
+		}*/
 
-		if(!st.getProductsEntries().containsKey(productCode)) return false;
 		int q=st.getProductsEntries().get(productCode).getAmount();
 		if(q<amount) return false;
 

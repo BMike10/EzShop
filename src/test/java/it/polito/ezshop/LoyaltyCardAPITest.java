@@ -80,7 +80,7 @@ public void testAttachCardToCustomer() throws InvalidCustomerIdException, Invali
 	int id=1;
 	id = ezshop.defineCustomer("testCustomer");
 	Customer c = ezshop.getCustomer(id);
-	assertEquals(new Integer(1),c.getId());
+	assertEquals(new Integer(id),c.getId());
 	//valid
 	String card = ezshop.createCard();
 	ezshop.attachCardToCustomer(card,id);

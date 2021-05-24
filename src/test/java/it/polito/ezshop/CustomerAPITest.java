@@ -120,7 +120,7 @@ public void testDeleteCustomer() throws InvalidUsernameException, InvalidPasswor
 		try {
 			id = ezshop.defineCustomer("customerName");
 			Customer c = ezshop.getCustomer(id);
-			assertEquals(new Integer(1), c.getId());
+			assertEquals(new Integer(id), c.getId());
 			assertEquals("customerName", c.getCustomerName());	
 		}catch(Exception e) {fail();}		
 	
