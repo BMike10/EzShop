@@ -782,7 +782,7 @@ public class EZShop implements EZShopInterface {
 			return false;
 		}
 		accountBook.removeSaleTransaction(saleNumber);
-		//dovrei reinserire i prodotti acquistati
+		//re-insert the sold products
 		for(int i=0; i<st.getEntries().size(); i++) {
 			TicketEntryClass te=(TicketEntryClass)st.getEntries().get(i);
 			ProductType pt=te.getProductType();
@@ -819,7 +819,7 @@ public class EZShop implements EZShopInterface {
 		SaleTransactionClass st=null;
 		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
 		}catch(Exception e) {return -1;}
-		if(st==null || (st.getStatus()!=SaleStatus.CLOSED && st.getStatus()!=SaleStatus.PAYED)) return -1;
+		if(st==null || (st.getStatus()!=SaleStatus.PAYED)) return -1;
 		ReturnTransaction rt=new ReturnTransactionClass(st, ReturnStatus.STARTED);
 
 		return accountBook.addReturnTransaction(rt);
@@ -842,20 +842,21 @@ public class EZShop implements EZShopInterface {
 		if(rt==null) return false;
 		SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
 
-		try {
-			this.updateQuantity(this.getProductTypeByBarCode(productCode).getId(), amount);
-		} catch (InvalidProductIdException | UnauthorizedException | InvalidProductCodeException e) {
-			throw new RuntimeException();
-		}
-
 		if(!st.getProductsEntries().containsKey(productCode)) return false;
 		int q=st.getProductsEntries().get(productCode).getAmount();
 		if(q<amount) return false;
-
-		st.deleteProduct(this.getProductTypeByBarCode(productCode), amount);
-
+		
 		ProductType pt = this.getProductTypeByBarCode(productCode);
 		if(pt == null) return false;
+		
+		try {
+			this.updateQuantity(pt.getId(), amount);
+		} catch (InvalidProductIdException | UnauthorizedException e) {
+			throw new RuntimeException();
+		}
+
+		st.deleteProduct(pt, amount);
+
 		int a=rt.addReturnProduct(new ProductTypeClass((ProductTypeClass)pt), amount);
 		if(a==-1) return false;
 		else return true;

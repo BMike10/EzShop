@@ -26,13 +26,14 @@ import it.polito.ezshop.exceptions.UnauthorizedException;
 public class SaleTransactionAPITest {
 
 	private final EZShop ezshop = new EZShop();
-	private String username = "testUserProductApiEZShop";
+	private String username = "testSaleTransactionApiEZShop";
 	private String password = "password";
 	private int createdUserId = -1;
 	private int createdCashier = -1;
 	private String usernameC = "testSaleTransactionApiUserCashier";
 	private ProductType pt = null;
-	private int newProdId = -1;
+	private int newProdId1 = -1;
+	private int newProdId2 = -1;
 	private ProductType pt2 = null;
 	private int id = -1;
 
@@ -68,14 +69,14 @@ public class SaleTransactionAPITest {
 		// create test products changing some digits and updating their quantity
 		ezshop.login(username, password);
 		if ((pt = ezshop.getProductTypeByBarCode("4006381333900")) == null) {
-			newProdId = ezshop.createProductType("testSaleTransactionProduct", "4006381333900", 3.5, null);
+			newProdId1 = ezshop.createProductType("testSaleTransactionProduct", "4006381333900", 3.5, null);
 		}
-		ezshop.updateQuantity(newProdId > 0 ? newProdId : pt.getId(), 5);
+		ezshop.updateQuantity(newProdId1 > 0 ? newProdId1 : pt.getId(), 5);
 
 		if ((pt = ezshop.getProductTypeByBarCode("4006381333931")) == null) {
-			newProdId = ezshop.createProductType("testSaleTransactionProduct", "4006381333931", 7.0, null);
+			newProdId2 = ezshop.createProductType("testSaleTransactionProduct", "4006381333931", 7.0, null);
 		}
-		ezshop.updateQuantity(newProdId > 0 ? newProdId : pt.getId(), 10);
+		ezshop.updateQuantity(newProdId2 > 0 ? newProdId2 : pt.getId(), 10);
 
 		ezshop.logout();
 	}

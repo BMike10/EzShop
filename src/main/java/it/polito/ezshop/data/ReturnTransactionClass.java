@@ -136,7 +136,6 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 		this.returnedProduct.put(product, quantity);
 		setMoney(getMoney() + product.getPricePerUnit() * quantity
 				* (1 - st.getProductsEntries().get(product.getBarCode()).getDiscountRate()));
-		st.deleteProduct(product, quantity);
 		return 1;
 	}
 
