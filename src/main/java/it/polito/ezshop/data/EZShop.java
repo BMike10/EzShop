@@ -367,21 +367,9 @@ public class EZShop implements EZShopInterface {
     	int nextId=-1;
     	OrderClass o = new OrderClass(productCode, pricePerUnit, quantity, OrderStatus.PAYED);
         nextId = accountBook.addOrder((Order) o);
-    	// update balance
-        /*if(!recordBalanceUpdate(-o.getPricePerUnit() * o.getQuantity())) {
-        	try {
-				accountBook.removeOrder(nextId);
-			} catch (InvalidTransactionIdException e) {
-				e.printStackTrace();
-			}
-        	return -1;
-        }*/
-
-        //MICHELE
-    	;
     	// update db
-        if(!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT")) ||
-        		!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId())) {
+        if(!Connect.addOrder(nextId, pricePerUnit, quantity, OrderStatus.PAYED, pt.getId()) ||
+        		!accountBook.addBalanceOperation((BalanceOperation)new BalanceOperationClass(nextId, "ORDER", ((OrderClass)o).getMoney(), LocalDate.now(), "DEBIT")) ) {
 			try {
 				accountBook.removeOrder(o.getOrderId());
 				//recordBalanceUpdate(o.getPricePerUnit() * o.getQuantity());
@@ -580,14 +568,14 @@ public class EZShop implements EZShopInterface {
     	if(currentUser == null || currentUser.getRole().isEmpty())throw new UnauthorizedException();
     	 if(customerId == null || customerId <= 0) throw new InvalidCustomerIdException();
     	 if(customerCard == null || customerCard.isEmpty()||!LoyaltyCardClass.checkCardCode(customerCard))throw new InvalidCustomerCardException();   	
-    	 LoyaltyCard card = cards.get(customerCard);
+    	 LoyaltyCard card = cards.get(customerCard); 	 
     	 Customer customer = customers.get(customerId);  	 
-    	 if(customer.getId() == null || !attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e.equals(customerCard)))  return false;   	 
-    	
+    	 if(customer.getId() == null || attachedCards.values().stream().map(e->e.getCustomerCard()).anyMatch(e->e.equals(customerCard)))
+    		 return false;  
+    	 else {
     	 attachedCards.put(card,customer); 
     	 customer.setCustomerCard(customerCard);
-
-    	 return true;
+    	 return true;}
     }
 
     @Override
@@ -608,7 +596,6 @@ public class EZShop implements EZShopInterface {
 	 		   c.setPoints(tot);
 	 	   }
 	 	  } 
-	
 	if(!Connect.updateLoyaltyCard(customerCard, card.getPoints())) {
     	card.updatePoints(-pointsToBeAdded);
     	if(tmp!= null)
@@ -807,7 +794,7 @@ public class EZShop implements EZShopInterface {
 		}catch(Exception e) {
 			return null;
 		}
-		if(t.getStatus()!=SaleStatus.CLOSED) return null;
+		if(t.getStatus()==SaleStatus.STARTED) return null;
 		return t;
 	}
 
@@ -820,7 +807,7 @@ public class EZShop implements EZShopInterface {
 		SaleTransactionClass st=null;
 		try{st = (SaleTransactionClass) accountBook.getSaleTransaction(saleNumber);
 		}catch(Exception e) {return -1;}
-		if(st==null || (st.getStatus()!=SaleStatus.PAYED)) return -1;
+		if(st==null || (st.getStatus()==SaleStatus.STARTED)) return -1;
 		ReturnTransaction rt=new ReturnTransactionClass(st, ReturnStatus.STARTED);
 
 		return accountBook.addReturnTransaction(rt);
@@ -931,7 +918,7 @@ public class EZShop implements EZShopInterface {
 		try{
 			rt=(ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
 		}catch(Exception e) {return false;}
-		if (rt == null || !rt.getStatus().equals(ReturnStatus.CLOSED.name())) {
+		if (rt == null || rt.getStatus().equals(ReturnStatus.STARTED.name())) {
 			return false;
 		}
 		if(!Connect.deleteReturnTransaction(rt.getReturnId())) {
@@ -1253,5 +1240,10 @@ public class EZShop implements EZShopInterface {
 	}
 	public AccountBookClass getAccountBook() {
 		return accountBook;
+	}
+
+	public void setAccountBook(AccountBookClass aB){
+		if (aB!=null)
+			this.accountBook = aB;
 	}
 }

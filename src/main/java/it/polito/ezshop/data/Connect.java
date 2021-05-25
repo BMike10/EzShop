@@ -10,14 +10,11 @@ import java.util.Map;
 
 public class Connect {
     private static Connection conn = null;
+    private static final String url = "jdbc:sqlite:db/ezshop.db";
 
     public static void connect() {
-
         try {
-            // db parameters
-            final String url = "jdbc:sqlite:db/ezshop.db";
-            // create a connection to the database
-            conn = DriverManager.getConnection(url);
+            openConnection();
             createTables();
             System.out.println("Connection to SQLite has been established.");
             Statement stmt = conn.createStatement();
@@ -33,17 +30,22 @@ public class Connect {
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
-        } /*finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }*/
+        } 
     }
-
+    public static void closeConnection() {
+    	try {
+        	if(conn!=null) {
+        		conn.close();  
+        		conn = null;
+        	}
+    	}catch(Exception e){e.printStackTrace();}
+    }
+    public static void openConnection() {
+    	try {
+        // create a connection to the database
+        conn = DriverManager.getConnection(url); 
+    	}catch(Exception e) {e.printStackTrace();}
+    }
     public static void createTables() {
         String tableUser = "CREATE TABLE IF NOT EXISTS User("
                 + "id INTEGER NOT NULL PRIMARY KEY,"
@@ -167,9 +169,11 @@ public class Connect {
                 + "'"+username+"',"
                 + "'"+password+"',"
                 + RoleEnum.valueOf(role).ordinal()+")";
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -180,9 +184,11 @@ public class Connect {
                 + " set "
                 + "role = "+RoleEnum.valueOf(role).ordinal()+
                 " where id = "+id;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -191,9 +197,11 @@ public class Connect {
     public static boolean deleteUser(int id) {
         String sql = "delete from User"
                 + " where id = "+id;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -234,9 +242,11 @@ public class Connect {
                 +"0,"
                 +(note==null?"NULL,":"'"+note+"',")+
                 "NULL)";
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -250,9 +260,11 @@ public class Connect {
                 + "sellPrice="+newPrice+","
                 +"notes="+(newNote==null?" NULL ":"'"+newNote+"' ")+
                 " where id = "+id;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -261,9 +273,11 @@ public class Connect {
 
     public static boolean updateProductPosition(int productId,Position p){
         String sql = "UPDATE ProductTypes SET position = '"+p.toString()+"' where id = "+productId;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -275,9 +289,11 @@ public class Connect {
                 + "set "
                 + "quantity = "+quantity
                 +" where id = "+productId;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -287,9 +303,11 @@ public class Connect {
     public static boolean removeProduct(int id){
         // db update
         String sql = "delete from ProductTypes where id = "+id;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -318,9 +336,11 @@ public class Connect {
     	String sql = "insert into loyaltyCard(number, points)"
         		+ "values('"+number+"',"
         		+"0)";
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -332,9 +352,11 @@ public class Connect {
         		+ "set "
         		+ "points = "+points
         		+" where number = '"+customerCard+"'";
-    	try(Statement st = conn.createStatement()){
+    	try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -371,9 +393,11 @@ public class Connect {
          		+ "values("+id+","
          		+"'"+customerName+"',"
          		+"'"+cardId+"')";
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -385,9 +409,11 @@ public class Connect {
         		+ "customerName = '"+ newCustomerName +"',"
         		+ "cardId = '"+ newCustomerCard +"'"
         		+ "where id ="+id;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -397,9 +423,11 @@ public class Connect {
 
         String sql = "delete from Customer"
                 + " where id = "+id;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -459,9 +487,11 @@ public class Connect {
         		+ productId+", "
         		+ pricePerUnit+", "
         		+ quantity+")";    	
-    	try(Statement st = conn.createStatement()){
+    	try{
+    		Statement st = conn.createStatement();
     		st.execute(sql);
-    	}catch (SQLException e) {
+    	st.close();
+    	}catch (Exception e) {
 			e.printStackTrace();
 			return false;
     	}
@@ -469,9 +499,11 @@ public class Connect {
     }
     public static boolean updateOrderStatus(int id, OrderStatus status) {
     	String sql = "UPDATE Orders SET status = "+status.ordinal() + " WHERE id = "+id;
-    	try(Statement st = conn.createStatement()){
+    	try{
+    		Statement st = conn.createStatement();
     		st.execute(sql);
-    	}catch (SQLException e) {
+    		st.close();
+    	}catch (Exception e) {
 			e.printStackTrace();
 			return false;
     	}
@@ -479,9 +511,11 @@ public class Connect {
     }
     public static void removeOrder(int id) {
     	String sql = "DELETE FROM Orders WHERE id = "+id;
-    	try(Statement st = conn.createStatement()){
+    	try{
+    		Statement st = conn.createStatement();
     		st.execute(sql);
-    	}catch (SQLException e) {
+    	st.close();
+    	}catch (Exception e) {
 			e.printStackTrace();
     	}
     }
@@ -546,9 +580,11 @@ public class Connect {
 //                + cardId+", "
 //                + soldProducts
 //                + ")";
-//        try(Statement st = conn.createStatement()){
+//        try{
+//    		Statement st = conn.createStatement();
 //            st.execute(sql);
-//        }catch (SQLException e) {
+//        st.close();
+//    	}catch (Exception e) {
 //            e.printStackTrace();
 //            return false;
 //        }
@@ -568,9 +604,11 @@ public class Connect {
                 +", "+SaleStatus.CLOSED.ordinal()
                 +", "+(lt==null?"NULL":"'"+lt.getCardCode()+"'")
                 +", "+id+")";
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch (SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             System.out.println(sql);
             return false;
@@ -582,9 +620,11 @@ public class Connect {
                     +", "+tec.getProductType().getId()
                     +", "+tec.getAmount()
                     +", "+tec.getDiscountRate()+")";
-            try(Statement st = conn.createStatement()){
+            try{
+    		Statement st = conn.createStatement();
                 st.execute(sql2);
-            }catch (SQLException e) {
+            st.close();
+    	}catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
@@ -595,10 +635,12 @@ public class Connect {
     public static boolean removeSaleTransaction(int id) {
         String sql = "DELETE from SaleTransactions"
                 + " WHERE id = "+id;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
             st.executeUpdate("delete from SoldProducts where id = "+id);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -646,7 +688,7 @@ public class Connect {
                 		ProductType pt = products.get(productId);
                 		returnedProducts.put(pt, qty);
                 	}
-                }catch(SQLException e) {
+                }catch (Exception e) {
                 	e.printStackTrace();
                 }
                 ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "DEBIT", returnedProducts, s, rstatus);
@@ -669,9 +711,11 @@ public class Connect {
 //                + status.ordinal()+", "
 //                + saleId+", "
 //                + returnedProductsId+")";
-//        try(Statement st = conn.createStatement()){
+//        try{
+//    		Statement st = conn.createStatement();
 //            st.execute(sql);
-//        }catch (SQLException e) {
+//        st.close();
+//    	}catch (Exception e) {
 //            e.printStackTrace();
 //            return false;
 //        }
@@ -700,9 +744,11 @@ public class Connect {
                 + ReturnStatus.CLOSED.ordinal()+", "
                 + saleId +","
                 + id+")";
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch (SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -711,9 +757,11 @@ public class Connect {
                     + "VALUES ("+ret.getBalanceId()
                     +", "+p.getId()
                     +", "+q +")";
-            try(Statement st = conn.createStatement()){
+            try{
+    		Statement st = conn.createStatement();
                 st.execute(sql2);
-            }catch (SQLException e) {
+            st.close();
+    	}catch (Exception e) {
                 e.printStackTrace();
             }
             //here the sale transaction table should be uploaded
@@ -723,9 +771,11 @@ public class Connect {
     }
     public static boolean updateReturnTransaction(int id, ReturnStatus status) {
     	String sql = "UPDATE ReturnTransactions SET status ="+status.ordinal() +" WHERE id = "+id;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch (SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -734,17 +784,21 @@ public class Connect {
     public static boolean deleteReturnTransaction(int id) {
     	// delete transaction
     	String sql = "delete from ReturnTransactions where id = "+id;
-    	try(Statement st = conn.createStatement()){
+    	try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch (SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     	// delete returned products
     	String sql2 = "delete from ReturnedProducts where id = "+id;
-		try(Statement st = conn.createStatement()){
+		try{
+    		Statement st = conn.createStatement();
             st.execute(sql2);
-        }catch (SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
         }
     	return true;
@@ -857,9 +911,11 @@ public class Connect {
     public static boolean removeBalanceOperation(int id){
         // db update
         String sql = "delete from BalanceOperations where id = "+id;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -869,9 +925,11 @@ public class Connect {
     public static boolean updateBalanceOperation(int id,double newAmount){
         // db update
         String sql = "UPDATE BalanceOperations SET amount = " + newAmount +"  where id = "+id;
-        try(Statement st = conn.createStatement()){
+        try{
+    		Statement st = conn.createStatement();
             st.execute(sql);
-        }catch(SQLException e) {
+        st.close();
+    	}catch (Exception e) {
             e.printStackTrace();
             return false;
         }

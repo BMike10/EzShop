@@ -205,6 +205,198 @@ SaleTransaction --> ProductType
 | Step#        | Description  |
 |  1     |  S asks for order list |  
 |  2     |  the system displays Order list |
+## Scenario UC4-5
+
+| Scenario |  List all customers|
+| ------------- |:-------------:| 
+|  Precondition     | Cashier C exists and is logged in |
+|  Post condition     | List of all customers is displayed |
+| Step#        | Description  |
+|  1     |  C asks for customers' list |  
+|  2     |  system displays the customers' list |
+
+## Scenario UC4-6
+
+| Scenario | Delete a customer|
+| ------------- |:-------------:| 
+|  Precondition     |Customer is registered in the system |
+|         | Cashier C exists and is logged in|
+|  Post condition     |  Customer profile is deleted from the system |
+| Step#        | Description  |
+|  1     |  C select customer's profile |  
+|  2     |  C deletes customer's profile|
+|  3     |  customer's profile is deleted from the system|
+
+## Scenario UC4-7
+
+| Scenario |  Search a customer |
+| ------------- |:-------------:| 
+|  Precondition     | ShopManager S exists and is logged in |
+|         | Customer is registered in the system|
+|  Post condition     | Customer information are shown |
+| Step#        | Description  |
+|  1     |  S enters Customers's name |  
+|  2     |  System searches for the Customer's profile |
+|  3     |  System displays Customer's information|
+
+## Scenario UC4-8
+| Scenario |  Modify points on card |
+| ------------- |:-------------:| 
+|  Precondition     | Cashier C     exists and is logged in |
+|         | Customer is registered in the system|
+|        |Customer has a fidelity card code attached |
+|  Post condition     | Customer's fidelity card is updated  |
+| Step#        | Description  |
+|  1     |  C enters Customers's name |  
+|  2     |  System searches for the Customer's profile |
+|  3     |  System displays Customer's information|
+|  4     |  C updates Customer's points |
+|  5     |  System saves the changes |
+## Scenario UC4-9
+
+| Scenario |  Create a Card |
+| ------------- |:-------------:| 
+|  Precondition     | ShopManager S exists and is logged in |
+|         |Card is not defined in the system|
+|  Post condition     |A new card is defined|
+| Step#        | Description  |
+|  1     |  S enters Customers's name |  
+|  2     |  System searches for the Customer's profile |
+|  3     |  System displays Customer's information|
+| 4      |  S generates a new card code|
+| 5 | System attaches card to selected Customer| 
+
+## Scenario UC2-4
+| Scenario |  Search a User |
+| ------------- |:-------------:| 
+|  Precondition     | ShopManager S exists and is logged in |
+|         | User is registered in the system|
+|  Post condition     | User's information are shown |
+| Step#        | Description  |
+|  1     |  S enters User's name |  
+|  2     |  System searches for the Users's profile |
+|  3     |  System displays Users's information|
+
+## Scenario UC2-5
+
+| Scenario |  View all users|
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A exists and is logged in |
+|  Post condition     | List of all users is displayed |
+| Step#        | Description  |
+|  1     |  A asks for users' list |  
+|  2     |  system displays the users' list |
+
+
+## Scenario UC7-5
+| Scenario |  Manage payment with a card not registered in the system|
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A,Cashier C or ShopManager SM exists and is logged in |
+|                   |  Credit card C not registered in the system   |
+|  Post condition     | C.Balance does not change |
+| Step#        | Description  |
+|  1     |  Read C.number |  
+|  2     |  Validate C.number with Luhn algorithm   |
+|  3     |  C.number is valid, check on the system if credit card is registered   |
+|  4     |  C.number is not yet registered in the system, issue warning |
+|   5   |   Exit with error|
+
+## Scenario UC7-6
+| Scenario |  Manage cash payment with not enough money|
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A,Cashier C or ShopManager SM exists and is logged in |
+|                   | C.Balance < Price   |
+|  Post condition     | C.Balance does not change |
+| Step#        | Description  |
+|  1     |  Compute cash quantity |  
+|  2     |  Collect banknotes and coin   |
+|  3     |  Cash is not enough   |
+|  4     |  Sale is stopped, issue warning |
+|  5     |   Exit with error|
+
+
+## Scenario UC8-3
+| Scenario |  Return transaction of product type X not completed, cash|
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A or ShopManager SM exists and is logged in |
+|                   | Product Type X exists   |
+|                   | Ticket transaction T exists and has at least N units of X |
+|                   | Transaction T was paid cash |
+|                   | Transaction T is not finished |
+|  Post condition     | C.Balance does not change |
+|                   | The quantity of the product available in the shop does not change |
+|                   | No money is returned to the customer with cash|
+| Step#        | Description  |
+|  1    |  C inserts T.transactionId |
+|  2    |  Return transaction starts |  
+|  3    |  C reads bar code of X |
+|  4    |  X cannot be brought back|
+|  5    |  C stops the return transaction and closes it  |
+|  6    |  Exit with error |
+
+## Scenario UC8-4
+| Scenario |  Return transaction of product type X not completed, credit card|
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A or ShopManager SM exists and is logged in |
+|                   | Product Type X exists   |
+|                   | Ticket transaction T exists and has at least N units of X |
+|                   | Transaction T was paid with credit card |
+|                   | Transaction T is not finished |
+|  Post condition     | C.Balance does not change |
+|                   | The quantity of the product available in the shop does not change |
+|                   | No money is returned to the customer on the credit card|
+| Step#        | Description  |
+|  1    |  C inserts T.transactionId |
+|  2    |  Return transaction starts |  
+|  3    |  C reads bar code of X |
+|  4    |  X cannot be brought back |
+|  5    |  C stops the return transaction and closes it  |
+|  6    |  Exit with error |
+
+
+## Scenario UC9-2
+| Scenario |  Record debit  |
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A or ShopManager SM exists and is logged in |
+|                   | The transaction T exists and has ended  |
+|                   | T is an order transaction |
+|  Post condition     | C.Balance is updated |
+|                   | Transaction T is set as "DEBIT" |
+| Step#        | Description  |
+|  1    |  SM inserts T.transactionId |
+|  2    |  SM checks if T is a DEBIT or CREDIT |  
+|  3    |  SM set the transaction as "DEBIT" |
+|  4    |  New balance update is requested to the system |
+|  5    |  Balance is updated |
+
+## Scenario UC9-3
+| Scenario |  Record credit  |
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A or ShopManager SM exists and is logged in |
+|                   | The transaction T exists and has ended  |
+|                   | T is a sale transaction |
+|  Post condition     | C.Balance is updated |
+|                   | Transaction T is set as "CREDIT" |
+| Step#        | Description  |
+|  1    |  SM inserts T.transactionId |
+|  2    |  SM checks if T is a DEBIT or CREDIT |  
+|  3    |  SM set the transaction as "CREDIT" |
+|  4    |  New balance update is requested to the system |
+|  5    |  Balance is updated |
+
+## Scenario UC9-4
+| Scenario |  Compute balance |
+| ------------- |:-------------:| 
+|  Precondition     | Administrator A or ShopManager SM exists and is logged in |
+|  Post condition     | C.Balance= OldBalance + NewAmount |
+|                   | Balance>=0 |
+| Step#        | Description  |
+|  1    |  New amount is entered into the system |
+|  2    |  New balance is generated |  
+|  3    |  Balance is updated |
+
+
+
 
 # Coverage of Scenarios and FR
 
@@ -216,7 +408,12 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 
 
 | Scenario ID | Functional Requirements covered | JUnit  Test(s) | 
-| ----------- | ------------------------------- | ----------- | 
+| ----------- | ------------------------------- | ----------- |
+|  2-1          |FR1.1  |  it.polito.ezshop.UserAPITest.testCreateUser            |             |   
+|  2-2          |FR1.2  |  it.polito.ezshop.UserAPITest.testDeleteUser            |             |    
+|  2-5          |FR1.3  |  it.polito.ezshop.UserAPITest.testGetAllUsers           |             |   
+|  2-4          |FR1.4  |  it.polito.ezshop.UserAPITest.testGetUser     |             | 
+|  2-3          |FR1.5  |  it.polito.ezshop.UserAPITest.testUpdateUserRights  
 |  1-1         | FR3.1   | it.polito.ezshop.ProductAPITest.testCreateProductType|
 |  1-2         | FR4.2   | it.polito.ezshop.ProductAPITest.testUpdateLocation|
 |  1-3         | FR3.1   | it.polito.ezshop.ProductAPITest.testUpdateProduct|          
@@ -229,6 +426,27 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |  3-3         | FR4.6   | it.polito.ezshop.OrderAPITest.testRecordOrderArrival |
 |  3-2         | FR4.5 | it.polito.ezshop.OrderAPITest.testPayOrder|
 |  3-5         | FR4.6 | it.polito.ezshop.OrderAPITest.testGetAllOrders|
+|  4-1         |FR5.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |      
+|  4-6          |FR5.2  |  it.polito.ezshop.CustomerAPITest.testDeleteCustomer    |             |    
+|  4-4          |FR5.3  |  it.polito.ezshop.CustomerAPITest.testGetCustomer       |             |  
+|  4-5         |FR5.4 |  it.polito.ezshop.CustomerAPITest.testGetAllCustomers   |             |  
+|  4-9         |FR5.5  |  it.polito.ezshop.LoyaltyCardAPITest.testCreateCard    |             |   
+|  4-2          |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testAttachCardToCustomer    |             |   
+|  4-8         |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testModifyPointsOnCard   |             |    |            |FR4.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |
+|  7-1        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
+|  7-2        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment           |             |
+|  7-3        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
+|  7-4        |FR7.1  |  it.polito.ezshop.PaymentAPITest.testReceiveCashPayment           |             |
+|  7-5        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
+|  7-6        |FR7.1  |  it.polito.ezshop.PaymentAPITest.testReceiveCashPayment           |             | 
+|  8-1        |FR6.14  |  it.polito.ezshop            |             |   
+|  8-2        |FR6.14  |  it.polito.ezshop           |           | 
+|  8-3        |FR7.3  |  it.polito.ezshop.PaymentAPITest.testReturnCashPayment            |             |   
+|  8-4        |FR7.4  |  it.polito.ezshop.PaymentAPITest.testReturnCreditCardPayment            |           | 
+|  9-1        |FR8.3 |  it.polito.ezshop.BalanceAPITest.testGetCreditsAndDebits             |                |
+|  9-2        |FR8.1 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
+|  9-3        |FR8.2 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
+|  9-4        |FR8.4 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                | 
 |  ..          | FRy                             |             |             
 | ...          |                                 |             |             
 | ...          |                                 |             |             
@@ -247,7 +465,7 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 
 | Non Functional Requirement | Test name |
 | -------------------------- | --------- |
-|           NFR2             | ??? |
+|           NFR2             | it.polito.ezshop.responseTime.ResponseTimeTest |
 |           NFR4             |  it.polito.ezshop.ProductTypeTest.testValidateBarCode         |
 |           NFR5             |  it.polito.ezshop.CheckCreditCardTest.testCheckCreditCardNumber|
 |           NFR6             | Domain | The customer's card should be a string of 10 digits. | FR5 |

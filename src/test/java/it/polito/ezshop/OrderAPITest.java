@@ -2,10 +2,12 @@ package it.polito.ezshop;
 
 import static org.junit.Assert.*;
 
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import it.polito.ezshop.data.Connect;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.OrderStatus;
 import it.polito.ezshop.data.ProductType;
@@ -13,15 +15,9 @@ import it.polito.ezshop.data.RoleEnum;
 import it.polito.ezshop.data.User;
 import it.polito.ezshop.exceptions.InvalidLocationException;
 import it.polito.ezshop.exceptions.InvalidOrderIdException;
-import it.polito.ezshop.exceptions.InvalidPasswordException;
 import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
-import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
-import it.polito.ezshop.exceptions.InvalidProductIdException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
-import it.polito.ezshop.exceptions.InvalidRoleException;
-import it.polito.ezshop.exceptions.InvalidUserIdException;
-import it.polito.ezshop.exceptions.InvalidUsernameException;
 import it.polito.ezshop.exceptions.UnauthorizedException;
 
 public class OrderAPITest {
@@ -119,6 +115,10 @@ public class OrderAPITest {
 		assertThrows(InvalidQuantityException.class, ()->{ezshop.issueOrder("400638133390", 0, 1.0);});
 		// not present barcode
 		assertEquals(Integer.valueOf(-1), ezshop.issueOrder("4006381333900", 10, 0.5));
+		// db error
+		Connect.closeConnection();
+		assertEquals(Integer.valueOf(-1), ezshop.issueOrder("400638133390", 10, 0.5));
+		Connect.openConnection();
 		// valid
 		id = ezshop.issueOrder("400638133390", 10, 0.5);
 		assertTrue(id > 0);
@@ -156,6 +156,10 @@ public class OrderAPITest {
 		// valid not balance
 		assertTrue(ezshop.payOrderFor("400638133390", 10, balance) == -1);
 		assertEquals(balance, ezshop.computeBalance(), 1e-6);
+		// db error
+		Connect.closeConnection();
+		assertEquals(Integer.valueOf(-1), ezshop.payOrderFor("400638133390", 1, balance / 5));
+		Connect.openConnection();
 		// valid
 		id = ezshop.payOrderFor("400638133390", 1, balance / 5);
 		assertTrue(id > 0);
@@ -196,10 +200,14 @@ public class OrderAPITest {
 		id = -1;
 		// insert issued only order
 		id = ezshop.issueOrder("400638133390", 1, balance/10);
+		// db error
+		Connect.closeConnection();
+		assertFalse(ezshop.payOrder(id));
+		Connect.openConnection();
 		// valid
 		assertTrue(ezshop.payOrder(id));
 		// check balance
-		assertTrue(ezshop.getAllOrders().stream().anyMatch(o->o.getBalanceId()==id && o.getStatus().equals(OrderStatus.PAYED.name())));
+		assertTrue(ezshop.getAllOrders().stream().anyMatch(o1->o1.getBalanceId()==id && o1.getStatus().equals(OrderStatus.PAYED.name())));
 		assertEquals(ezshop.computeBalance(), balance - balance / 5 - balance / 10, 1e-3);
 		// remove order
 		ezshop.getAccountBook().removeOrder(id);
@@ -243,11 +251,15 @@ public class OrderAPITest {
 		assertTrue(ezshop.updatePosition(pt.getId(), "123456-testtest-12345"));
 		// get quantity
 		int qty = ezshop.getProductTypeByBarCode("400638133390").getQuantity();
+		// db error
+		Connect.closeConnection();
+		assertFalse(ezshop.recordOrderArrival(id));
+		Connect.openConnection();
 		// valid
 		assertTrue(ezshop.recordOrderArrival(id));
 		// check for quantity update
 		assertEquals(Integer.valueOf(qty + 1), ezshop.getProductTypeByBarCode("400638133390").getQuantity());
-		assertTrue(ezshop.getAllOrders().stream().anyMatch(o->o.getBalanceId()==id && o.getStatus().equals(OrderStatus.COMPLETED.name())));
+		assertTrue(ezshop.getAllOrders().stream().anyMatch(o1->o1.getBalanceId()==id && o1.getStatus().equals(OrderStatus.COMPLETED.name())));
 		// already completed order
 		assertFalse(ezshop.recordOrderArrival(id));
 		// clean

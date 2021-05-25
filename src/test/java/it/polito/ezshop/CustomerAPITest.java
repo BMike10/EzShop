@@ -59,8 +59,7 @@ public void testDefineCustomer() throws InvalidUsernameException, InvalidPasswor
 	assertThrows(UnauthorizedException.class, ()->{ezshop.defineCustomer("alice");});		
 	// login
 	ezshop.login(username, password);
-	//check sul current UserRole se è empty???
-	
+	//check sul current UserRole se è empty???	
 	// customerName
 	//null
 	assertThrows(InvalidCustomerNameException.class, ()->{ezshop.defineCustomer(null);});
@@ -121,7 +120,7 @@ public void testDeleteCustomer() throws InvalidUsernameException, InvalidPasswor
 		try {
 			id = ezshop.defineCustomer("customerName");
 			Customer c = ezshop.getCustomer(id);
-			assertEquals(new Integer(1), c.getId());
+			assertEquals(new Integer(id), c.getId());
 			assertEquals("customerName", c.getCustomerName());	
 		}catch(Exception e) {fail();}		
 	
@@ -157,9 +156,7 @@ public void testDeleteCustomer() throws InvalidUsernameException, InvalidPasswor
 		assertThrows(InvalidCustomerNameException.class, ()->{ezshop.modifyCustomer(id,"", "1234567890");});			
 		//invalid card
 		assertThrows(InvalidCustomerCardException.class, ()->{ezshop.modifyCustomer(id,"Amicaaa", null);});     
-		assertEquals(true,ezshop.modifyCustomer(id,"Amicaaa",""));
-		
-		
+		assertEquals(true,ezshop.modifyCustomer(id,"Amicaaa",""));		
 		// valid
 				try {
 					if(!ezshop.modifyCustomer(id,"Amicaaaa", "1234567890"))

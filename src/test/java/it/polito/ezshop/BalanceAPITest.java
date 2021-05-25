@@ -7,21 +7,20 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.Time;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 
 public class BalanceAPITest {
     private final it.polito.ezshop.data.EZShop ezshop = new EZShop();
-    private String username = "testUserProductApiEZShop";
+    private String username="testOrderApiUser";
     private String password = "password";
+    private String usernameC="testOrderApiUserCashier";
     private int createdUserId = -1;
+    private int createdCashier = -1;
 
     @Before
     public void init() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException, UnauthorizedException, InvalidProductCodeException, InvalidProductIdException {
@@ -29,10 +28,24 @@ public class BalanceAPITest {
         if((u=ezshop.login(username, password))==null) {
             createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
         }else if(u.getRole().equals(RoleEnum.Cashier.name())) {
-        	do {
-            username+="123";
+            username+="123456789101112";
             createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
-        	}while(createdUserId<0);
+        }
+        while(true) {
+            if((u=ezshop.login(usernameC, password))==null) {
+                createdCashier = ezshop.createUser(usernameC, password, RoleEnum.Cashier.name());
+                if(createdCashier>0)
+                    break;
+                else
+                    usernameC += "1234";
+            }else if(!u.getRole().equals(RoleEnum.Cashier.name())) {
+                ezshop.logout();
+                usernameC+="1234";
+                createdCashier = ezshop.createUser(usernameC, password, RoleEnum.Cashier.name());
+                if(createdCashier > 0)
+                    break;
+            }else
+                break;
         }
         ezshop.logout();
     }
@@ -47,11 +60,17 @@ public class BalanceAPITest {
     @Test
     public void testRecordBalanceUpdate() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException {
 
+        // before login
         assertThrows(UnauthorizedException.class, ()->{ezshop.recordBalanceUpdate(50);});
-        // login
+        // login cashier
+        ezshop.login(usernameC, password);
+        // cashier not auth
+        assertThrows(UnauthorizedException.class, ()->{ezshop.recordBalanceUpdate(50);});
+        // login Admin
+        ezshop.logout();
+
         ezshop.login(username, password);
-        //TODO: LOGIN AS CASHIER
-        //After login
+        //After login as Admin
 
         //Negative new balance
         AccountBook aB = ezshop.getAccountBook();
@@ -66,11 +85,18 @@ public class BalanceAPITest {
     @Test
     public void testGetCreditsAndDebits() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException {
 
+        // before login
         assertThrows(UnauthorizedException.class, ()->{ezshop.getCreditsAndDebits(LocalDate.now().minusDays(3),LocalDate.now().plusDays(3));});
-        // login
+        // login cashier
+        ezshop.login(usernameC, password);
+        // cashier not auth
+        assertThrows(UnauthorizedException.class, ()->{ezshop.getCreditsAndDebits(LocalDate.now().minusDays(3),LocalDate.now().plusDays(3));});
+        // login Admin
+        ezshop.logout();
+
         ezshop.login(username, password);
-        //TODO: LOGIN AS CASHIER
-        //After login
+        //After login as Admin
+
         //Valid request
         List<BalanceOperation> list = new ArrayList<>();
         AccountBookClass aB = ezshop.getAccountBook();
