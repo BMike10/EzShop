@@ -1231,4 +1231,9 @@ public class EZShop implements EZShopInterface {
 	public AccountBookClass getAccountBook() {
 		return accountBook;
 	}
+
+	public void setAccountBook(AccountBookClass aB){
+		if (aB!=null)
+			this.accountBook = aB;
+	}
 }

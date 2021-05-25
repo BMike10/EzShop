@@ -153,7 +153,7 @@ public class AccountBookTest {
 
     @Test
     public void testAccountBookIntegrationTest(){
-        EZShop ezShop = new EZShop();
+        EZShop ez = new EZShop();
         SaleTransaction sT = new SaleTransactionClass(Time.valueOf(LocalTime.now()),SaleStatus.STARTED);
         BalanceOperation bO = new BalanceOperationClass(50,"CREDIT");
         final Order oT = new OrderClass("400638133390",10,5);
@@ -167,7 +167,10 @@ public class AccountBookTest {
         //BalanceOperationMap contains bO
         bO.setBalanceId(1);
         bOMap.put(1,bO);
-        AccountBookClass aB = ezShop.getAccountBook();
+        AccountBookClass aB = new AccountBookClass(0);
+        aB.setBalanceOperationMap(bOMap);
+        ez.setAccountBook(aB);
+        //AccountBookClass aB = ez.getAccountBook();
         assertFalse(aB.addBalanceOperation(bO));
 
         //Invalid Balance
