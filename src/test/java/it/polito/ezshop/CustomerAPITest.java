@@ -155,8 +155,11 @@ public void testDeleteCustomer() throws InvalidUsernameException, InvalidPasswor
 		//empty
 		assertThrows(InvalidCustomerNameException.class, ()->{ezshop.modifyCustomer(id,"", "1234567890");});			
 		//invalid card
-		assertThrows(InvalidCustomerCardException.class, ()->{ezshop.modifyCustomer(id,"Amicaaa", null);});     
-		assertEquals(true,ezshop.modifyCustomer(id,"Amicaaa",""));		
+		assertThrows(InvalidCustomerCardException.class, ()->{ezshop.modifyCustomer(id,"Amicaaa", "123");});     
+		assertThrows(InvalidCustomerCardException.class, ()->{ezshop.modifyCustomer(id,"Amicaaa", "127843689723");});     
+
+		assertEquals(true,ezshop.modifyCustomer(id,"Amicaaa",""));	
+		
 		// valid
 				try {
 					if(!ezshop.modifyCustomer(id,"Amicaaaa", "1234567890"))

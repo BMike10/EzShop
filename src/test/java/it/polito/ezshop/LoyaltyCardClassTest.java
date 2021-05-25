@@ -45,6 +45,13 @@ public class LoyaltyCardClassTest {
 			//invalid 9 
 			String code9 = "012345678";
 			assertFalse(LoyaltyCardClass.checkCardCode(code9));
+			//valid
+			assertFalse(LoyaltyCardClass.checkCardCode("24324414352532"));
+			assertFalse(LoyaltyCardClass.checkCardCode("22"));
+			assertTrue(LoyaltyCardClass.checkCardCode("2223334445"));
+			assertTrue(LoyaltyCardClass.checkCardCode(""));
+			assertTrue(LoyaltyCardClass.checkCardCode(null));
+
 		}
 	  @Test
 		public void testUpdatePoints() throws InvalidCustomerCardException {
