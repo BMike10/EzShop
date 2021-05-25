@@ -5,6 +5,7 @@ import java.io.*;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.Map.Entry;
 
 
 public class EZShop implements EZShopInterface {
@@ -654,7 +655,7 @@ public class EZShop implements EZShopInterface {
 			e.printStackTrace();
 			return false;
 		}
-		return false;
+		return true;
 	}
 
 	@Override
@@ -875,8 +876,8 @@ public class EZShop implements EZShopInterface {
 		if (rt == null) {
 			return false;
 		}
+		SaleTransactionClass st=(SaleTransactionClass)rt.getSaleTransaction();
 		if(commit) {
-			SaleTransactionClass st=(SaleTransactionClass)rt.getSaleTransaction();
 			rt.setStatus("CLOSED");
 			rt.getReturnedProduct().forEach((p,q)->{
 				try {
@@ -906,7 +907,16 @@ public class EZShop implements EZShopInterface {
 			return true;
 		}
 		else {
-			//how should i undo the return transaction?
+			//rollback
+			
+			for(Map.Entry <ProductType, Integer> entry : rt.getReturnedProduct().entrySet()) {
+				st.addProduct(entry.getKey(), entry.getValue());
+				try {
+					this.updateQuantity(entry.getKey().getId(), -entry.getValue());
+				} catch (InvalidProductIdException | UnauthorizedException e) {
+					return false;
+				}
+			}
 			accountBook.removeReturnTransaction(returnId);
 			return true;
 		}

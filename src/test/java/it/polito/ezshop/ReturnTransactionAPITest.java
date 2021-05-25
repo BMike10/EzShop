@@ -31,6 +31,7 @@ public class ReturnTransactionAPITest {
 	private int newProdId2 = -1;
 	private ProductType pt2 = null;
 	private int id = -1;
+	private int idC=-1;
 
 	@Before
 	public void init() throws Exception {
@@ -60,29 +61,71 @@ public class ReturnTransactionAPITest {
 			} else
 				break;
 		}
-		/* 1, "null", "4006381333900", 2.0, "notes" 4006381333931 */
 		// create test products changing some digits and updating their quantity
 		ezshop.login(username, password);
 		if ((pt1 = ezshop.getProductTypeByBarCode("4006381333900")) == null) {
-			newProdId1 = ezshop.createProductType("testReturnTransactionProduct", "4006381333900", 3.5, null);
+			
+			newProdId1 = ezshop.createProductType("testSaleTransactionProduct", "4006381333900", 3.5, null);
 		}
+		
+		ezshop.updatePosition(ezshop.getProductTypeByBarCode("4006381333900").getId() , "3-ctest-3");
 		ezshop.updateQuantity(newProdId1 > 0 ? newProdId1 : pt1.getId(), 5);
-
+		//to see the quantity of the updated product
+		System.out.println(ezshop.getProductTypeByBarCode("4006381333900").getQuantity());
+		
 		if ((pt2 = ezshop.getProductTypeByBarCode("4006381333931")) == null) {
-			newProdId2 = ezshop.createProductType("testReturnTransactionProduct", "4006381333931", 7.0, null);
+			
+			newProdId2 = ezshop.createProductType("testSaleTransactionProduct", "4006381333931", 7.0, null);
 		}
-		ezshop.updateQuantity(newProdId1 > 0 ? newProdId1 : pt1.getId(), 10);
-
+		ezshop.updatePosition(ezshop.getProductTypeByBarCode("4006381333931").getId() , "3-ctest-4");
+		ezshop.updateQuantity(newProdId2 > 0 ? newProdId2 : pt2.getId(), 10);
+		//to see the quantity of the updated product
+		System.out.println(ezshop.getProductTypeByBarCode("4006381333931").getQuantity());		
 		// start and add some products to a new sale transaction
 		id = ezshop.startSaleTransaction();
 		ezshop.addProductToSale(id, "4006381333900", 2);
 		ezshop.addProductToSale(id, "4006381333931", 1);
+		SaleTransactionClass stc=(SaleTransactionClass)ezshop.getAccountBook().getSaleTransaction(id);
+		stc.setStatus(SaleStatus.CLOSED);
 		ezshop.logout();
 	}
 
 	@After
-	public void after() throws Exception {
+	public void after() throws Exception {							//id qui è usato in modo diverso rispetto agli altri metodi
+		if (createdUserId > 0) {
+			ezshop.login(username, password);
+			// delete created product
+			if (newProdId1 < 0) {
+				ezshop.updateProduct(pt1.getId(), pt1.getProductDescription(), pt1.getBarCode(), pt1.getPricePerUnit(),
+						pt1.getNote());
+			} else
+				ezshop.deleteProductType(newProdId1);
+			if (newProdId2 < 0) {
+				ezshop.updateProduct(pt2.getId(), pt2.getProductDescription(), pt2.getBarCode(), pt2.getPricePerUnit(),
+						pt2.getNote());
+			} else
+				ezshop.deleteProductType(newProdId2);
+			// reinsert prod
+			if (pt1 != null) {
+				int id = ezshop.createProductType(pt1.getProductDescription(), pt1.getBarCode(), pt1.getPricePerUnit(),
+						pt1.getNote());
+				ezshop.updatePosition(id, pt1.getLocation());
+				ezshop.updateQuantity(id, pt1.getQuantity());
+			}
+			if (pt2 != null) {
+				int id = ezshop.createProductType(pt2.getProductDescription(), pt2.getBarCode(), pt2.getPricePerUnit(),
+						pt2.getNote());
+				ezshop.updatePosition(id, pt2.getLocation());
+				ezshop.updateQuantity(id, pt2.getQuantity());
+			}
 
+			ezshop.deleteUser(createdUserId);
+			if (createdCashier > 0)
+				ezshop.deleteUser(createdCashier);
+		}
+		if (id > 0) {
+			ezshop.getAccountBook().removeSaleTransaction(id);
+		}
 	}
 
 	@Test
@@ -136,34 +179,38 @@ public class ReturnTransactionAPITest {
 		assertEquals(false, ezshop.returnProduct(35, "4006381333900", 1));
 		// null productCode
 		assertThrows(InvalidProductCodeException.class, () -> {
-			ezshop.returnProduct(id, null, 1);
+			ezshop.returnProduct(retId, null, 1);
 		});
 		// invalid productCode
 		assertThrows(InvalidProductCodeException.class, () -> {
-			ezshop.returnProduct(id, "", 1);
+			ezshop.returnProduct(retId, "", 1);
 		});
 		// invalid productCode
 		assertThrows(InvalidProductCodeException.class, () -> {
-			ezshop.returnProduct(id, "111111111111111111", 1);
+			ezshop.returnProduct(retId, "111111111111111111", 1);
 		});
 		// invalid amount
 		assertThrows(InvalidQuantityException.class, () -> {
-			ezshop.returnProduct(id, pt1.getBarCode(), -1);
+			ezshop.returnProduct(retId, pt1.getBarCode(), -1);
 		});
-		//try to return a product that wasn't in the transaction
-		assertEquals(false, ezshop.returnProduct(id, "5006381633956", 1));
-		
-		//valid case
-		//first, see how many products are there for the type we want to return, both in the shop and in the relative sale transaction
-		int q1=pt1.getQuantity();
-		SaleTransactionClass stc=(SaleTransactionClass) ezshop.getAccountBook().getReturnTransaction(id).getSaleTransaction();
-		int q2=stc.getProductsEntries().get(pt1.getBarCode()).getAmount();
-		//return product
-		ezshop.returnProduct(id, pt1.getBarCode(), 1);
-		//check that the product quantity has been updated in the shop
-		assertEquals(q1-1, pt1.getQuantity(), 0.0001);
-		//check that the quantity has been updated in the sale transaction
-		assertEquals(q2-1, stc.getProductsEntries().get(pt1.getBarCode()).getAmount(), 0.0001);		
+		// try to return a product that wasn't in the transaction
+		assertEquals(false, ezshop.returnProduct(retId, "5006381633956", 1));
+
+		// valid case
+		// first, see how many products are there for the type we want to return, both
+		// in the shop and in the relative sale transaction
+		int q1 = pt1.getQuantity();
+		SaleTransactionClass stc = (SaleTransactionClass) ezshop.getAccountBook().getReturnTransaction(retId)
+				.getSaleTransaction();
+		int q2 = stc.getProductsEntries().get(pt1.getBarCode()).getAmount();
+		// return product
+		ezshop.returnProduct(retId, pt1.getBarCode(), 1);
+		// check that the product quantity has been updated in the shop
+		assertEquals(q1 - 1, pt1.getQuantity(), 0.0001);
+		// check that the quantity has been updated in the sale transaction
+		assertEquals(q2 - 1, stc.getProductsEntries().get(pt1.getBarCode()).getAmount(), 0.0001);
+		// undo the operation
+		ezshop.addProductToSale(stc.getTicketNumber(), pt1.getBarCode(), 1);
 	}
 
 	@Test
@@ -174,6 +221,26 @@ public class ReturnTransactionAPITest {
 		});
 		// login Admin
 		ezshop.login(username, password);
+		// start a new return transaction
+		int retId = ezshop.startReturnTransaction(id);
+		// null returnId
+		assertThrows(InvalidTransactionIdException.class, () -> {
+			ezshop.endReturnTransaction(null, true);
+		});
+		// invalid returnId
+		assertThrows(InvalidTransactionIdException.class, () -> {
+			ezshop.endReturnTransaction(-1, true);
+		});
+		// wrong returnId
+		assertEquals(false, ezshop.endReturnTransaction(35, true));
+		// valid-->commit==true
+
+		
+		
+		// valid-->commit==false
+
+		
+		
 	}
 
 	@Test
@@ -184,5 +251,21 @@ public class ReturnTransactionAPITest {
 		});
 		// login Admin
 		ezshop.login(username, password);
+		// start a new return transaction
+		int retId = ezshop.startReturnTransaction(id);
+		// null returnId
+		assertThrows(InvalidTransactionIdException.class, () -> {
+			ezshop.deleteReturnTransaction(null);
+		});
+		// invalid returnId
+		assertThrows(InvalidTransactionIdException.class, () -> {
+			ezshop.deleteReturnTransaction(-1);
+		});
+		// wrong returnId
+		assertEquals(false, ezshop.deleteReturnTransaction(35));
+		//valid
+		
+		
+		
 	}
 }
