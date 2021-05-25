@@ -224,14 +224,16 @@ public class ReturnTransactionTest {
 		rtc.addReturnProduct(prod1, 1);
 		//checking if money for the return transaction and the relative sale were updated
 		assertTrue(rtc.getMoney()==7.0);
-		assertTrue(rtc.getSaleTransaction().getPrice()==27.0);
+		assertTrue(rtc.getSaleTransaction().getPrice()==34.0);
 		//testing what happens when i remove multiple products
 		rtc.addReturnProduct(prod1, 1);
 		assertTrue(rtc.getMoney()==14.0);
-		assertTrue(rtc.getSaleTransaction().getPrice()==20.0);
+		assertTrue(rtc.getSaleTransaction().getPrice()==34.0);
 		rtc.addReturnProduct(prod2, 2);
 		assertTrue(rtc.getMoney()==24.0);
-		assertTrue(rtc.getSaleTransaction().getPrice()==10.0);
+		assertTrue(rtc.getSaleTransaction().getPrice()==34.0);
+		
+		
 	}
 
 }
