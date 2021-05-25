@@ -102,19 +102,7 @@ public class SaleTransactionAPITest {
 						pt2.getNote());
 			} else
 				ezshop.deleteProductType(newProdId2);
-			// reinsert prod
-			if (pt1 != null) {
-				int id = ezshop.createProductType(pt1.getProductDescription(), pt1.getBarCode(), pt1.getPricePerUnit(),
-						pt1.getNote());
-				ezshop.updatePosition(id, pt1.getLocation());
-				ezshop.updateQuantity(id, pt1.getQuantity());
-			}
-			if (pt2 != null) {
-				int id = ezshop.createProductType(pt2.getProductDescription(), pt2.getBarCode(), pt2.getPricePerUnit(),
-						pt2.getNote());
-				ezshop.updatePosition(id, pt2.getLocation());
-				ezshop.updateQuantity(id, pt2.getQuantity());
-			}
+			
 
 			ezshop.deleteUser(createdUserId);
 			if (createdCashier > 0)
