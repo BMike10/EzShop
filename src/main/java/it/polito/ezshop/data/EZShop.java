@@ -492,14 +492,58 @@ public class EZShop implements EZShopInterface {
 			}
 			return false;
 		}
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public List<Order> getAllOrders() throws UnauthorizedException {
-		if (currentUser == null || currentUser.getRole().equals("Cashier"))
-			throw new UnauthorizedException();
-		return new ArrayList<>(Connect.getOrder(products).values());
+    @Override
+    public List<Order> getAllOrders() throws UnauthorizedException {
+        if(currentUser==null || currentUser.getRole().equals("Cashier"))
+        	throw new UnauthorizedException();
+        return new ArrayList<>(Connect.getOrder(products).values());
+    }
+
+
+    @Override
+    public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard) throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException, UnauthorizedException {
+    	if(newCustomerName==null ||newCustomerName.isEmpty()) throw new InvalidCustomerNameException();
+    	if (!LoyaltyCardClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
+    	if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
+    	
+    	if(customers.values().stream().anyMatch(c->c.getCustomerName().equals(newCustomerName)) && !customers.get(id).getCustomerName().equals(newCustomerName)) return false;  	
+    	if(attachedCards.values().stream().anyMatch(a->a.getCustomerCard().equals(newCustomerCard))) return false;
+        CustomerClass c = (CustomerClass) customers.get(id);       
+        String prevName= c.getCustomerName();
+        String prevCardCode= c.getCustomerCard(); 
+        
+        if(newCustomerCard.isEmpty())
+        {
+        //any existing card code connected to the customer will be removed  
+        	cards.remove(prevCardCode);
+        	c.setCustomerCard("");
+        	attachedCards.values().remove(c);   
+        }
+        
+    	c.setCustomerCard(newCustomerCard);
+    	c.setCustomerName(newCustomerName);
+		if(!Connect.updateCustomer(id, newCustomerName, newCustomerCard)){
+         	c.setCustomerName(prevName);
+         	c.setCustomerCard(prevCardCode);
+         	return false;
+         }   
+     	return true;
+    }
+
+    @Override
+    public boolean deleteCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
+    	if(id==null || id<=0) throw new InvalidCustomerIdException();
+        if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
+    	if(!customers.containsKey(id)) return false;
+        Customer c = customers.remove(id);
+		if(!Connect.removeCustomer(id)) {
+        	customers.put(id,c);
+        	return false;
+        }
+		return true;
 	}
 
 	@Override
@@ -521,55 +565,6 @@ public class EZShop implements EZShopInterface {
 			return -1;
 		}
 		return id;
-	}
-
-	@Override
-	public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard)
-			throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException,
-			UnauthorizedException {
-		if (newCustomerName == null || newCustomerName.isEmpty())
-			throw new InvalidCustomerNameException();
-		// (newCustomerCard.isEmpty()||!CustomerClass.checkCardCode(newCustomerCard))
-		// throw new InvalidCustomerCardException();
-		if (newCustomerCard == null)
-			throw new InvalidCustomerCardException();
-		if (currentUser == null || currentUser.getRole().isEmpty())
-			throw new UnauthorizedException();
-		CustomerClass c = (CustomerClass) customers.get(id);
-		String prevName = c.getCustomerName();
-		String prevCardCode = c.getCustomerCard();
-
-		if (newCustomerCard.isEmpty()) {
-			// any existing card code connected to the customer will be removed
-			cards.remove(prevCardCode);
-			c.setCustomerCard("");
-			attachedCards.values().remove(c);
-		}
-
-		c.setCustomerCard(newCustomerCard);
-		c.setCustomerName(newCustomerName);
-		if (!Connect.updateCustomer(id, newCustomerName, newCustomerCard)) {
-			c.setCustomerName(prevName);
-			c.setCustomerCard(prevCardCode);
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public boolean deleteCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
-		if (id == null || id <= 0)
-			throw new InvalidCustomerIdException();
-		if (currentUser == null || currentUser.getRole().isEmpty())
-			throw new UnauthorizedException();
-		if (!customers.containsKey(id))
-			return false;
-		Customer c = customers.remove(id);
-		if (!Connect.removeCustomer(id)) {
-			customers.put(id, c);
-			return false;
-		}
-		return true;
 	}
 
 	@Override
@@ -1263,10 +1258,9 @@ public class EZShop implements EZShopInterface {
 
 		LocalDate newFrom = from;
 		LocalDate newTo = to;
-
-		if (from != null && to != null) {
-			if (!from.isBefore(to)) {
-				// Order Data Correction
+		if(from!= null && to!= null){
+			if(from.isAfter(to)){
+				//Order Data Correction
 				newFrom = to;
 				newTo = from;
 			}
