@@ -1153,7 +1153,7 @@ public class EZShop implements EZShopInterface {
 		LocalDate newTo = to;
 
 		if(from!= null && to!= null){
-			if(!from.isBefore(to)){
+			if(from.isAfter(to)){
 				//Order Data Correction
 				newFrom = to;
 				newTo = from;

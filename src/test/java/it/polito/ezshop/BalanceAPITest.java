@@ -98,8 +98,10 @@ public class BalanceAPITest {
         //After login as Admin
 
         //Valid request
+        EZShop ezShop = new EZShop();
         List<BalanceOperation> list = new ArrayList<>();
-        AccountBookClass aB = ezshop.getAccountBook();
+        AccountBookClass aB = new AccountBookClass(0);
+        ezshop.setAccountBook(aB);
         aB.setBalanceOperationMap(new HashMap<>());
         BalanceOperation bo1 = new BalanceOperationClass(1,"SALE",20,LocalDate.now(),"CREDIT");
         BalanceOperation bo2 = new BalanceOperationClass(2,"SALE",20,LocalDate.now().plusDays(2),"CREDIT");
@@ -111,6 +113,10 @@ public class BalanceAPITest {
         list.add(bo2);
         list.add(bo3);
         assertEquals(list,ezshop.getCreditsAndDebits(LocalDate.now().minusDays(3),LocalDate.now().plusDays(3)));
+
+
+        //Valid request with inverse date order
+        assertEquals(list,ezshop.getCreditsAndDebits(LocalDate.now().plusDays(3),LocalDate.now().minusDays(3)));
 
     }
 }
