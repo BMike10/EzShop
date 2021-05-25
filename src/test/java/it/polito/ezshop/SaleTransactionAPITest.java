@@ -26,13 +26,14 @@ import it.polito.ezshop.exceptions.UnauthorizedException;
 public class SaleTransactionAPITest {
 
 	private final EZShop ezshop = new EZShop();
-	private String username = "testUserProductApiEZShop";
+	private String username = "testSaleTransactionApiEZShop";
 	private String password = "password";
 	private int createdUserId = -1;
 	private int createdCashier = -1;
 	private String usernameC = "testSaleTransactionApiUserCashier";
-	private ProductType pt = null;
-	private int newProdId = -1;
+	private ProductType pt1= null;
+	private int newProdId1 = -1;
+	private int newProdId2 = -1;
 	private ProductType pt2 = null;
 	private int id = -1;
 
@@ -64,49 +65,67 @@ public class SaleTransactionAPITest {
 			} else
 				break;
 		}
-		/*1, "null", "4006381333900", 2.0, "notes"    4006381333931*/
 		// create test products changing some digits and updating their quantity
 		ezshop.login(username, password);
-		if ((pt = ezshop.getProductTypeByBarCode("4006381333900")) == null) {
-			newProdId = ezshop.createProductType("testSaleTransactionProduct", "4006381333900", 3.5, null);
+		if ((pt1 = ezshop.getProductTypeByBarCode("4006381333900")) == null) {
+			
+			newProdId1 = ezshop.createProductType("testSaleTransactionProduct", "4006381333900", 3.5, null);
 		}
-		ezshop.updateQuantity(newProdId > 0 ? newProdId : pt.getId(), 5);
-		ezshop.updatePosition(newProdId > 0 ? newProdId : pt.getId(), "4006-381333-900");
-
-		if ((pt = ezshop.getProductTypeByBarCode("4006381333931")) == null) {
-			newProdId = ezshop.createProductType("testSaleTransactionProduct", "4006381333931", 7.0, null);
+		
+		ezshop.updatePosition(ezshop.getProductTypeByBarCode("4006381333900").getId() , "3-ctest-3");
+		ezshop.updateQuantity(newProdId1 > 0 ? newProdId1 : pt1.getId(), 5);
+		//to see the quantity of the updated product
+		System.out.println(ezshop.getProductTypeByBarCode("4006381333900").getQuantity());
+		
+		if ((pt2 = ezshop.getProductTypeByBarCode("4006381333931")) == null) {
+			
+			newProdId2 = ezshop.createProductType("testSaleTransactionProduct", "4006381333931", 7.0, null);
 		}
-		ezshop.updateQuantity(newProdId > 0 ? newProdId : pt.getId(), 10);
-		ezshop.updatePosition(newProdId > 0 ? newProdId : pt.getId(), "4006-38133-3931");
-
+		ezshop.updatePosition(ezshop.getProductTypeByBarCode("4006381333931").getId() , "3-ctest-4");
+		ezshop.updateQuantity(newProdId2 > 0 ? newProdId2 : pt2.getId(), 10);
+		//to see the quantity of the updated product
+		System.out.println(ezshop.getProductTypeByBarCode("4006381333931").getQuantity());
+		
 		ezshop.logout();
+		
 	}
 
 	@After
-	public void after() throws Exception { // non so cosa dovrei fare in after di preciso
-//		if (createdUserId > 0) {
-//			ezshop.login(username, password);
-//			// delete created product
-//			if (newProdId < 0) {
-//				ezshop.updateProduct(pt.getId(), pt.getProductDescription(), pt.getBarCode(), pt.getPricePerUnit(),
-//						pt.getNote());
-//			} else
-//				ezshop.deleteProductType(newProdId);
-//			// reinsert prod
-//			if (pt2 != null) {
-//				int id = ezshop.createProductType(pt2.getProductDescription(), pt2.getBarCode(), pt2.getPricePerUnit(),
-//						pt2.getNote());
-//				ezshop.updatePosition(id, pt2.getLocation());
-//				ezshop.updateQuantity(id, pt2.getQuantity());
-//			}
-//
-//			ezshop.deleteUser(createdUserId);
-//			if (createdCashier > 0)
-//				ezshop.deleteUser(createdCashier);
-//		}
-//		if (id > 0) {
-//			ezshop.getAccountBook().removeOrder(id);
-//		}
+	public void after() throws Exception {
+		if (createdUserId > 0) {
+			ezshop.login(username, password);
+			// delete created product
+			if (newProdId1 < 0) {
+				ezshop.updateProduct(pt1.getId(), pt1.getProductDescription(), pt1.getBarCode(), pt1.getPricePerUnit(),
+						pt1.getNote());
+			} else
+				ezshop.deleteProductType(newProdId1);
+			if (newProdId2 < 0) {
+				ezshop.updateProduct(pt2.getId(), pt2.getProductDescription(), pt2.getBarCode(), pt2.getPricePerUnit(),
+						pt2.getNote());
+			} else
+				ezshop.deleteProductType(newProdId2);
+			// reinsert prod
+			if (pt1 != null) {
+				int id = ezshop.createProductType(pt1.getProductDescription(), pt1.getBarCode(), pt1.getPricePerUnit(),
+						pt1.getNote());
+				ezshop.updatePosition(id, pt1.getLocation());
+				ezshop.updateQuantity(id, pt1.getQuantity());
+			}
+			if (pt2 != null) {
+				int id = ezshop.createProductType(pt2.getProductDescription(), pt2.getBarCode(), pt2.getPricePerUnit(),
+						pt2.getNote());
+				ezshop.updatePosition(id, pt2.getLocation());
+				ezshop.updateQuantity(id, pt2.getQuantity());
+			}
+
+			ezshop.deleteUser(createdUserId);
+			if (createdCashier > 0)
+				ezshop.deleteUser(createdCashier);
+		}
+		if (id > 0) {
+			ezshop.getAccountBook().removeSaleTransaction(id);
+		}
 	}
 
 	@Test
@@ -157,13 +176,13 @@ public class SaleTransactionAPITest {
 			ezshop.addProductToSale(id, "4006381333900", -2);
 		});
 
-		int q = ezshop.getProductTypeByBarCode("4006381333900").getQuantity();
+		int q = ezshop.getProductTypeByBarCode("4006381333931").getQuantity();
 		// valid
-		assertTrue(ezshop.addProductToSale(id, "4006381333900", 2));
+		assertTrue(ezshop.addProductToSale(id, "4006381333931", 2));
 		// test correctly updated quantity
-		assertTrue(q == ezshop.getProductTypeByBarCode("4006381333900").getQuantity() + 2);
+		assertTrue(q == ezshop.getProductTypeByBarCode("4006381333931").getQuantity() + 2);
 
-		ezshop.deleteProductFromSale(id, "4006381333900", 2);
+		ezshop.deleteProductFromSale(id, "4006381333931", 2);
 		ezshop.logout();
 
 	}
@@ -222,6 +241,9 @@ public class SaleTransactionAPITest {
 		ezshop.login(username, password);
 		// create new transaction
 		id = ezshop.startSaleTransaction();
+		// close sale transaction
+		SaleTransactionClass stc=(SaleTransactionClass) ezshop.getAccountBook().getSaleTransaction(id);
+		stc.setStatus(SaleStatus.CLOSED);
 
 		// null transactionId
 		assertThrows(InvalidTransactionIdException.class, () -> {

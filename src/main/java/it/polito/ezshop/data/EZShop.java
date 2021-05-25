@@ -5,6 +5,7 @@ import java.io.*;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.Map.Entry;
 
 
 public class EZShop implements EZShopInterface {
@@ -641,7 +642,7 @@ public class EZShop implements EZShopInterface {
 			e.printStackTrace();
 			return false;
 		}
-		return false;
+		return true;
 	}
 
 	@Override
@@ -769,7 +770,7 @@ public class EZShop implements EZShopInterface {
 			return false;
 		}
 		accountBook.removeSaleTransaction(saleNumber);
-		//dovrei reinserire i prodotti acquistati
+		//re-insert the sold products
 		for(int i=0; i<st.getEntries().size(); i++) {
 			TicketEntryClass te=(TicketEntryClass)st.getEntries().get(i);
 			ProductType pt=te.getProductType();
@@ -830,20 +831,20 @@ public class EZShop implements EZShopInterface {
 		SaleTransactionClass st=(SaleTransactionClass) rt.getSaleTransaction();
 
 		if(!st.getProductsEntries().containsKey(productCode)) return false;
-		// NON DOVREBBE FARLO (VEDI SPECIFICHE
-		/*try {
-			this.updateQuantity(this.getProductTypeByBarCode(productCode).getId(), amount);
-		} catch (InvalidProductIdException | UnauthorizedException | InvalidProductCodeException e) {
-			throw new RuntimeException();
-		}*/
-
 		int q=st.getProductsEntries().get(productCode).getAmount();
 		if(q<amount) return false;
-
-		st.deleteProduct(this.getProductTypeByBarCode(productCode), amount);
-
+		
 		ProductType pt = this.getProductTypeByBarCode(productCode);
 		if(pt == null) return false;
+		
+		try {
+			this.updateQuantity(pt.getId(), amount);
+		} catch (InvalidProductIdException | UnauthorizedException e) {
+			throw new RuntimeException();
+		}
+
+		st.deleteProduct(pt, amount);
+
 		int a=rt.addReturnProduct(new ProductTypeClass((ProductTypeClass)pt), amount);
 		if(a==-1) return false;
 		else return true;
@@ -862,8 +863,8 @@ public class EZShop implements EZShopInterface {
 		if (rt == null) {
 			return false;
 		}
+		SaleTransactionClass st=(SaleTransactionClass)rt.getSaleTransaction();
 		if(commit) {
-			SaleTransactionClass st=(SaleTransactionClass)rt.getSaleTransaction();
 			rt.setStatus("CLOSED");
 			rt.getReturnedProduct().forEach((p,q)->{
 				try {
@@ -893,7 +894,16 @@ public class EZShop implements EZShopInterface {
 			return true;
 		}
 		else {
-			//how should i undo the return transaction?
+			//rollback
+			
+			for(Map.Entry <ProductType, Integer> entry : rt.getReturnedProduct().entrySet()) {
+				st.addProduct(entry.getKey(), entry.getValue());
+				try {
+					this.updateQuantity(entry.getKey().getId(), -entry.getValue());
+				} catch (InvalidProductIdException | UnauthorizedException e) {
+					return false;
+				}
+			}
 			accountBook.removeReturnTransaction(returnId);
 			return true;
 		}
