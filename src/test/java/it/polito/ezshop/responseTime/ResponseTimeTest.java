@@ -70,14 +70,14 @@ public class ResponseTimeTest {
 			t1=System.currentTimeMillis();
 			int id = ezshop.createProductType(barcode, barcode, 1.0, null);
 			create += System.currentTimeMillis()-t1;
-			// update quantity
-			t1=System.currentTimeMillis();
-			ezshop.updateQuantity(id, 500);
-			updQty += System.currentTimeMillis() - t1;
 			// update posiiton
 			t1 = System.currentTimeMillis();
 			ezshop.updatePosition(id, barcode.substring(0,5)+"-"+barcode.substring(5,10)+"-"+barcode.substring(10));	
 			updPos+=System.currentTimeMillis() - t1;
+			// update quantity
+			t1=System.currentTimeMillis();
+			ezshop.updateQuantity(id, 500);
+			updQty += System.currentTimeMillis() - t1;
 			// get by barcode
 			t1 = System.currentTimeMillis();
 			ezshop.getProductTypeByBarCode(barcode);
@@ -164,6 +164,8 @@ public class ResponseTimeTest {
 				barcode = getBarcode();
 			}while(ezshop.getProductTypeByBarCode(barcode) != null);
 			int pid = ezshop.createProductType(barcode, barcode, 1.0, null);
+			ezshop.updatePosition(pid, barcode.substring(0,5)+"-"+barcode.substring(5,10)+"-"+barcode.substring(10));
+			ezshop.updateQuantity(pid, 10000);
 			barcodes.add(barcode);
 		}
 		// insert 1500 sales
