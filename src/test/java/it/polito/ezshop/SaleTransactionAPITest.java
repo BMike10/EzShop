@@ -102,20 +102,9 @@ public class SaleTransactionAPITest {
 						pt2.getNote());
 			} else
 				ezshop.deleteProductType(newProdId2);
-			// reinsert prod
-			if (pt1 != null) {
-				int id = ezshop.createProductType(pt1.getProductDescription(), pt1.getBarCode(), pt1.getPricePerUnit(),
-						pt1.getNote());
-				ezshop.updatePosition(id, pt1.getLocation());
-				ezshop.updateQuantity(id, pt1.getQuantity());
-			}
-			if (pt2 != null) {
-				int id = ezshop.createProductType(pt2.getProductDescription(), pt2.getBarCode(), pt2.getPricePerUnit(),
-						pt2.getNote());
-				ezshop.updatePosition(id, pt2.getLocation());
-				ezshop.updateQuantity(id, pt2.getQuantity());
-			}
+
 			// delete user
+			
 			ezshop.deleteUser(createdUserId);
 			if (createdCashier > 0)
 				ezshop.deleteUser(createdCashier);
@@ -161,6 +150,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidTransactionIdException.class, () -> {
 			ezshop.addProductToSale(-2, "4006381333900", 2);
 		});
+		// not present transactionId
+		assertFalse(ezshop.addProductToSale(Integer.MAX_VALUE, "4006381333900", 2));
 		// null productCode
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.addProductToSale(id, null, 2);
@@ -169,6 +160,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.addProductToSale(id, "", 2);
 		});
+		//not present product code
+		assertFalse(ezshop.addProductToSale(id, "400638133390", 2));
 		// invalid quantity
 		assertThrows(InvalidQuantityException.class, () -> {
 			ezshop.addProductToSale(id, "4006381333900", -2);
@@ -207,6 +200,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidTransactionIdException.class, () -> {
 			ezshop.deleteProductFromSale(-2, "4006381333900", 2);
 		});
+		// not present transactionId
+		assertFalse(ezshop.deleteProductFromSale(Integer.MAX_VALUE, "4006381333900", 2));
 		// null productCode
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.deleteProductFromSale(id, null, 2);
@@ -215,6 +210,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.deleteProductFromSale(id, "", 2);
 		});
+		//not present product code
+		assertFalse(ezshop.deleteProductFromSale(id, "400638133390", 2));
 		// invalid quantity
 		assertThrows(InvalidQuantityException.class, () -> {
 			ezshop.deleteProductFromSale(id, "4006381333900", -2);
@@ -280,6 +277,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidTransactionIdException.class, () -> {
 			ezshop.applyDiscountRateToProduct(-1, "4006381333900", 0.2);
 		});
+		// not present transactionId
+		assertFalse(ezshop.applyDiscountRateToProduct(Integer.MAX_VALUE, "4006381333900", 0.5));
 		// null productCode
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.applyDiscountRateToProduct(id, null, 0.2);
@@ -288,6 +287,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.applyDiscountRateToProduct(id, "", 0.2);
 		});
+		//not present product code
+		assertFalse(ezshop.applyDiscountRateToProduct(id, "400638133390", 0.2));
 		// invalid discountRate
 		assertThrows(InvalidDiscountRateException.class, () -> {
 			ezshop.applyDiscountRateToProduct(id, "4006381333900", -0.3);
@@ -379,7 +380,6 @@ public class SaleTransactionAPITest {
 
 		// valid
 		int p = ezshop.computePointsForSale(id);
-		ezshop.endSaleTransaction(id);
 		assertEquals(1, p, 0.0001);
 
 		assertTrue(ezshop.addProductToSale(id, "4006381333931", 3));

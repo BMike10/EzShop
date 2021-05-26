@@ -52,10 +52,10 @@ public class EZShop implements EZShopInterface {
 			Connect.deleteAll();
 			accountBook = new AccountBookClass(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
 			products = new HashMap<>();
-			/*
-			 * users = new HashMap<>(); cards = new HashMap<>(); customers = new
-			 * HashMap<>(); attachedCards = new HashMap<>();
-			 */
+			users = new HashMap<>(); cards = new HashMap<>(); 
+			customers = new	HashMap<>(); 
+			attachedCards = new HashMap<>();
+			 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -687,7 +687,7 @@ public class EZShop implements EZShopInterface {
 		} catch (Exception e) {
 			return false;
 		}
-		if (st == null) {
+		if (st == null || st.getStatus()!=SaleStatus.STARTED) {
 			return false;
 		}
 
@@ -767,9 +767,8 @@ public class EZShop implements EZShopInterface {
 		}
 		ProductType pt = getProductTypeByBarCode(productCode);
 		if (pt == null)
-			throw new InvalidProductCodeException();
-		st.addProductDiscount(pt, discountRate);
-		return true;
+			return false;
+		return st.addProductDiscount(pt, discountRate);
 	}
 
 	@Override
@@ -788,7 +787,7 @@ public class EZShop implements EZShopInterface {
 		} catch (Exception e) {
 			return false;
 		}
-		if (st == null) {
+		if (st == null || st.getStatus()==SaleStatus.PAYED) {
 			return false;
 		}
 		st.setDiscountRate(discountRate);

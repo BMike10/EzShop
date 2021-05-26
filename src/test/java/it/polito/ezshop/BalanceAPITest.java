@@ -55,6 +55,8 @@ public class BalanceAPITest {
             ezshop.login(username, password);
             ezshop.deleteUser(createdUserId);
         }
+        if(createdCashier>0)
+        	ezshop.deleteUser(createdCashier);
     }
 
     @Test
@@ -79,7 +81,8 @@ public class BalanceAPITest {
 
         //Correct update
         assertTrue(ezshop.recordBalanceUpdate(99));
-
+        // need to clean db
+        ezshop.reset();
     }
 
     @Test
@@ -117,6 +120,10 @@ public class BalanceAPITest {
 
         //Valid request with inverse date order
         assertEquals(list,ezshop.getCreditsAndDebits(LocalDate.now().plusDays(3),LocalDate.now().minusDays(3)));
-
+        
+        // db clean
+        Connect.removeBalanceOperation(bo1.getBalanceId());
+        Connect.removeBalanceOperation(bo2.getBalanceId());
+        Connect.removeBalanceOperation(bo3.getBalanceId());
     }
 }

@@ -819,9 +819,12 @@ public class Connect {
 			stmt.executeUpdate(sqlDrop);
 			sqlDrop ="delete from SaleTransactions";
 			stmt.executeUpdate(sqlDrop);
-        		/*+ "delete from user;"
-        		+ "delete from customer;"
-        		+ "delete from loyaltyCard;"*/
+			sqlDrop="delete from user";
+			stmt.executeUpdate(sqlDrop);
+			sqlDrop="delete from customer";
+			stmt.executeUpdate(sqlDrop);
+        	sqlDrop="delete from loyaltyCard";
+			stmt.executeUpdate(sqlDrop);
 			sqlDrop ="delete from orders";
 			stmt.executeUpdate(sqlDrop);
 			sqlDrop ="delete from returnedProducts";

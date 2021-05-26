@@ -53,6 +53,7 @@ if(createdUserId > 0) {
 	ezshop.login(username, password);
 	ezshop.deleteUser(createdUserId);
 }
+ezshop.reset();
 }
 @Test
 public  void testCreateCard() throws InvalidUserIdException, UnauthorizedException, InvalidUsernameException, InvalidPasswordException,InvalidRoleException {
