@@ -75,6 +75,8 @@ public  void testCreateCard() throws InvalidUserIdException, UnauthorizedExcepti
 @Test 
 public void testAttachCardToCustomer() throws InvalidCustomerIdException, InvalidCustomerCardException, UnauthorizedException, InvalidUsernameException, InvalidPasswordException, InvalidCustomerNameException{
 	ezshop.logout();
+	//No login
+	assertThrows(UnauthorizedException.class,() -> {ezshop.attachCardToCustomer("1234567890",0);});
 	assertEquals(null,ezshop.login("notExistingUsername", "notExistingpPsw"));
 	ezshop.login(username, password);
 

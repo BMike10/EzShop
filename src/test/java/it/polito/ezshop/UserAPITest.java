@@ -46,7 +46,20 @@ public class UserAPITest{
 		ezshop.deleteUser(createdUserId);
 	}
 	}
-	
+
+	@Test
+	public  void testLogin(){
+
+		//Invalid Username
+		assertThrows(InvalidUsernameException.class, ()->{ezshop.login(null, "password");});
+		assertThrows(InvalidUsernameException.class, ()->{ezshop.login("", "password");});
+
+		//Invalid Password
+		assertThrows(InvalidPasswordException.class, ()->{ezshop.login("testUserCustomerApiEZShop", null);});
+		assertThrows(InvalidPasswordException.class, ()->{ezshop.login("testUserCustomerApiEZShop", "");});
+
+	}
+
 	@Test
 	public  void testCreateUser() throws InvalidUserIdException, UnauthorizedException, InvalidUsernameException, InvalidPasswordException,InvalidRoleException {
 				// login

@@ -725,9 +725,10 @@ public class EZShop implements EZShopInterface {
 		} catch (Exception e) {
 			return false;
 		}
-		if (st == null) {
-			return false;
-		}
+		//If st=null -> Exception
+//		if (st == null) {
+//			return false;
+//		}
 
 		ProductType pt = getProductTypeByBarCode(productCode);
 		if (pt == null)
