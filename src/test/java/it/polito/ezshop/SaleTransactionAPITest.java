@@ -425,6 +425,7 @@ public class SaleTransactionAPITest {
 	public void testDeleteSaleTransaction() throws Exception {
 		// before login
 		assertThrows(UnauthorizedException.class, () -> {
+			ezshop.deleteSaleTransaction(1);
 			ezshop.deleteSaleTransaction(-1);
 		});
 		// login Admin

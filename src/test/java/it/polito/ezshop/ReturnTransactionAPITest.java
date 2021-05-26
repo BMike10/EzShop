@@ -167,6 +167,11 @@ public class ReturnTransactionAPITest {
 		ezshop.login(username, password);
 		// start a new return transaction
 		int retId = ezshop.startReturnTransaction(id);
+		ezshop.logout();
+		assertThrows(UnauthorizedException.class, () -> {
+			ezshop.returnProduct(id, "4006381333900", 1);
+		});
+		ezshop.login(username, password);
 		// null returnId
 		assertThrows(InvalidTransactionIdException.class, () -> {
 			ezshop.returnProduct(null, "4006381333900", 1);
@@ -204,9 +209,12 @@ public class ReturnTransactionAPITest {
 				.getSaleTransaction();
 		int q2 = stc.getProductsEntries().get(pt1.getBarCode()).getAmount();
 		// return product
-		ezshop.returnProduct(retId, pt1.getBarCode(), 1);
+		assertTrue(ezshop.returnProduct(retId, pt1.getBarCode(), 1));
 		// check that the quantity has been updated in the sale transaction
 		assertEquals(q2 , stc.getProductsEntries().get(pt1.getBarCode()).getAmount(), 0.0001);
+		// too much return
+		assertFalse(ezshop.returnProduct(retId, pt1.getBarCode(), q2+1));
+		assertTrue(ezshop.returnProduct(retId, pt1.getBarCode(), q2-1));
 		// undo the operation
 		ezshop.addProductToSale(stc.getTicketNumber(), pt1.getBarCode(), 1);
 	}
@@ -215,6 +223,7 @@ public class ReturnTransactionAPITest {
 	public void testEndReturnTransaction() throws Exception {
 		// before login
 		assertThrows(UnauthorizedException.class, () -> {
+			ezshop.endReturnTransaction(2, true);
 			ezshop.endReturnTransaction(null, true);
 		});
 		// login Admin
@@ -264,6 +273,7 @@ public class ReturnTransactionAPITest {
 	public void testDeleteReturnTransaction() throws Exception {
 		// before login
 		assertThrows(UnauthorizedException.class, () -> {
+			ezshop.deleteReturnTransaction(2);
 			ezshop.deleteReturnTransaction(null);
 		});
 		// login Admin

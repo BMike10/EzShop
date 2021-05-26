@@ -81,20 +81,6 @@ public class AccountBookClass implements AccountBook {
         Connect.addBalanceOperation((BalanceOperationClass) bo);
         return true;
     }
-    public boolean updateBalanceOperation(int id, double newMoney) {
-        if (!balanceOperationMap.containsKey(id))
-            return false;
-        BalanceOperation b = balanceOperationMap.get(id);
-        double change = -b.getMoney() + newMoney;
-        if(balance + change < 0) {
-        	return false;
-        }
-        balance += change;
-        b.setMoney(newMoney);
-        //update db
-        Connect.updateBalanceOperation(id, newMoney);
-        return true;
-    }
     @Override
     public Integer addSaleTransaction(SaleTransaction saleTransaction) {
         if(saleTransaction==null || (saleTransaction.getTicketNumber()!=-1 && saleTransaction.getTicketNumber()!=null))

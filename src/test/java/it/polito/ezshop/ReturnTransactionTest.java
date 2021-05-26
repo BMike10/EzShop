@@ -190,7 +190,7 @@ public class ReturnTransactionTest {
 			rtc.setMoney(-1);
 		});
 		rtc.setMoney(10);
-		assertEquals(10, rtc.getMoney(), 0.0001);
+		assertEquals(9, rtc.getMoney(), 0.0001);
 	}
 
 							///////////////////////////////////////////////////////////////////////

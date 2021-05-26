@@ -106,7 +106,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 
 	@Override
 	public double getMoney() {
-		return super.getMoney();
+		return super.getMoney() * (1.0 - saleTransaction.getDiscountRate());
 	}
 
 	@Override

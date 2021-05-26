@@ -114,6 +114,7 @@ public class SaleTransactionTest {
 		// valid
 		try {
 			assertTrue(stc.addProduct(new ProductTypeClass(3, "null", "400638133390", 303.0, "notes"), 10));
+			assertTrue(stc.addProduct(new ProductTypeClass(3, "null", "400638133390", 303.0, "notes"), 10));			
 		} catch (InvalidProductDescriptionException | InvalidProductCodeException | InvalidPricePerUnitException e) {
 			e.printStackTrace();
 		}

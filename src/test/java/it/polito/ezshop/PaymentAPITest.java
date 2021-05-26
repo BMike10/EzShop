@@ -142,6 +142,7 @@ public class PaymentAPITest {
         //Correct return
         ReturnTransaction returnTransaction3 = new ReturnTransactionClass(saleTransaction,ReturnStatus.CLOSED);
         Integer idReturn3 = aB.addReturnTransaction(returnTransaction3);
+        // fallisce perchè la sale non è in accountBook
         assertEquals((int) ((ReturnTransactionClass)aB.getReturnTransaction(idReturn3)).getMoney(),(int) ezshop.returnCashPayment(idReturn3));
 
     }
