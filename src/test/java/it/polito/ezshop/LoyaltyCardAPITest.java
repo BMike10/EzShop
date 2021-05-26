@@ -94,8 +94,12 @@ public void testAttachCardToCustomer() throws InvalidCustomerIdException, Invali
 
 	//invalid customer id
 	assertThrows(InvalidCustomerIdException.class, ()->{ezshop.attachCardToCustomer("1234567890",0);});
-	assertThrows(InvalidCustomerIdException.class, ()->{ezshop.attachCardToCustomer("1234567890",null);});	
-	
+	assertThrows(InvalidCustomerIdException.class, ()->{ezshop.attachCardToCustomer("1234567890",null);});
+
+	//invalid customer
+	assertFalse(ezshop.attachCardToCustomer("1234567890",2));
+
+
 	//invalid card
 	assertThrows(InvalidCustomerCardException.class, ()->{ezshop.attachCardToCustomer(null,1);});     
 	assertThrows(InvalidCustomerCardException.class, ()->{ezshop.attachCardToCustomer("",1);});     
@@ -120,8 +124,10 @@ public void testModifyPointsOnCard()throws InvalidCustomerCardException, Unautho
 	assertThrows(InvalidCustomerCardException.class, ()->{ezshop.modifyPointsOnCard(null,0);});     
 	assertThrows(InvalidCustomerCardException.class, ()->{ezshop.modifyPointsOnCard("",0);});     
 	assertThrows(InvalidCustomerCardException.class, ()->{ezshop.modifyPointsOnCard("12345678910",0);});     
-	assertThrows(InvalidCustomerCardException.class, ()->{ezshop.modifyPointsOnCard("12345",0);});     
-	//assertFalse(ezshop.modifyPointsOnCard(null, 10));
+	assertThrows(InvalidCustomerCardException.class, ()->{ezshop.modifyPointsOnCard("12345",0);});
+
+	//absent card
+	assertFalse(ezshop.modifyPointsOnCard("1234567891", 10));
 	
 	// create test  1   
 		final int id = ezshop.defineCustomer("testCustomer1");
