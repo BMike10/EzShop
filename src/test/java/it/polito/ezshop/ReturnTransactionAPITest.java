@@ -96,7 +96,7 @@ public class ReturnTransactionAPITest {
 	}
 
 	@After
-	public void after() throws Exception { // id qui è usato in modo diverso rispetto agli altri metodi
+	public void after() throws Exception {
 		if (createdUserId > 0) {
 			ezshop.login(username, password);
 			// delete created product
