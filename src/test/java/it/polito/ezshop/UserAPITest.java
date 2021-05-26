@@ -46,7 +46,20 @@ public class UserAPITest{
 		ezshop.deleteUser(createdUserId);
 	}
 	}
-	
+
+	@Test
+	public  void testLogin(){
+
+		//Invalid Username
+		assertThrows(InvalidUsernameException.class, ()->{ezshop.login(null, "password");});
+		assertThrows(InvalidUsernameException.class, ()->{ezshop.login("", "password");});
+
+		//Invalid Password
+		assertThrows(InvalidPasswordException.class, ()->{ezshop.login("testUserCustomerApiEZShop", null);});
+		assertThrows(InvalidPasswordException.class, ()->{ezshop.login("testUserCustomerApiEZShop", "");});
+
+	}
+
 	@Test
 	public  void testCreateUser() throws InvalidUserIdException, UnauthorizedException, InvalidUsernameException, InvalidPasswordException,InvalidRoleException {
 				// login
@@ -158,9 +171,9 @@ public class UserAPITest{
 	//null
 	assertThrows(InvalidRoleException.class, ()->{ezshop.updateUserRights(id,null);});
 	// empty
-	assertThrows(InvalidRoleException.class, ()->{ezshop.updateUserRights(id,"");});	
-	// invalid
-	assertThrows(InvalidRoleException.class, ()->{ezshop.updateUserRights(id,"managero");});								
+	assertThrows(InvalidRoleException.class, ()->{ezshop.updateUserRights(id,"");});
+	//Wrong role
+	assertThrows(InvalidRoleException.class, ()->{ezshop.updateUserRights(id,"menagero");});
 	//id
 	assertThrows(InvalidUserIdException.class, ()->{ezshop.updateUserRights(null,"Cashier");});
 	assertThrows(InvalidUserIdException.class, ()->{ezshop.updateUserRights(-4,"Cashier");});

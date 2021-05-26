@@ -616,6 +616,7 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidCustomerCardException();
 		LoyaltyCard card = cards.get(customerCard);
 		Customer customer = customers.get(customerId);
+		//id already checked but customer does not
 		if (customer == null
 				|| attachedCards.values().stream().map(e -> e.getCustomerCard()).anyMatch(e -> e.equals(customerCard)))
 			return false;
@@ -725,9 +726,10 @@ public class EZShop implements EZShopInterface {
 		} catch (Exception e) {
 			return false;
 		}
-		if (st == null) {
-			return false;
-		}
+		//If st=null -> Exception
+//		if (st == null) {
+//			return false;
+//		}
 
 		ProductType pt = getProductTypeByBarCode(productCode);
 		if (pt == null)
