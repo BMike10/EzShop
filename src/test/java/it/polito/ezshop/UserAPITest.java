@@ -61,6 +61,13 @@ public class UserAPITest{
 	}
 
 	@Test
+	public void testLogout(){
+
+		//Invalid User
+		assertFalse(ezshop.logout());
+	}
+
+	@Test
 	public  void testCreateUser() throws InvalidUserIdException, UnauthorizedException, InvalidUsernameException, InvalidPasswordException,InvalidRoleException {
 				// login
 				ezshop.login(username, password);
