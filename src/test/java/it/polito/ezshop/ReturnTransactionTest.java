@@ -19,7 +19,6 @@ import it.polito.ezshop.data.SaleStatus;
 import it.polito.ezshop.data.SaleTransaction;
 import it.polito.ezshop.data.SaleTransactionClass;
 
-//int orderId, String description, double amount, LocalDate date, String type,Map<ProductType,Integer> returned, SaleTransaction saleT, ReturnStatus retstatus
 
 public class ReturnTransactionTest {
 	@Test

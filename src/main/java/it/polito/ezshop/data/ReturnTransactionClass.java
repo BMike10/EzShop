@@ -9,18 +9,10 @@ import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 
 public class ReturnTransactionClass extends BalanceOperationClass implements ReturnTransaction {
 
-	// Map with the barcode and quantity of product in the sale transaction
+	// Map with the barcode and quantity of product to update in the sale transaction
 	private final Map<ProductType, Integer> returnedProduct = new HashMap<>();
 	private SaleTransaction saleTransaction;
 	private ReturnStatus status;
-	/*
-	 * //no reference public ReturnTransactionClass(double amount, String type,
-	 * Map<ProductType,Integer> returned, SaleTransaction saleT, ReturnStatus
-	 * retstatus) { super(amount, type); this.returnedProduct.putAll(returned);
-	 * this.saleTransaction = saleT; this.status = retstatus; try {
-	 * super.setDescription("RETURN"); } catch (Exception e) { e.printStackTrace();
-	 * } }
-	 */
 
 	public ReturnTransactionClass(int orderId, String description, double amount, LocalDate date, String type,
 			Map<ProductType, Integer> returned, SaleTransaction saleT, ReturnStatus retstatus) {

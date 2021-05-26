@@ -432,17 +432,50 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |  4-5         |FR5.4 |  it.polito.ezshop.CustomerAPITest.testGetAllCustomers   |             |  
 |  4-9         |FR5.5  |  it.polito.ezshop.LoyaltyCardAPITest.testCreateCard    |             |   
 |  4-2          |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testAttachCardToCustomer    |             |   
-|  4-8         |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testModifyPointsOnCard   |             |    |            |FR4.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |
+|  4-8         |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testModifyPointsOnCard   |             |    |            |FR4.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |            |
+|  6-1, 6-6         | FR6.1  | it.polito.ezshop.SaleTransactionAPITest.testStartSaleTransaction |
+|             | FR6.2, FR6.7 | it.polito.ezshop.SaleTransactionAPITest.testAddProductToSale | 
+|             | FR6.8, FR6.9 | it.polito.ezshop.SaleTransactionAPITest.testCheckout |
+|             | FR6.10, FR6.11  | it.polito.ezshop.SaleTransactionAPITest.testEndSaleTransaction |
+|  6-2        | FR6.1  | it.polito.ezshop.SaleTransactionAPITest.testStartSaleTransaction |
+|             | FR6.2, FR6.7 | it.polito.ezshop.SaleTransactionAPITest.testAddProductToSale | 
+|             | FR6.5 | it.polito.ezshop.SaleTransactionAPITest.testApplyDiscountRateToProduct | 
+|             | FR6.8, FR6.9 | it.polito.ezshop.SaleTransactionAPITest.testCheckout |
+|             | FR6.10, FR6.11  | it.polito.ezshop.SaleTransactionAPITest.testEndSaleTransaction |
+|  6-3        | FR6.1  | it.polito.ezshop.SaleTransactionAPITest.testStartSaleTransaction |
+|             | FR6.2, FR6.7 | it.polito.ezshop.SaleTransactionAPITest.testAddProductToSale | 
+|             | FR6.4 | it.polito.ezshop.SaleTransactionAPITest.testApplyDiscountRateToSale | 
+|             | FR6.8, FR6.9 | it.polito.ezshop.SaleTransactionAPITest.testCheckout |
+|             | FR6.10, FR6.11  | it.polito.ezshop.SaleTransactionAPITest.testEndSaleTransaction |
+|  6-4        | FR6.1  | it.polito.ezshop.SaleTransactionAPITest.testStartSaleTransaction |
+|             | FR6.2, FR6.7 | it.polito.ezshop.SaleTransactionAPITest.testAddProductToSale | 
+|             | FR6.6 | it.polito.ezshop.SaleTransactionAPITest.testComputePointsForSale | 
+|             | FR6.8, FR6.9 | it.polito.ezshop.SaleTransactionAPITest.testCheckout |
+|             | FR6.10, FR6.11  | it.polito.ezshop.SaleTransactionAPITest.testEndSaleTransaction |
+|  6-5        | FR6.1  | it.polito.ezshop.SaleTransactionAPITest.testStartSaleTransaction |
+|             | FR6.2, FR6.7 | it.polito.ezshop.SaleTransactionAPITest.testAddProductToSale |
+|             | FR6.8, FR6.9 | it.polito.ezshop.SaleTransactionAPITest.testCheckout |
+|             | FR6.10  | it.polito.ezshop.SaleTransactionAPITest.testEndSaleTransaction |
+|             | FR6.11 | it.polito.ezshop.SaleTransactionAPITest.testDeleteSaleTransaction |
 |  7-1        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
 |  7-2        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment           |             |
 |  7-3        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
 |  7-4        |FR7.1  |  it.polito.ezshop.PaymentAPITest.testReceiveCashPayment           |             |
 |  7-5        |FR7.2  |  it.polito.ezshop.PaymentAPITest.testReceiveCreditCardPayment            |             |   
 |  7-6        |FR7.1  |  it.polito.ezshop.PaymentAPITest.testReceiveCashPayment           |             | 
-|  8-1        |FR6.14  |  it.polito.ezshop            |             |   
-|  8-2        |FR6.14  |  it.polito.ezshop           |           | 
-|  8-3        |FR7.3  |  it.polito.ezshop.PaymentAPITest.testReturnCashPayment            |             |   
-|  8-4        |FR7.4  |  it.polito.ezshop.PaymentAPITest.testReturnCreditCardPayment            |           | 
+|  8-1        | FR6.12  |  it.polito.ezshop.ReturnTransactionAPITest.testStartReturnTransaction |
+|             | FR6.13 | it.polito.ezshop.ReturnTransactionAPITest.testReturnProduct |
+|             | FR6.14, FR6.15 | it.polito.ezshop.ReturnTransactionAPITest.testEndReturnTransaction |
+|  8-2        | FR6.12  |  it.polito.ezshop.ReturnTransactionAPITest.testStartReturnTransaction |
+|             | FR6.13 | it.polito.ezshop.ReturnTransactionAPITest.testReturnProduct |
+|             | FR6.14, FR6.15 | it.polito.ezshop.ReturnTransactionAPITest.testEndReturnTransaction |
+|  8-3        | FR6.12  |  it.polito.ezshop.ReturnTransactionAPITest.testStartReturnTransaction |
+|             | FR6.13 | it.polito.ezshop.ReturnTransactionAPITest.testReturnProduct |
+|             | FR6.14, FR6.15 | it.polito.ezshop.ReturnTransactionAPITest.testEndReturnTransaction |
+|              | FR7.3  |  it.polito.ezshop.PaymentAPITest.testReturnCashPayment |   
+|  8-4        | FR6.12  |  it.polito.ezshop.ReturnTransactionAPITest.testStartReturnTransaction |
+|             | FR6.13 | it.polito.ezshop.ReturnTransactionAPITest.testReturnProduct |
+|             | FR6.14, FR6.15 | it.polito.ezshop.ReturnTransactionAPITest.testEndReturnTransaction |              |              | FR7.4  |  it.polito.ezshop.PaymentAPITest.testReturnCreditCardPayment  | 
 |  9-1        |FR8.3 |  it.polito.ezshop.BalanceAPITest.testGetCreditsAndDebits             |                |
 |  9-2        |FR8.1 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
 |  9-3        |FR8.2 |  it.polito.ezshop.BalanceAPITest.testRecordBalanceUpdate             |                |
