@@ -925,17 +925,4 @@ public class Connect {
         return true;
     }
 
-    public static boolean updateBalanceOperation(int id,double newAmount){
-        // db update
-        String sql = "UPDATE BalanceOperations SET amount = " + newAmount +"  where id = "+id;
-        try{
-    		Statement st = conn.createStatement();
-            st.execute(sql);
-        st.close();
-    	}catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
 }

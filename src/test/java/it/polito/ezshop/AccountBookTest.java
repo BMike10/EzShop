@@ -180,21 +180,6 @@ public class AccountBookTest {
         BalanceOperation bO3 = new BalanceOperationClass(3,"SALE",50,LocalDate.now(),"CREDIT");
         assertTrue(aB.addBalanceOperation(bO3));
 
-
-        //UpdateBalanceOperation
-        //Invalid Key
-        assertFalse(aB.updateBalanceOperation(5,50));
-
-        //Invalid newMoney
-        bOMap.put(3,bO3);
-        aB.setBalanceOperationMap(bOMap);
-        aB.setBalance(5.0);
-        assertFalse(aB.updateBalanceOperation(3,10));
-
-        //Valid
-        aB.setBalance(20);
-        assertTrue(aB.updateBalanceOperation(3,40));
-
         //getBalanceOperation()
         assertThrows(Exception.class, ()->{aB.getBalanceOperation(null);});
         assertNotNull(aB.getBalanceOperation(3));

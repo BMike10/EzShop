@@ -646,7 +646,7 @@ public class EZShop implements EZShopInterface {
 			if (c.getCustomerCard().equals(customerCard)) {
 				tmp = (CustomerClass) c;
 				int tot = ((CustomerClass) c).updateCustomerPoints(pointsToBeAdded);
-				c.setPoints(tot);
+				//c.setPoints(tot);
 			}
 		}
 		if (!Connect.updateLoyaltyCard(customerCard, card.getPoints())) {
@@ -1134,8 +1134,8 @@ public class EZShop implements EZShopInterface {
 			return false;
 
 		// Update map and db(Balance)
-		accountBook.addBalanceOperation((BalanceOperation) sale);		// TODO need to create a new one?
-		//accountBook.addBalanceOperation(new BalanceOperationClass(saleTransaction.getTicketNumber(), "SALE", saleAmount, ((SaleTransactionClass)saleTransaction).getDate(),"CREDIT")); // TODO need to create a new one?
+		//accountBook.addBalanceOperation((BalanceOperation) sale);		// TODO need to create a new one?
+		accountBook.addBalanceOperation(new BalanceOperationClass(sale.getTicketNumber(), "SALE", saleAmount, ((SaleTransactionClass)sale).getDate(),"CREDIT")); // TODO need to create a new one?
 		
 		((SaleTransactionClass) sale).setPaymentType("CREDIT_CARD");
 		// recordBalanceUpdate(saleAmount);
@@ -1215,9 +1215,8 @@ public class EZShop implements EZShopInterface {
 		// Check Credit Card + Luhn Algorithm
 		checkCreditCardNumber(creditCard);
 		
-		// TODO added
-		/*if(!accountBook.addBalanceOperation(new BalanceOperationClass(returnId, "RETURN", ((ReturnTransactionClass)returnTransaction).getMoney(), ((ReturnTransactionClass)returnTransaction).getDate(), "DEBIT")))
-		return -1;*/
+		if(!accountBook.addBalanceOperation(new BalanceOperationClass(returnId, "RETURN", ((ReturnTransactionClass)returnTransaction).getMoney(), ((ReturnTransactionClass)returnTransaction).getDate(), "DEBIT")))
+		return -1;
 		
 		newCredit = CreditCardsMap.get(creditCard) + ((ReturnTransactionClass) returnTransaction).getMoney();
 		// Return Transaction is ended-> Update map and db
@@ -1231,9 +1230,6 @@ public class EZShop implements EZShopInterface {
 		if (!Connect.updateReturnTransaction(returnTransaction.getReturnId(), ReturnStatus.PAYED)) {
 			return -1;
 		}
-
-		SaleTransaction st = returnTransaction.getSaleTransaction();
-		accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice());	// TODO change this
 		// Update map and db(Balance)
 		// recordBalanceUpdate(-(((ReturnTransactionClass)
 		// returnTransaction).getMoney()));

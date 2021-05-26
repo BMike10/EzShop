@@ -23,8 +23,9 @@ public class CustomerClass implements Customer {
 	}
 	
 	public int updateCustomerPoints(int toBeAdded) {
-		if(toBeAdded <=0) return 0;
-		return points += toBeAdded;
+		if(points + toBeAdded < 0) return 0;
+		points += toBeAdded;
+		return points;
 	}
 
 
