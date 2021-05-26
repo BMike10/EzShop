@@ -148,6 +148,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidTransactionIdException.class, () -> {
 			ezshop.addProductToSale(-2, "4006381333900", 2);
 		});
+		// not present transactionId
+		assertFalse(ezshop.addProductToSale(Integer.MAX_VALUE, "4006381333900", 2));
 		// null productCode
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.addProductToSale(id, null, 2);
@@ -156,6 +158,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.addProductToSale(id, "", 2);
 		});
+		//not present product code
+		assertFalse(ezshop.addProductToSale(id, "400638133390", 2));
 		// invalid quantity
 		assertThrows(InvalidQuantityException.class, () -> {
 			ezshop.addProductToSale(id, "4006381333900", -2);
@@ -194,6 +198,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidTransactionIdException.class, () -> {
 			ezshop.deleteProductFromSale(-2, "4006381333900", 2);
 		});
+		// not present transactionId
+		assertFalse(ezshop.deleteProductFromSale(Integer.MAX_VALUE, "4006381333900", 2));
 		// null productCode
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.deleteProductFromSale(id, null, 2);
@@ -202,6 +208,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.deleteProductFromSale(id, "", 2);
 		});
+		//not present product code
+		assertFalse(ezshop.deleteProductFromSale(id, "400638133390", 2));
 		// invalid quantity
 		assertThrows(InvalidQuantityException.class, () -> {
 			ezshop.deleteProductFromSale(id, "4006381333900", -2);
@@ -267,6 +275,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidTransactionIdException.class, () -> {
 			ezshop.applyDiscountRateToProduct(-1, "4006381333900", 0.2);
 		});
+		// not present transactionId
+		assertFalse(ezshop.applyDiscountRateToProduct(Integer.MAX_VALUE, "4006381333900", 0.5));
 		// null productCode
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.applyDiscountRateToProduct(id, null, 0.2);
@@ -275,6 +285,8 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.applyDiscountRateToProduct(id, "", 0.2);
 		});
+		//not present product code
+		assertFalse(ezshop.applyDiscountRateToProduct(id, "400638133390", 0.2));
 		// invalid discountRate
 		assertThrows(InvalidDiscountRateException.class, () -> {
 			ezshop.applyDiscountRateToProduct(id, "4006381333900", -0.3);
@@ -367,11 +379,11 @@ public class SaleTransactionAPITest {
 
 		// valid
 		int p = ezshop.computePointsForSale(id);
-		ezshop.endSaleTransaction(id);
 		assertEquals(1, p, 0.0001);
 		
 		assertTrue(ezshop.addProductToSale(id, "4006381333931", 3));
-		
+
+		ezshop.endSaleTransaction(id);
 		p = ezshop.computePointsForSale(id);
 		assertEquals(3, p, 0.0001);
 		
