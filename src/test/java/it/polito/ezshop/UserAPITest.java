@@ -158,7 +158,9 @@ public class UserAPITest{
 	//null
 	assertThrows(InvalidRoleException.class, ()->{ezshop.updateUserRights(id,null);});
 	// empty
-	assertThrows(InvalidRoleException.class, ()->{ezshop.updateUserRights(id,"");});								
+	assertThrows(InvalidRoleException.class, ()->{ezshop.updateUserRights(id,"");});	
+	// invalid
+	assertThrows(InvalidRoleException.class, ()->{ezshop.updateUserRights(id,"managero");});								
 	//id
 	assertThrows(InvalidUserIdException.class, ()->{ezshop.updateUserRights(null,"Cashier");});
 	assertThrows(InvalidUserIdException.class, ()->{ezshop.updateUserRights(-4,"Cashier");});

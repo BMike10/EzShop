@@ -34,6 +34,7 @@ public class OrderAPITest {
 	
 	@Before
 	public void init() throws Exception{
+		ezshop.reset();
 		User u = null;
 		if((u=ezshop.login(username, password))==null) {
 			createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());

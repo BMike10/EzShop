@@ -616,7 +616,7 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidCustomerCardException();
 		LoyaltyCard card = cards.get(customerCard);
 		Customer customer = customers.get(customerId);
-		if (customer.getId() == null
+		if (customer == null
 				|| attachedCards.values().stream().map(e -> e.getCustomerCard()).anyMatch(e -> e.equals(customerCard)))
 			return false;
 		else {
@@ -1164,6 +1164,9 @@ public class EZShop implements EZShopInterface {
 			// Return Transaction is not ended
 			return -1;
 
+		SaleTransaction st = returnTransaction.getSaleTransaction();
+		if(!accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice()))
+			return -1;
 		// Return Transaction is ended-> Update map and db(STATUS)
 		// Update Map
 		returnTransaction.setStatus("PAYED");
@@ -1171,8 +1174,6 @@ public class EZShop implements EZShopInterface {
 		if (!Connect.updateReturnTransaction(returnId, ReturnStatus.PAYED)) {
 			return -1;
 		}
-		SaleTransaction st = returnTransaction.getSaleTransaction();
-		accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice());
 		// recordBalanceUpdate(-(((ReturnTransactionClass)returnTransaction).getMoney()));
 
 		return (((ReturnTransactionClass) returnTransaction).getMoney());
