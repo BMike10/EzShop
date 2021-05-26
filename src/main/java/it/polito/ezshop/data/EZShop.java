@@ -35,7 +35,7 @@ public class EZShop implements EZShopInterface {
 				String data = myReader.nextLine();
 				if (data.startsWith("#"))
 					continue;
-				System.out.println(data);
+				//System.out.println(data);
 				String[] fields = data.split(";");
 				CreditCardsMap.put(fields[0], Double.parseDouble(fields[1]));
 			}
@@ -1024,7 +1024,7 @@ public class EZShop implements EZShopInterface {
 		} catch (Exception e) {
 			return false;
 		}
-		if (rt == null || rt.getStatus().equals(ReturnStatus.STARTED.name())) {
+		if (rt == null || rt.getStatus().equals(ReturnStatus.STARTED.name()) || rt.getStatus().equals(ReturnStatus.PAYED.name())) {
 			return false;
 		}
 		SaleTransactionClass st = (SaleTransactionClass) rt.getSaleTransaction();
@@ -1086,7 +1086,8 @@ public class EZShop implements EZShopInterface {
 		if (!Connect.updateSaleTransactionStatus(transactionId, SaleStatus.valueOf("PAYED"), "CASH"))
 			return -1;
 		// MICHELE
-		accountBook.addBalanceOperation((BalanceOperation) saleTransaction);
+		//accountBook.addBalanceOperation((BalanceOperation) saleTransaction); // TODO need to create a new one?
+		accountBook.addBalanceOperation(new BalanceOperationClass(saleTransaction.getTicketNumber(), "SALE", saleAmount, ((SaleTransactionClass)saleTransaction).getDate(),"CREDIT")); // TODO need to create a new one?
 		((SaleTransactionClass) saleTransaction).setPaymentType("CASH");
 		// Update map and db(Balance)
 		// recordBalanceUpdate(saleAmount);
@@ -1131,7 +1132,9 @@ public class EZShop implements EZShopInterface {
 			return false;
 
 		// Update map and db(Balance)
-		accountBook.addBalanceOperation((BalanceOperation) sale);
+		accountBook.addBalanceOperation((BalanceOperation) sale);		// TODO need to create a new one?
+		//accountBook.addBalanceOperation(new BalanceOperationClass(saleTransaction.getTicketNumber(), "SALE", saleAmount, ((SaleTransactionClass)saleTransaction).getDate(),"CREDIT")); // TODO need to create a new one?
+		
 		((SaleTransactionClass) sale).setPaymentType("CREDIT_CARD");
 		// recordBalanceUpdate(saleAmount);
 		// Update new CreditCardSale
@@ -1163,10 +1166,13 @@ public class EZShop implements EZShopInterface {
 		if (!status.equals("CLOSED"))
 			// Return Transaction is not ended
 			return -1;
-
+		// TODO check this
 		SaleTransaction st = returnTransaction.getSaleTransaction();
-		if(!accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice()))
+		/*if(!accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice()))	// added if
+			return -1;*/
+		if(!accountBook.addBalanceOperation(new BalanceOperationClass(returnId, "RETURN", ((ReturnTransactionClass)returnTransaction).getMoney(), ((ReturnTransactionClass)returnTransaction).getDate(), "DEBIT")))
 			return -1;
+		
 		// Return Transaction is ended-> Update map and db(STATUS)
 		// Update Map
 		returnTransaction.setStatus("PAYED");
@@ -1206,7 +1212,11 @@ public class EZShop implements EZShopInterface {
 
 		// Check Credit Card + Luhn Algorithm
 		checkCreditCardNumber(creditCard);
-
+		
+		// TODO added
+		/*if(!accountBook.addBalanceOperation(new BalanceOperationClass(returnId, "RETURN", ((ReturnTransactionClass)returnTransaction).getMoney(), ((ReturnTransactionClass)returnTransaction).getDate(), "DEBIT")))
+		return -1;*/
+		
 		newCredit = CreditCardsMap.get(creditCard) + ((ReturnTransactionClass) returnTransaction).getMoney();
 		// Return Transaction is ended-> Update map and db
 		// Update Map
@@ -1221,7 +1231,7 @@ public class EZShop implements EZShopInterface {
 		}
 
 		SaleTransaction st = returnTransaction.getSaleTransaction();
-		accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice());
+		accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice());	// TODO change this
 		// Update map and db(Balance)
 		// recordBalanceUpdate(-(((ReturnTransactionClass)
 		// returnTransaction).getMoney()));
@@ -1265,7 +1275,7 @@ public class EZShop implements EZShopInterface {
 				newTo = from;
 			}
 		}
-		return accountBook.getBalanceOperationByDate(newFrom, newTo);
+		return accountBook.getBalanceOperationByDate(newFrom, newTo);	// TODO need to add also returns?
 	}
 
 	public void checkCreditCardNumber(String creditCard) throws InvalidCreditCardException {

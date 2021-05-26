@@ -425,14 +425,14 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |  3-4         | FR4.4   | it.polito.ezshop.OrderAPITest.testPayOrderFor |
 |  3-3         | FR4.6   | it.polito.ezshop.OrderAPITest.testRecordOrderArrival |
 |  3-2         | FR4.5 | it.polito.ezshop.OrderAPITest.testPayOrder|
-|  3-5         | FR4.6 | it.polito.ezshop.OrderAPITest.testGetAllOrders|
+|  3-5         | FR4.7 | it.polito.ezshop.OrderAPITest.testGetAllOrders|
 |  4-1         |FR5.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |             |      
 |  4-6          |FR5.2  |  it.polito.ezshop.CustomerAPITest.testDeleteCustomer    |             |    
 |  4-4          |FR5.3  |  it.polito.ezshop.CustomerAPITest.testGetCustomer       |             |  
 |  4-5         |FR5.4 |  it.polito.ezshop.CustomerAPITest.testGetAllCustomers   |             |  
 |  4-9         |FR5.5  |  it.polito.ezshop.LoyaltyCardAPITest.testCreateCard    |             |   
 |  4-2          |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testAttachCardToCustomer    |             |   
-|  4-8         |FR5.6  |  it.polito.ezshop.LoyaltyCardAPITest.testModifyPointsOnCard   |             |    |            |FR4.1  |  it.polito.ezshop.CustomerAPITest.testDefineCustomer    |            |
+|  4-8         |FR5.7  |  it.polito.ezshop.LoyaltyCardAPITest.testModifyPointsOnCard   |             |    
 |  6-1, 6-6         | FR6.1  | it.polito.ezshop.SaleTransactionAPITest.testStartSaleTransaction |
 |             | FR6.2, FR6.7 | it.polito.ezshop.SaleTransactionAPITest.testAddProductToSale | 
 |             | FR6.8, FR6.9 | it.polito.ezshop.SaleTransactionAPITest.testCheckout |

@@ -84,18 +84,18 @@ public class AccountBookClass implements AccountBook {
     public boolean updateBalanceOperation(int id, double newMoney) {
         if (!balanceOperationMap.containsKey(id))
             return false;
-        /*BalanceOperation b = balanceOperationMap.get(id);
+        BalanceOperation b = balanceOperationMap.get(id);		// TODO is correct to do that?
         double change = -b.getMoney() + newMoney;
         if(balance + change < 0) {
         	return false;
         }
         balance += change;
-        b.setMoney(newMoney);*/
-        double tmp = balanceOperationMap.values().stream().filter(b1->b1.getType().equals("CREDIT")).mapToDouble(b1->b1.getMoney()).sum();
+        b.setMoney(newMoney);
+        /*double tmp = balanceOperationMap.values().stream().filter(b1->b1.getType().equals("CREDIT")).mapToDouble(b1->b1.getMoney()).sum();
         tmp -= balanceOperationMap.values().stream().filter(b1->b1.getType().equals("DEBIT")).mapToDouble(b1->b1.getMoney()).sum();
         if(tmp < 0)
         	return false;
-        balance = tmp;
+        balance = tmp;*/
         //update db
         Connect.updateBalanceOperation(id, newMoney);
         return true;
