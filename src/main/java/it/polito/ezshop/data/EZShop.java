@@ -199,10 +199,10 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if (id == null || id <= 0)
 			throw new InvalidProductIdException();
+		ProductType pt = new ProductTypeClass(id, newDescription, newCode, newPrice, newNote);
 		if (!products.containsKey(id))
 			return false;
 
-		ProductType pt = new ProductTypeClass(id, newDescription, newCode, newPrice, newNote);
 		ProductType tmp = products.get(id);
 		int qty = tmp.getQuantity();
 		String location = tmp.getLocation();
@@ -308,17 +308,17 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if (productId == null || productId <= 0)
 			throw new InvalidProductIdException();
-
-		ProductTypeClass pt = (ProductTypeClass) products.get(productId);
-		if (pt == null)
-			return false;
-		final Position prev = pt.getPosition();
 		Position p = null;
 		try {
 			p = new Position(newPos);
 		} catch (Exception e) {
 			throw new InvalidLocationException();
 		}
+		ProductTypeClass pt = (ProductTypeClass) products.get(productId);
+		if (pt == null)
+			return false;
+		final Position prev = pt.getPosition();
+		
 		// check for uniqueness of position
 		if (p.getAisleId() != -1) {
 			for (ProductType prod : products.values()) {
