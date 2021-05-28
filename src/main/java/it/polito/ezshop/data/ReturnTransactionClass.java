@@ -9,18 +9,10 @@ import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 
 public class ReturnTransactionClass extends BalanceOperationClass implements ReturnTransaction {
 
-	// Map with the barcode and quantity of product in the sale transaction
+	// Map with the barcode and quantity of product to update in the sale transaction
 	private final Map<ProductType, Integer> returnedProduct = new HashMap<>();
 	private SaleTransaction saleTransaction;
 	private ReturnStatus status;
-	/*
-	 * //no reference public ReturnTransactionClass(double amount, String type,
-	 * Map<ProductType,Integer> returned, SaleTransaction saleT, ReturnStatus
-	 * retstatus) { super(amount, type); this.returnedProduct.putAll(returned);
-	 * this.saleTransaction = saleT; this.status = retstatus; try {
-	 * super.setDescription("RETURN"); } catch (Exception e) { e.printStackTrace();
-	 * } }
-	 */
 
 	public ReturnTransactionClass(int orderId, String description, double amount, LocalDate date, String type,
 			Map<ProductType, Integer> returned, SaleTransaction saleT, ReturnStatus retstatus) {
@@ -47,7 +39,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 	}
 
 	public ReturnTransactionClass(SaleTransaction saleT, ReturnStatus retstatus) {
-		super(0.0, "DEBIT");
+		super(-1, "RETURN", 0.0, LocalDate.now(), "DEBIT");
 		if (saleT == null)
 			throw new RuntimeException(new Exception());
 		this.saleTransaction = saleT;
@@ -114,7 +106,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 
 	@Override
 	public double getMoney() {
-		return super.getMoney();
+		return super.getMoney() * (1.0 - saleTransaction.getDiscountRate());
 	}
 
 	@Override
@@ -131,26 +123,12 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 			throw new RuntimeException(new InvalidQuantityException());
 		SaleTransactionClass st = (SaleTransactionClass) this.saleTransaction;
 		int amount = st.getProductsEntries().get(product.getBarCode()).getAmount();
-
-		if (!this.returnedProduct.keySet().contains(product)) {
-			if (amount < quantity)
-				return -1;
-			this.returnedProduct.put(product, quantity);
-			setMoney(getMoney() + product.getPricePerUnit() * quantity
-					* (1 - st.getProductsEntries().get(product.getBarCode()).getDiscountRate()));
-			// st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity);
-			return 1;
-		} else { // if it's not the first return transaction for that product
-			int q = this.returnedProduct.get(product);
-			if (amount < quantity + q)
-				return -1;
-			this.returnedProduct.remove(product);
-			this.returnedProduct.put(product, quantity + q);
-			setMoney(getMoney() + product.getPricePerUnit() * quantity
-					* (1 - st.getProductsEntries().get(product.getBarCode()).getDiscountRate()));
-			// st.getProductsEntries().get(product.getBarCode()).setAmount(amount-quantity+q);
-			return 1;
-		}
+		if (amount < quantity)
+			return -1;
+		this.returnedProduct.put(product, quantity);
+		setMoney(getMoney() + product.getPricePerUnit() * quantity
+				* (1 - st.getProductsEntries().get(product.getBarCode()).getDiscountRate()));
+		return 1;
 	}
 
 }

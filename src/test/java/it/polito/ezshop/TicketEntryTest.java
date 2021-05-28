@@ -55,7 +55,7 @@ public class TicketEntryTest {
 			});
 			//invalid
 			assertThrows(Exception.class, ()->{
-				tec.setAmount(0);
+				tec.setAmount(0);	// la ticket entry può avere amount = 0?
 			});
 			//valid
 			tec.setAmount(1);
@@ -83,5 +83,40 @@ public class TicketEntryTest {
 		} catch (Exception e) {
 			fail();
 		}
+	}
+	
+	/////////////////// INTEGRATION ///////////////////////
+	@Test
+	public void testSetBarcode() throws Exception{
+		TicketEntryClass tec=new TicketEntryClass(new ProductTypeClass(1, "null", "4006381333900", 2.0, "notes"), 5, 0.2);
+		// invalid barcode
+		assertThrows(Exception.class, ()->tec.setBarCode("1234"));
+		assertEquals("4006381333900", tec.getBarCode());
+		// valid
+		tec.setBarCode("400638133390");
+		// check
+		assertEquals("400638133390", tec.getBarCode());
+	}
+	
+	@Test
+	public void testSetProductDescription() throws Exception{
+		TicketEntryClass tec=new TicketEntryClass(new ProductTypeClass(1, "desc", "4006381333900", 2.0, "notes"), 5, 0.2);
+		// invalid barcode
+		assertThrows(Exception.class, ()->tec.setProductDescription(null));
+		assertEquals("desc", tec.getProductDescription());
+		// valid
+		tec.setProductDescription("desc2");
+		assertEquals("desc2", tec.getProductDescription());
+	}
+	
+	@Test
+	public void testSetPricePerUnit() throws Exception{
+		TicketEntryClass tec=new TicketEntryClass(new ProductTypeClass(1, "desc", "4006381333900", 2.0, "notes"), 5, 0.2);
+		// invalid barcode
+		assertThrows(Exception.class, ()->tec.setPricePerUnit(-1));
+		assertEquals(2.0, tec.getPricePerUnit(), 1e-6);
+		// valid
+		tec.setPricePerUnit(5.0);
+		assertEquals(5.0, tec.getPricePerUnit(), 1e-6);
 	}
 }

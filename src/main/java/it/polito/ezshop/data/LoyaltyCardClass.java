@@ -18,8 +18,7 @@ public static String createCardCode(int i)
 	        String theAlphaNumericS;
 	        StringBuilder builder;
 	        
-	        theAlphaNumericS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	                                    + "0123456789"; 
+	        theAlphaNumericS = "0123456789"; 
 	        //create the StringBuffer
 	        builder = new StringBuilder(i); 
 	    	
@@ -41,7 +40,11 @@ public static String createCardCode(int i)
 	    } 
 
 	
-
+	public static boolean checkCardCode(String newCustomerCard) {
+		if(newCustomerCard==null || newCustomerCard.isEmpty()|| newCustomerCard.length()==10) return true;
+	    return false;
+	}
+	
 	public Integer getPoints() {
 		return points;
 	}

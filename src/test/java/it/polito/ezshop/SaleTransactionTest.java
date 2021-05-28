@@ -7,12 +7,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.*;
 
 import it.polito.ezshop.data.SaleTransactionClass;
+import it.polito.ezshop.data.TicketEntry;
 import it.polito.ezshop.data.LoyaltyCard;
 import it.polito.ezshop.data.LoyaltyCardClass;
 import it.polito.ezshop.data.ProductTypeClass;
@@ -79,9 +82,8 @@ public class SaleTransactionTest {
 		// valid
 		try {
 			Time t = new Time(System.currentTimeMillis());
-			SaleTransactionClass stc = new SaleTransactionClass(10.0, "CREDIT_CARD",
-					t, SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2,
-					new HashMap<>(), 0.1);
+			SaleTransactionClass stc = new SaleTransactionClass(10.0, "CREDIT_CARD", t, SaleStatus.STARTED,
+					new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1);
 			assertEquals(10.0, stc.getMoney(), 0.001);
 			assertEquals("CREDIT_CARD", stc.getPaymentType());
 			assertEquals(t, stc.getTime());
@@ -112,6 +114,7 @@ public class SaleTransactionTest {
 		// valid
 		try {
 			assertTrue(stc.addProduct(new ProductTypeClass(3, "null", "400638133390", 303.0, "notes"), 10));
+			assertTrue(stc.addProduct(new ProductTypeClass(3, "null", "400638133390", 303.0, "notes"), 10));			
 		} catch (InvalidProductDescriptionException | InvalidProductCodeException | InvalidPricePerUnitException e) {
 			e.printStackTrace();
 		}
@@ -121,14 +124,14 @@ public class SaleTransactionTest {
 	public void testTime() throws Exception {
 
 		Time t = new Time(System.currentTimeMillis());
-		SaleTransactionClass stc = new SaleTransactionClass(10.0, "CREDIT_CARD",t,
-				SaleStatus.STARTED, new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1);
-		assertThrows( Exception.class, () -> {
+		SaleTransactionClass stc = new SaleTransactionClass(10.0, "CREDIT_CARD", t, SaleStatus.STARTED,
+				new LoyaltyCardClass("1234567890", 1), 2, new HashMap<>(), 0.1);
+		assertThrows(Exception.class, () -> {
 			stc.setTime(null);
 		});
 
 		stc.setTime(t);
-		assertEquals(t,stc.getTime());
+		assertEquals(t, stc.getTime());
 	}
 
 	@Test
@@ -199,5 +202,110 @@ public class SaleTransactionTest {
 		}
 
 	}
+									///////////////////////////////////////////////////////////////////////
+															/* Integration tests */
+									///////////////////////////////////////////////////////////////////////
+	@Test
+	public void testSetLoyaltyCard() throws InvalidTransactionIdException {
+		try {
+			SaleTransactionClass stc = new SaleTransactionClass(new Time(System.currentTimeMillis()),
+					SaleStatus.STARTED);
+			LoyaltyCard lc = new LoyaltyCardClass("1234567890", 1);
+			// invalid loyalty card
+			assertThrows(Exception.class, () -> {
+				stc.setLoyaltyCard(null);
+			});
+			// valid
+			stc.setLoyaltyCard(lc);
+			assertTrue(lc.getCardCode() == stc.getLoyaltyCard().getCardCode());
+		} catch (Exception e) {
+			fail();
+		}
+	}
 
+	
+	@Test
+	public void testSetAndGetEntries() throws Exception {
+		SaleTransactionClass stc = new SaleTransactionClass(new Time(System.currentTimeMillis()), SaleStatus.STARTED);
+		TicketEntryClass te4 = new TicketEntryClass(
+				new ProductTypeClass(1, "testSaleTransactionProduct", "4006381333900", 7.0, null), 5);
+		TicketEntryClass te5 = new TicketEntryClass(
+				new ProductTypeClass(2, "testSaleTransactionProduct", "4006381333931", 7.0, null), 5);
+		List<TicketEntry> teL = new ArrayList<>();
+		teL.add(te4);
+		teL.add(te5);
+		// void (but valid) getters
+		assertTrue(stc.getProductsEntries().size() == 0);
+		assertTrue(stc.getEntries().size() == 0);
+		// invalid argument for setters
+		assertThrows(Exception.class, () -> {
+			stc.setEntries(null);
+		});
+		// valid
+		stc.setEntries(teL);
+		assertTrue(stc.getEntries().size() == 2);
+		assertTrue(stc.getProductsEntries().size() == 2);
+	}
+
+	@Test
+	public void testCheckout() throws Exception {
+		SaleTransactionClass stc = new SaleTransactionClass(new Time(System.currentTimeMillis()), SaleStatus.STARTED);
+		TicketEntryClass te4 = new TicketEntryClass(
+				new ProductTypeClass(1, "testSaleTransactionProduct", "4006381333900", 7.0, null), 5);
+		TicketEntryClass te5 = new TicketEntryClass(
+				new ProductTypeClass(2, "testSaleTransactionProduct", "4006381333931", 7.0, null), 5);
+		List<TicketEntry> teL = new ArrayList<>();
+		teL.add(te4);
+		teL.add(te5);
+		// try checkout for a transaction that has no entries
+		stc.checkout();
+		assertEquals(stc.getPrice(), 0.0, 0.0001);
+		assertEquals(stc.getStatus(), SaleStatus.CLOSED);
+		// try method for a transaction with some entries
+		stc.setEntries(teL);
+		stc.checkout();
+		// test correctness of the price
+		double shouldBeThePrice = 0.0;
+		for (TicketEntry te : teL) {
+			shouldBeThePrice = shouldBeThePrice + te.getAmount() * te.getPricePerUnit() * (1 - te.getDiscountRate());
+		}
+		assertEquals(stc.getPrice(), shouldBeThePrice, 0.0001);
+		assertTrue(stc.getStatus() == SaleStatus.CLOSED);
+	}
+
+	@Test
+	public void testAddProduct() throws Exception {
+		SaleTransactionClass stc = new SaleTransactionClass(new Time(System.currentTimeMillis()), SaleStatus.STARTED);
+		//null productType
+		assertFalse(stc.addProduct(null, 10));
+		//invalid quantity
+		assertFalse(stc.addProduct(new ProductTypeClass(2, "testSaleTransactionProduct", "4006381333931", 7.0, null), -1));
+		//valid
+		assertTrue(stc.addProduct(new ProductTypeClass(2, "testSaleTransactionProduct", "4006381333931", 7.0, null), 2));
+		assertTrue(stc.getEntries().size()==1);
+		assertTrue(stc.getPrice()==14);
+	}
+	
+	@Test
+	public void testDeleteProduct() throws Exception {
+		SaleTransactionClass stc = new SaleTransactionClass(new Time(System.currentTimeMillis()), SaleStatus.STARTED);
+		ProductTypeClass ptc=new ProductTypeClass(1, "testSaleTransactionProduct", "4006381333900", 5.0, null);
+		ProductTypeClass ptc2=new ProductTypeClass(2, "testSaleTransactionProduct", "4006381333931", 7.0, null);
+		stc.addProduct(ptc, 2);
+		
+		//invalid quantity
+		assertThrows(Exception.class, ()->{
+			stc.deleteProduct(ptc, -1);
+		});
+		//try to delete a product that isn't in the transaction
+		assertFalse(stc.deleteProduct(ptc2, 1));
+		
+		//try to delete one of the two units of the product initially inserted in the transaction
+		stc.deleteProduct(ptc, 1);
+		assertEquals(stc.getPrice(), 5.0, 0.0001);
+		//try to delete the other unit
+		stc.deleteProduct(ptc, 1);
+		assertEquals(stc.getPrice(), 0.0, 0.0001);
+		assertTrue(stc.getEntries().size()==0);
+	}
 }
