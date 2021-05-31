@@ -73,8 +73,12 @@ public class EZShop implements EZShopInterface {
 		if (users.values().stream().anyMatch(u -> u.getUsername().equals(username)))
 			return -1;
 		int id = users.keySet().stream().max(Comparator.comparingInt(t -> t)).orElse(0) + 1;
+		try {
 		User user = new UserClass(id, username, password, RoleEnum.valueOf(role));
-		users.put(id, user);
+		users.put(id, user);}
+		catch(Exception e){
+			throw new InvalidRoleException();
+		}
 		if (!Connect.addUsers(id, username, password, role)) {
 			users.remove(id);
 			return -1;
