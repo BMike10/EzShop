@@ -681,7 +681,9 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidProductCodeException();
 		if (amount <= 0)
 			throw new InvalidQuantityException();
-
+		ProductType pt = getProductTypeByBarCode(productCode);
+		if (pt == null)
+			return false;
 		SaleTransactionClass st = null;
 		try {
 			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
@@ -691,10 +693,6 @@ public class EZShop implements EZShopInterface {
 		if (st == null || st.getStatus()!=SaleStatus.STARTED) {
 			return false;
 		}
-
-		ProductType pt = getProductTypeByBarCode(productCode);
-		if (pt == null)
-			return false;
 		try {
 			if (updateQuantity(pt.getId(), -amount)) {
 				st.addProduct((ProductType) new ProductTypeClass((ProductTypeClass) pt), amount);
@@ -704,7 +702,7 @@ public class EZShop implements EZShopInterface {
 			e.printStackTrace();
 			return false;
 		}
-		return true;
+		return false;
 	}
 
 	@Override
@@ -719,21 +717,15 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidTransactionIdException();
 		if (amount <= 0)
 			throw new InvalidQuantityException();
-
+		ProductType pt = getProductTypeByBarCode(productCode);
+		if (pt == null)
+			return false;
 		SaleTransactionClass st = null;
 		try {
 			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		} catch (Exception e) {
 			return false;
 		}
-		//If st=null -> Exception
-//		if (st == null) {
-//			return false;
-//		}
-
-		ProductType pt = getProductTypeByBarCode(productCode);
-		if (pt == null)
-			return false;
 		if (!st.deleteProduct(pt, amount))
 			return false;
 		try {
@@ -757,7 +749,9 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidProductCodeException();
 		if (discountRate < 0.0 || discountRate >= 1.0)
 			throw new InvalidDiscountRateException();
-
+		ProductType pt = getProductTypeByBarCode(productCode);
+		if (pt == null)
+			return false;
 		SaleTransactionClass st = null;
 		try {
 			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
@@ -767,9 +761,7 @@ public class EZShop implements EZShopInterface {
 		if (st == null || st.getStatus() != SaleStatus.STARTED) {
 			return false;
 		}
-		ProductType pt = getProductTypeByBarCode(productCode);
-		if (pt == null)
-			return false;
+		
 		return st.addProductDiscount(pt, discountRate);
 	}
 
@@ -885,7 +877,7 @@ public class EZShop implements EZShopInterface {
 		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
 				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
-		if (transactionId == null || transactionId < 0)
+		if (transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
 		SaleTransactionClass t = null;
 		try {
