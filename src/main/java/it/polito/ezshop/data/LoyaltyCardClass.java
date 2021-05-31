@@ -41,7 +41,7 @@ public static String createCardCode(int i)
 
 	
 	public static boolean checkCardCode(String newCustomerCard) {
-		if(newCustomerCard==null || newCustomerCard.isEmpty()|| newCustomerCard.length()==10) return true;
+		if(newCustomerCard==null || newCustomerCard.isEmpty()|| newCustomerCard.matches("\\d{10}")) return true;
 	    return false;
 	}
 	
