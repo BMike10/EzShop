@@ -505,10 +505,10 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard) throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException, UnauthorizedException {
+    	if(id == null || id <=0 ) throw new InvalidCustomerIdException();
     	if(newCustomerName==null ||newCustomerName.isEmpty()) throw new InvalidCustomerNameException();
     	if (!LoyaltyCardClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
     	if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-    	
     	if(customers.values().stream().anyMatch(c->c.getCustomerName().equals(newCustomerName)) && !customers.get(id).getCustomerName().equals(newCustomerName)) return false;  	
     	if(attachedCards.values().stream().anyMatch(a->a.getCustomerCard().equals(newCustomerCard))) return false;
         CustomerClass c = (CustomerClass) customers.get(id);       
