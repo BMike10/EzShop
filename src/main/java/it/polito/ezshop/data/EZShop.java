@@ -1189,11 +1189,16 @@ public class EZShop implements EZShopInterface {
 		// LOGIN
 		if (currentUser == null)
 			throw new UnauthorizedException();
+		//It's already checked on checkCreditCardNumber
+
 
 		double newCredit = 0;
 
 		if (returnId == null || returnId <= 0)
 			throw new InvalidTransactionIdException();
+
+		// Check Credit Card + Luhn Algorithm
+		checkCreditCardNumber(creditCard);
 
 		ReturnTransaction returnTransaction = null;
 		try {
@@ -1208,8 +1213,6 @@ public class EZShop implements EZShopInterface {
 		if (!status.equals("CLOSED"))
 			return -1;
 
-		// Check Credit Card + Luhn Algorithm
-		checkCreditCardNumber(creditCard);
 		
 		if(!accountBook.addBalanceOperation(new BalanceOperationClass(returnId, "RETURN", ((ReturnTransactionClass)returnTransaction).getMoney(), ((ReturnTransactionClass)returnTransaction).getDate(), "DEBIT")))
 		return -1;
