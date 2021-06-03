@@ -31,6 +31,7 @@ class User{}
 class SaleTransaction {}
 class LoyaltyCard {}
 class Customer {}
+class Connect
 class AccountBook {}
 class BalanceOperation {}
 class ProductType{}
@@ -54,7 +55,7 @@ SaleTransaction --> TicketEntry
 TicketEntry --> ProductType 
 
 AccountBook --> SaleTransaction
-ReturnTransaction <-AccountBook 
+ReturnTransaction <--AccountBook 
 AccountBook -> BalanceOperation
 AccountBook --> Order
 
@@ -63,6 +64,20 @@ ReturnTransaction --> ProductType
 SaleTransaction --> LoyaltyCard
 
 SaleTransaction --> ProductType
+
+AccountBook --> Connect
+EZShop --> Connect
+
+Connect --> User
+Connect --> SaleTransaction
+Connect --> ReturnTransaction
+Connect --> ProductType
+Connect --> LoyaltyCard 
+Connect --> Customer 
+Connect --> Order
+Connect --> BalanceOperation
+Connect --> TicketEntry
+Connect --> Position
 @enduml
 ```
 # Integration approach
