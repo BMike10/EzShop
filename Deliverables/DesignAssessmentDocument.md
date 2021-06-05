@@ -11,11 +11,13 @@ on April 30, discuss whether the design could be improved>
 <Applying Structure 101 to your project, version to be delivered on june 4, produce the Levelized structure map,
 with all elements explosed, all dependencies, NO tangles; and report it here as a picture>
 ```
+<img src="img/design/lev_structure_map.png">
 
 # Structural over complexity chart
 ```
 <Applying Structure 101 to your project, version to be delivered on june 4, produce the structural over complexity chart; and report it here as a picture>
 ```
+<img src="img/design/structure_comp.png">
 
 
 
@@ -29,11 +31,11 @@ with all elements explosed, all dependencies, NO tangles; and report it here as 
 
 | Metric                                    | Measure |
 | ----------------------------------------- | ------- |
-| Packages                                  |         |
-| Classes (outer)                           |         |
-| Classes (all)                             |         |
-| NI (number of bytecode instructions)      |         |
-| LOC (non comment non blank lines of code) |         |
+| Packages                                  |     5    |
+| Classes (outer)                           |      48   |
+| Classes (all)                             |       48  |
+| NI (number of bytecode instructions)      |      9882   |
+| LOC (non comment non blank lines of code) |     4249    |
 
 
 
@@ -45,8 +47,7 @@ with all elements explosed, all dependencies, NO tangles; and report it here as 
 
 | Item | Tangled | Fat  | Size | XS   |
 | ---- | ------- | ---- | ---- | ---- |
-|      |         |      |      |      |
-|      |         |      |      |      |
+| ezshop.it.polito.ezshop.data.EZShop|	 	| 147	|3,704|	680|
 
 
 
@@ -56,9 +57,18 @@ with all elements explosed, all dependencies, NO tangles; and report it here as 
 <Report screen captures of the package-level tangles by opening the items in the "composition perspective" 
 (double click on the tangle from the Views->Complexity page)>
 ```
+<img src="img/design/complexity.png">
 
 # Summary analysis
 ```
 <Discuss here main differences of the current structure of your project vs the design delivered on April 30>
 <Discuss if the current structure shows weaknesses that should be fixed>
 ```
+## Main differences
+- Order does not extend BalanceOperation
+- Added TicketEntryClass with dependencies on SaleTransaction and ProductType
+- Added map AttachedCards in EZShop
+- Added class Connect (db interaction)
+
+## Weaknesses and possible improvements
+ No weakness since the only fat class is EZShop and that is due to the fact that this is a facade class. 

@@ -73,8 +73,12 @@ public class EZShop implements EZShopInterface {
 		if (users.values().stream().anyMatch(u -> u.getUsername().equals(username)))
 			return -1;
 		int id = users.keySet().stream().max(Comparator.comparingInt(t -> t)).orElse(0) + 1;
+		try {
 		User user = new UserClass(id, username, password, RoleEnum.valueOf(role));
-		users.put(id, user);
+		users.put(id, user);}
+		catch(Exception e){
+			throw new InvalidRoleException();
+		}
 		if (!Connect.addUsers(id, username, password, role)) {
 			users.remove(id);
 			return -1;
@@ -199,10 +203,10 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if (id == null || id <= 0)
 			throw new InvalidProductIdException();
+		ProductType pt = new ProductTypeClass(id, newDescription, newCode, newPrice, newNote);
 		if (!products.containsKey(id))
 			return false;
 
-		ProductType pt = new ProductTypeClass(id, newDescription, newCode, newPrice, newNote);
 		ProductType tmp = products.get(id);
 		int qty = tmp.getQuantity();
 		String location = tmp.getLocation();
@@ -308,17 +312,17 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if (productId == null || productId <= 0)
 			throw new InvalidProductIdException();
-
-		ProductTypeClass pt = (ProductTypeClass) products.get(productId);
-		if (pt == null)
-			return false;
-		final Position prev = pt.getPosition();
 		Position p = null;
 		try {
 			p = new Position(newPos);
 		} catch (Exception e) {
 			throw new InvalidLocationException();
 		}
+		ProductTypeClass pt = (ProductTypeClass) products.get(productId);
+		if (pt == null)
+			return false;
+		final Position prev = pt.getPosition();
+		
 		// check for uniqueness of position
 		if (p.getAisleId() != -1) {
 			for (ProductType prod : products.values()) {
@@ -505,10 +509,10 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard) throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException, UnauthorizedException {
+    	if(id == null || id <=0 ) throw new InvalidCustomerIdException();
     	if(newCustomerName==null ||newCustomerName.isEmpty()) throw new InvalidCustomerNameException();
     	if (!LoyaltyCardClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
     	if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-    	
     	if(customers.values().stream().anyMatch(c->c.getCustomerName().equals(newCustomerName)) && !customers.get(id).getCustomerName().equals(newCustomerName)) return false;  	
     	if(attachedCards.values().stream().anyMatch(a->a.getCustomerCard().equals(newCustomerCard))) return false;
         CustomerClass c = (CustomerClass) customers.get(id);       
@@ -681,7 +685,9 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidProductCodeException();
 		if (amount <= 0)
 			throw new InvalidQuantityException();
-
+		ProductType pt = getProductTypeByBarCode(productCode);
+		if (pt == null)
+			return false;
 		SaleTransactionClass st = null;
 		try {
 			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
@@ -691,10 +697,6 @@ public class EZShop implements EZShopInterface {
 		if (st == null || st.getStatus()!=SaleStatus.STARTED) {
 			return false;
 		}
-
-		ProductType pt = getProductTypeByBarCode(productCode);
-		if (pt == null)
-			return false;
 		try {
 			if (updateQuantity(pt.getId(), -amount)) {
 				st.addProduct((ProductType) new ProductTypeClass((ProductTypeClass) pt), amount);
@@ -704,7 +706,7 @@ public class EZShop implements EZShopInterface {
 			e.printStackTrace();
 			return false;
 		}
-		return true;
+		return false;
 	}
 
 	@Override
@@ -719,21 +721,15 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidTransactionIdException();
 		if (amount <= 0)
 			throw new InvalidQuantityException();
-
+		ProductType pt = getProductTypeByBarCode(productCode);
+		if (pt == null)
+			return false;
 		SaleTransactionClass st = null;
 		try {
 			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		} catch (Exception e) {
 			return false;
 		}
-		//If st=null -> Exception
-//		if (st == null) {
-//			return false;
-//		}
-
-		ProductType pt = getProductTypeByBarCode(productCode);
-		if (pt == null)
-			return false;
 		if (!st.deleteProduct(pt, amount))
 			return false;
 		try {
@@ -757,7 +753,9 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidProductCodeException();
 		if (discountRate < 0.0 || discountRate >= 1.0)
 			throw new InvalidDiscountRateException();
-
+		ProductType pt = getProductTypeByBarCode(productCode);
+		if (pt == null)
+			return false;
 		SaleTransactionClass st = null;
 		try {
 			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
@@ -767,9 +765,7 @@ public class EZShop implements EZShopInterface {
 		if (st == null || st.getStatus() != SaleStatus.STARTED) {
 			return false;
 		}
-		ProductType pt = getProductTypeByBarCode(productCode);
-		if (pt == null)
-			return false;
+		
 		return st.addProductDiscount(pt, discountRate);
 	}
 
@@ -885,7 +881,7 @@ public class EZShop implements EZShopInterface {
 		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
 				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
-		if (transactionId == null || transactionId < 0)
+		if (transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
 		SaleTransactionClass t = null;
 		try {
@@ -1193,11 +1189,16 @@ public class EZShop implements EZShopInterface {
 		// LOGIN
 		if (currentUser == null)
 			throw new UnauthorizedException();
+		//It's already checked on checkCreditCardNumber
+
 
 		double newCredit = 0;
 
 		if (returnId == null || returnId <= 0)
 			throw new InvalidTransactionIdException();
+
+		// Check Credit Card + Luhn Algorithm
+		checkCreditCardNumber(creditCard);
 
 		ReturnTransaction returnTransaction = null;
 		try {
@@ -1212,8 +1213,6 @@ public class EZShop implements EZShopInterface {
 		if (!status.equals("CLOSED"))
 			return -1;
 
-		// Check Credit Card + Luhn Algorithm
-		checkCreditCardNumber(creditCard);
 		
 		if(!accountBook.addBalanceOperation(new BalanceOperationClass(returnId, "RETURN", ((ReturnTransactionClass)returnTransaction).getMoney(), ((ReturnTransactionClass)returnTransaction).getDate(), "DEBIT")))
 		return -1;
