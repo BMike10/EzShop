@@ -14,6 +14,7 @@ public class EZShop implements EZShopInterface {
 	private Map<Integer, Customer> customers;
 	private Map<String, LoyaltyCard> cards;
 	private Map<LoyaltyCard, Customer> attachedCards;
+	private Map<String, Product> productsRFID;
 	private User currentUser;
 	private AccountBookClass accountBook;
 	public Map<String, Double> CreditCardsMap = new HashMap<>();

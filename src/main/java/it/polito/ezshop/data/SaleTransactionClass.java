@@ -68,6 +68,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	private Map<String, TicketEntryClass> ticketEntries;
 	private double discountRate;
 	private String paymentType = "";
+	private Map<String, Product> productRFID;
 
 	public Time getTime() {
 		return time;
@@ -249,5 +250,16 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		if (!paymentType.equals("CASH") && !paymentType.equals("CREDIT_CARD") && !paymentType.isEmpty())
 			throw new RuntimeException(new InvalidPaymentException(paymentType));
 		this.paymentType = paymentType;
+	}
+	
+	// this must also update the related ticket entry
+	boolean addProductRFID(Product p) {
+		
+		return false;
+	}
+
+	// this must also update the related ticket entry
+	boolean deleteProductRFID(String RFID) {
+		return false;
 	}
 }

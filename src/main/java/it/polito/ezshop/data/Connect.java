@@ -123,6 +123,16 @@ public class Connect {
                 + "amount number NOT NULL,"
                 + "date date NOT NULL,"
                 + "type text NOT NULL)";
+        String tableRFID = "CREATE TABLE IF NOT EXISTS ProductRFID("
+        		+ "RFID text not null primary key,"
+        		+ "productId integer NOT NULL,"
+        		+ "FOREIGN KEY (productId) references ProductTypes(id))";
+        String soldRFID = "CREATE TABLE IF NOT EXISTS SoldRFID("
+        		+ "saleId integer not null,"
+        		+ "RFID text NOT NULL,"
+        		+ "PRIMARY KEY(saleId, RFID),"
+        		+ "foreign key(saleId) references SaleTransactions(id),"
+        		+ "FOREIGN KEY (RFID) references ProductRFID(RFID))";
 
         /*String balance = "CREATE TABLE IF NOT EXISTS Balance("
                 + "id INTEGER NOT NULL PRIMARY KEY,"
@@ -142,6 +152,8 @@ public class Connect {
             stmt.executeUpdate(returnTransaction);
             //stmt.executeUpdate(balance);
             stmt.executeUpdate(balanceOperation);
+            stmt.executeUpdate(tableRFID);
+            stmt.executeUpdate(soldRFID);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -521,7 +533,11 @@ public class Connect {
     }
     //SALE TRANSACTION
 
-    //SALE TRANSACTION
+    //SALE TRANSACTION		
+    /* *************************************************************************************
+     * 		MODIFY THIS
+     * ****************************************************************************************
+     */
 
     public static Map<Integer, SaleTransaction> getSaleTransaction(Map<Integer, ProductType> products, Map<String, LoyaltyCard> cards){
         HashMap<Integer, SaleTransaction> sales = new HashMap<>();
@@ -591,6 +607,10 @@ public class Connect {
 //        return true;
 //    }
 
+    /* *************************************************************************************
+     * 		MODIFY THIS
+     * ****************************************************************************************
+     */
     public static boolean addSaleTransaction(SaleTransactionClass sale, int id, String description, double amount,
                                              String paymentType, double discountRate, LoyaltyCard lt) {
         String sql = "INSERT INTO SaleTransactions(id, description, amount, date, time, paymentType, discountRate, status, cardId, soldProducts) "
@@ -631,6 +651,11 @@ public class Connect {
         }
         return true;
     }
+    
+    /* *************************************************************************************
+     * 		MODIFY THIS
+     * ****************************************************************************************
+     */
 
     public static boolean removeSaleTransaction(int id) {
         String sql = "DELETE from SaleTransactions"
@@ -925,4 +950,22 @@ public class Connect {
         return true;
     }
 
+    public static Map<String, Product> getAllProductRFID(){
+    	
+    	return null;
+    }
+    public static boolean addProductRFID(Product p) {
+    	return false;
+    }
+    public static boolean deleteProductRFID(String RFID) {
+    	return false;
+    }
+    
+    public static boolean addSoldRFID(String RFID, int saleId) {
+    	return false;
+    }
+
+    public static boolean removeSoldRFID(String RFID, int saleId) {
+    	return false;
+    }
 }

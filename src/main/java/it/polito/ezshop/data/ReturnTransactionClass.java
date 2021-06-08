@@ -13,6 +13,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 	private final Map<ProductType, Integer> returnedProduct = new HashMap<>();
 	private SaleTransaction saleTransaction;
 	private ReturnStatus status;
+	private Map<String, Product> productRFID;
 
 	public ReturnTransactionClass(int orderId, String description, double amount, LocalDate date, String type,
 			Map<ProductType, Integer> returned, SaleTransaction saleT, ReturnStatus retstatus) {
@@ -130,5 +131,13 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 				* (1 - st.getProductsEntries().get(product.getBarCode()).getDiscountRate()));
 		return 1;
 	}
-
+	
+	boolean addProductRFID(Product p) {
+		
+		return false;
+	}
+	
+	boolean deleteProductRFID(String RFID) {
+		return false;
+	}
 }
