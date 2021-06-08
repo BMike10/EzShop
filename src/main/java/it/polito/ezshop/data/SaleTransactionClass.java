@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.management.RuntimeErrorException;
+
 import it.polito.ezshop.exceptions.InvalidCustomerCardException;
 import it.polito.ezshop.exceptions.InvalidDiscountRateException;
 import it.polito.ezshop.exceptions.InvalidPaymentException;
@@ -261,5 +263,13 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	// this must also update the related ticket entry
 	boolean deleteProductRFID(String RFID) {
 		return false;
+	}
+	Map<String, Product> getProductRFID(){
+		return productRFID;
+	}
+	void setProductRFID(Map<String, Product> rfids) {
+		if(rfids == null)
+			throw new RuntimeException();
+		productRFID = rfids;
 	}
 }

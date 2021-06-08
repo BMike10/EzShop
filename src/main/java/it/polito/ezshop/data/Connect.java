@@ -664,6 +664,7 @@ public class Connect {
     		Statement st = conn.createStatement();
             st.execute(sql);
             st.executeUpdate("delete from SoldProducts where id = "+id);
+            st.executeUpdate("delete from SoldRFID where saleId = "+id);
         st.close();
     	}catch (Exception e) {
             e.printStackTrace();
@@ -858,6 +859,10 @@ public class Connect {
 			stmt.executeUpdate(sqlDrop);
 			sqlDrop ="delete from BalanceOperations";
 			stmt.executeUpdate(sqlDrop);
+			sqlDrop ="delete from ProductRFID";
+			stmt.executeUpdate(sqlDrop);
+			sqlDrop ="delete from SoldRFID";
+			stmt.executeUpdate(sqlDrop);
 			System.out.println("All tables content deleted");
     	}catch(Exception e) {
     		e.printStackTrace();
@@ -950,22 +955,69 @@ public class Connect {
         return true;
     }
 
-    public static Map<String, Product> getAllProductRFID(){
-    	
-    	return null;
+    public static Map<String, Product> getAllProductRFID(Map<Integer, ProductType> products){
+    	String sql = "SELECT * from ProductRFID";
+    	HashMap<String, Product> productRFID = new HashMap<>();
+    	try{
+    		Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while(rs.next()) {
+            	String RFID = rs.getString("RFID");
+            	int productId = rs.getInt("productId");
+            	ProductTypeClass pt = (ProductTypeClass)products.get(productId);
+            	Product p = new Product(RFID, pt);
+            	productRFID.put(RFID, p);
+            }
+        st.close();
+    	}catch (Exception e) {
+            e.printStackTrace();
+        }
+    	return productRFID;
     }
     public static boolean addProductRFID(Product p) {
-    	return false;
+    	String sql = "INSERT INTO ProductRFID(RFID, productId) VALUES('"+p.getRFID()+"', "+p.getProductType().getId()+")";
+    	try {
+    		Statement st = conn.createStatement();
+    		st.executeUpdate(sql);
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    		return false;
+    	}
+    	return true;
     }
     public static boolean deleteProductRFID(String RFID) {
-    	return false;
+    	String sql = "DELETE FROM ProductRFID WHERE RFID = '"+RFID+"'";
+    	try {
+    		Statement st = conn.createStatement();
+    		st.execute(sql);
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    		return false;
+    	}
+    	return true;
     }
     
     public static boolean addSoldRFID(String RFID, int saleId) {
-    	return false;
+    	String sql = "INSERT INTO SoldRFID(saledId, RFID) VALUES("+saleId+", '"+RFID+"')";
+    	try {
+    		Statement st = conn.createStatement();
+    		st.execute(sql);
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    		return false;
+    	}
+    	return true;
     }
 
     public static boolean removeSoldRFID(String RFID, int saleId) {
-    	return false;
+    	String sql = "DELETE FROM SoldRFID WHERE saleId = "+saleId+" AND RFID = '"+RFID+"'";
+    	try {
+    		Statement st = conn.createStatement();
+    		st.execute(sql);
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    		return false;
+    	}
+    	return true;
     }
 }
