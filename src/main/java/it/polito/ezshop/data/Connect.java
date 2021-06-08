@@ -534,12 +534,7 @@ public class Connect {
     //SALE TRANSACTION
 
     //SALE TRANSACTION		
-    /* *************************************************************************************
-     * 		MODIFY THIS
-     * ****************************************************************************************
-     */
-
-    public static Map<Integer, SaleTransaction> getSaleTransaction(Map<Integer, ProductType> products, Map<String, LoyaltyCard> cards){
+    public static Map<Integer, SaleTransaction> getSaleTransaction(Map<Integer, ProductType> products, Map<String, LoyaltyCard> cards, Map<String, Product> productRFID){
         HashMap<Integer, SaleTransaction> sales = new HashMap<>();
         //Map<Integer, ProductType> products = getProduct();
 
@@ -571,7 +566,20 @@ public class Connect {
                 }catch(Exception e) {
                 	e.printStackTrace();
                 }
+                Map<String, Product> soldRFID = new HashMap<>();
+                String sql3 = "SELECT RFID FROM SoldRFID WHERE saleId="+id;
+                try(Statement st3 = conn.createStatement()){
+                	ResultSet rs3 = st3.executeQuery(sql3);
+                	while(rs3.next()) {
+                		String rfid = rs3.getString("RFID");
+                		Product p = productRFID.get(rfid);
+                		if(p==null)
+                			continue;
+                		soldRFID.put(rfid, p);
+                	}
+                }
                 SaleTransactionClass s = new SaleTransactionClass(id, description, amount, date.toLocalDate(),  "CREDIT", paymentType, time, SaleStatus.values()[status], cards.get(cardId), entries, discountRate);
+                s.setProductRFID(soldRFID);
                 sales.put(id,  s);
             }
         } catch (SQLException e) {
@@ -582,35 +590,6 @@ public class Connect {
 
     }
 
-    //    public static boolean addSaleTransaction(int nextId, double amount, String paymentType, double discountRate,OrderStatus status, String cardId,Integer soldProducts ) {
-//        // insert into db
-//        String sql = "INSERT INTO Orders(id, description, amount, date, time, paymentType, discountRate, status, cardId,soldProducts) "
-//                + "VALUES ("+nextId
-//                +", 'CREDIT', "
-//                + amount +", "
-//                + "DATE('now'), "
-//                + "CAST(DATE('now') AS time), "
-//                + paymentType+", "
-//                + discountRate+", "
-//                + status.ordinal()+", "
-//                + cardId+", "
-//                + soldProducts
-//                + ")";
-//        try{
-//    		Statement st = conn.createStatement();
-//            st.execute(sql);
-//        st.close();
-//    	}catch (Exception e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//        return true;
-//    }
-
-    /* *************************************************************************************
-     * 		MODIFY THIS
-     * ****************************************************************************************
-     */
     public static boolean addSaleTransaction(SaleTransactionClass sale, int id, String description, double amount,
                                              String paymentType, double discountRate, LoyaltyCard lt) {
         String sql = "INSERT INTO SaleTransactions(id, description, amount, date, time, paymentType, discountRate, status, cardId, soldProducts) "
@@ -645,17 +624,26 @@ public class Connect {
                 st.execute(sql2);
             st.close();
     	}catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
+    		e.printStackTrace();
+    		return false;
+    	}
+        }
+        Map<String, Product> soldRFID = sale.getProductRFID();
+        if(soldRFID !=null && soldRFID.size()>0) {
+        	for(String s: soldRFID.keySet()) {
+        		String sql3 = "INSERT INTO SoldRFID(RFID, saleId) VALUES('"+s+"', "+sale.getBalanceId()+")";
+        		try{
+        			Statement st = conn.createStatement();
+        			st.execute(sql3);
+        			st.close();
+        		}catch (Exception e) {
+        			e.printStackTrace();
+        			return false;
+        		}
+        	}
         }
         return true;
     }
-    
-    /* *************************************************************************************
-     * 		MODIFY THIS
-     * ****************************************************************************************
-     */
 
     public static boolean removeSaleTransaction(int id) {
         String sql = "DELETE from SaleTransactions"

@@ -26,7 +26,8 @@ public class EZShop implements EZShopInterface {
 		cards = Connect.getLoyaltyCard();
 		customers = Connect.getCustomer(cards);
 		attachedCards = Connect.getAttachedCard(cards, customers);
-		Map<Integer, SaleTransaction> sales = Connect.getSaleTransaction(products, cards);
+		productsRFID = Connect.getAllProductRFID(products);
+		Map<Integer, SaleTransaction> sales = Connect.getSaleTransaction(products, cards, productsRFID);
 		accountBook = new AccountBookClass(sales, Connect.getOrder(products),
 				Connect.getReturnTransaction(products, sales), Connect.getBalanceOperations());
 		try {
