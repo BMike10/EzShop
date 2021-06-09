@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.Map.Entry;
 
+import javax.transaction.InvalidTransactionException;
+
 public class EZShop implements EZShopInterface {
 	// private static Connection conn = null;
 	private Map<Integer, ProductType> products;
@@ -946,12 +948,6 @@ public class EZShop implements EZShopInterface {
 	}
 
 	@Override
-    public boolean returnProductRFID(Integer returnId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, UnauthorizedException 
-    {
-        return false;
-    }
-
-	@Override
 	public boolean endSaleTransaction(Integer transactionId)
 			throws InvalidTransactionIdException, UnauthorizedException {
 		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
@@ -1096,6 +1092,29 @@ public class EZShop implements EZShopInterface {
 	}
 
 	@Override
+    public boolean returnProductRFID(Integer returnId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, UnauthorizedException 
+    {
+		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
+				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		if(returnId == null || returnId <= 0)
+			throw new InvalidTransactionIdException();
+		if(RFID == null || !RFID.matches("\\d{12}"))
+			throw new InvalidRFIDException("RFID: "+RFID);
+		ReturnTransactionClass rt=null;
+		try {
+			rt = (ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		}catch(Exception e) {
+			return false;
+		}
+		SaleTransactionClass st = (SaleTransactionClass) rt.getSaleTransaction();
+		Map<String, Product> soldRFID = st.getProductRFID();
+		if(!soldRFID.containsKey(RFID))
+			return false;
+		return rt.addProductRFID(soldRFID.get(RFID));
+    }
+	
+	@Override
 	public boolean endReturnTransaction(Integer returnId, boolean commit)
 			throws InvalidTransactionIdException, UnauthorizedException {
 		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
@@ -1120,6 +1139,15 @@ public class EZShop implements EZShopInterface {
 					this.updateQuantity(p.getId(), q);
 					st.deleteProduct(p, q);
 				} catch (InvalidProductIdException | UnauthorizedException e) {
+					e.printStackTrace();
+				}
+			});
+			// RFID
+			rt.getReturnedRFID().forEach((rfid, prod)->{
+				try {
+					updateQuantity(prod.getProductType().getId(), 1);
+					st.deleteProductRFID(rfid);
+				}catch(Exception e) {
 					e.printStackTrace();
 				}
 			});
@@ -1180,6 +1208,17 @@ public class EZShop implements EZShopInterface {
 			} catch (InvalidProductIdException | UnauthorizedException e) {
 				return false;
 			}
+		}
+		// RFID
+		Map<String, Product> returnedRFID = rt.getReturnedRFID();
+		for(String rfid: returnedRFID.keySet()) {
+			Product p = returnedRFID.get(rfid);
+			st.addProductRFID(p);
+			try {
+				this.updateQuantity(p.getProductType().getId(), -1);
+			} catch (InvalidProductIdException | UnauthorizedException e) {
+				return false;
+			}			
 		}
 		st.checkout();
 		if (!Connect.removeSaleTransaction(st.getBalanceId()) || !Connect.addSaleTransaction(st, st.getBalanceId(),
