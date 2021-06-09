@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
+import it.polito.ezshop.exceptions.InvalidRFIDException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.exceptions.UnauthorizedException;
 
@@ -28,12 +29,12 @@ public class ReturnTransactionAPITest {
 	private int newProdId2 = -1;
 	private ProductType pt2 = null;
 	private int id = -1;
-	private int idC = -1;
 	private int retId=-1;
     private int retId2=-1;
     
 	@Before
 	public void init() throws Exception {
+		ezshop.reset();
 		User u = null;
 		if ((u = ezshop.login(username, password)) == null) {
 			createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
@@ -87,7 +88,13 @@ public class ReturnTransactionAPITest {
 		ezshop.addProductToSale(id, "4006381333900", 4);
 		ezshop.addProductToSale(id, "4006381333931", 9);
 		SaleTransactionClass stc = (SaleTransactionClass) ezshop.getAccountBook().getSaleTransaction(id);
+		ezshop.addProductToSaleRFID(stc.getTicketNumber(), "000000001000");
 		stc.setStatus(SaleStatus.CLOSED);
+		
+		ezshop.recordBalanceUpdate(100);
+		int orderId = ezshop.payOrderFor("4006381333900", 10, 1);
+		ezshop.recordOrderArrivalRFID(orderId, "000000001000");
+		
 		ezshop.logout();
 	}
 
@@ -120,6 +127,7 @@ public class ReturnTransactionAPITest {
 			ezshop.getAccountBook().removeReturnTransaction(retId2);
 			retId2=-1;
 		}
+		ezshop.reset();
 	}
 
 	@Test
@@ -218,6 +226,60 @@ public class ReturnTransactionAPITest {
 		// undo the operation
 		ezshop.addProductToSale(stc.getTicketNumber(), pt1.getBarCode(), 1);
 	}
+	
+	
+	@Test
+	public void testReturnProductRFID() throws Exception {
+		// before login
+		assertThrows(UnauthorizedException.class, () -> {
+			ezshop.returnProductRFID(35, "000000001000");
+		});
+		// login Admin
+		ezshop.login(username, password);
+		// start a new return transaction
+		int retId = ezshop.startReturnTransaction(id);
+		ezshop.logout();
+		assertThrows(UnauthorizedException.class, () -> {
+			ezshop.returnProductRFID(35, "000000001000");
+		});
+		ezshop.login(username, password);
+		// null returnId
+		assertThrows(InvalidTransactionIdException.class, () -> {
+			ezshop.returnProductRFID(null, "000000001000");
+		});
+		// invalid returnId
+		assertThrows(InvalidTransactionIdException.class, () -> {
+			ezshop.returnProductRFID(-1, "000000001000");
+		});
+		// wrong returnId
+		assertFalse(ezshop.returnProductRFID(35, "000000001000"));
+		// null RFID
+		assertThrows(InvalidRFIDException.class, () -> {
+			ezshop.returnProductRFID(retId, null);
+		});
+		// invalid RFID
+		assertThrows(InvalidRFIDException.class, () -> {
+			ezshop.returnProductRFID(retId, "");
+		});
+		// invalid RFID
+		assertThrows(InvalidRFIDException.class, () -> {
+			ezshop.returnProductRFID(retId, "111111111111111111");
+		});
+
+		// valid case
+		// first, see how many products are there for the type we want to return, both
+		// in the shop and in the relative sale transaction
+		int q1 = pt1.getQuantity();
+		SaleTransactionClass stc = (SaleTransactionClass) ezshop.getAccountBook().getReturnTransaction(retId)
+				.getSaleTransaction();
+		// return product
+		assertTrue(ezshop.returnProductRFID(retId, "000000001000"));
+		// check that the quantity has been updated in the sale transaction
+		assertEquals(q1, stc.getProductsEntries().get(pt1.getBarCode()).getAmount()+1, 0.0001);
+		// undo the operation
+		ezshop.addProductToSale(stc.getTicketNumber(), pt1.getBarCode(), 1);
+	}
+	
 
 	@Test
 	public void testEndReturnTransaction() throws Exception {
