@@ -509,7 +509,7 @@ public class EZShop implements EZShopInterface {
     			throw new UnauthorizedException();
     	    	if(orderId == null ||orderId <=0) throw new InvalidOrderIdException();
     	    	//RFID is a positive integer (received as a 10 characters string)
-    	    	if(RFIDfrom == null || !RFIDfrom.matches("\\d{10}")|| productsRFID.values().stream().anyMatch(p -> p.getRFID().equals(RFIDfrom)))
+    	    	if(RFIDfrom == null || !RFIDfrom.matches("\\d{10}")||!productsRFID.containsKey(RFIDfrom))
     	    		throw new InvalidRFIDException();
     	    	
     	    	OrderClass o = null;
@@ -704,7 +704,7 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidTransactionIdException();
     	if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{10}"))throw new InvalidRFIDException();
     	
-    	if(!productsRFID.values().stream().anyMatch(p -> p.getRFID().equals(RFID))) return false;
+    	if(!productsRFID.containsKey(RFID)) return false;
 		
     	//è corretto come prendo il product type dato l'RFID?
     	Product p = productsRFID.get(RFID);
@@ -743,7 +743,7 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidTransactionIdException();
 		if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{10}"))throw new InvalidRFIDException();
 
-		if(!productsRFID.values().stream().anyMatch(p -> p.getRFID().equals(RFID))) return false;
+		if(!productsRFID.containsKey(RFID)) return false;
 		
 		SaleTransactionClass st = null;
 		try {
