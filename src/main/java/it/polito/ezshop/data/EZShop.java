@@ -509,9 +509,10 @@ public class EZShop implements EZShopInterface {
     	    	(!currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
     			throw new UnauthorizedException();
     	    	if(orderId == null ||orderId <=0) throw new InvalidOrderIdException();
-    	    	//RFID is a positive integer (received as a 10 characters string)
-    	    	if(RFIDfrom == null || !RFIDfrom.matches("\\d{10}")||!productsRFID.containsKey(RFIDfrom))
+    	    	//RFID is a positive integer (received as a 12 characters string)
+    	    	if(RFIDfrom == null || !RFIDfrom.matches("\\d{12}")||!productsRFID.containsKey(RFIDfrom))
     	    		throw new InvalidRFIDException();
+    	    	
     	    	
     	    	OrderClass o = null;
     			try {
@@ -523,6 +524,16 @@ public class EZShop implements EZShopInterface {
     			if (o.getOrderStatus() == OrderStatus.ISSUED || o.getOrderStatus() == OrderStatus.COMPLETED)
     				return false;
     			String productCode = o.getProductCode();
+    		    int qty=o.getQuantity();
+    		    List<String> RFIDs = new ArrayList<String>();
+    		    for(int i=0; i<qty; i++) {
+	    	
+    		    	String RFIDString = Product.calculateRFID(RFIDfrom, i);
+    		    	if (productsRFID.containsKey(RFIDString)) throw new InvalidRFIDException();
+    		    	RFIDs.add(RFIDString);
+    		    	
+    		    }
+
     			// find product
     			ProductTypeClass pt = null;
     			try {
@@ -553,16 +564,12 @@ public class EZShop implements EZShopInterface {
     					return false;
     				}
     				return false;
-    			}
-    			
-    			//non so bene come fare 
-    		    int qty=o.getQuantity();	    
+    			}   		
     		    for(int i = 0; i < qty; i++) {	
-    				String productRFID = Product.calculateRFID(RFIDfrom);
-    				Product p =  new Product (productRFID, pt);
-    				productsRFID.put(productRFID, p);
+    				Product p =  new Product (RFIDs.get(i), pt);
+    				productsRFID.put(RFIDs.get(i), p);
     		    	}
-    				return true;
+    			return true;
     }
     @Override
     public List<Order> getAllOrders() throws UnauthorizedException {
