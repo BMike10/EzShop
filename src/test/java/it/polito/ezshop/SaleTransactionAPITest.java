@@ -84,10 +84,10 @@ public class SaleTransactionAPITest {
 		}
 		ezshop.updatePosition(ezshop.getProductTypeByBarCode("4006381333931").getId(), "3-ctest-4");
 		ezshop.updateQuantity(newProdId2 > 0 ? newProdId2 : pt2.getId(), 10);
-		
+
 		ezshop.recordBalanceUpdate(100);
-		int i=ezshop.payOrderFor("4006381333900", 5, 3.5);
-		ezshop.recordOrderArrivalRFID(i, "000000001000");
+		int orderId = ezshop.payOrderFor("4006381333900", 10, 1);
+		ezshop.recordOrderArrivalRFID(orderId, "000000001000");
 		
 		ezshop.logout();
 
@@ -119,6 +119,7 @@ public class SaleTransactionAPITest {
 		if (id > 0) {
 			ezshop.getAccountBook().removeSaleTransaction(id);
 		}
+		ezshop.reset();
 	}
 
 	@Test
