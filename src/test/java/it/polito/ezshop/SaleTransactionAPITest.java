@@ -40,6 +40,7 @@ public class SaleTransactionAPITest {
 
 	@Before
 	public void init() throws Exception {
+		ezshop.reset();
 		User u = null;
 		if ((u = ezshop.login(username, password)) == null) {
 			createdUserId = ezshop.createUser(username, password, RoleEnum.Administrator.name());
@@ -216,7 +217,6 @@ public class SaleTransactionAPITest {
 
 		// valid
 		assertTrue(ezshop.addProductToSaleRFID(id, "000000001000"));
-		// test correctly updated quantity
 
 		ezshop.deleteProductFromSaleRFID(id, "000000001000");
 
@@ -313,7 +313,6 @@ public class SaleTransactionAPITest {
 		// test correctly updated quantity          TODO
 		assertTrue(q == ezshop.getProductTypeByBarCode("4006381333900").getQuantity());
 
-		ezshop.deleteProductFromSale(id, "4006381333900", 2);
 		ezshop.logout();
 	}
 

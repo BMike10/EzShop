@@ -323,9 +323,7 @@ public class OrderAPITest {
 		assertEquals(Integer.valueOf(qty + 1), ezshop.getProductTypeByBarCode("400638133390").getQuantity());
 		assertTrue(ezshop.getAllOrders().stream().anyMatch(o1->o1.getBalanceId()==id && o1.getStatus().equals(OrderStatus.COMPLETED.name())));
 		// already completed order
-		assertFalse(ezshop.recordOrderArrivalRFID(id, "000000001000"));
-		
-		//qui devo testare la mappa productRFID
+		assertThrows(InvalidRFIDException.class, ()->{ezshop.recordOrderArrivalRFID(id, "000000001000");});
 		
 		// clean
 		ezshop.getAccountBook().removeOrder(id);

@@ -715,7 +715,6 @@ public class EZShop implements EZShopInterface {
     	
     	if(!productsRFID.containsKey(RFID)) return false;
 		
-    	//è corretto come prendo il product type dato l'RFID?
     	Product p = productsRFID.get(RFID);
 		ProductType pt = p.getProductType();
 		
