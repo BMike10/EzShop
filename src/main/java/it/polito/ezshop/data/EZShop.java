@@ -503,8 +503,65 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean recordOrderArrivalRFID(Integer orderId, String RFIDfrom) throws InvalidOrderIdException, UnauthorizedException, 
-InvalidLocationException, InvalidRFIDException {
-        return false;
+    InvalidLocationException, InvalidRFIDException {
+    	if(currentUser == null ||
+    	    	(!currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+    			throw new UnauthorizedException();
+    	    	if(orderId == null ||orderId <=0) throw new InvalidOrderIdException();
+    	    	//RFID is a positive integer (received as a 10 characters string)
+    	    	if(RFIDfrom == null || !RFIDfrom.matches("\\d{10}")||!productsRFID.containsKey(RFIDfrom))
+    	    		throw new InvalidRFIDException();
+    	    	
+    	    	OrderClass o = null;
+    			try {
+    				o = (OrderClass) accountBook.getOrder(orderId);
+    			} catch (Exception e) {
+    				return false;
+    			}			
+    			//return false if the order does not exist or if it was not in an ORDERED/COMPLETED state
+    			if (o.getOrderStatus() == OrderStatus.ISSUED || o.getOrderStatus() == OrderStatus.COMPLETED)
+    				return false;
+    			String productCode = o.getProductCode();
+    			// find product
+    			ProductTypeClass pt = null;
+    			try {
+    				pt = (ProductTypeClass) getProductTypeByBarCode(productCode);
+    			} catch (InvalidProductCodeException e) {
+    				return false;
+    			}
+    			// position check
+    			Position pos = pt.getPosition();
+    			if (pos == null || pos.getAisleId() < 0)
+    				throw new InvalidLocationException();
+    			// quantity update
+    			try {
+    				updateQuantity(pt.getId(), o.getQuantity());
+    			} catch (InvalidProductIdException e) {
+    				return false;
+    			}
+    			o.setStatus("COMPLETED");
+    			// record on db
+    			if (!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED)
+    					|| !Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
+    				// rollback
+    				try {
+    					updateQuantity(pt.getId(), -o.getQuantity());
+    					o.setStatus("PAYED");
+    					Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED);
+    				} catch (Exception e) {
+    					return false;
+    				}
+    				return false;
+    			}
+    			
+    			//non so bene come fare 
+    		    int qty=o.getQuantity();	    
+    		    for(int i = 0; i < qty; i++) {	
+    				String productRFID = Product.calculateRFID(RFIDfrom);
+    				Product p =  new Product (productRFID, pt);
+    				productsRFID.put(productRFID, p);
+    		    	}
+    				return true;
     }
     @Override
     public List<Order> getAllOrders() throws UnauthorizedException {
@@ -640,13 +697,72 @@ InvalidLocationException, InvalidRFIDException {
 
 	@Override
     public boolean addProductToSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, InvalidQuantityException, UnauthorizedException{
-        return false;
+		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
+				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		if (transactionId == null || transactionId <= 0)
+			throw new InvalidTransactionIdException();
+    	if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{10}"))throw new InvalidRFIDException();
+    	
+    	if(!productsRFID.containsKey(RFID)) return false;
+		
+    	//è corretto come prendo il product type dato l'RFID?
+    	Product p = productsRFID.get(RFID);
+		ProductType pt = p.getProductType();
+		
+    	SaleTransactionClass st = null;
+		try {
+			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		} catch (Exception e) {
+			return false;
+			}
+		if (st == null || st.getStatus()!=SaleStatus.STARTED) {
+			return false;
+		}
+		try {
+			//l'amount del product RFID è sempre 1 no? 
+			if (updateQuantity(pt.getId(), -1)) {
+				//todo
+				st.addRFIDProduct((Product) new Product((Product) p), 1);
+				return true;
+			}
+		} catch (InvalidProductIdException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return false;
     }
     
 
     @Override
     public boolean deleteProductFromSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, InvalidQuantityException, UnauthorizedException{
-        return false;
+    	if (currentUser == null || (!currentUser.getRole().equals("Cashier")
+				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		if (transactionId == null || transactionId <= 0)
+			throw new InvalidTransactionIdException();
+		if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{10}"))throw new InvalidRFIDException();
+
+		if(!productsRFID.containsKey(RFID)) return false;
+		
+		SaleTransactionClass st = null;
+		try {
+			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		} catch (Exception e) {
+			return false;
+			}
+		Product p = productsRFID.get(RFID);
+		ProductType pt = p.getProductType();
+		//todo
+		if (!st.deleteRFIDProduct(p))
+			return false;
+		try {
+			//se metto 1 come quantity è brutto? 
+			return updateQuantity(pt.getId(), 1);
+		} catch (InvalidProductIdException e) {
+			e.printStackTrace();
+			return false;
+		}
     }
 
 
