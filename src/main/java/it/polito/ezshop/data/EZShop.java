@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.Map.Entry;
 
+
 public class EZShop implements EZShopInterface {
 	// private static Connection conn = null;
 	private Map<Integer, ProductType> products;
@@ -510,7 +511,9 @@ public class EZShop implements EZShopInterface {
     	    	if(orderId == null ||orderId <=0) throw new InvalidOrderIdException();
     	    	//RFID is a positive integer (received as a 12 characters string)
     	    	if(RFIDfrom == null || !RFIDfrom.matches("\\d{12}")|| productsRFID.containsKey(RFIDfrom))
+
     	    		throw new InvalidRFIDException();
+    	    	
     	    	
     	    	OrderClass o = null;
     			try {
@@ -522,6 +525,16 @@ public class EZShop implements EZShopInterface {
     			if (o.getOrderStatus() == OrderStatus.ISSUED || o.getOrderStatus() == OrderStatus.COMPLETED)
     				return false;
     			String productCode = o.getProductCode();
+    		    int qty=o.getQuantity();
+    		    List<String> RFIDs = new ArrayList<String>();
+    		    for(int i=0; i<qty; i++) {
+	    	
+    		    	String RFIDString = Product.calculateRFID(RFIDfrom, i);
+    		    	if (productsRFID.containsKey(RFIDString)) throw new InvalidRFIDException();
+    		    	RFIDs.add(RFIDString);
+    		    	
+    		    }
+
     			// find product
     			ProductTypeClass pt = null;
     			try {
@@ -552,16 +565,12 @@ public class EZShop implements EZShopInterface {
     					return false;
     				}
     				return false;
-    			}
-    			
-    			//non so bene come fare 
-    		    int qty=o.getQuantity();	    
+    			}   		
     		    for(int i = 0; i < qty; i++) {	
-    				String productRFID = Product.calculateRFID(RFIDfrom);
-    				Product p =  new Product (productRFID, pt);
-    				productsRFID.put(productRFID, p);
+    				Product p =  new Product (RFIDs.get(i), pt);
+    				productsRFID.put(RFIDs.get(i), p);
     		    	}
-    				return true;
+    			return true;
     }
     @Override
     public List<Order> getAllOrders() throws UnauthorizedException {
@@ -723,7 +732,7 @@ public class EZShop implements EZShopInterface {
 			//l'amount del product RFID è sempre 1 no? 
 			if (updateQuantity(pt.getId(), -1)) {
 				//todo
-				st.addRFIDProduct((Product) new Product((Product) p), 1);
+				st.addProductRFID(p);
 				return true;
 			}
 		} catch (InvalidProductIdException e) {
@@ -754,7 +763,7 @@ public class EZShop implements EZShopInterface {
 		Product p = productsRFID.get(RFID);
 		ProductType pt = p.getProductType();
 		//todo
-		if (!st.deleteRFIDProduct(p))
+		if (!st.deleteProductRFID(RFID))
 			return false;
 		try {
 			//se metto 1 come quantity è brutto? 

@@ -13,7 +13,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 	private final Map<ProductType, Integer> returnedProduct = new HashMap<>();
 	private SaleTransaction saleTransaction;
 	private ReturnStatus status;
-	private Map<String, Product> productRFID;
+	private final Map<String, Product> productRFID = new HashMap<>();
 
 	public ReturnTransactionClass(int orderId, String description, double amount, LocalDate date, String type,
 			Map<ProductType, Integer> returned, SaleTransaction saleT, ReturnStatus retstatus) {
@@ -133,11 +133,46 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 	}
 	
 	boolean addProductRFID(Product p) {
-		
-		return false;
+		if (p == null)
+			return false;
+
+		String RFID=p.getRFID();
+		ProductTypeClass ptc = p.getProductType();
+
+		if(RFID==null || !RFID.matches("\\d{12}") || ptc==null)
+			return false;
+
+		//Product insert on the RFID MAP
+		SaleTransactionClass st = (SaleTransactionClass) this.saleTransaction;
+		//It would be better if the research was done in the saleClass
+		if (!st.getProductRFID().containsKey(RFID) || productRFID.containsKey(RFID))
+			return false;
+		else {
+			//Insert on ReturnMap
+			productRFID.put(RFID, p);
+		}
+
+		return true;
 	}
 	
 	boolean deleteProductRFID(String RFID) {
-		return false;
+		if (RFID == null || !RFID.matches("\\d{12}") || !productRFID.containsKey(RFID) )
+			return false;
+
+		Product p = productRFID.get(RFID);
+		if(p==null)
+			return false;
+
+		ProductTypeClass pTC = p.getProductType();
+		if (p.getProductType()==null)
+			return false;
+
+		//Delete from Product Map
+		productRFID.remove(RFID);
+
+		return true;
+	}
+	Map<String, Product> getReturnedRFID(){
+		return productRFID;
 	}
 }

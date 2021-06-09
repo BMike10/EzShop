@@ -1,5 +1,7 @@
 package it.polito.ezshop.data;
 
+import it.polito.ezshop.exceptions.InvalidRFIDException;
+
 public class Product {
 	private String RFID;
 	private ProductTypeClass productType;
@@ -7,7 +9,7 @@ public class Product {
 	
 	public Product(String rFID, ProductTypeClass productType) {
 		super();
-		if(rFID == null || !rFID.matches("\\d{10}"))
+		if(rFID == null || !rFID.matches("\\d{12}"))
 			throw new RuntimeException();
 		if(productType == null)
 			throw new RuntimeException();
@@ -18,7 +20,7 @@ public class Product {
 		return RFID;
 	}
 	public void setRFID(String rFID) {
-		if(rFID == null || !rFID.matches("\\d{10}"))
+		if(rFID == null || !rFID.matches("\\d{12}"))
 			throw new RuntimeException();
 		RFID = rFID;
 	}
@@ -31,28 +33,17 @@ public class Product {
 		this.productType = productType;
 	}
 	
-	public static String calculateRFID(String input) {				
-		String result = "";				
-		String numberStr = "";
+	public static String calculateRFID(String input, int step) throws InvalidRFIDException
+    { 
+		Long l = null;		
+	try {			
+			l = Long.parseLong(input);			
+		} 
+	catch (Exception e){
+			throw new InvalidRFIDException();
+		}		
+		l += step;
+		return String.format("%012d", l);
 		
-		int i = input.length() - 1;
-		for(; i > 0; i--) {
-			
-			char c = input.charAt(i);
-			
-			if(!Character.isDigit(c))
-				break;
-			
-			numberStr = c + numberStr;
-		}
-		
-		int number = Integer.parseInt(numberStr);
-		number++;
-		
-		result += input.substring(0, i + 1);
-		result += number < 10 ? "0" : "";
-		result += number;
-		
-		return result;
-}
+    }
 }
