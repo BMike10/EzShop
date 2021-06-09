@@ -31,6 +31,28 @@ public class Product {
 		this.productType = productType;
 	}
 	
-	
-	
+	public static String calculateRFID(String input) {				
+		String result = "";				
+		String numberStr = "";
+		
+		int i = input.length() - 1;
+		for(; i > 0; i--) {
+			
+			char c = input.charAt(i);
+			
+			if(!Character.isDigit(c))
+				break;
+			
+			numberStr = c + numberStr;
+		}
+		
+		int number = Integer.parseInt(numberStr);
+		number++;
+		
+		result += input.substring(0, i + 1);
+		result += number < 10 ? "0" : "";
+		result += number;
+		
+		return result;
+}
 }
