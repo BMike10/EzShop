@@ -31,8 +31,10 @@ public class Product {
 		this.productType = productType;
 	}
 	
-	public static String calculateRFID(String input) {				
-		String result = "";				
+	public static String calculateRFID(String input) {
+		
+		return input;				
+		/*String result = "";				
 		String numberStr = "";
 		
 		int i = input.length() - 1;
@@ -53,6 +55,6 @@ public class Product {
 		result += number < 10 ? "0" : "";
 		result += number;
 		
-		return result;
+		return result;*/
 }
 }
