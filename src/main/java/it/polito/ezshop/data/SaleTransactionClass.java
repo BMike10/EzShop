@@ -70,7 +70,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	private Map<String, TicketEntryClass> ticketEntries;
 	private double discountRate;
 	private String paymentType = "";
-	private Map<String, Product> productRFID;
+	private Map<String, Product> productRFID = new HashMap<>();
 
 	public Time getTime() {
 		return time;
@@ -217,7 +217,13 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		for (TicketEntryClass te : ticketEntries.values()) {
 			a += (te.getPricePerUnit() * te.getAmount()) * (1 - te.getDiscountRate());
 		}
+		for (Product p : productRFID.values()) {
+			a += (p.getProductType().getPricePerUnit() * (1 -  ticketEntries.get(p.getProductType().getBarCode()).getDiscountRate()));
+		}
+
 		a = a * (1 - this.getDiscountRate());
+
+
 		this.setPrice(a);
 		this.status = SaleStatus.CLOSED;
 	}
@@ -274,12 +280,9 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 
 		//Product insert on the ticket entry
 		TicketEntryClass t = null;
-		if ((t = ticketEntries.get(ptc.getBarCode())) != null) {
-			t.setAmount(t.getAmount() + 1);
-			ticketEntries.replace(ptc.getBarCode(),t);
-		} else {
+		if ((t = ticketEntries.get(ptc.getBarCode())) == null) {
 			try {
-				t = new TicketEntryClass(p.getProductType(), 1);
+				t = new TicketEntryClass(p.getProductType(), 0);
 				ticketEntries.put(p.getProductType().getBarCode(), t);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -315,23 +318,12 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		TicketEntryClass t = null;
 		if ((t = ticketEntries.get(pTC.getBarCode())) == null)
 			return false;
-		else {
-			int amount = t.getAmount();
-			double discount = t.getDiscountRate();
-			if (amount==0)
-				//This should never happen
-				return false;
-			else {
-				if(amount==1)
-					ticketEntries.remove(pTC.getBarCode());
 
-				t.setAmount(amount - 1);
+		//Set new Price -> Above problems
+		double discount = t.getDiscountRate();
+		double pPrice = pTC.getPricePerUnit() * (1 - discount);
+		this.setPrice(this.getPrice()-pPrice);
 
-				//Set new Price -> Above problems
-				double pPrice = pTC.getPricePerUnit() * (1 - discount);
-				this.setPrice(this.getPrice()-pPrice);
-			}
-		}
 		return true;
 	}
 

@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.Map.Entry;
 
+
 public class EZShop implements EZShopInterface {
 	// private static Connection conn = null;
 	private Map<Integer, ProductType> products;
@@ -723,7 +724,7 @@ public class EZShop implements EZShopInterface {
 			//l'amount del product RFID è sempre 1 no? 
 			if (updateQuantity(pt.getId(), -1)) {
 				//todo
-				st.addRFIDProduct((Product) new Product((Product) p), 1);
+				st.addProductRFID(p);
 				return true;
 			}
 		} catch (InvalidProductIdException e) {
@@ -754,7 +755,7 @@ public class EZShop implements EZShopInterface {
 		Product p = productsRFID.get(RFID);
 		ProductType pt = p.getProductType();
 		//todo
-		if (!st.deleteRFIDProduct(p))
+		if (!st.deleteProductRFID(RFID))
 			return false;
 		try {
 			//se metto 1 come quantity è brutto? 

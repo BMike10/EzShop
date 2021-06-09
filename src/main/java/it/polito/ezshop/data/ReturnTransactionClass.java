@@ -13,7 +13,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 	private final Map<ProductType, Integer> returnedProduct = new HashMap<>();
 	private SaleTransaction saleTransaction;
 	private ReturnStatus status;
-	private Map<String, Product> productRFID;
+	private final Map<String, Product> productRFID = new HashMap<>();
 
 	public ReturnTransactionClass(int orderId, String description, double amount, LocalDate date, String type,
 			Map<ProductType, Integer> returned, SaleTransaction saleT, ReturnStatus retstatus) {
@@ -145,17 +145,11 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 		//Product insert on the RFID MAP
 		SaleTransactionClass st = (SaleTransactionClass) this.saleTransaction;
 		//It would be better if the research was done in the saleClass
-		if (!st.getProductRFID().containsKey(RFID))
+		if (!st.getProductRFID().containsKey(RFID) || productRFID.containsKey(RFID))
 			return false;
 		else {
-
-			//Delete from SaleMap -> Above a delete method of the sale class is never used
-			if(!st.deleteProductRFID(RFID))
-				return false;
-
 			//Insert on ReturnMap
 			productRFID.put(RFID, p);
-			//It also should be added in returnedProduct?
 		}
 
 		return true;
@@ -173,18 +167,12 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 		if (p.getProductType()==null)
 			return false;
 
-		SaleTransactionClass st = (SaleTransactionClass) this.saleTransaction;
-
-		//Add in SaleTransactionMap
-		if ( !st.addProductRFID(p))
-			return false;
-
 		//Delete from Product Map
 		productRFID.remove(RFID);
 
 		return true;
 	}
 	Map<String, Product> getReturnedRFID(){
-		return productRFID;s
+		return productRFID;
 	}
 }
