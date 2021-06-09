@@ -508,8 +508,8 @@ public class EZShop implements EZShopInterface {
     	    	(!currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
     			throw new UnauthorizedException();
     	    	if(orderId == null ||orderId <=0) throw new InvalidOrderIdException();
-    	    	//RFID is a positive integer (received as a 10 characters string)
-    	    	if(RFIDfrom == null || !RFIDfrom.matches("\\d{10}")||!productsRFID.containsKey(RFIDfrom))
+    	    	//RFID is a positive integer (received as a 12 characters string)
+    	    	if(RFIDfrom == null || !RFIDfrom.matches("\\d{12}")|| productsRFID.containsKey(RFIDfrom))
     	    		throw new InvalidRFIDException();
     	    	
     	    	OrderClass o = null;

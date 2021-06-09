@@ -18,6 +18,7 @@ import it.polito.ezshop.exceptions.InvalidOrderIdException;
 import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
+import it.polito.ezshop.exceptions.InvalidRFIDException;
 import it.polito.ezshop.exceptions.UnauthorizedException;
 
 public class OrderAPITest {
@@ -267,6 +268,72 @@ public class OrderAPITest {
 		ezshop.getAccountBook().removeOrder(id);
 		id = -1;		
 	}
+	
+	
+	
+	@Test
+	public void testRecordOrderArrivalRFID() throws Exception{
+		// before login
+		assertThrows(UnauthorizedException.class, ()->{ezshop.recordOrderArrivalRFID(1, "000000001000");});
+		// login cashier
+		ezshop.login(usernameC, password);
+		// cashier not auth
+		assertThrows(UnauthorizedException.class, ()->{ezshop.recordOrderArrivalRFID(1, "000000001000");});
+		// login Admin
+		ezshop.logout();
+		ezshop.login(username, password);
+		// init balance
+		double balance = ezshop.computeBalance();
+		if(balance <= 0.0) {
+			ezshop.recordBalanceUpdate(10.0);
+			balance = 10.0;
+		}
+		//invalid order id
+		assertThrows(InvalidOrderIdException.class, ()->{ezshop.recordOrderArrivalRFID(null, "000000001000");});
+		assertThrows(InvalidOrderIdException.class, ()->{ezshop.recordOrderArrivalRFID(0, "000000001000");});
+		// order not existing
+		assertFalse(ezshop.recordOrderArrivalRFID(Integer.MAX_VALUE, "000000001000"));
+		// issue order ISSUED
+		id = ezshop.issueOrder("400638133390", 1, balance/10);
+		assertFalse(ezshop.recordOrderArrivalRFID(id, "000000001000"));
+		// invalid RFID
+		assertThrows(InvalidRFIDException.class, ()->{ezshop.recordOrderArrivalRFID(id, null);});
+		assertThrows(InvalidRFIDException.class, ()->{ezshop.recordOrderArrivalRFID(id, "");});
+		assertThrows(InvalidRFIDException.class, ()->{ezshop.recordOrderArrivalRFID(id, "1234");});
+		
+		// check for location
+		ProductType pt = ezshop.getProductTypeByBarCode("400638133390");
+		if(pt.getLocation()!=null && !pt.getLocation().equals(""))
+			ezshop.updatePosition(pt.getId(), null);
+		// pay order
+		assertTrue(ezshop.payOrder(id));
+		// invalid location
+		assertThrows(InvalidLocationException.class, ()->ezshop.recordOrderArrivalRFID(id, "000000001000"));
+		// update location
+		assertTrue(ezshop.updatePosition(pt.getId(), "123456-testtest-12345"));
+		// get quantity
+		int qty = ezshop.getProductTypeByBarCode("400638133390").getQuantity();
+		// db error
+		Connect.closeConnection();
+		assertFalse(ezshop.recordOrderArrivalRFID(id, "000000001000"));
+		Connect.openConnection();
+		// valid
+		assertTrue(ezshop.recordOrderArrivalRFID(id, "000000001000"));
+		// check for quantity update
+		assertEquals(Integer.valueOf(qty + 1), ezshop.getProductTypeByBarCode("400638133390").getQuantity());
+		assertTrue(ezshop.getAllOrders().stream().anyMatch(o1->o1.getBalanceId()==id && o1.getStatus().equals(OrderStatus.COMPLETED.name())));
+		// already completed order
+		assertFalse(ezshop.recordOrderArrivalRFID(id, "000000001000"));
+		
+		//qui devo testare la mappa productRFID
+		
+		// clean
+		ezshop.getAccountBook().removeOrder(id);
+		id = -1;		
+	}
+	
+	
+	
 	@Test
 	public void testGetAllOrders() throws Exception {
 		// before login

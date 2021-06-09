@@ -20,6 +20,7 @@ import it.polito.ezshop.data.User;
 import it.polito.ezshop.exceptions.InvalidDiscountRateException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
+import it.polito.ezshop.exceptions.InvalidRFIDException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.exceptions.UnauthorizedException;
 
@@ -104,7 +105,7 @@ public class SaleTransactionAPITest {
 				ezshop.deleteProductType(newProdId2);
 
 			// delete user
-			
+
 			ezshop.deleteUser(createdUserId);
 			if (createdCashier > 0)
 				ezshop.deleteUser(createdCashier);
@@ -160,7 +161,7 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.addProductToSale(id, "", 2);
 		});
-		//not present product code
+		// not present product code
 		assertFalse(ezshop.addProductToSale(id, "400638133390", 2));
 		// invalid quantity
 		assertThrows(InvalidQuantityException.class, () -> {
@@ -174,6 +175,45 @@ public class SaleTransactionAPITest {
 		assertTrue(q == ezshop.getProductTypeByBarCode("4006381333931").getQuantity() + 2);
 
 		ezshop.deleteProductFromSale(id, "4006381333931", 2);
+
+		ezshop.logout();
+
+	}
+
+	@Test
+	public void testAddProductToSaleRFID() throws Exception {
+		// before login
+		assertThrows(UnauthorizedException.class, () -> {
+			ezshop.addProductToSaleRFID(1, "000000001000");
+		});
+		// login Admin
+		ezshop.login(username, password);
+		// create new transaction
+		id = ezshop.startSaleTransaction();
+		// null transactionId
+		assertThrows(InvalidTransactionIdException.class, () -> {
+			ezshop.addProductToSaleRFID(null, "000000001000");
+		});
+		// invalid transactionId
+		assertThrows(InvalidTransactionIdException.class, () -> {
+			ezshop.addProductToSaleRFID(-1, "000000001000");
+		});
+		// not present transactionId
+		assertFalse(ezshop.addProductToSaleRFID(Integer.MAX_VALUE, "000000001000"));
+		// null RFID
+		assertThrows(InvalidRFIDException.class, () -> {
+			ezshop.addProductToSaleRFID(id, null);
+		});
+		// invalid RFID
+		assertThrows(InvalidRFIDException.class, () -> {
+			ezshop.addProductToSaleRFID(id, "1234");
+		});
+
+		// valid
+		assertTrue(ezshop.addProductToSaleRFID(id, "000000001000"));
+		// test correctly updated quantity
+
+		ezshop.deleteProductFromSaleRFID(id, "000000001000");
 
 		ezshop.logout();
 
@@ -210,7 +250,7 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.deleteProductFromSale(id, "", 2);
 		});
-		//not present product code
+		// not present product code
 		assertFalse(ezshop.deleteProductFromSale(id, "400638133390", 2));
 		// invalid quantity
 		assertThrows(InvalidQuantityException.class, () -> {
@@ -221,6 +261,50 @@ public class SaleTransactionAPITest {
 		// valid
 		assertTrue(ezshop.deleteProductFromSale(id, "4006381333900", 2));
 		// test correctly updated quantity
+		assertTrue(q + 2 == ezshop.getProductTypeByBarCode("4006381333900").getQuantity());
+
+		ezshop.deleteProductFromSale(id, "4006381333900", 2);
+		ezshop.logout();
+	}
+
+	@Test
+	public void testDeleteProductFromSaleRFID() throws Exception {
+		// before login
+		assertThrows(UnauthorizedException.class, () -> {
+			ezshop.deleteProductFromSaleRFID(1, "000000001000");
+		});
+		// login Admin
+		ezshop.login(username, password);
+		// create new transaction
+		id = ezshop.startSaleTransaction();
+		// add product to the new sale transaction
+		assertTrue(ezshop.addProductToSale(id, "4006381333900", 2));
+
+		// null transactionId
+		assertThrows(InvalidTransactionIdException.class, () -> {
+			ezshop.deleteProductFromSaleRFID(null, "000000001000");
+		});
+		// invalid transactionId
+		assertThrows(InvalidTransactionIdException.class, () -> {
+			ezshop.deleteProductFromSaleRFID(-2, "000000001000");
+		});
+		// not present transactionId
+		assertFalse(ezshop.deleteProductFromSaleRFID(Integer.MAX_VALUE, "000000001000"));
+		// null RFID
+		assertThrows(InvalidProductCodeException.class, () -> {
+			ezshop.deleteProductFromSaleRFID(id, null);
+		});
+		// invalid RFID
+		assertThrows(InvalidProductCodeException.class, () -> {
+			ezshop.deleteProductFromSaleRFID(id, "123");
+		});
+		// not present RFID
+		assertFalse(ezshop.deleteProductFromSaleRFID(id, "123456789000"));
+
+		int q = ezshop.getProductTypeByBarCode("4006381333900").getQuantity();
+		// valid
+		assertTrue(ezshop.deleteProductFromSaleRFID(id, "000000001000"));
+		// test correctly updated quantity          TODO
 		assertTrue(q + 2 == ezshop.getProductTypeByBarCode("4006381333900").getQuantity());
 
 		ezshop.deleteProductFromSale(id, "4006381333900", 2);
@@ -287,7 +371,7 @@ public class SaleTransactionAPITest {
 		assertThrows(InvalidProductCodeException.class, () -> {
 			ezshop.applyDiscountRateToProduct(id, "", 0.2);
 		});
-		//not present product code
+		// not present product code
 		assertFalse(ezshop.applyDiscountRateToProduct(id, "400638133390", 0.2));
 		// invalid discountRate
 		assertThrows(InvalidDiscountRateException.class, () -> {
