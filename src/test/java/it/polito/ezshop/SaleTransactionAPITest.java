@@ -84,6 +84,10 @@ public class SaleTransactionAPITest {
 		ezshop.updatePosition(ezshop.getProductTypeByBarCode("4006381333931").getId(), "3-ctest-4");
 		ezshop.updateQuantity(newProdId2 > 0 ? newProdId2 : pt2.getId(), 10);
 
+		ezshop.recordBalanceUpdate(100);
+		int orderId = ezshop.payOrderFor("4006381333900", 10, 1);
+		ezshop.recordOrderArrivalRFID(orderId, "000000001000");
+		
 		ezshop.logout();
 
 	}
@@ -114,6 +118,7 @@ public class SaleTransactionAPITest {
 		if (id > 0) {
 			ezshop.getAccountBook().removeSaleTransaction(id);
 		}
+		ezshop.reset();
 	}
 
 	@Test
@@ -291,11 +296,11 @@ public class SaleTransactionAPITest {
 		// not present transactionId
 		assertFalse(ezshop.deleteProductFromSaleRFID(Integer.MAX_VALUE, "000000001000"));
 		// null RFID
-		assertThrows(InvalidProductCodeException.class, () -> {
+		assertThrows(InvalidRFIDException.class, () -> {
 			ezshop.deleteProductFromSaleRFID(id, null);
 		});
 		// invalid RFID
-		assertThrows(InvalidProductCodeException.class, () -> {
+		assertThrows(InvalidRFIDException.class, () -> {
 			ezshop.deleteProductFromSaleRFID(id, "123");
 		});
 		// not present RFID
@@ -303,9 +308,10 @@ public class SaleTransactionAPITest {
 
 		int q = ezshop.getProductTypeByBarCode("4006381333900").getQuantity();
 		// valid
+		assertTrue(ezshop.addProductToSaleRFID(id, "000000001000"));
 		assertTrue(ezshop.deleteProductFromSaleRFID(id, "000000001000"));
 		// test correctly updated quantity          TODO
-		assertTrue(q + 2 == ezshop.getProductTypeByBarCode("4006381333900").getQuantity());
+		assertTrue(q == ezshop.getProductTypeByBarCode("4006381333900").getQuantity());
 
 		ezshop.deleteProductFromSale(id, "4006381333900", 2);
 		ezshop.logout();

@@ -58,7 +58,7 @@ public class EZShop implements EZShopInterface {
 			users = new HashMap<>(); cards = new HashMap<>(); 
 			customers = new	HashMap<>(); 
 			attachedCards = new HashMap<>();
-			
+			productsRFID = new HashMap<>();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -711,7 +711,7 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if (transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
-    	if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{10}"))throw new InvalidRFIDException();
+    	if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{12}"))throw new InvalidRFIDException();
     	
     	if(!productsRFID.containsKey(RFID)) return false;
 		
@@ -750,7 +750,7 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if (transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
-		if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{10}"))throw new InvalidRFIDException();
+		if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{12}"))throw new InvalidRFIDException();
 
 		if(!productsRFID.containsKey(RFID)) return false;
 		
