@@ -58,7 +58,7 @@ public class EZShop implements EZShopInterface {
 			users = new HashMap<>(); cards = new HashMap<>(); 
 			customers = new	HashMap<>(); 
 			attachedCards = new HashMap<>();
-			 
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -955,12 +955,6 @@ public class EZShop implements EZShopInterface {
 	}
 
 	@Override
-    public boolean returnProductRFID(Integer returnId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, UnauthorizedException 
-    {
-        return false;
-    }
-
-	@Override
 	public boolean endSaleTransaction(Integer transactionId)
 			throws InvalidTransactionIdException, UnauthorizedException {
 		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
@@ -1064,6 +1058,28 @@ public class EZShop implements EZShopInterface {
 
 		return accountBook.addReturnTransaction(rt);
 	}
+	@Override
+    public boolean returnProductRFID(Integer returnId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, UnauthorizedException 
+    {
+		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
+				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		if(returnId == null || returnId <= 0)
+			throw new InvalidTransactionIdException();
+		if(RFID == null || !RFID.matches("\\d{12}"))
+			throw new InvalidRFIDException("RFID: "+RFID);
+		ReturnTransactionClass rt=null;
+		try {
+			rt = (ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		}catch(Exception e) {
+			return false;
+		}
+		SaleTransactionClass st = (SaleTransactionClass) rt.getSaleTransaction();
+		Map<String, Product> soldRFID = st.getProductRFID();
+		if(!soldRFID.containsKey(RFID))
+			return false;
+		return rt.addProductRFID(soldRFID.get(RFID));
+    }
 
 	@Override
 	public boolean returnProduct(Integer returnId, String productCode, int amount) throws InvalidTransactionIdException,
