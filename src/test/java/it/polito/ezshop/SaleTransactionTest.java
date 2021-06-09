@@ -308,4 +308,14 @@ public class SaleTransactionTest {
 		assertEquals(stc.getPrice(), 0.0, 0.0001);
 		assertTrue(stc.getEntries().size()==0);
 	}
+
+	@Test
+	public void testAddProductRFID() throws Exception {
+
+	}
+
+	@Test
+	public void testDeleteProductRFID() throws Exception {
+
+	}
 }

@@ -148,12 +148,14 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 		if (!st.getProductRFID().containsKey(RFID))
 			return false;
 		else {
+
+			//Delete from SaleMap -> Above a delete method of the sale class is never used
+			if(!st.deleteProductRFID(RFID))
+				return false;
+
 			//Insert on ReturnMap
 			productRFID.put(RFID, p);
 			//It also should be added in returnedProduct?
-
-			//Delete from SaleMap -> Above a delete method of the sale class is never used
-			st.deleteProductRFID(RFID);
 		}
 
 		return true;
@@ -171,9 +173,14 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 		if (p.getProductType()==null)
 			return false;
 
+		SaleTransactionClass st = (SaleTransactionClass) this.saleTransaction;
+
+		//Add in SaleTransactionMap
+		if ( !st.addProductRFID(p))
+			return false;
+
 		//Delete from Product Map
 		productRFID.remove(RFID);
-		addProductRFID(p);
 
 		return true;
 	}

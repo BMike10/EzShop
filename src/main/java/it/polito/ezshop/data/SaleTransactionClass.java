@@ -207,6 +207,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	}
 
 	public void checkout() {
+		//Should the price already be set here?
 		double a = 0.0;
 		if (ticketEntries.size() == 0) {
 			this.setPrice(a);
