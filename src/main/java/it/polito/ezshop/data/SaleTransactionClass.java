@@ -298,10 +298,14 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	boolean deleteProductRFID(String RFID) {
 		if (RFID == null || !RFID.matches("\\d{12}") || !productRFID.containsKey(RFID) )
 			return false;
+
 		Product p = productRFID.get(RFID);
-		if (p==null || p.getProductType()==null)
+		if(p==null)
 			return false;
+
 		ProductTypeClass pTC = p.getProductType();
+		if (p.getProductType()==null)
+			return false;
 
 		//Delete from Product Map
 		productRFID.remove(RFID);

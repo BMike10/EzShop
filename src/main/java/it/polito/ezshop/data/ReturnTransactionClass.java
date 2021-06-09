@@ -133,11 +133,48 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 	}
 	
 	boolean addProductRFID(Product p) {
-		
-		return false;
+		if (p == null)
+			return false;
+
+		String RFID=p.getRFID();
+		ProductTypeClass ptc = p.getProductType();
+
+		if(RFID==null || !RFID.matches("\\d{12}") || ptc==null)
+			return false;
+
+		//Product insert on the RFID MAP
+		SaleTransactionClass st = (SaleTransactionClass) this.saleTransaction;
+		//It would be better if the research was done in the saleClass
+		if (!st.getProductRFID().containsKey(RFID))
+			return false;
+		else {
+			//Insert on ReturnMap
+			productRFID.put(RFID, p);
+			//It also should be added in returnedProduct?
+
+			//Delete from SaleMap -> Above a delete method of the sale class is never used
+			st.deleteProductRFID(RFID);
+		}
+
+		return true;
 	}
 	
 	boolean deleteProductRFID(String RFID) {
-		return false;
+		if (RFID == null || !RFID.matches("\\d{12}") || !productRFID.containsKey(RFID) )
+			return false;
+
+		Product p = productRFID.get(RFID);
+		if(p==null)
+			return false;
+
+		ProductTypeClass pTC = p.getProductType();
+		if (p.getProductType()==null)
+			return false;
+
+		//Delete from Product Map
+		productRFID.remove(RFID);
+		addProductRFID(p);
+
+		return true;
 	}
 }
