@@ -256,14 +256,81 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	
 	// this must also update the related ticket entry
 	boolean addProductRFID(Product p) {
-		
-		return false;
+		if (p == null)
+			return false;
+
+		String RFID=p.getRFID();
+		ProductTypeClass ptc = p.getProductType();
+
+		if(RFID==null || !RFID.matches("\\d{12}") || ptc==null)
+			return false;
+
+		//Product insert on the RFID MAP
+		if (productRFID.containsKey(RFID))
+			return false;
+		else
+			productRFID.put(RFID,p);
+
+		//Product insert on the ticket entry
+		TicketEntryClass t = null;
+		if ((t = ticketEntries.get(ptc.getBarCode())) != null) {
+			t.setAmount(t.getAmount() + 1);
+			ticketEntries.replace(ptc.getBarCode(),t);
+		} else {
+			try {
+				t = new TicketEntryClass(p.getProductType(), 1);
+				ticketEntries.put(p.getProductType().getBarCode(), t);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+
+		//New product -> New Price of the sale
+		//I just added new product with his sale -> Is sale discount added at the checkout?
+		double pPrice = p.getProductType().getPricePerUnit() * (1 - t.getDiscountRate());
+		this.setPrice(this.getPrice() + pPrice);
+
+		return true;
 	}
 
 	// this must also update the related ticket entry
 	boolean deleteProductRFID(String RFID) {
-		return false;
+		if (RFID == null || !RFID.matches("\\d{12}") || !productRFID.containsKey(RFID) )
+			return false;
+		Product p = productRFID.get(RFID);
+		if (p==null || p.getProductType()==null)
+			return false;
+		ProductTypeClass pTC = p.getProductType();
+
+		//Delete from Product Map
+		productRFID.remove(RFID);
+
+		//Delete from ticketEntries -> Random product?
+		TicketEntryClass t = null;
+		if ((t = ticketEntries.get(pTC.getBarCode())) == null)
+			return false;
+		else {
+			int amount = t.getAmount();
+			double discount = t.getDiscountRate();
+			if (amount==0)
+				//This should never happen
+				return false;
+			else {
+				if(amount==1)
+					ticketEntries.remove(pTC.getBarCode());
+
+				t.setAmount(amount - 1);
+
+				//Set new Price -> Above problems
+				double pPrice = pTC.getPricePerUnit() * (1 - discount);
+				this.setPrice(this.getPrice()-pPrice);
+			}
+		}
+		return true;
 	}
+
+
 	Map<String, Product> getProductRFID(){
 		return productRFID;
 	}
