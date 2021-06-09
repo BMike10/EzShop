@@ -711,11 +711,10 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if (transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
-    	if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{10}"))throw new InvalidRFIDException();
+    	if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{12}"))throw new InvalidRFIDException();
     	
     	if(!productsRFID.containsKey(RFID)) return false;
 		
-    	//è corretto come prendo il product type dato l'RFID?
     	Product p = productsRFID.get(RFID);
 		ProductType pt = p.getProductType();
 		
@@ -750,7 +749,7 @@ public class EZShop implements EZShopInterface {
 			throw new UnauthorizedException();
 		if (transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
-		if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{10}"))throw new InvalidRFIDException();
+		if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{12}"))throw new InvalidRFIDException();
 
 		if(!productsRFID.containsKey(RFID)) return false;
 		
