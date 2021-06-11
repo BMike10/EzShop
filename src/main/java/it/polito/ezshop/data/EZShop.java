@@ -499,124 +499,143 @@ public class EZShop implements EZShopInterface {
 			}
 			return false;
 		}
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public boolean recordOrderArrivalRFID(Integer orderId, String RFIDfrom) throws InvalidOrderIdException, UnauthorizedException, 
-    InvalidLocationException, InvalidRFIDException {
-    	if(currentUser == null || currentUser.getRole().equals("Cashier"))
-    			throw new UnauthorizedException();
-    	    	if(orderId == null ||orderId <=0) throw new InvalidOrderIdException();
-    	    	//RFID is a positive integer (received as a 12 characters string)
-    	    	if(RFIDfrom == null || !RFIDfrom.matches("\\d{12}")|| productsRFID.containsKey(RFIDfrom))
-    	    		throw new InvalidRFIDException();
-    	    	    	    	
-    	    	OrderClass o = null;
-    			try {
-    				o = (OrderClass) accountBook.getOrder(orderId);
-    			} catch (Exception e) {
-    				return false;
-    			}			
-    			if (o.getOrderStatus() == OrderStatus.ISSUED)
-    				return false;
-    			if (o.getOrderStatus() == OrderStatus.COMPLETED)
-    				return true;
-    			
-    			String productCode = o.getProductCode();
-    			int qty=o.getQuantity();
-    		    List<String> RFIDs = new ArrayList<String>();
-    		    for(int i=0; i<qty; i++) {
-	    	
-    		    	String RFIDString = Product.calculateRFID(RFIDfrom, i);
-    		    	if (productsRFID.containsKey(RFIDString)) throw new InvalidRFIDException();
-    		    	RFIDs.add(RFIDString);		    	
-    		    }
-    			// find product
-    			ProductTypeClass pt = null;
-    			try {
-    				pt = (ProductTypeClass) getProductTypeByBarCode(productCode);
-    			} catch (InvalidProductCodeException e) {
-    				return false;
-    			}
-    			// position check
-    			Position pos = pt.getPosition();
-    			if (pos == null || pos.getAisleId() < 0)
-    				throw new InvalidLocationException();
-    			// quantity update
-    			try {
-    				updateQuantity(pt.getId(), o.getQuantity());
-    			} catch (InvalidProductIdException e) {
-    				return false;
-    			}
-    			o.setStatus("COMPLETED");
-    			// record on db
-    			if (!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED)
-    					|| !Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
-    				// rollback
-    				try {
-    					updateQuantity(pt.getId(), -o.getQuantity());
-    					o.setStatus("PAYED");
-    					Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED);
-    				} catch (Exception e) {
-    					return false;
-    				}
-    				return false;
-    			}   		
-    		    for(int i = 0; i < qty; i++) {	
-    				Product p =  new Product (RFIDs.get(i), pt);
-    				productsRFID.put(RFIDs.get(i), p);
-    		    	}
-    			return true;
-    }
-    @Override
-    public List<Order> getAllOrders() throws UnauthorizedException {
-        if(currentUser==null || currentUser.getRole().equals("Cashier"))
-        	throw new UnauthorizedException();
-        return new ArrayList<>(Connect.getOrder(products).values());
-    }
+	@Override
+	public boolean recordOrderArrivalRFID(Integer orderId, String RFIDfrom)
+			throws InvalidOrderIdException, UnauthorizedException, InvalidLocationException, InvalidRFIDException {
+		if (currentUser == null
+				|| (!currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		if (orderId == null || orderId <= 0)
+			throw new InvalidOrderIdException();
+		// RFID is a positive integer (received as a 12 characters string)
+		if (RFIDfrom == null || !RFIDfrom.matches("\\d{12}") || productsRFID.containsKey(RFIDfrom))
 
+			throw new InvalidRFIDException();
 
-    @Override
-    public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard) throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException, UnauthorizedException {
-    	if(id == null || id <=0 ) throw new InvalidCustomerIdException();
-    	if(newCustomerName==null ||newCustomerName.isEmpty()) throw new InvalidCustomerNameException();
-    	if (!LoyaltyCardClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
-    	if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-    	if(customers.values().stream().anyMatch(c->c.getCustomerName().equals(newCustomerName)) && !customers.get(id).getCustomerName().equals(newCustomerName)) return false;  	
-    	if(attachedCards.values().stream().anyMatch(a->a.getCustomerCard().equals(newCustomerCard))) return false;
-        CustomerClass c = (CustomerClass) customers.get(id);       
-        String prevName= c.getCustomerName();
-        String prevCardCode= c.getCustomerCard(); 
-        
-        if(newCustomerCard.isEmpty())
-        {
-        //any existing card code connected to the customer will be removed  
-        	cards.remove(prevCardCode);
-        	c.setCustomerCard("");
-        	attachedCards.values().remove(c);   
-        }
-        
-    	c.setCustomerCard(newCustomerCard);
-    	c.setCustomerName(newCustomerName);
-		if(!Connect.updateCustomer(id, newCustomerName, newCustomerCard)){
-         	c.setCustomerName(prevName);
-         	c.setCustomerCard(prevCardCode);
-         	return false;
-         }   
-     	return true;
-    }
+		OrderClass o = null;
+		try {
+			o = (OrderClass) accountBook.getOrder(orderId);
+		} catch (Exception e) {
+			return false;
+		}
+		// return false if the order does not exist or if it was not in an
+		// ORDERED/COMPLETED state
+		if (o.getOrderStatus() == OrderStatus.ISSUED)
+			return false;
+		if (o.getOrderStatus() == OrderStatus.COMPLETED)
+			return true;
+		String productCode = o.getProductCode();
+		int qty = o.getQuantity();
+		List<String> RFIDs = new ArrayList<String>();
+		for (int i = 0; i < qty; i++) {
 
-    @Override
-    public boolean deleteCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
-    	if(id==null || id<=0) throw new InvalidCustomerIdException();
-        if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-    	if(!customers.containsKey(id)) return false;
-        Customer c = customers.remove(id);
-		if(!Connect.removeCustomer(id)) {
-        	customers.put(id,c);
-        	return false;
-        }
+			String RFIDString = Product.calculateRFID(RFIDfrom, i);
+			if (productsRFID.containsKey(RFIDString))
+				throw new InvalidRFIDException();
+			RFIDs.add(RFIDString);
+
+		}
+
+		// find product
+		ProductTypeClass pt = null;
+		try {
+			pt = (ProductTypeClass) getProductTypeByBarCode(productCode);
+		} catch (InvalidProductCodeException e) {
+			return false;
+		}
+		// position check
+		Position pos = pt.getPosition();
+		if (pos == null || pos.getAisleId() < 0)
+			throw new InvalidLocationException();
+		// quantity update
+		try {
+			updateQuantity(pt.getId(), o.getQuantity());
+		} catch (InvalidProductIdException e) {
+			return false;
+		}
+		o.setStatus("COMPLETED");
+		// record on db
+		if (!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED)
+				|| !Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
+			// rollback
+			try {
+				updateQuantity(pt.getId(), -o.getQuantity());
+				o.setStatus("PAYED");
+				Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED);
+			} catch (Exception e) {
+				return false;
+			}
+			return false;
+		}
+		for (int i = 0; i < qty; i++) {
+			Product p = new Product(RFIDs.get(i), pt);
+			productsRFID.put(RFIDs.get(i), p);
+			Connect.addProductRFID(p);
+		}
+		return true;
+	}
+
+	@Override
+	public List<Order> getAllOrders() throws UnauthorizedException {
+		if (currentUser == null || currentUser.getRole().equals("Cashier"))
+			throw new UnauthorizedException();
+		return new ArrayList<>(Connect.getOrder(products).values());
+	}
+
+	@Override
+	public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard)
+			throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException,
+			UnauthorizedException {
+		if (id == null || id <= 0)
+			throw new InvalidCustomerIdException();
+		if (newCustomerName == null || newCustomerName.isEmpty())
+			throw new InvalidCustomerNameException();
+		if (!LoyaltyCardClass.checkCardCode(newCustomerCard))
+			throw new InvalidCustomerCardException();
+		if (currentUser == null || currentUser.getRole().isEmpty())
+			throw new UnauthorizedException();
+		if (customers.values().stream().anyMatch(c -> c.getCustomerName().equals(newCustomerName))
+				&& !customers.get(id).getCustomerName().equals(newCustomerName))
+			return false;
+		if (attachedCards.values().stream().anyMatch(a -> a.getCustomerCard().equals(newCustomerCard)))
+			return false;
+		CustomerClass c = (CustomerClass) customers.get(id);
+		String prevName = c.getCustomerName();
+		String prevCardCode = c.getCustomerCard();
+
+		if (newCustomerCard.isEmpty()) {
+			// any existing card code connected to the customer will be removed
+			cards.remove(prevCardCode);
+			c.setCustomerCard("");
+			attachedCards.values().remove(c);
+		}
+
+		c.setCustomerCard(newCustomerCard);
+		c.setCustomerName(newCustomerName);
+		if (!Connect.updateCustomer(id, newCustomerName, newCustomerCard)) {
+			c.setCustomerName(prevName);
+			c.setCustomerCard(prevCardCode);
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean deleteCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
+		if (id == null || id <= 0)
+			throw new InvalidCustomerIdException();
+		if (currentUser == null || currentUser.getRole().isEmpty())
+			throw new UnauthorizedException();
+		if (!customers.containsKey(id))
+			return false;
+		Customer c = customers.remove(id);
+		if (!Connect.removeCustomer(id)) {
+			customers.put(id, c);
+			return false;
+		}
 		return true;
 	}
 
@@ -977,6 +996,11 @@ public class EZShop implements EZShopInterface {
 			} catch (InvalidTransactionIdException e) {
 				e.printStackTrace();
 			}
+		// remove RFID from shop
+		for(Product p: st.getProductRFID().values()) {
+			productsRFID.remove(p.getRFID());
+			Connect.deleteProductRFID(p.getRFID());
+		}
 		// recordBalanceUpdate(st.getMoney());
 		return true;
 	}
@@ -1009,6 +1033,15 @@ public class EZShop implements EZShopInterface {
 			try {
 				this.updateQuantity(pt.getId(), te.getAmount());
 			} catch (InvalidProductIdException e) {
+				e.printStackTrace();
+			}
+		}
+		// reinsert RFID
+		for(Product p: st.getProductRFID().values()) {
+			try {
+				updateQuantity(p.getProductType().getId(), 1);
+				productsRFID.put(p.getRFID(), p);
+			}catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
