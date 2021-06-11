@@ -28,7 +28,7 @@ public class EZShop implements EZShopInterface {
 		customers = Connect.getCustomer(cards);
 		attachedCards = Connect.getAttachedCard(cards, customers);
 		productsRFID = Connect.getAllProductRFID(products);
-		Map<Integer, SaleTransaction> sales = Connect.getSaleTransaction(products, cards, productsRFID);
+		Map<Integer, SaleTransaction> sales = Connect.getSaleTransaction(products, cards);
 		accountBook = new AccountBookClass(sales, Connect.getOrder(products),
 				Connect.getReturnTransaction(products, sales), Connect.getBalanceOperations());
 		try {
@@ -745,9 +745,9 @@ public class EZShop implements EZShopInterface {
 		}
 		try {
 			//l'amount del product RFID è sempre 1 no? 
-			if (updateQuantity(pt.getId(), -1)) {
+			if (st.addProductRFID(p)) {
 				//todo
-				st.addProductRFID(p);
+				updateQuantity(pt.getId(), -1);
 				return true;
 			}
 		} catch (InvalidProductIdException e) {
@@ -1177,6 +1177,16 @@ public class EZShop implements EZShopInterface {
 					e.printStackTrace();
 				}
 			});
+			rt.getReturnedRFID().forEach((rfid, p)->{
+				try {
+					updateQuantity(p.getProductType().getId(), 1);
+					productsRFID.put(rfid,  p);
+					Connect.addProductRFID(p);
+					st.deleteProductRFID(rfid);
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+			});
 			st.checkout(); // compute the new total
 			if (!Connect.addReturnTransaction(rt, returnId, "RETURN", rt.getMoney(), ReturnStatus.CLOSED,
 					st.getBalanceId())) {
@@ -1235,6 +1245,16 @@ public class EZShop implements EZShopInterface {
 				return false;
 			}
 		}
+		rt.getReturnedRFID().forEach((rfid, p)->{
+			try {
+				st.addProductRFID(p);
+				productsRFID.remove(rfid);
+				Connect.deleteProductRFID(rfid);
+				updateQuantity(p.getProductType().getId(), -1);		
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 		st.checkout();
 		if (!Connect.removeSaleTransaction(st.getBalanceId()) || !Connect.addSaleTransaction(st, st.getBalanceId(),
 				st.getDescription(), st.getMoney(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))

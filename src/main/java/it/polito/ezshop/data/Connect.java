@@ -130,9 +130,16 @@ public class Connect {
         String soldRFID = "CREATE TABLE IF NOT EXISTS SoldRFID("
         		+ "saleId integer not null,"
         		+ "RFID text NOT NULL,"
+        		+ "productId integer not null,"
         		+ "PRIMARY KEY(saleId, RFID),"
-        		+ "foreign key(saleId) references SaleTransactions(id),"
-        		+ "FOREIGN KEY (RFID) references ProductRFID(RFID))";
+        		+ "foreign key(saleId) references SaleTransactions(id))";
+        String returnRFID = "CREATE TABLE IF NOT EXISTS ReturnRFID("
+        		+ "retId integer not null,"
+        		+ "RFID text NOT NULL,"
+        		+ "productId integer not null,"
+        		+ "PRIMARY KEY(retId, RFID),"
+        		+ "foreign key(retId) references ReturnTransactions(id))";
+        
 
         /*String balance = "CREATE TABLE IF NOT EXISTS Balance("
                 + "id INTEGER NOT NULL PRIMARY KEY,"
@@ -154,6 +161,7 @@ public class Connect {
             stmt.executeUpdate(balanceOperation);
             stmt.executeUpdate(tableRFID);
             stmt.executeUpdate(soldRFID);
+            stmt.executeUpdate(returnRFID);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -534,7 +542,7 @@ public class Connect {
     //SALE TRANSACTION
 
     //SALE TRANSACTION		
-    public static Map<Integer, SaleTransaction> getSaleTransaction(Map<Integer, ProductType> products, Map<String, LoyaltyCard> cards, Map<String, Product> productRFID){
+    public static Map<Integer, SaleTransaction> getSaleTransaction(Map<Integer, ProductType> products, Map<String, LoyaltyCard> cards){
         HashMap<Integer, SaleTransaction> sales = new HashMap<>();
         //Map<Integer, ProductType> products = getProduct();
 
@@ -567,14 +575,13 @@ public class Connect {
                 	e.printStackTrace();
                 }
                 Map<String, Product> soldRFID = new HashMap<>();
-                String sql3 = "SELECT RFID FROM SoldRFID WHERE saleId="+id;
+                String sql3 = "SELECT RFID, productId FROM SoldRFID WHERE saleId="+id;
                 try(Statement st3 = conn.createStatement()){
                 	ResultSet rs3 = st3.executeQuery(sql3);
                 	while(rs3.next()) {
                 		String rfid = rs3.getString("RFID");
-                		Product p = productRFID.get(rfid);
-                		if(p==null)
-                			continue;
+                		int pid = rs3.getInt("productId");
+                		Product p = new Product(rfid, (ProductTypeClass)products.get(pid));
                 		soldRFID.put(rfid, p);
                 	}
                 }
@@ -631,7 +638,8 @@ public class Connect {
         Map<String, Product> soldRFID = sale.getProductRFID();
         if(soldRFID !=null && soldRFID.size()>0) {
         	for(String s: soldRFID.keySet()) {
-        		String sql3 = "INSERT INTO SoldRFID(RFID, saleId) VALUES('"+s+"', "+sale.getBalanceId()+")";
+        		String sql3 = "INSERT INTO SoldRFID(RFID, saleId, productId)"
+        				+ " VALUES('"+s+"', "+sale.getBalanceId()+","+soldRFID.get(s).getProductType().getId()+")";
         		try{
         			Statement st = conn.createStatement();
         			st.execute(sql3);
@@ -705,7 +713,20 @@ public class Connect {
                 }catch (Exception e) {
                 	e.printStackTrace();
                 }
+
+                Map<String, Product> retRFID = new HashMap<>();
+                String sql3 = "SELECT RFID, productId FROM ReturnRFID WHERE retId="+id;
+                try(Statement st3 = conn.createStatement()){
+                	ResultSet rs3 = st3.executeQuery(sql3);
+                	while(rs3.next()) {
+                		String rfid = rs3.getString("RFID");
+                		int pid = rs3.getInt("productId");
+                		Product p = new Product(rfid, (ProductTypeClass)products.get(pid));
+                		retRFID.put(rfid, p);
+                	}
+                }
                 ReturnTransactionClass rt = new ReturnTransactionClass(id, description, amount, date.toLocalDate(), "DEBIT", returnedProducts, s, rstatus);
+                rt.setReturnedRFID(retRFID);
                 returns.put(id,  rt);
             }
         } catch (SQLException e) {
@@ -780,6 +801,21 @@ public class Connect {
             }
             //here the sale transaction table should be uploaded
         });
+        Map<String, Product> retRFID = ret.getReturnedRFID();
+        if(retRFID !=null && retRFID.size()>0) {
+        	for(String s: retRFID.keySet()) {
+        		String sql3 = "INSERT INTO RetrunedRFID(RFID, retId, productId)"
+        				+ " VALUES('"+s+"', "+ret.getBalanceId()+","+retRFID.get(s).getProductType().getId()+")";
+        		try{
+        			Statement st = conn.createStatement();
+        			st.execute(sql3);
+        			st.close();
+        		}catch (Exception e) {
+        			e.printStackTrace();
+        			return false;
+        		}
+        	}
+        }
 
         return true;
     }
@@ -811,6 +847,14 @@ public class Connect {
 		try{
     		Statement st = conn.createStatement();
             st.execute(sql2);
+        st.close();
+    	}catch (Exception e) {
+            e.printStackTrace();
+        }
+		String sql3 = "delete from ReturnRFID where retId="+id;
+		try{
+    		Statement st = conn.createStatement();
+            st.execute(sql3);
         st.close();
     	}catch (Exception e) {
             e.printStackTrace();
@@ -851,6 +895,8 @@ public class Connect {
 			stmt.executeUpdate(sqlDrop);
 			sqlDrop ="delete from SoldRFID";
 			stmt.executeUpdate(sqlDrop);
+			sqlDrop ="delete from ReturnRFID";
+			stmt.executeUpdate(sqlDrop);			
 			System.out.println("All tables content deleted");
     	}catch(Exception e) {
     		e.printStackTrace();

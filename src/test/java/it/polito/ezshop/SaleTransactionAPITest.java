@@ -217,6 +217,8 @@ public class SaleTransactionAPITest {
 
 		// valid
 		assertTrue(ezshop.addProductToSaleRFID(id, "000000001000"));
+		
+		assertFalse(ezshop.addProductToSaleRFID(id, "000000001000"));
 
 		ezshop.deleteProductFromSaleRFID(id, "000000001000");
 

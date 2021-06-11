@@ -13,7 +13,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 	private final Map<ProductType, Integer> returnedProduct = new HashMap<>();
 	private SaleTransaction saleTransaction;
 	private ReturnStatus status;
-	private final Map<String, Product> productRFID = new HashMap<>();
+	private Map<String, Product> productRFID = new HashMap<>();
 
 	public ReturnTransactionClass(int orderId, String description, double amount, LocalDate date, String type,
 			Map<ProductType, Integer> returned, SaleTransaction saleT, ReturnStatus retstatus) {
@@ -174,5 +174,8 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 	}
 	Map<String, Product> getReturnedRFID(){
 		return productRFID;
+	}
+	void setReturnedRFID(Map<String, Product> retRFID) {
+		this.productRFID = retRFID;
 	}
 }
