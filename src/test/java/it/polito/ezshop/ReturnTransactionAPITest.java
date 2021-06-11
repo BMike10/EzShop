@@ -88,12 +88,12 @@ public class ReturnTransactionAPITest {
 		ezshop.addProductToSale(id, "4006381333900", 4);
 		ezshop.addProductToSale(id, "4006381333931", 9);
 		SaleTransactionClass stc = (SaleTransactionClass) ezshop.getAccountBook().getSaleTransaction(id);
-		ezshop.addProductToSaleRFID(stc.getTicketNumber(), "000000001000");
-		stc.setStatus(SaleStatus.CLOSED);
-		
 		ezshop.recordBalanceUpdate(100);
 		int orderId = ezshop.payOrderFor("4006381333900", 10, 1);
 		ezshop.recordOrderArrivalRFID(orderId, "000000001000");
+		ezshop.addProductToSaleRFID(stc.getTicketNumber(), "000000001000");
+		stc.setStatus(SaleStatus.CLOSED);
+		
 		
 		ezshop.logout();
 	}
