@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.Map.Entry;
 
+
 public class EZShop implements EZShopInterface {
 	// private static Connection conn = null;
 	private Map<Integer, ProductType> products;
@@ -27,7 +28,7 @@ public class EZShop implements EZShopInterface {
 		customers = Connect.getCustomer(cards);
 		attachedCards = Connect.getAttachedCard(cards, customers);
 		productsRFID = Connect.getAllProductRFID(products);
-		Map<Integer, SaleTransaction> sales = Connect.getSaleTransaction(products, cards, productsRFID);
+		Map<Integer, SaleTransaction> sales = Connect.getSaleTransaction(products, cards);
 		accountBook = new AccountBookClass(sales, Connect.getOrder(products),
 				Connect.getReturnTransaction(products, sales), Connect.getBalanceOperations());
 		try {
@@ -37,7 +38,7 @@ public class EZShop implements EZShopInterface {
 				String data = myReader.nextLine();
 				if (data.startsWith("#"))
 					continue;
-				// System.out.println(data);
+				//System.out.println(data);
 				String[] fields = data.split(";");
 				CreditCardsMap.put(fields[0], Double.parseDouble(fields[1]));
 			}
@@ -54,9 +55,8 @@ public class EZShop implements EZShopInterface {
 			Connect.deleteAll();
 			accountBook = new AccountBookClass(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
 			products = new HashMap<>();
-			users = new HashMap<>();
-			cards = new HashMap<>();
-			customers = new HashMap<>();
+			users = new HashMap<>(); cards = new HashMap<>(); 
+			customers = new	HashMap<>(); 
 			attachedCards = new HashMap<>();
 			productsRFID = new HashMap<>();
 		} catch (Exception e) {
@@ -77,9 +77,9 @@ public class EZShop implements EZShopInterface {
 			return -1;
 		int id = users.keySet().stream().max(Comparator.comparingInt(t -> t)).orElse(0) + 1;
 		try {
-			User user = new UserClass(id, username, password, RoleEnum.valueOf(role));
-			users.put(id, user);
-		} catch (Exception e) {
+		User user = new UserClass(id, username, password, RoleEnum.valueOf(role));
+		users.put(id, user);}
+		catch(Exception e){
 			throw new InvalidRoleException();
 		}
 		if (!Connect.addUsers(id, username, password, role)) {
@@ -325,7 +325,7 @@ public class EZShop implements EZShopInterface {
 		if (pt == null)
 			return false;
 		final Position prev = pt.getPosition();
-
+		
 		// check for uniqueness of position
 		if (p.getAisleId() != -1) {
 			for (ProductType prod : products.values()) {
@@ -523,8 +523,10 @@ public class EZShop implements EZShopInterface {
 		}
 		// return false if the order does not exist or if it was not in an
 		// ORDERED/COMPLETED state
-		if (o.getOrderStatus() == OrderStatus.ISSUED || o.getOrderStatus() == OrderStatus.COMPLETED)
+		if (o.getOrderStatus() == OrderStatus.ISSUED)
 			return false;
+		if (o.getOrderStatus() == OrderStatus.COMPLETED)
+			return true;
 		String productCode = o.getProductCode();
 		int qty = o.getQuantity();
 		List<String> RFIDs = new ArrayList<String>();
@@ -571,6 +573,7 @@ public class EZShop implements EZShopInterface {
 		for (int i = 0; i < qty; i++) {
 			Product p = new Product(RFIDs.get(i), pt);
 			productsRFID.put(RFIDs.get(i), p);
+			Connect.addProductRFID(p);
 		}
 		return true;
 	}
@@ -706,7 +709,7 @@ public class EZShop implements EZShopInterface {
 			throw new InvalidCustomerCardException();
 		LoyaltyCard card = cards.get(customerCard);
 		Customer customer = customers.get(customerId);
-		// id already checked but customer does not
+		//id already checked but customer does not
 		if (customer == null
 				|| attachedCards.values().stream().map(e -> e.getCustomerCard()).anyMatch(e -> e.equals(customerCard)))
 			return false;
@@ -718,36 +721,33 @@ public class EZShop implements EZShopInterface {
 	}
 
 	@Override
-	public boolean addProductToSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException,
-			InvalidRFIDException, InvalidQuantityException, UnauthorizedException {
+    public boolean addProductToSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, InvalidQuantityException, UnauthorizedException{
 		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
 				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
 		if (transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
-		if (RFID == null || RFID.isEmpty() || !RFID.matches("\\d{12}"))
-			throw new InvalidRFIDException();
-
-		if (!productsRFID.containsKey(RFID))
-			return false;
-
-		Product p = productsRFID.get(RFID);
+    	if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{12}"))throw new InvalidRFIDException();
+    	
+    	if(!productsRFID.containsKey(RFID)) return false;
+		
+    	Product p = productsRFID.get(RFID);
 		ProductType pt = p.getProductType();
-
-		SaleTransactionClass st = null;
+		
+    	SaleTransactionClass st = null;
 		try {
 			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		} catch (Exception e) {
 			return false;
-		}
-		if (st == null || st.getStatus() != SaleStatus.STARTED) {
+			}
+		if (st == null || st.getStatus()!=SaleStatus.STARTED) {
 			return false;
 		}
 		try {
-			// l'amount del product RFID è sempre 1 no?
-			if (updateQuantity(pt.getId(), -1)) {
-				// todo
-				st.addProductRFID(p);
+			//l'amount del product RFID è sempre 1 no? 
+			if (st.addProductRFID(p)) {
+				//todo
+				updateQuantity(pt.getId(), -1);
 				return true;
 			}
 		} catch (InvalidProductIdException e) {
@@ -755,41 +755,40 @@ public class EZShop implements EZShopInterface {
 			return false;
 		}
 		return false;
-	}
+    }
+    
 
-	@Override
-	public boolean deleteProductFromSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException,
-			InvalidRFIDException, InvalidQuantityException, UnauthorizedException {
-		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
+    @Override
+    public boolean deleteProductFromSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, InvalidQuantityException, UnauthorizedException{
+    	if (currentUser == null || (!currentUser.getRole().equals("Cashier")
 				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
 		if (transactionId == null || transactionId <= 0)
 			throw new InvalidTransactionIdException();
-		if (RFID == null || RFID.isEmpty() || !RFID.matches("\\d{12}"))
-			throw new InvalidRFIDException();
+		if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{12}"))throw new InvalidRFIDException();
 
-		if (!productsRFID.containsKey(RFID))
-			return false;
-
+		if(!productsRFID.containsKey(RFID)) return false;
+		
 		SaleTransactionClass st = null;
 		try {
 			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
 		} catch (Exception e) {
 			return false;
-		}
+			}
 		Product p = productsRFID.get(RFID);
 		ProductType pt = p.getProductType();
-		// todo
+		//todo
 		if (!st.deleteProductRFID(RFID))
 			return false;
 		try {
-			// se metto 1 come quantity è brutto?
+			//se metto 1 come quantity è brutto? 
 			return updateQuantity(pt.getId(), 1);
 		} catch (InvalidProductIdException e) {
 			e.printStackTrace();
 			return false;
 		}
-	}
+    }
+
 
 	@Override
 	public boolean modifyPointsOnCard(String customerCard, int pointsToBeAdded)
@@ -810,7 +809,7 @@ public class EZShop implements EZShopInterface {
 			if (c.getCustomerCard().equals(customerCard)) {
 				tmp = (CustomerClass) c;
 				int tot = ((CustomerClass) c).updateCustomerPoints(pointsToBeAdded);
-				// c.setPoints(tot);
+				//c.setPoints(tot);
 			}
 		}
 		if (!Connect.updateLoyaltyCard(customerCard, card.getPoints())) {
@@ -854,7 +853,7 @@ public class EZShop implements EZShopInterface {
 		} catch (Exception e) {
 			return false;
 		}
-		if (st == null || st.getStatus() != SaleStatus.STARTED) {
+		if (st == null || st.getStatus()!=SaleStatus.STARTED) {
 			return false;
 		}
 		try {
@@ -925,7 +924,7 @@ public class EZShop implements EZShopInterface {
 		if (st == null || st.getStatus() != SaleStatus.STARTED) {
 			return false;
 		}
-
+		
 		return st.addProductDiscount(pt, discountRate);
 	}
 
@@ -945,7 +944,7 @@ public class EZShop implements EZShopInterface {
 		} catch (Exception e) {
 			return false;
 		}
-		if (st == null || st.getStatus() == SaleStatus.PAYED) {
+		if (st == null || st.getStatus()==SaleStatus.PAYED) {
 			return false;
 		}
 		st.setDiscountRate(discountRate);
@@ -997,6 +996,11 @@ public class EZShop implements EZShopInterface {
 			} catch (InvalidTransactionIdException e) {
 				e.printStackTrace();
 			}
+		// remove RFID from shop
+		for(Product p: st.getProductRFID().values()) {
+			productsRFID.remove(p.getRFID());
+			Connect.deleteProductRFID(p.getRFID());
+		}
 		// recordBalanceUpdate(st.getMoney());
 		return true;
 	}
@@ -1029,6 +1033,15 @@ public class EZShop implements EZShopInterface {
 			try {
 				this.updateQuantity(pt.getId(), te.getAmount());
 			} catch (InvalidProductIdException e) {
+				e.printStackTrace();
+			}
+		}
+		// reinsert RFID
+		for(Product p: st.getProductRFID().values()) {
+			try {
+				updateQuantity(p.getProductType().getId(), 1);
+				productsRFID.put(p.getRFID(), p);
+			}catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -1074,29 +1087,28 @@ public class EZShop implements EZShopInterface {
 
 		return accountBook.addReturnTransaction(rt);
 	}
-
 	@Override
-	public boolean returnProductRFID(Integer returnId, String RFID)
-			throws InvalidTransactionIdException, InvalidRFIDException, UnauthorizedException {
+    public boolean returnProductRFID(Integer returnId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, UnauthorizedException 
+    {
 		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
 				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
 			throw new UnauthorizedException();
-		if (returnId == null || returnId <= 0)
+		if(returnId == null || returnId <= 0)
 			throw new InvalidTransactionIdException();
-		if (RFID == null || !RFID.matches("\\d{12}"))
-			throw new InvalidRFIDException("RFID: " + RFID);
-		ReturnTransactionClass rt = null;
+		if(RFID == null || !RFID.matches("\\d{12}"))
+			throw new InvalidRFIDException("RFID: "+RFID);
+		ReturnTransactionClass rt=null;
 		try {
 			rt = (ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
-		} catch (Exception e) {
+		}catch(Exception e) {
 			return false;
 		}
 		SaleTransactionClass st = (SaleTransactionClass) rt.getSaleTransaction();
 		Map<String, Product> soldRFID = st.getProductRFID();
-		if (!soldRFID.containsKey(RFID))
+		if(!soldRFID.containsKey(RFID))
 			return false;
 		return rt.addProductRFID(soldRFID.get(RFID));
-	}
+    }
 
 	@Override
 	public boolean returnProduct(Integer returnId, String productCode, int amount) throws InvalidTransactionIdException,
@@ -1165,6 +1177,16 @@ public class EZShop implements EZShopInterface {
 					e.printStackTrace();
 				}
 			});
+			rt.getReturnedRFID().forEach((rfid, p)->{
+				try {
+					updateQuantity(p.getProductType().getId(), 1);
+					productsRFID.put(rfid,  p);
+					Connect.addProductRFID(p);
+					st.deleteProductRFID(rfid);
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+			});
 			st.checkout(); // compute the new total
 			if (!Connect.addReturnTransaction(rt, returnId, "RETURN", rt.getMoney(), ReturnStatus.CLOSED,
 					st.getBalanceId())) {
@@ -1205,8 +1227,7 @@ public class EZShop implements EZShopInterface {
 		} catch (Exception e) {
 			return false;
 		}
-		if (rt == null || rt.getStatus().equals(ReturnStatus.STARTED.name())
-				|| rt.getStatus().equals(ReturnStatus.PAYED.name())) {
+		if (rt == null || rt.getStatus().equals(ReturnStatus.STARTED.name()) || rt.getStatus().equals(ReturnStatus.PAYED.name())) {
 			return false;
 		}
 		SaleTransactionClass st = (SaleTransactionClass) rt.getSaleTransaction();
@@ -1224,6 +1245,16 @@ public class EZShop implements EZShopInterface {
 				return false;
 			}
 		}
+		rt.getReturnedRFID().forEach((rfid, p)->{
+			try {
+				st.addProductRFID(p);
+				productsRFID.remove(rfid);
+				Connect.deleteProductRFID(rfid);
+				updateQuantity(p.getProductType().getId(), -1);		
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 		st.checkout();
 		if (!Connect.removeSaleTransaction(st.getBalanceId()) || !Connect.addSaleTransaction(st, st.getBalanceId(),
 				st.getDescription(), st.getMoney(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))
@@ -1268,10 +1299,8 @@ public class EZShop implements EZShopInterface {
 		if (!Connect.updateSaleTransactionStatus(transactionId, SaleStatus.valueOf("PAYED"), "CASH"))
 			return -1;
 		// MICHELE
-		// accountBook.addBalanceOperation((BalanceOperation) saleTransaction); // TODO
-		// need to create a new one?
-		accountBook.addBalanceOperation(new BalanceOperationClass(saleTransaction.getTicketNumber(), "SALE", saleAmount,
-				((SaleTransactionClass) saleTransaction).getDate(), "CREDIT")); // TODO need to create a new one?
+		//accountBook.addBalanceOperation((BalanceOperation) saleTransaction); // TODO need to create a new one?
+		accountBook.addBalanceOperation(new BalanceOperationClass(saleTransaction.getTicketNumber(), "SALE", saleAmount, ((SaleTransactionClass)saleTransaction).getDate(),"CREDIT")); // TODO need to create a new one?
 		((SaleTransactionClass) saleTransaction).setPaymentType("CASH");
 		// Update map and db(Balance)
 		// recordBalanceUpdate(saleAmount);
@@ -1316,11 +1345,9 @@ public class EZShop implements EZShopInterface {
 			return false;
 
 		// Update map and db(Balance)
-		// accountBook.addBalanceOperation((BalanceOperation) sale); // TODO need to
-		// create a new one?
-		accountBook.addBalanceOperation(new BalanceOperationClass(sale.getTicketNumber(), "SALE", saleAmount,
-				((SaleTransactionClass) sale).getDate(), "CREDIT")); // TODO need to create a new one?
-
+		//accountBook.addBalanceOperation((BalanceOperation) sale);		// TODO need to create a new one?
+		accountBook.addBalanceOperation(new BalanceOperationClass(sale.getTicketNumber(), "SALE", saleAmount, ((SaleTransactionClass)sale).getDate(),"CREDIT")); // TODO need to create a new one?
+		
 		((SaleTransactionClass) sale).setPaymentType("CREDIT_CARD");
 		// recordBalanceUpdate(saleAmount);
 		// Update new CreditCardSale
@@ -1354,15 +1381,11 @@ public class EZShop implements EZShopInterface {
 			return -1;
 		// TODO check this
 		SaleTransaction st = returnTransaction.getSaleTransaction();
-		/*
-		 * if(!accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice()))
-		 * // added if return -1;
-		 */
-		if (!accountBook.addBalanceOperation(
-				new BalanceOperationClass(returnId, "RETURN", ((ReturnTransactionClass) returnTransaction).getMoney(),
-						((ReturnTransactionClass) returnTransaction).getDate(), "DEBIT")))
+		/*if(!accountBook.updateBalanceOperation(st.getTicketNumber(), st.getPrice()))	// added if
+			return -1;*/
+		if(!accountBook.addBalanceOperation(new BalanceOperationClass(returnId, "RETURN", ((ReturnTransactionClass)returnTransaction).getMoney(), ((ReturnTransactionClass)returnTransaction).getDate(), "DEBIT")))
 			return -1;
-
+		
 		// Return Transaction is ended-> Update map and db(STATUS)
 		// Update Map
 		returnTransaction.setStatus("PAYED");
@@ -1381,7 +1404,8 @@ public class EZShop implements EZShopInterface {
 		// LOGIN
 		if (currentUser == null)
 			throw new UnauthorizedException();
-		// It's already checked on checkCreditCardNumber
+		//It's already checked on checkCreditCardNumber
+
 
 		double newCredit = 0;
 
@@ -1404,11 +1428,10 @@ public class EZShop implements EZShopInterface {
 		if (!status.equals("CLOSED"))
 			return -1;
 
-		if (!accountBook.addBalanceOperation(
-				new BalanceOperationClass(returnId, "RETURN", ((ReturnTransactionClass) returnTransaction).getMoney(),
-						((ReturnTransactionClass) returnTransaction).getDate(), "DEBIT")))
-			return -1;
-
+		
+		if(!accountBook.addBalanceOperation(new BalanceOperationClass(returnId, "RETURN", ((ReturnTransactionClass)returnTransaction).getMoney(), ((ReturnTransactionClass)returnTransaction).getDate(), "DEBIT")))
+		return -1;
+		
 		newCredit = CreditCardsMap.get(creditCard) + ((ReturnTransactionClass) returnTransaction).getMoney();
 		// Return Transaction is ended-> Update map and db
 		// Update Map
@@ -1457,14 +1480,14 @@ public class EZShop implements EZShopInterface {
 
 		LocalDate newFrom = from;
 		LocalDate newTo = to;
-		if (from != null && to != null) {
-			if (from.isAfter(to)) {
-				// Order Data Correction
+		if(from!= null && to!= null){
+			if(from.isAfter(to)){
+				//Order Data Correction
 				newFrom = to;
 				newTo = from;
 			}
 		}
-		return accountBook.getBalanceOperationByDate(newFrom, newTo); // TODO need to add also returns?
+		return accountBook.getBalanceOperationByDate(newFrom, newTo);	// TODO need to add also returns?
 	}
 
 	public void checkCreditCardNumber(String creditCard) throws InvalidCreditCardException {

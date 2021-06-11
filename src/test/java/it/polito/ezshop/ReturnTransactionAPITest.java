@@ -274,10 +274,8 @@ public class ReturnTransactionAPITest {
 				.getSaleTransaction();
 		// return product
 		assertTrue(ezshop.returnProductRFID(retId, "000000001000"));
-		// check that the quantity has been updated in the sale transaction
-		assertEquals(q1, stc.getProductsEntries().get(pt1.getBarCode()).getAmount()+1, 0.0001);
-		// undo the operation
-		ezshop.addProductToSale(stc.getTicketNumber(), pt1.getBarCode(), 1);
+		// check that the product has been inserted in the return transaction map of products
+		assertTrue(((ReturnTransactionClass)ezshop.getAccountBook().getReturnTransaction(retId)).getReturnedRFID().containsKey("000000001000"));
 	}
 	
 
