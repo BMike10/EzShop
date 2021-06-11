@@ -571,6 +571,7 @@ public class EZShop implements EZShopInterface {
 		for (int i = 0; i < qty; i++) {
 			Product p = new Product(RFIDs.get(i), pt);
 			productsRFID.put(RFIDs.get(i), p);
+			Connect.addProductRFID(p);
 		}
 		return true;
 	}
@@ -997,6 +998,11 @@ public class EZShop implements EZShopInterface {
 			} catch (InvalidTransactionIdException e) {
 				e.printStackTrace();
 			}
+		// remove RFID from shop
+		for(Product p: st.getProductRFID().values()) {
+			productsRFID.remove(p.getRFID());
+			Connect.deleteProductRFID(p.getRFID());
+		}
 		// recordBalanceUpdate(st.getMoney());
 		return true;
 	}
@@ -1029,6 +1035,15 @@ public class EZShop implements EZShopInterface {
 			try {
 				this.updateQuantity(pt.getId(), te.getAmount());
 			} catch (InvalidProductIdException e) {
+				e.printStackTrace();
+			}
+		}
+		// reinsert RFID
+		for(Product p: st.getProductRFID().values()) {
+			try {
+				updateQuantity(p.getProductType().getId(), 1);
+				productsRFID.put(p.getRFID(), p);
+			}catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
