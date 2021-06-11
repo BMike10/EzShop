@@ -172,7 +172,7 @@ public class ReturnTransactionClass extends BalanceOperationClass implements Ret
 
 		return true;
 	}
-	Map<String, Product> getReturnedRFID(){
+	public Map<String, Product> getReturnedRFID(){
 		return productRFID;
 	}
 }
