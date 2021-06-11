@@ -1423,29 +1423,29 @@ Criteria for method setRFID:
 - Signature of RFID
 - Length of RFID
 
-**Predicates for method setDescription:**
+**Predicates for method setRFID:**
 
 | Criterion   | Predicate     |
 | ----------- | ------------- |
-| Signature of Description | null |
+| Signature of RFID | null |
 | | valid|
 | Length of string | =12 |
 |   | !=12 |
 
 
-**Boundaries for method setDescription:**
+**Boundaries for method setRFID:**
 
 | Criterion   | Boundary values |
 | ----------- | --------------- |
 
 
-**Combination of predicates for method setDescription**
+**Combination of predicates for method setRFID**
 
-| Signature of Description | Length of string | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| Signature of RFID | Length of string | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
 | --- | ------ |------------- | -------- | ------- |
 | null  |  *  | Invalid | T1(null; error)  |    ProductTest.testSetRFID |
-| valid | !=12  | Invalid   | T2("12345678901242525";)   | AccountBook.testSetRFID  |
-| "    | =12 | Valid   | T3("123456789012")         |  AccountBook.testSetRFID |
+| valid | !=12  | Invalid   | T2("12345678901242525";)   | ProductTest.testSetRFID  |
+| "    | =12 | Valid   | T3("123456789012")         |  ProductTest.testSetRFID |
 
 
 ### Method calculateRFID
