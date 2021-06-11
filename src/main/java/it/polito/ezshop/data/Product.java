@@ -34,7 +34,9 @@ public class Product {
 	}
 	
 	public static String calculateRFID(String input, int step) throws InvalidRFIDException
-    { 
+    {
+    	if(step<0 || step==Integer.MAX_VALUE)
+			throw new InvalidRFIDException();
 		Long l = null;		
 	try {			
 			l = Long.parseLong(input);			
