@@ -262,7 +262,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	}
 	
 	// this must also update the related ticket entry
-	boolean addProductRFID(Product p) {
+	public boolean addProductRFID(Product p) {
 		if (p == null)
 			return false;
 
@@ -299,7 +299,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	}
 
 	// this must also update the related ticket entry
-	boolean deleteProductRFID(String RFID) {
+	public boolean deleteProductRFID(String RFID) {
 		if (RFID == null || !RFID.matches("\\d{12}") || !productRFID.containsKey(RFID) )
 			return false;
 
@@ -328,10 +328,10 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	}
 
 
-	Map<String, Product> getProductRFID(){
+	public Map<String, Product> getProductRFID(){
 		return productRFID;
 	}
-	void setProductRFID(Map<String, Product> rfids) {
+	public void setProductRFID(Map<String, Product> rfids) {
 		if(rfids == null)
 			throw new RuntimeException();
 		productRFID = rfids;
