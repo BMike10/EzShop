@@ -12,15 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.polito.ezshop.data.*;
 import org.junit.*;
 
-import it.polito.ezshop.data.SaleTransactionClass;
-import it.polito.ezshop.data.TicketEntry;
-import it.polito.ezshop.data.LoyaltyCard;
-import it.polito.ezshop.data.LoyaltyCardClass;
-import it.polito.ezshop.data.ProductTypeClass;
-import it.polito.ezshop.data.SaleStatus;
-import it.polito.ezshop.data.TicketEntryClass;
 import it.polito.ezshop.exceptions.InvalidCustomerCardException;
 import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
@@ -307,5 +301,64 @@ public class SaleTransactionTest {
 		stc.deleteProduct(ptc, 1);
 		assertEquals(stc.getPrice(), 0.0, 0.0001);
 		assertTrue(stc.getEntries().size()==0);
+	}
+
+	@Test
+	public void testAddProductRFID() throws Exception {
+		SaleTransactionClass stc = new SaleTransactionClass(new Time(System.currentTimeMillis()), SaleStatus.STARTED);
+		//Product is null
+		assertFalse(stc.addProductRFID(null));
+
+		//RFID of product is null
+		//ProductTypeClass pT = new ProductTypeClass(1,"Banana","400638133390",1.0,null);
+		//Product p = new Product(null,pT);
+		//assertFalse(stc.addProductRFID(p));
+
+		//Product Type of Product is null
+		//Product p2 = new Product("400638133390",null);
+		//assertFalse(stc.addProductRFID(p2));
+
+		//RFID is already in the map
+		Map<String, Product> pRFID = new HashMap<>();
+		ProductTypeClass pT = new ProductTypeClass(1,"Banana","400638133390",1.0,null);
+		Product p2 = new Product("111111111111",pT);
+		pRFID.put("111111111111",p2);
+		stc.setProductRFID(pRFID);
+		assertFalse(stc.addProductRFID(p2));
+
+		//All right
+		pRFID.clear();
+		stc.setProductRFID(pRFID);
+		assertTrue(stc.addProductRFID(p2));
+		assertEquals(1.0,stc.getMoney(),0.00001);
+
+	}
+
+	@Test
+	public void testDeleteProductRFID() throws Exception {
+
+		SaleTransactionClass stc = new SaleTransactionClass(new Time(System.currentTimeMillis()), SaleStatus.STARTED);
+		//Product is null
+		assertFalse(stc.deleteProductRFID(null));
+
+		//RFID of product is null
+		//ProductTypeClass pT = new ProductTypeClass(1,"Banana","400638133390",1.0,null);
+		//Product p = new Product(null,pT);
+		//assertFalse(stc.addProductRFID(p));
+
+		//Product Type of Product is null
+		//Product p2 = new Product("400638133390",null);
+		//assertFalse(stc.addProductRFID(p2));
+
+		//RFID is not in the map
+		Map<String, Product> pRFID = new HashMap<>();
+		ProductTypeClass pT = new ProductTypeClass(1,"Banana","400638133390",1.0,null);
+		Product p2 = new Product("111111111111",pT);
+		assertFalse(stc.deleteProductRFID("111111111111"));
+
+		//All right
+		stc.addProductRFID(p2);
+		assertTrue(stc.deleteProductRFID("111111111111"));
+		assertEquals(0.0,stc.getMoney(),0.00001);
 	}
 }

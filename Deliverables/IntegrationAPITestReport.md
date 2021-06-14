@@ -39,6 +39,8 @@ class Position {}
 class Order {}
 class ReturnTransaction {}
 class TicketEntry {}
+class Product{}
+
 EZShop --> User
 EZShop --> SaleTransaction
 EZShop --> ReturnTransaction
@@ -48,6 +50,7 @@ EZShop --> LoyaltyCard
 EZShop --> Customer 
 EZShop --> Order
 EZShop --> BalanceOperation
+EZShop --> Product
 
 ProductType --> Position
 
@@ -60,10 +63,14 @@ AccountBook -> BalanceOperation
 AccountBook --> Order
 
 ReturnTransaction --> ProductType
+ReturnTransaction --> Product
 
 SaleTransaction --> LoyaltyCard
 
 SaleTransaction --> ProductType
+SaleTransaction --> Product
+
+Product --> ProductType
 
 AccountBook --> Connect
 EZShop --> Connect
@@ -78,6 +85,7 @@ Connect --> Order
 Connect --> BalanceOperation
 Connect --> TicketEntry
 Connect --> Position
+Connect --> Product
 @enduml
 ```
 # Integration approach
@@ -114,19 +122,24 @@ Connect --> Position
 ## Step 3
 | Classes  | JUnit test cases |
 |--|--|
-| ReturnTransaction | it.polito.ezshop.ReturnTransactionTest|
-| TicketEntry | it.polito.ezshop.TicketEntryTest|
+| Product| it.polito.ezshop.ProductTest|
 
 ## Step 4
 | Classes  | JUnit test cases |
 |--|--|
-| SaleTransaction | it.polito.ezshop.SaleTransactionTest|
+| ReturnTransaction | it.polito.ezshop.ReturnTransactionTest|
+| TicketEntry | it.polito.ezshop.TicketEntryTest|
 
 ## Step 5
 | Classes  | JUnit test cases |
 |--|--|
+| SaleTransaction | it.polito.ezshop.SaleTransactionTest|
+
+## Step 6
+| Classes  | JUnit test cases |
+|--|--|
 | AccountBook| it.polito.ezshop.AccountBookTest|
-## Step 6  
+## Step 7  
 
 | Classes  | JUnit test cases |
 |--|--|

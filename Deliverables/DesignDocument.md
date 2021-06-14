@@ -52,6 +52,7 @@ class EZShop{
     - creditCards: Map<String, Double>
     - book: AccountBook 
     - currentUser: User 
+    - productRFID: Map<String, Product>
     ' methods
     + login(String username, String password)
     + logout()
@@ -105,6 +106,10 @@ class EZShop{
     + getUser(int id)
     - checkCreditCardNumber(String number)
     - updateCreditCardTxt(String creditCard,double sale)
+    + returnProductRFID(Integer id, String RFID)
+    + deleteProductFromSaleRFID(Integer id, String RFID)
+    + recordORderArrivalRFID(Integer id, String RFIDFrom)
+    + addProductToSaleRFID(Integer id, String RFID)
 }
 class User{
     - id: int 
@@ -177,10 +182,13 @@ class SaleTransaction {
     - ticketEntrys: Map<String, TicketEntry> 
     - status: SaleStatus
     - card: LoyaltyCard 
+    - productRFID: Map<String, Product>
     + addProduct(ProductType product, int quantity)
     + deleteProduct(ProductType product, int quantity)
     + addProductDiscount(ProductType product, double discount)
     + checkout() 
+    + addProductRFID(Product p)
+    + deleteProductRFID(StringRFID)
 
 }
 
@@ -245,7 +253,10 @@ class ReturnTransaction {
   - returnProduct: Map<ProductType,Integer>
   - saleTransaction: SaleTransaction
   - status: ReturnStatus
+  - productRFID: Map<String, Product>
   + addReturnProduct(ProductType product, int quantity)
+  + addProductRFID(Product p)
+  + deleteProductRFID(StringRFID)
 
 }
 
@@ -268,6 +279,14 @@ class TicketEntry {
 
 TicketEntry -- ProductType
 TicketEntry -- SaleTransaction
+
+class Product{
+    - RFID: String
+    - product: ProductType
+    + calculateRFID(String start, int step)
+}
+ProductType -- Product
+EZShop -- Product
 @enduml
 ```
 # Verification traceability matrix

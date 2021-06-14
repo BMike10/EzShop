@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.management.RuntimeErrorException;
+
 import it.polito.ezshop.exceptions.InvalidCustomerCardException;
 import it.polito.ezshop.exceptions.InvalidDiscountRateException;
 import it.polito.ezshop.exceptions.InvalidPaymentException;
@@ -68,6 +70,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	private Map<String, TicketEntryClass> ticketEntries;
 	private double discountRate;
 	private String paymentType = "";
+	private Map<String, Product> productRFID = new HashMap<>();
 
 	public Time getTime() {
 		return time;
@@ -204,6 +207,7 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 	}
 
 	public void checkout() {
+		//Should the price already be set here?
 		double a = 0.0;
 		if (ticketEntries.size() == 0) {
 			this.setPrice(a);
@@ -213,7 +217,13 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		for (TicketEntryClass te : ticketEntries.values()) {
 			a += (te.getPricePerUnit() * te.getAmount()) * (1 - te.getDiscountRate());
 		}
+		for (Product p : productRFID.values()) {
+			a += (p.getProductType().getPricePerUnit() * (1 -  ticketEntries.get(p.getProductType().getBarCode()).getDiscountRate()));
+		}
+
 		a = a * (1 - this.getDiscountRate());
+
+
 		this.setPrice(a);
 		this.status = SaleStatus.CLOSED;
 	}
@@ -249,5 +259,81 @@ public class SaleTransactionClass extends BalanceOperationClass implements SaleT
 		if (!paymentType.equals("CASH") && !paymentType.equals("CREDIT_CARD") && !paymentType.isEmpty())
 			throw new RuntimeException(new InvalidPaymentException(paymentType));
 		this.paymentType = paymentType;
+	}
+	
+	// this must also update the related ticket entry
+	public boolean addProductRFID(Product p) {
+		if (p == null)
+			return false;
+
+		String RFID=p.getRFID();
+		ProductTypeClass ptc = p.getProductType();
+
+		if(RFID==null || !RFID.matches("\\d{12}") || ptc==null)
+			return false;
+
+		//Product insert on the RFID MAP
+		if (productRFID.containsKey(RFID))
+			return false;
+		else
+			productRFID.put(RFID,p);
+
+		//Product insert on the ticket entry
+		TicketEntryClass t = null;
+		if ((t = ticketEntries.get(ptc.getBarCode())) == null) {
+			try {
+				t = new TicketEntryClass(p.getProductType(), 0);
+				ticketEntries.put(p.getProductType().getBarCode(), t);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+
+		//New product -> New Price of the sale
+		//I just added new product with his sale -> Is sale discount added at the checkout?
+		double pPrice = p.getProductType().getPricePerUnit() * (1 - t.getDiscountRate());
+		this.setPrice(this.getPrice() + pPrice);
+
+		return true;
+	}
+
+	// this must also update the related ticket entry
+	public boolean deleteProductRFID(String RFID) {
+		if (RFID == null || !RFID.matches("\\d{12}") || !productRFID.containsKey(RFID) )
+			return false;
+
+		Product p = productRFID.get(RFID);
+		if(p==null)
+			return false;
+
+		ProductTypeClass pTC = p.getProductType();
+		if (p.getProductType()==null)
+			return false;
+
+		//Delete from Product Map
+		productRFID.remove(RFID);
+
+		//Delete from ticketEntries -> Random product?
+		TicketEntryClass t = null;
+		if ((t = ticketEntries.get(pTC.getBarCode())) == null)
+			return false;
+
+		//Set new Price -> Above problems
+		double discount = t.getDiscountRate();
+		double pPrice = pTC.getPricePerUnit() * (1 - discount);
+		this.setPrice(this.getPrice()-pPrice);
+
+		return true;
+	}
+
+
+	public Map<String, Product> getProductRFID(){
+		return productRFID;
+	}
+	public void setProductRFID(Map<String, Product> rfids) {
+		if(rfids == null)
+			throw new RuntimeException();
+		productRFID = rfids;
 	}
 }

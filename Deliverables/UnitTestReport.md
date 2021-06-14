@@ -1416,6 +1416,62 @@ int orderId, String description, double amount, LocalDate date, String type,Map<
 | < 0   | Invalid | new LoyaltyCardClass (); updatePoints(-1) | testupdatePoints|
 | >= 0  | Valid   | T2(3)->true <br> T2b(0)->true   |testupdatePoints|
 
+## Class Product
+
+### Method setRFID
+Criteria for method setRFID:
+- Signature of RFID
+- Length of RFID
+
+**Predicates for method setRFID:**
+
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of RFID | null |
+| | valid|
+| Length of string | =12 |
+|   | !=12 |
+
+
+**Boundaries for method setRFID:**
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+
+
+**Combination of predicates for method setRFID**
+
+| Signature of RFID | Length of string | Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| --- | ------ |------------- | -------- | ------- |
+| null  |  *  | Invalid | T1(null; error)  |    ProductTest.testSetRFID |
+| valid | !=12  | Invalid   | T2("12345678901242525";)   | ProductTest.testSetRFID  |
+| "    | =12 | Valid   | T3("123456789012")         |  ProductTest.testSetRFID |
+
+
+### Method calculateRFID
+| Criterion   | Predicate     |
+| ----------- | ------------- |
+| Signature of input | null |
+| | valid|
+| Value of step | >=0 AND <MAX_VALUE |
+|   | !(>=0 AND <MAX_VALUE) |
+
+
+**Boundaries for method calculateRFID:**
+
+| Criterion   | Boundary values |
+| ----------- | --------------- |
+| Value of step| -inf, 0, +inf|
+
+**Combination of predicates for method calculateRFID**
+
+| Signature of input | Value of step| Valid/Invalid |Description of the test case: example of input and output |  JUnit test case  | 
+| --- | ------ |------------- | -------- | ------- |
+| null  |  *  | Invalid | T1(null; error)  |    ProductTest.testCalculcateRFID |
+| valid | !(>=0 AND <MAX_VALUE) | Invalid   | T2("111111111111",-5;error)    | ProductTest.testCalculcateRFID  |
+| "    | >=0 AND <MAX_VALUE | Valid   | T3("111111111111",10; 111111111121)        |  ProductTest.testCalculcateRFID |
+
+
 # White Box Unit Tests
 
 ### Test cases definition

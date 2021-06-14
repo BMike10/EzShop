@@ -26,5 +26,4 @@ public interface AccountBook {
     boolean setBalance(double amount);
     Integer newId();
 
-
 }

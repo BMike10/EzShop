@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.Map.Entry;
 
+
 public class EZShop implements EZShopInterface {
 	// private static Connection conn = null;
 	private Map<Integer, ProductType> products;
@@ -14,6 +15,7 @@ public class EZShop implements EZShopInterface {
 	private Map<Integer, Customer> customers;
 	private Map<String, LoyaltyCard> cards;
 	private Map<LoyaltyCard, Customer> attachedCards;
+	private Map<String, Product> productsRFID;
 	private User currentUser;
 	private AccountBookClass accountBook;
 	public Map<String, Double> CreditCardsMap = new HashMap<>();
@@ -25,6 +27,7 @@ public class EZShop implements EZShopInterface {
 		cards = Connect.getLoyaltyCard();
 		customers = Connect.getCustomer(cards);
 		attachedCards = Connect.getAttachedCard(cards, customers);
+		productsRFID = Connect.getAllProductRFID(products);
 		Map<Integer, SaleTransaction> sales = Connect.getSaleTransaction(products, cards);
 		accountBook = new AccountBookClass(sales, Connect.getOrder(products),
 				Connect.getReturnTransaction(products, sales), Connect.getBalanceOperations());
@@ -55,7 +58,7 @@ public class EZShop implements EZShopInterface {
 			users = new HashMap<>(); cards = new HashMap<>(); 
 			customers = new	HashMap<>(); 
 			attachedCards = new HashMap<>();
-			 
+			productsRFID = new HashMap<>();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -496,62 +499,144 @@ public class EZShop implements EZShopInterface {
 			}
 			return false;
 		}
-        return true;
-    }
-
-    @Override
-    public boolean recordOrderArrivalRFID(Integer orderId, String RFIDfrom) throws InvalidOrderIdException, UnauthorizedException, 
-InvalidLocationException, InvalidRFIDException {
-        return false;
-    }
-    @Override
-    public List<Order> getAllOrders() throws UnauthorizedException {
-        if(currentUser==null || currentUser.getRole().equals("Cashier"))
-        	throw new UnauthorizedException();
-        return new ArrayList<>(Connect.getOrder(products).values());
-    }
+		return true;
+	}
 
 
-    @Override
-    public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard) throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException, UnauthorizedException {
-    	if(id == null || id <=0 ) throw new InvalidCustomerIdException();
-    	if(newCustomerName==null ||newCustomerName.isEmpty()) throw new InvalidCustomerNameException();
-    	if (!LoyaltyCardClass.checkCardCode(newCustomerCard)) throw new InvalidCustomerCardException();
-    	if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-    	if(customers.values().stream().anyMatch(c->c.getCustomerName().equals(newCustomerName)) && !customers.get(id).getCustomerName().equals(newCustomerName)) return false;  	
-    	if(attachedCards.values().stream().anyMatch(a->a.getCustomerCard().equals(newCustomerCard))) return false;
-        CustomerClass c = (CustomerClass) customers.get(id);       
-        String prevName= c.getCustomerName();
-        String prevCardCode= c.getCustomerCard(); 
-        
-        if(newCustomerCard.isEmpty())
-        {
-        //any existing card code connected to the customer will be removed  
-        	cards.remove(prevCardCode);
-        	c.setCustomerCard("");
-        	attachedCards.values().remove(c);   
-        }
-        
-    	c.setCustomerCard(newCustomerCard);
-    	c.setCustomerName(newCustomerName);
-		if(!Connect.updateCustomer(id, newCustomerName, newCustomerCard)){
-         	c.setCustomerName(prevName);
-         	c.setCustomerCard(prevCardCode);
-         	return false;
-         }   
-     	return true;
-    }
+	@Override
+	public boolean recordOrderArrivalRFID(Integer orderId, String RFIDfrom)
+			throws InvalidOrderIdException, UnauthorizedException, InvalidLocationException, InvalidRFIDException {
+		if (currentUser == null
+				|| (!currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		if (orderId == null || orderId <= 0)
+			throw new InvalidOrderIdException();
+		// RFID is a positive integer (received as a 12 characters string)
+		if (RFIDfrom == null || !RFIDfrom.matches("\\d{12}") || productsRFID.containsKey(RFIDfrom))
 
-    @Override
-    public boolean deleteCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
-    	if(id==null || id<=0) throw new InvalidCustomerIdException();
-        if(currentUser==null || currentUser.getRole().isEmpty()) throw new UnauthorizedException();
-    	if(!customers.containsKey(id)) return false;
-        Customer c = customers.remove(id);
-		if(!Connect.removeCustomer(id)) {
-        	customers.put(id,c);
-        	return false;
-        }
+			throw new InvalidRFIDException();
+
+		OrderClass o = null;
+		try {
+			o = (OrderClass) accountBook.getOrder(orderId);
+		} catch (Exception e) {
+			return false;
+		}
+		// return false if the order does not exist or if it was not in an
+		// ORDERED/COMPLETED state
+		if (o.getOrderStatus() == OrderStatus.ISSUED)
+			return false;
+		if (o.getOrderStatus() == OrderStatus.COMPLETED)
+			return true;
+		String productCode = o.getProductCode();
+		int qty = o.getQuantity();
+		List<String> RFIDs = new ArrayList<String>();
+		for (int i = 0; i < qty; i++) {
+
+			String RFIDString = Product.calculateRFID(RFIDfrom, i);
+			if (productsRFID.containsKey(RFIDString))
+				throw new InvalidRFIDException();
+			RFIDs.add(RFIDString);
+
+		}
+
+		// find product
+		ProductTypeClass pt = null;
+		try {
+			pt = (ProductTypeClass) getProductTypeByBarCode(productCode);
+		} catch (InvalidProductCodeException e) {
+			return false;
+		}
+		// position check
+		Position pos = pt.getPosition();
+		if (pos == null || pos.getAisleId() < 0)
+			throw new InvalidLocationException();
+		// quantity update
+		try {
+			updateQuantity(pt.getId(), o.getQuantity());
+		} catch (InvalidProductIdException e) {
+			return false;
+		}
+		o.setStatus("COMPLETED");
+		// record on db
+		if (!Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.COMPLETED)
+				|| !Connect.updateProductQuantity(pt.getId(), pt.getQuantity())) {
+			// rollback
+			try {
+				updateQuantity(pt.getId(), -o.getQuantity());
+				o.setStatus("PAYED");
+				Connect.updateOrderStatus(o.getOrderId().intValue(), OrderStatus.PAYED);
+			} catch (Exception e) {
+				return false;
+			}
+			return false;
+		}
+		for (int i = 0; i < qty; i++) {
+			Product p = new Product(RFIDs.get(i), pt);
+			productsRFID.put(RFIDs.get(i), p);
+			Connect.addProductRFID(p);
+		}
+		return true;
+	}
+
+	@Override
+	public List<Order> getAllOrders() throws UnauthorizedException {
+		if (currentUser == null || currentUser.getRole().equals("Cashier"))
+			throw new UnauthorizedException();
+		return new ArrayList<>(Connect.getOrder(products).values());
+	}
+
+	@Override
+	public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard)
+			throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException,
+			UnauthorizedException {
+		if (id == null || id <= 0)
+			throw new InvalidCustomerIdException();
+		if (newCustomerName == null || newCustomerName.isEmpty())
+			throw new InvalidCustomerNameException();
+		if (!LoyaltyCardClass.checkCardCode(newCustomerCard))
+			throw new InvalidCustomerCardException();
+		if (currentUser == null || currentUser.getRole().isEmpty())
+			throw new UnauthorizedException();
+		if (customers.values().stream().anyMatch(c -> c.getCustomerName().equals(newCustomerName))
+				&& !customers.get(id).getCustomerName().equals(newCustomerName))
+			return false;
+		if (attachedCards.values().stream().anyMatch(a -> a.getCustomerCard().equals(newCustomerCard)))
+			return false;
+		CustomerClass c = (CustomerClass) customers.get(id);
+		String prevName = c.getCustomerName();
+		String prevCardCode = c.getCustomerCard();
+
+		if (newCustomerCard.isEmpty()) {
+			// any existing card code connected to the customer will be removed
+			cards.remove(prevCardCode);
+			c.setCustomerCard("");
+			attachedCards.values().remove(c);
+		}
+
+		c.setCustomerCard(newCustomerCard);
+		c.setCustomerName(newCustomerName);
+		if (!Connect.updateCustomer(id, newCustomerName, newCustomerCard)) {
+			c.setCustomerName(prevName);
+			c.setCustomerCard(prevCardCode);
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean deleteCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
+		if (id == null || id <= 0)
+			throw new InvalidCustomerIdException();
+		if (currentUser == null || currentUser.getRole().isEmpty())
+			throw new UnauthorizedException();
+		if (!customers.containsKey(id))
+			return false;
+		Customer c = customers.remove(id);
+		if (!Connect.removeCustomer(id)) {
+			customers.put(id, c);
+			return false;
+		}
 		return true;
 	}
 
@@ -638,13 +723,71 @@ InvalidLocationException, InvalidRFIDException {
 
 	@Override
     public boolean addProductToSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, InvalidQuantityException, UnauthorizedException{
-        return false;
+		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
+				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		if (transactionId == null || transactionId <= 0)
+			throw new InvalidTransactionIdException();
+    	if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{12}"))throw new InvalidRFIDException();
+    	
+    	if(!productsRFID.containsKey(RFID)) return false;
+		
+    	Product p = productsRFID.get(RFID);
+		ProductType pt = p.getProductType();
+		
+    	SaleTransactionClass st = null;
+		try {
+			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		} catch (Exception e) {
+			return false;
+			}
+		if (st == null || st.getStatus()!=SaleStatus.STARTED) {
+			return false;
+		}
+		try {
+			//l'amount del product RFID è sempre 1 no? 
+			if (st.addProductRFID(p)) {
+				//todo
+				updateQuantity(pt.getId(), -1);
+				return true;
+			}
+		} catch (InvalidProductIdException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return false;
     }
     
 
     @Override
     public boolean deleteProductFromSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, InvalidQuantityException, UnauthorizedException{
-        return false;
+    	if (currentUser == null || (!currentUser.getRole().equals("Cashier")
+				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		if (transactionId == null || transactionId <= 0)
+			throw new InvalidTransactionIdException();
+		if(RFID == null || RFID.isEmpty()||!RFID.matches("\\d{12}"))throw new InvalidRFIDException();
+
+		if(!productsRFID.containsKey(RFID)) return false;
+		
+		SaleTransactionClass st = null;
+		try {
+			st = (SaleTransactionClass) accountBook.getSaleTransaction(transactionId);
+		} catch (Exception e) {
+			return false;
+			}
+		Product p = productsRFID.get(RFID);
+		ProductType pt = p.getProductType();
+		//todo
+		if (!st.deleteProductRFID(RFID))
+			return false;
+		try {
+			//se metto 1 come quantity è brutto? 
+			return updateQuantity(pt.getId(), 1);
+		} catch (InvalidProductIdException e) {
+			e.printStackTrace();
+			return false;
+		}
     }
 
 
@@ -828,12 +971,6 @@ InvalidLocationException, InvalidRFIDException {
 	}
 
 	@Override
-    public boolean returnProductRFID(Integer returnId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, UnauthorizedException 
-    {
-        return false;
-    }
-
-	@Override
 	public boolean endSaleTransaction(Integer transactionId)
 			throws InvalidTransactionIdException, UnauthorizedException {
 		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
@@ -860,6 +997,11 @@ InvalidLocationException, InvalidRFIDException {
 			} catch (InvalidTransactionIdException e) {
 				e.printStackTrace();
 			}
+		// remove RFID from shop
+		for(Product p: st.getProductRFID().values()) {
+			productsRFID.remove(p.getRFID());
+			Connect.deleteProductRFID(p.getRFID());
+		}
 		// recordBalanceUpdate(st.getMoney());
 		return true;
 	}
@@ -892,6 +1034,15 @@ InvalidLocationException, InvalidRFIDException {
 			try {
 				this.updateQuantity(pt.getId(), te.getAmount());
 			} catch (InvalidProductIdException e) {
+				e.printStackTrace();
+			}
+		}
+		// reinsert RFID
+		for(Product p: st.getProductRFID().values()) {
+			try {
+				updateQuantity(p.getProductType().getId(), 1);
+				productsRFID.put(p.getRFID(), p);
+			}catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -937,6 +1088,28 @@ InvalidLocationException, InvalidRFIDException {
 
 		return accountBook.addReturnTransaction(rt);
 	}
+	@Override
+    public boolean returnProductRFID(Integer returnId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, UnauthorizedException 
+    {
+		if (currentUser == null || (!currentUser.getRole().equals("Cashier")
+				&& !currentUser.getRole().equals("ShopManager") && !currentUser.getRole().equals("Administrator")))
+			throw new UnauthorizedException();
+		if(returnId == null || returnId <= 0)
+			throw new InvalidTransactionIdException();
+		if(RFID == null || !RFID.matches("\\d{12}"))
+			throw new InvalidRFIDException("RFID: "+RFID);
+		ReturnTransactionClass rt=null;
+		try {
+			rt = (ReturnTransactionClass) accountBook.getReturnTransaction(returnId);
+		}catch(Exception e) {
+			return false;
+		}
+		SaleTransactionClass st = (SaleTransactionClass) rt.getSaleTransaction();
+		Map<String, Product> soldRFID = st.getProductRFID();
+		if(!soldRFID.containsKey(RFID))
+			return false;
+		return rt.addProductRFID(soldRFID.get(RFID));
+    }
 
 	@Override
 	public boolean returnProduct(Integer returnId, String productCode, int amount) throws InvalidTransactionIdException,
@@ -1005,6 +1178,16 @@ InvalidLocationException, InvalidRFIDException {
 					e.printStackTrace();
 				}
 			});
+			rt.getReturnedRFID().forEach((rfid, p)->{
+				try {
+					updateQuantity(p.getProductType().getId(), 1);
+					productsRFID.put(rfid,  p);
+					Connect.addProductRFID(p);
+					st.deleteProductRFID(rfid);
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+			});
 			st.checkout(); // compute the new total
 			if (!Connect.addReturnTransaction(rt, returnId, "RETURN", rt.getMoney(), ReturnStatus.CLOSED,
 					st.getBalanceId())) {
@@ -1063,6 +1246,16 @@ InvalidLocationException, InvalidRFIDException {
 				return false;
 			}
 		}
+		rt.getReturnedRFID().forEach((rfid, p)->{
+			try {
+				st.addProductRFID(p);
+				productsRFID.remove(rfid);
+				Connect.deleteProductRFID(rfid);
+				updateQuantity(p.getProductType().getId(), -1);		
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 		st.checkout();
 		if (!Connect.removeSaleTransaction(st.getBalanceId()) || !Connect.addSaleTransaction(st, st.getBalanceId(),
 				st.getDescription(), st.getMoney(), st.getPaymentType(), st.getDiscountRate(), st.getLoyaltyCard()))
